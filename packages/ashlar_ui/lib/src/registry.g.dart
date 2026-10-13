@@ -18641,8 +18641,9 @@ int isoWeek(DateTime d) {
 }
 
 /// Months of days to pick from: one day, several with [Calendar.multiple], or a start and
-/// an end with [Calendar.range]. The arrows either side change the month; with
-/// [dropdowns] the month and year are picked from lists. From the keyboard the arrow keys
+/// an end with [Calendar.range]. The arrows either side change the month; the month's
+/// name opens the months of its year, and that year opens a choice of years. With
+/// [dropdowns] the month and year are picked from lists instead. From the keyboard the arrow keys
 /// move a day or a week, Page Up and Page Down a month, Home and End to the week's ends,
 /// and Enter or Space picks.
 ///
@@ -18764,6 +18765,19 @@ class _CalendarState extends State<Calendar> {
   final _node = FocusNode(debugLabel: 'Calendar');
   bool _keyboard = false;
 
+  /// Days, or the months of [_year], or the twelve years from [_years].
+  _View _view = _View.days;
+  int _year = 0, _years = 0;
+
+  void _open(_View view, int year) => setState(() {
+    // The button pressed goes with the view: the calendar keeps the keyboard's focus.
+    _node.requestFocus();
+    _view = view;
+    _year = year;
+    // The twelve years shown hold the year, a dozen to a page.
+    _years = year - (year % 12);
+  });
+
   static DateTime _monthOf(DateTime d) => DateTime(d.year, d.month);
 
   @override
@@ -18864,6 +18878,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    if (_view != _View.days) return _picker(context);
     final names = DateNames.of(context);
     final canBack =
         widget.firstDate == null || _month.isAfter(_monthOf(widget.firstDate!));
@@ -18907,12 +18922,18 @@ class _CalendarState extends State<Calendar> {
     final t = AshlarTheme.of(context);
     final names = DateNames.of(context);
     if (!widget.dropdowns) {
-      return Text(
-        names.monthYear(month),
-        textAlign: TextAlign.center,
-        style: t.text.sm.copyWith(
-          fontWeight: FontWeight.w500,
-          color: t.colors.foreground,
+      // The month's name opens its year's months.
+      return Button(
+        variant: ButtonVariant.ghost,
+        size: ButtonSize.sm,
+        semanticLabel: '${names.monthYear(month)}, choose a month and year',
+        onPressed: () => _open(_View.months, month.year),
+        child: Text(
+          names.monthYear(month),
+          style: t.text.sm.copyWith(
+            fontWeight: FontWeight.w500,
+            color: t.colors.foreground,
+          ),
         ),
       );
     }
@@ -18945,6 +18966,169 @@ class _CalendarState extends State<Calendar> {
           ),
         ),
       ],
+    );
+  }
+
+  /// The months of a year, or a dozen years, in the room the days take, so a popover
+  /// keeps its size as the view changes.
+  Widget _picker(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final names = DateNames.of(context);
+    final months = _view == _View.months;
+    final lead = (_month.weekday - names.firstWeekday + 7) % 7;
+    final count = DateTime(_month.year, _month.month + 1, 0).day;
+    final weeks = ((lead + count) / 7).ceil();
+    final width =
+        widget.months * ((widget.showWeekNumbers ? 32.0 : 0.0) + 7 * 32.0) +
+        (widget.months - 1) * 16.0;
+    final height = 32 + 8 + 24 + 4 + weeks * 34.0;
+    final first = widget.firstDate, last = widget.lastDate;
+    // A month or a year can be chosen when some of it lies between the first and last dates.
+    bool monthOff(int m) =>
+        (first != null &&
+            DateTime(
+              _year,
+              m + 1,
+            ).isBefore(DateTime(first.year, first.month, 2))) ||
+        (last != null && DateTime(_year, m).isAfter(last));
+    bool yearOff(int y) =>
+        (first != null && y < first.year) || (last != null && y > last.year);
+    final VoidCallback? back = months
+        ? (first == null || _year > first.year
+              ? () => setState(() => _year--)
+              : null)
+        : (first == null || _years > first.year
+              ? () => setState(() => _years -= 12)
+              : null);
+    final VoidCallback? on = months
+        ? (last == null || _year < last.year
+              ? () => setState(() => _year++)
+              : null)
+        : (last == null || _years + 11 < last.year
+              ? () => setState(() => _years += 12)
+              : null);
+    Widget cell(
+      String label,
+      String spoken,
+      bool chosen,
+      bool off,
+      VoidCallback pick,
+    ) => Padding(
+      padding: const EdgeInsets.all(3),
+      child: Button(
+        variant: chosen ? ButtonVariant.primary : ButtonVariant.ghost,
+        size: ButtonSize.sm,
+        semanticLabel: spoken,
+        onPressed: off ? null : pick,
+        child: Text(label),
+      ),
+    );
+    return Focus(
+      focusNode: _node,
+      autofocus: widget.autofocus,
+      // Escape steps back towards the days, rather than closing what holds the calendar.
+      onKeyEvent: (node, e) {
+        if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+          setState(() => _view = months ? _View.days : _View.months);
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 32,
+              child: Row(
+                children: [
+                  _Nav(
+                    icon: isRtl(context)
+                        ? AshlarIconsRoundedStroke.chevronRight
+                        : AshlarIconsRoundedStroke.chevronLeft,
+                    label: months ? 'Previous year' : 'Earlier years',
+                    onPressed: back,
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: months
+                          // The year opens a choice of years.
+                          ? Button(
+                              variant: ButtonVariant.ghost,
+                              size: ButtonSize.sm,
+                              semanticLabel: '$_year, choose a year',
+                              onPressed: () => _open(_View.years, _year),
+                              child: Text('$_year'),
+                            )
+                          : Text(
+                              '$_years to ${_years + 11}',
+                              style: t.text.sm.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                    ),
+                  ),
+                  _Nav(
+                    icon: isRtl(context)
+                        ? AshlarIconsRoundedStroke.chevronLeft
+                        : AshlarIconsRoundedStroke.chevronRight,
+                    label: months ? 'Next year' : 'Later years',
+                    onPressed: on,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Column(
+                children: [
+                  for (var row = 0; row < 4; row++)
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var col = 0; col < 3; col++)
+                            Expanded(
+                              child: months
+                                  ? cell(
+                                      names.months[row * 3 + col].substring(
+                                        0,
+                                        3,
+                                      ),
+                                      '${names.months[row * 3 + col]} $_year',
+                                      _month.year == _year &&
+                                          _month.month == row * 3 + col + 1,
+                                      monthOff(row * 3 + col + 1),
+                                      () => setState(() {
+                                        _node.requestFocus();
+                                        _month = DateTime(
+                                          _year,
+                                          row * 3 + col + 1,
+                                        );
+                                        _view = _View.days;
+                                      }),
+                                    )
+                                  : cell(
+                                      '${_years + row * 3 + col}',
+                                      '${_years + row * 3 + col}',
+                                      _year == _years + row * 3 + col,
+                                      yearOff(_years + row * 3 + col),
+                                      () => _open(
+                                        _View.months,
+                                        _years + row * 3 + col,
+                                      ),
+                                    ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -19145,6 +19329,9 @@ class _CalendarState extends State<Calendar> {
   }
 }
 
+/// What a calendar shows: its days, the months of a year, or a choice of years.
+enum _View { days, months, years }
+
 /// A day that lights up under the pointer.
 class _Day extends StatefulWidget {
   const _Day({required this.onTap, required this.builder});
@@ -19221,6 +19408,99 @@ final october = DateTime(2026, 10);
 Finder dayOf(int n) => find.text('$n').last;
 
 void main() {
+  group('Choosing a month and year', () {
+    Future<List<DateTime>> pump(
+      WidgetTester tester, {
+      DateTime? firstDate,
+      DateTime? lastDate,
+    }) async {
+      final picked = <DateTime>[];
+      await tester.pumpWidget(
+        app(
+          Calendar(
+            selected: null,
+            initialMonth: october,
+            firstDate: firstDate,
+            lastDate: lastDate,
+            onSelected: picked.add,
+          ),
+        ),
+      );
+      return picked;
+    }
+
+    testWidgets('the month opens its year, the year a choice of years', (
+      tester,
+    ) async {
+      final picked = await pump(tester);
+      final size = tester.getSize(find.byType(Calendar));
+      await tester.tap(find.text('October 2026'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mar'), findsOneWidget);
+      // The same room as the days, so what holds it does not jump.
+      expect(tester.getSize(find.byType(Calendar)), size);
+      await tester.tap(find.text('2026'));
+      await tester.pumpAndSettle();
+      expect(find.text('2016 to 2027'), findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.bySemanticsLabel('Earlier years'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('1980 to 1991'), findsOneWidget);
+      await tester.tap(find.text('1990'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mar'));
+      await tester.pumpAndSettle();
+      expect(find.text('March 1990'), findsOneWidget);
+      await tester.tap(dayOf(14));
+      expect(picked, [DateTime(1990, 3, 14)]);
+    });
+
+    testWidgets(
+      'years and months outside the first and last dates cannot be chosen',
+      (tester) async {
+        await pump(
+          tester,
+          firstDate: DateTime(2025, 6, 15),
+          lastDate: DateTime(2027, 2, 1),
+        );
+        await tester.tap(find.text('October 2026'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('2026'));
+        await tester.pumpAndSettle();
+        bool enabled(String label) =>
+            tester
+                .getSemantics(find.bySemanticsLabel(label))
+                .getSemanticsData()
+                .flagsCollection
+                .isEnabled ==
+            Tristate.isTrue;
+        expect(enabled('2024'), isFalse);
+        expect(enabled('2025'), isTrue);
+        expect(enabled('2027'), isTrue);
+        expect(enabled('Later years'), isFalse);
+        await tester.tap(find.text('2025'));
+        await tester.pumpAndSettle();
+        expect(enabled('May 2025'), isFalse);
+        expect(enabled('June 2025'), isTrue);
+      },
+    );
+
+    testWidgets('Escape steps back towards the days', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('October 2026'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('2026'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Mar'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('October 2026'), findsOneWidget);
+    });
+  });
+
   group('Calendar', () {
     testWidgets('lays out the month from Monday, with the days either side', (
       tester,

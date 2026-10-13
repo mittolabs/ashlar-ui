@@ -16,6 +16,99 @@ final october = DateTime(2026, 10);
 Finder dayOf(int n) => find.text('$n').last;
 
 void main() {
+  group('Choosing a month and year', () {
+    Future<List<DateTime>> pump(
+      WidgetTester tester, {
+      DateTime? firstDate,
+      DateTime? lastDate,
+    }) async {
+      final picked = <DateTime>[];
+      await tester.pumpWidget(
+        app(
+          Calendar(
+            selected: null,
+            initialMonth: october,
+            firstDate: firstDate,
+            lastDate: lastDate,
+            onSelected: picked.add,
+          ),
+        ),
+      );
+      return picked;
+    }
+
+    testWidgets('the month opens its year, the year a choice of years', (
+      tester,
+    ) async {
+      final picked = await pump(tester);
+      final size = tester.getSize(find.byType(Calendar));
+      await tester.tap(find.text('October 2026'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mar'), findsOneWidget);
+      // The same room as the days, so what holds it does not jump.
+      expect(tester.getSize(find.byType(Calendar)), size);
+      await tester.tap(find.text('2026'));
+      await tester.pumpAndSettle();
+      expect(find.text('2016 to 2027'), findsOneWidget);
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.bySemanticsLabel('Earlier years'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('1980 to 1991'), findsOneWidget);
+      await tester.tap(find.text('1990'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mar'));
+      await tester.pumpAndSettle();
+      expect(find.text('March 1990'), findsOneWidget);
+      await tester.tap(dayOf(14));
+      expect(picked, [DateTime(1990, 3, 14)]);
+    });
+
+    testWidgets(
+      'years and months outside the first and last dates cannot be chosen',
+      (tester) async {
+        await pump(
+          tester,
+          firstDate: DateTime(2025, 6, 15),
+          lastDate: DateTime(2027, 2, 1),
+        );
+        await tester.tap(find.text('October 2026'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('2026'));
+        await tester.pumpAndSettle();
+        bool enabled(String label) =>
+            tester
+                .getSemantics(find.bySemanticsLabel(label))
+                .getSemanticsData()
+                .flagsCollection
+                .isEnabled ==
+            Tristate.isTrue;
+        expect(enabled('2024'), isFalse);
+        expect(enabled('2025'), isTrue);
+        expect(enabled('2027'), isTrue);
+        expect(enabled('Later years'), isFalse);
+        await tester.tap(find.text('2025'));
+        await tester.pumpAndSettle();
+        expect(enabled('May 2025'), isFalse);
+        expect(enabled('June 2025'), isTrue);
+      },
+    );
+
+    testWidgets('Escape steps back towards the days', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('October 2026'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('2026'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Mar'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('October 2026'), findsOneWidget);
+    });
+  });
+
   group('Calendar', () {
     testWidgets('lays out the month from Monday, with the days either side', (
       tester,
