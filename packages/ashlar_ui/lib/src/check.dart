@@ -156,8 +156,14 @@ const _directional = {
   'bottomRight': 'bottomEnd',
 };
 
-/// What can be proved from one Dart file's [src], at [path].
-List<Finding> checkSource(String path, String src) {
+/// What can be proved from one Dart file's [src], at [path]. [button] and [toggle] are
+/// what this project calls them, under its prefix.
+List<Finding> checkSource(
+  String path,
+  String src, {
+  String button = 'Button',
+  String toggle = 'Toggle',
+}) {
   final m = codeOnly(src);
   final lines = src.split('\n');
   final found = <Finding>[];
@@ -176,7 +182,7 @@ List<Finding> checkSource(String path, String src) {
 
   // Calls, by the name they are made with.
   final calls = RegExp(
-    r'(?<![\w.$])(EdgeInsets\.only|EdgeInsets\.fromLTRB|BorderRadius\.only|Positioned|Border|Button|Toggle)\s*\(',
+    '(?<![\\w.\$])(EdgeInsets\\.only|EdgeInsets\\.fromLTRB|BorderRadius\\.only|Positioned|Border|$button|$toggle)\\s*\\(',
   );
   for (final call in calls.allMatches(m)) {
     final open = call.end - 1;
@@ -229,8 +235,9 @@ List<Finding> checkSource(String path, String src) {
           call.start,
           'BorderRadius.only rounds the same corners in a right-to-left language: use BorderRadiusDirectional.only(topStart: …).',
         );
-      case 'Button' || 'Toggle'
-          when !a.containsKey('semanticLabel') &&
+      case final name
+          when (name == button || name == toggle) &&
+              !a.containsKey('semanticLabel') &&
               (RegExp(
                     r'^(const\s+)?(AshlarIcon|Icon)\s*\(',
                   ).hasMatch(a['child'] ?? '') ||
@@ -238,7 +245,7 @@ List<Finding> checkSource(String path, String src) {
         add(
           'labels',
           call.start,
-          'A ${call[1]} with only an icon has no semanticLabel: a screen reader says only "${call[1] == 'Button' ? 'button' : 'toggle button'}". Give it semanticLabel: \'…\'.',
+          'A ${call[1]} with only an icon has no semanticLabel: a screen reader says only "${call[1] == button ? 'button' : 'toggle button'}". Give it semanticLabel: \'…\'.',
         );
     }
   }

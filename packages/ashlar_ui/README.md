@@ -18,8 +18,8 @@ Run it in the root of a Flutter project.
 
 | Command | What it does |
 |---|---|
-| `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say). |
-| `ashlar apply` | Chooses the theme again with the same options; `--accent none` takes the accent away. Your components are left as they are. |
+| `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say). `--prefix SL` puts your own prefix on every name: `SLButton`, `SLTheme`. |
+| `ashlar apply` | Chooses the theme again with the same options; `--accent none` takes the accent away. Your components are left as they are. `--prefix` renames everything to a new prefix, your own code included; `--prefix none` takes it away. |
 | `ashlar add <item>...` | Copies components, and what they need. `--all` adds every component, `--blocks` every block (whole screens, written to `lib/blocks`). A file you already have is kept unless you pass `--overwrite`. Each comes with its tests, in `test/ashlar`; `--no-tests` leaves them out. |
 | `ashlar view <item>...` | Shows what an item is, what it needs and its files, before you add it. |
 | `ashlar search [words]` | Finds items by name or description. `ashlar list` lists them all, ticking the ones you have. |
@@ -28,6 +28,19 @@ Run it in the root of a Flutter project.
 | `ashlar check` | Reports what can be proved about your app's accessibility: your theme's contrast, measured, and in your source icon-only buttons without a label, left and right where start and end belong, and touch targets turned off. Exits 1 when it finds something, for CI. `--no-contrast` skips the measuring. |
 | `ashlar mcp` | These commands for a coding agent, over the Model Context Protocol on standard input and output. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
+
+## Your own prefix
+
+A design system marks its parts as its own: `SLButton` at one company, `MzButton` at
+another. `ashlar init --prefix SL` does that for every name the components declare:
+`Button` becomes `SLButton`, `AshlarTheme` becomes `SLTheme`, `showToast` becomes
+`slShowToast`. Names then never clash with Material's `Card`, `Checkbox` or `Dialog` in
+a file that imports both. Text and prose are left alone; code, `[names]` in doc comments
+and their examples are renamed. The blocks, whole screens of your app, keep their own names.
+
+`ashlar apply --prefix Mz` renames everything to a new prefix: the components, ashlar's
+copies of them, and every use in your own code under `lib` and `test`, so the app still
+builds. `ashlar update` and `ashlar diff` work as before.
 
 ## Tests that come with each component
 

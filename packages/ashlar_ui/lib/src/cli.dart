@@ -8,6 +8,7 @@ import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
 import 'mcp.dart';
+import 'prefix.dart';
 import 'merge.dart';
 import 'registry.g.dart';
 import 'remote.dart';
@@ -44,11 +45,13 @@ final _usage =
 Ashlar UI: components for Flutter on the widgets layer, copied into your app.
 
   ashlar init [--path lib/ui]          set up the theme and AshlarApp
+             [--prefix SL]              your own prefix on every name: SLButton, SLTheme
              [--base neutral]           the greys: ${bases.join(', ')}
              [--accent blue]            a colour for main actions: ${accents.join(', ')}
              [--style standard]         spacing and shape: ${styles.join(', ')}
-  ashlar apply [--base] [--accent] [--style]
-                                        choose the theme again; --accent none for none
+  ashlar apply [--base] [--accent] [--style] [--prefix]
+                                        choose the theme again; --accent none for none;
+                                        --prefix renames everywhere, your code too
   ashlar add <item>... [--all]          copy components, with what they need
              [--blocks]                 every block: whole screens, in lib/blocks
              [--overwrite]              replace files you already have
@@ -93,7 +96,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
   }
 
   // The words after the command that are not options or their values.
-  final options = {'path', 'base', 'accent', 'style', 'out'};
+  final options = {'path', 'base', 'accent', 'style', 'out', 'prefix'};
   final words = [
     for (var i = 0; i < rest.length; i++)
       if (!rest[i].startsWith('--') &&
@@ -128,7 +131,15 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
           accent = option('accent'),
           style = option('style') ?? 'standard';
       if (!_checkTheme(base, accent, style, o)) return 64;
+      final prefix = option('prefix');
+      if (prefix != null && !validPrefix.hasMatch(prefix)) {
+        o.writeln(
+          'A prefix is a capital, then letters or digits: SL, Mz, Acme.',
+        );
+        return 64;
+      }
       project.save({
+        'prefix': ?prefix,
         'path': path,
         'base': base,
         'accent': accent,
@@ -150,10 +161,11 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         base: base,
         accent: accent,
         style: style,
+        prefix: prefix,
         out: o,
       );
       o.writeln(
-        'Give AshlarApp theme: appTheme and darkTheme: appDarkTheme from $path/app_theme.dart.',
+        'Give ${project.named('AshlarApp')} theme: appTheme and darkTheme: appDarkTheme from $path/app_theme.dart.',
       );
       return 0;
     case 'apply':
@@ -165,6 +177,16 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
           : given ?? config['accent'] as String?;
       final style = option('style') ?? config['style'] as String? ?? 'standard';
       if (!_checkTheme(base, accent, style, o)) return 64;
+      if (option('prefix') case final given?) {
+        final prefix = given == 'none' ? null : given;
+        if (prefix != null && !validPrefix.hasMatch(prefix)) {
+          o.writeln(
+            'A prefix is a capital, then letters or digits: SL, Mz, Acme.',
+          );
+          return 64;
+        }
+        project.renamePrefix(prefix, o);
+      }
       project.save({'base': base, 'accent': accent, 'style': style});
       // The palette came after some projects began: add it if it is not there.
       final code = await project.add(['theme'], overwrite: false, out: o);
@@ -172,6 +194,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       writeAppTheme(
         root,
         project.path,
+        prefix: project.prefix,
         base: base,
         accent: accent,
         style: style,
@@ -226,9 +249,10 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
           );
         }
         for (final MapEntry(key: file, value: source) in c.files.entries) {
+          final shown = project.written(c, source);
           o
-            ..writeln('\n── $file (${source.split('\n').length} lines)')
-            ..writeln(source);
+            ..writeln('\n── $file (${shown.split('\n').length} lines)')
+            ..writeln(shown);
         }
       }
       return 0;
@@ -317,6 +341,7 @@ void writeAppTheme(
   required String base,
   String? accent,
   required String style,
+  String? prefix,
   required StringSink out,
 }) {
   String theme(String brightness) =>
@@ -326,9 +351,10 @@ void writeAppTheme(
       '${accent == null ? '' : '  accent: AshlarAccent.$accent,\n'}'
       '  style: AshlarStyle.$style,\n'
       ')';
-  File('${root.path}/$path/app_theme.dart').writeAsStringSync('''
+  final text =
+      '''
 // Your app's theme, written by `ashlar init`: change it here, or choose again with
-// `ashlar apply`. AshlarApp(theme: appTheme, darkTheme: appDarkTheme).
+// `ashlar apply`. Give it to [AshlarApp]: theme: appTheme, darkTheme: appDarkTheme.
 
 import 'package:flutter/widgets.dart';
 
@@ -338,7 +364,10 @@ import 'theme.dart';
 final appTheme = ${theme('light')};
 
 final appDarkTheme = ${theme('dark')};
-''');
+''';
+  File('${root.path}/$path/app_theme.dart').writeAsStringSync(
+    prefix == null ? text : withPrefix(text, prefixedNames(prefix)),
+  );
   out.writeln('  wrote  $path/app_theme.dart');
 }
 
@@ -471,6 +500,62 @@ class Project {
     _ => node,
   };
 
+  /// The project's own prefix on the components' names, if it has one: SL for SLButton.
+  String? get prefix => config['prefix'] as String?;
+
+  /// Each component name and its name here, under the prefix; none without one.
+  late final Map<String, String> _names = prefix == null
+      ? const {}
+      : prefixedNames(prefix!);
+
+  /// A component's name as this project has it: SLButton for Button under SL.
+  String named(String name) => _names[name] ?? name;
+
+  /// Renames the components to [to] (none for null) everywhere: the files ashlar wrote,
+  /// its copies of them, and every use in the app's own code under lib and test, so the
+  /// app still builds. Only code is renamed, never strings or prose.
+  void renamePrefix(String? to, StringSink out) {
+    final from = prefix;
+    if (from == to) return;
+    final before = from == null ? null : prefixedNames(from);
+    final after = to == null ? null : prefixedNames(to);
+    final names = before?.keys ?? after!.keys;
+    // Each name as it is now, to the name it becomes.
+    final map = <String, String>{};
+    for (final n in names) {
+      final was = before?[n] ?? n, becomes = after?[n] ?? n;
+      if (was != becomes) map[was] = becomes;
+    }
+    var changed = 0;
+    for (final folder in ['lib', 'test', '.ashlar/base']) {
+      final d = Directory('${root.path}/$folder');
+      if (!d.existsSync()) continue;
+      for (final f in d.listSync(recursive: true).whereType<File>()) {
+        if (!f.path.endsWith('.dart')) continue;
+        final text = f.readAsStringSync();
+        final renamed = withPrefix(text, map);
+        if (renamed != text) {
+          f.writeAsStringSync(renamed);
+          changed++;
+        }
+      }
+    }
+    // The fingerprints follow the copies they are of.
+    final fingerprints = Map<String, String>.of(_written);
+    for (final at in fingerprints.keys.toList()) {
+      if (_base(at).existsSync()) {
+        fingerprints[at] = fingerprint(_base(at).readAsStringSync());
+      }
+    }
+    _saveWritten(fingerprints);
+    save({'prefix': to});
+    out.writeln(
+      to == null
+          ? 'Prefix taken away: ${map.length} names, in $changed files.'
+          : 'Prefix $to: ${map.length} names renamed in $changed files, yours included.',
+    );
+  }
+
   /// Where components go, from the project root.
   String get path => config['path'] as String? ?? 'lib/ui';
 
@@ -488,12 +573,15 @@ class Project {
 
   /// [source] as it is written into this project: a block's imports point at the
   /// components, wherever they are.
-  String written(Component c, String source) => c.block
-      ? source.replaceAll(
-          "import '../ui/",
-          "import '${_relative(blocks, path)}/",
-        )
-      : source;
+  String written(Component c, String source) => withPrefix(
+    c.block
+        ? source.replaceAll(
+            "import '../ui/",
+            "import '${_relative(blocks, path)}/",
+          )
+        : source,
+    _names,
+  );
 
   /// Where components' tests go: ashlar.yaml's tests, or test/ashlar; null when it
   /// says false.
@@ -515,9 +603,12 @@ class Project {
   String? testSource(String source) {
     final package = _package;
     if (!path.startsWith('lib/') || package == null) return null;
-    return source.replaceAll(
-      'package:ashlar_ui_gallery/ui/',
-      'package:$package/${path.substring(4)}/',
+    return withPrefix(
+      source.replaceAll(
+        'package:ashlar_ui_gallery/ui/',
+        'package:$package/${path.substring(4)}/',
+      ),
+      _names,
     );
   }
 
@@ -907,6 +998,8 @@ class Project {
           checkSource(
             f.path.substring(root.path.length + 1),
             f.readAsStringSync(),
+            button: named('Button'),
+            toggle: named('Toggle'),
           ),
         );
       }
