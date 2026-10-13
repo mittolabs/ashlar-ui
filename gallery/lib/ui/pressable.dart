@@ -7,7 +7,12 @@ import 'package:flutter/widgets.dart';
 /// The states a control draws.
 @immutable
 class PressableState {
-  const PressableState({this.hovered = false, this.pressed = false, this.focused = false, this.enabled = true});
+  const PressableState({
+    this.hovered = false,
+    this.pressed = false,
+    this.focused = false,
+    this.enabled = true,
+  });
 
   /// The pointer is over it.
   final bool hovered;
@@ -71,37 +76,58 @@ class _PressableState extends State<Pressable> {
     // The visible text merges into the control's announcement: "Save, button".
     return MergeSemantics(
       child: Semantics(
-      button: widget.button && widget.toggled == null && widget.checked == null,
-      toggled: widget.toggled,
-      checked: widget.checked,
-      enabled: _enabled,
-      label: widget.semanticLabel,
-      onTap: _enabled ? _activate : null,
-      child: FocusableActionDetector(
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
+        button:
+            widget.button && widget.toggled == null && widget.checked == null,
+        toggled: widget.toggled,
+        checked: widget.checked,
         enabled: _enabled,
-        mouseCursor: _enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        shortcuts: const {
-          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-          SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
-          SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
-        },
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: _activate)},
-        onShowHoverHighlight: (v) => setState(() => _hovered = v),
-        onShowFocusHighlight: (v) => setState(() => _focused = v),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
-          onTapUp: _enabled ? (_) => setState(() => _pressed = false) : null,
-          onTapCancel: _enabled ? () => setState(() => _pressed = false) : null,
-          onTap: _enabled ? _activate : null,
-          child: widget.builder(
-            context,
-            PressableState(hovered: _hovered && _enabled, pressed: _pressed, focused: _focused, enabled: _enabled),
+        label: widget.semanticLabel,
+        onTap: _enabled ? _activate : null,
+        child: FocusableActionDetector(
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+          enabled: _enabled,
+          mouseCursor: _enabled
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          shortcuts: const {
+            SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+            SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+            SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+          },
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: _activate),
+          },
+          onShowFocusHighlight: (v) => setState(() => _focused = v),
+          // Hover follows the mouse itself, not the focus highlight mode, so a mouse on a
+          // touch device still gets it.
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _hovered = true),
+            onExit: (_) => setState(() => _hovered = false),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: _enabled
+                  ? (_) => setState(() => _pressed = true)
+                  : null,
+              onTapUp: _enabled
+                  ? (_) => setState(() => _pressed = false)
+                  : null,
+              onTapCancel: _enabled
+                  ? () => setState(() => _pressed = false)
+                  : null,
+              onTap: _enabled ? _activate : null,
+              child: widget.builder(
+                context,
+                PressableState(
+                  hovered: _hovered && _enabled,
+                  pressed: _pressed,
+                  focused: _focused,
+                  enabled: _enabled,
+                ),
+              ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }

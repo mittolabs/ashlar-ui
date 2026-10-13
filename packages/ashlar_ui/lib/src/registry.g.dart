@@ -372,7 +372,12 @@ import 'package:flutter/widgets.dart';
 /// The states a control draws.
 @immutable
 class PressableState {
-  const PressableState({this.hovered = false, this.pressed = false, this.focused = false, this.enabled = true});
+  const PressableState({
+    this.hovered = false,
+    this.pressed = false,
+    this.focused = false,
+    this.enabled = true,
+  });
 
   /// The pointer is over it.
   final bool hovered;
@@ -436,37 +441,58 @@ class _PressableState extends State<Pressable> {
     // The visible text merges into the control's announcement: "Save, button".
     return MergeSemantics(
       child: Semantics(
-      button: widget.button && widget.toggled == null && widget.checked == null,
-      toggled: widget.toggled,
-      checked: widget.checked,
-      enabled: _enabled,
-      label: widget.semanticLabel,
-      onTap: _enabled ? _activate : null,
-      child: FocusableActionDetector(
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
+        button:
+            widget.button && widget.toggled == null && widget.checked == null,
+        toggled: widget.toggled,
+        checked: widget.checked,
         enabled: _enabled,
-        mouseCursor: _enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        shortcuts: const {
-          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-          SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
-          SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
-        },
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: _activate)},
-        onShowHoverHighlight: (v) => setState(() => _hovered = v),
-        onShowFocusHighlight: (v) => setState(() => _focused = v),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
-          onTapUp: _enabled ? (_) => setState(() => _pressed = false) : null,
-          onTapCancel: _enabled ? () => setState(() => _pressed = false) : null,
-          onTap: _enabled ? _activate : null,
-          child: widget.builder(
-            context,
-            PressableState(hovered: _hovered && _enabled, pressed: _pressed, focused: _focused, enabled: _enabled),
+        label: widget.semanticLabel,
+        onTap: _enabled ? _activate : null,
+        child: FocusableActionDetector(
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+          enabled: _enabled,
+          mouseCursor: _enabled
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          shortcuts: const {
+            SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+            SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+            SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+          },
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: _activate),
+          },
+          onShowFocusHighlight: (v) => setState(() => _focused = v),
+          // Hover follows the mouse itself, not the focus highlight mode, so a mouse on a
+          // touch device still gets it.
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _hovered = true),
+            onExit: (_) => setState(() => _hovered = false),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: _enabled
+                  ? (_) => setState(() => _pressed = true)
+                  : null,
+              onTapUp: _enabled
+                  ? (_) => setState(() => _pressed = false)
+                  : null,
+              onTapCancel: _enabled
+                  ? () => setState(() => _pressed = false)
+                  : null,
+              onTap: _enabled ? _activate : null,
+              child: widget.builder(
+                context,
+                PressableState(
+                  hovered: _hovered && _enabled,
+                  pressed: _pressed,
+                  focused: _focused,
+                  enabled: _enabled,
+                ),
+              ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -904,16 +930,19 @@ class Input extends StatefulWidget {
   State<Input> createState() => _InputState();
 }
 
-class _InputState extends State<Input> implements TextSelectionGestureDetectorBuilderDelegate {
+class _InputState extends State<Input>
+    implements TextSelectionGestureDetectorBuilderDelegate {
   TextEditingController? _ownController;
   FocusNode? _ownFocus;
-  TextEditingController get _controller => widget.controller ?? (_ownController ??= TextEditingController());
+  TextEditingController get _controller =>
+      widget.controller ?? (_ownController ??= TextEditingController());
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
   late final _gestures = TextSelectionGestureDetectorBuilder(delegate: this);
   bool _hovered = false;
 
   @override
-  final GlobalKey<EditableTextState> editableTextKey = GlobalKey<EditableTextState>();
+  final GlobalKey<EditableTextState> editableTextKey =
+      GlobalKey<EditableTextState>();
 
   @override
   bool get forcePressEnabled => false;
@@ -963,7 +992,9 @@ class _InputState extends State<Input> implements TextSelectionGestureDetectorBu
       contextMenuBuilder: (context, state) => _SelectionMenu(state: state),
       maxLines: widget.maxLines,
       minLines: multiline ? widget.maxLines.clamp(1, 3) : null,
-      keyboardType: widget.keyboardType ?? (multiline ? TextInputType.multiline : TextInputType.text),
+      keyboardType:
+          widget.keyboardType ??
+          (multiline ? TextInputType.multiline : TextInputType.text),
       textInputAction: widget.textInputAction,
       autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
@@ -971,59 +1002,106 @@ class _InputState extends State<Input> implements TextSelectionGestureDetectorBu
       onSubmitted: widget.onSubmitted,
       rendererIgnoresPointer: true,
       enableInteractiveSelection: widget.enabled,
-      mouseCursor: widget.enabled ? SystemMouseCursors.text : SystemMouseCursors.basic,
+      mouseCursor: widget.enabled
+          ? SystemMouseCursors.text
+          : SystemMouseCursors.basic,
     );
     final ringColor = widget.error ? c.destructive : c.ring;
-    return Semantics(
-      label: widget.semanticLabel ?? widget.placeholder,
-      textField: true,
-      enabled: widget.enabled,
-      child: Opacity(
-        opacity: widget.enabled ? 1 : .5,
-        child: MouseRegion(
-          cursor: widget.enabled ? SystemMouseCursors.text : SystemMouseCursors.forbidden,
-          onEnter: (_) => setState(() => _hovered = true),
-          onExit: (_) => setState(() => _hovered = false),
-          child: TextFieldTapRegion(
-            child: _gestures.buildGestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: AnimatedContainer(
-                duration: t.duration,
-                constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: multiline ? 8 : 0),
-                decoration: BoxDecoration(
-                  // Opaque, so the shadow beneath does not show through.
-                  color: t.brightness == Brightness.dark ? Color.alphaBlend(c.input.withValues(alpha: .3), c.background) : c.background,
-                  borderRadius: BorderRadius.circular(t.radiusMd),
-                  border: Border.all(color: widget.error ? c.destructive : (focused ? c.ring : (_hovered ? c.ring.withValues(alpha: .6) : c.input))),
-                  boxShadow: [
-                    if (focused) BoxShadow(color: ringColor.withValues(alpha: widget.error ? .2 : .5), spreadRadius: 3),
-                    ...t.shadowXs,
-                  ],
+    return Opacity(
+      opacity: widget.enabled ? 1 : .5,
+      child: MouseRegion(
+        cursor: widget.enabled
+            ? SystemMouseCursors.text
+            : SystemMouseCursors.forbidden,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: TextFieldTapRegion(
+          child: _gestures.buildGestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: AnimatedContainer(
+              duration: t.duration,
+              constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: multiline ? 8 : 0,
+              ),
+              decoration: BoxDecoration(
+                // Opaque, so the shadow beneath does not show through.
+                color: t.brightness == Brightness.dark
+                    ? Color.alphaBlend(
+                        c.input.withValues(alpha: .3),
+                        c.background,
+                      )
+                    : c.background,
+                borderRadius: BorderRadius.circular(t.radiusMd),
+                border: Border.all(
+                  color: widget.error
+                      ? c.destructive
+                      : (focused
+                            ? c.ring
+                            : (_hovered
+                                  ? c.ring.withValues(alpha: .6)
+                                  : c.input)),
                 ),
-                child: IconTheme.merge(
-                  data: IconThemeData(color: c.mutedForeground, size: 16),
-                  child: Row(
-                    crossAxisAlignment: multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                    children: [
-                      if (widget.leading != null) ...[widget.leading!, const SizedBox(width: 8)],
-                      Expanded(
-                        child: Stack(alignment: multiline ? Alignment.topLeft : Alignment.centerLeft, children: [
-                          if (_controller.text.isEmpty && widget.placeholder != null)
-                            IgnorePointer(
-                              child: Text(
-                                widget.placeholder!,
-                                style: style.copyWith(color: c.mutedForeground),
-                                maxLines: widget.maxLines,
-                                overflow: TextOverflow.ellipsis,
+                boxShadow: [
+                  if (focused)
+                    BoxShadow(
+                      color: ringColor.withValues(
+                        alpha: widget.error ? .2 : .5,
+                      ),
+                      spreadRadius: 3,
+                    ),
+                  ...t.shadowXs,
+                ],
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(color: c.mutedForeground, size: 16),
+                child: Row(
+                  crossAxisAlignment: multiline
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
+                  children: [
+                    if (widget.leading != null) ...[
+                      widget.leading!,
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Stack(
+                        alignment: multiline
+                            ? Alignment.topLeft
+                            : Alignment.centerLeft,
+                        children: [
+                          if (_controller.text.isEmpty &&
+                              widget.placeholder != null)
+                            // The field announces the placeholder as its name, once.
+                            ExcludeSemantics(
+                              child: IgnorePointer(
+                                child: Text(
+                                  widget.placeholder!,
+                                  style: style.copyWith(
+                                    color: c.mutedForeground,
+                                  ),
+                                  maxLines: widget.maxLines,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
-                          editable,
-                        ]),
+                          // The name goes on the node a screen reader focuses: the text itself.
+                          MergeSemantics(
+                            child: Semantics(
+                              label: widget.semanticLabel ?? widget.placeholder,
+                              enabled: widget.enabled,
+                              child: editable,
+                            ),
+                          ),
+                        ],
                       ),
-                      if (widget.trailing != null) ...[const SizedBox(width: 8), widget.trailing!],
+                    ),
+                    if (widget.trailing != null) ...[
+                      const SizedBox(width: 8),
+                      widget.trailing!,
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -1042,7 +1120,12 @@ class _AshlarSelectionControls extends TextSelectionControls {
   static const _size = 18.0;
 
   @override
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textLineHeight, [VoidCallback? onTap]) {
+  Widget buildHandle(
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textLineHeight, [
+    VoidCallback? onTap,
+  ]) {
     if (type == TextSelectionHandleType.collapsed) {
       return const SizedBox.shrink();
     }
@@ -1055,14 +1138,16 @@ class _AshlarSelectionControls extends TextSelectionControls {
   }
 
   @override
-  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) => switch (type) {
-    TextSelectionHandleType.left => Offset(_size / 2, textLineHeight),
-    TextSelectionHandleType.right => const Offset(_size / 2, 0),
-    TextSelectionHandleType.collapsed => Offset.zero,
-  };
+  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) =>
+      switch (type) {
+        TextSelectionHandleType.left => Offset(_size / 2, textLineHeight),
+        TextSelectionHandleType.right => const Offset(_size / 2, 0),
+        TextSelectionHandleType.collapsed => Offset.zero,
+      };
 
   @override
-  Size getHandleSize(double textLineHeight) => Size(_size, _size + textLineHeight);
+  Size getHandleSize(double textLineHeight) =>
+      Size(_size, _size + textLineHeight);
 
   // The menu is built by contextMenuBuilder; this older hook is not used.
   @override
@@ -1091,7 +1176,15 @@ class _HandlePainter extends CustomPainter {
     final x = size.width / 2;
     // The start handle hangs below the text line, the end handle sits above it.
     final dot = start ? Offset(x, size.height - 6) : const Offset(9, 6);
-    canvas.drawRect(Rect.fromLTWH(x - .75, start ? lineHeight : 6, 1.5, size.height - lineHeight - 6), paint);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        x - .75,
+        start ? lineHeight : 6,
+        1.5,
+        size.height - lineHeight - 6,
+      ),
+      paint,
+    );
     canvas.drawCircle(dot, 6, paint);
   }
 
@@ -1105,30 +1198,36 @@ class _SelectionMenu extends StatelessWidget {
 
   final EditableTextState state;
 
-  static String _label(ContextMenuButtonItem item) => item.label ?? switch (item.type) {
-    ContextMenuButtonType.cut => 'Cut',
-    ContextMenuButtonType.copy => 'Copy',
-    ContextMenuButtonType.paste => 'Paste',
-    ContextMenuButtonType.selectAll => 'Select all',
-    ContextMenuButtonType.delete => 'Delete',
-    ContextMenuButtonType.lookUp => 'Look up',
-    ContextMenuButtonType.searchWeb => 'Search',
-    ContextMenuButtonType.share => 'Share',
-    ContextMenuButtonType.liveTextInput => 'Scan text',
-    ContextMenuButtonType.custom => '',
-  };
+  static String _label(ContextMenuButtonItem item) =>
+      item.label ??
+      switch (item.type) {
+        ContextMenuButtonType.cut => 'Cut',
+        ContextMenuButtonType.copy => 'Copy',
+        ContextMenuButtonType.paste => 'Paste',
+        ContextMenuButtonType.selectAll => 'Select all',
+        ContextMenuButtonType.delete => 'Delete',
+        ContextMenuButtonType.lookUp => 'Look up',
+        ContextMenuButtonType.searchWeb => 'Search',
+        ContextMenuButtonType.share => 'Share',
+        ContextMenuButtonType.liveTextInput => 'Scan text',
+        ContextMenuButtonType.custom => '',
+      };
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final items = state.contextMenuButtonItems.where((i) => _label(i).isNotEmpty).toList();
+    final items = state.contextMenuButtonItems
+        .where((i) => _label(i).isNotEmpty)
+        .toList();
     if (items.isEmpty) return const SizedBox.shrink();
     final anchors = state.contextMenuAnchors;
     return CustomSingleChildLayout(
       delegate: TextSelectionToolbarLayoutDelegate(
         anchorAbove: anchors.primaryAnchor - const Offset(0, 8),
-        anchorBelow: (anchors.secondaryAnchor ?? anchors.primaryAnchor) + const Offset(0, 24),
+        anchorBelow:
+            (anchors.secondaryAnchor ?? anchors.primaryAnchor) +
+            const Offset(0, 24),
       ),
       child: Container(
         padding: const EdgeInsets.all(4),
@@ -1138,17 +1237,26 @@ class _SelectionMenu extends StatelessWidget {
           border: Border.all(color: c.border),
           boxShadow: t.shadowLg,
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          for (final item in items)
-            GestureDetector(
-              onTap: item.onPressed,
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                child: Text(_label(item), style: t.text.sm.copyWith(color: c.popoverForeground)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final item in items)
+              GestureDetector(
+                onTap: item.onPressed,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    _label(item),
+                    style: t.text.sm.copyWith(color: c.popoverForeground),
+                  ),
+                ),
               ),
-            ),
-        ]),
+          ],
+        ),
       ),
     );
   }
