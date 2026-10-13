@@ -393,6 +393,11 @@ class AshlarTheme extends InheritedWidget {
   @override
   bool updateShouldNotify(AshlarTheme old) => old.data != data;
 }
+
+/// Whether the reading direction runs right to left: for keys and icons that point along
+/// the line, which turn round with it.
+bool isRtl(BuildContext context) =>
+    Directionality.maybeOf(context) == TextDirection.rtl;
 ''',
     },
   ),
@@ -1572,8 +1577,8 @@ class _InputState extends State<Input>
                     Expanded(
                       child: Stack(
                         alignment: multiline
-                            ? Alignment.topLeft
-                            : Alignment.centerLeft,
+                            ? AlignmentDirectional.topStart
+                            : AlignmentDirectional.centerStart,
                         children: [
                           if (_controller.text.isEmpty &&
                               widget.placeholder != null)
@@ -1795,7 +1800,9 @@ class Switch extends StatelessWidget {
           child: AnimatedAlign(
             duration: t.duration,
             curve: Curves.easeOutCubic,
-            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: value
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
             child: Container(
               width: size == SwitchSize.sm ? 12 : 16,
               height: size == SwitchSize.sm ? 12 : 16,
@@ -2013,9 +2020,9 @@ class Dialog extends StatelessWidget {
                         ],
                       ),
                       if (showClose)
-                        Positioned(
+                        PositionedDirectional(
                           top: -12,
-                          right: -12,
+                          end: -12,
                           child: Button(
                             variant: ButtonVariant.ghost,
                             size: ButtonSize.icon,
@@ -2450,8 +2457,8 @@ class _TextareaState extends State<Textarea> {
     return Stack(
       children: [
         field,
-        Positioned(
-          right: 2,
+        PositionedDirectional(
+          end: 2,
           bottom: 2,
           // A mouse and touch handle, as in a browser; the text itself needs no keyboard way.
           child: ExcludeSemantics(
@@ -3300,6 +3307,8 @@ class _TabsState extends State<Tabs> {
 
   /// The next enabled tab from the chosen one, [step] along, wrapping round.
   void _move(int step) {
+    // Across, the arrows follow the reading direction.
+    if (widget.axis == Axis.horizontal && isRtl(context)) step = -step;
     final n = widget.tabs.length;
     for (var k = 1; k <= n; k++) {
       final i = ((_index + step * k) % n + n) % n;
@@ -3666,6 +3675,7 @@ class PopoverPanel extends StatelessWidget {
         side,
         align,
         gap,
+        isRtl(context),
       ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
@@ -3705,12 +3715,15 @@ class PopoverPanel extends StatelessWidget {
 }
 
 class _Place extends SingleChildLayoutDelegate {
-  _Place(this.anchor, this.side, this.align, this.gap);
+  _Place(this.anchor, this.side, this.align, this.gap, this.rtl);
 
   final Rect anchor;
   final PopoverSide side;
   final PopoverAlign align;
   final double gap;
+
+  /// Start and end swap in right-to-left text.
+  final bool rtl;
   static const margin = 8.0;
 
   bool get _across => side == PopoverSide.left || side == PopoverSide.right;
@@ -3748,10 +3761,12 @@ class _Place extends SingleChildLayoutDelegate {
       double length,
       double room,
     ) {
+      // Along the line, start is the right in right-to-left text.
+      final flip = rtl && !_across;
       final v = switch (align) {
-        PopoverAlign.start => start,
+        PopoverAlign.start => flip ? end - length : start,
         PopoverAlign.center => centre - length / 2,
-        PopoverAlign.end => end - length,
+        PopoverAlign.end => flip ? start : end - length,
       };
       return v.clamp(
         margin,
@@ -3802,7 +3817,8 @@ class _Place extends SingleChildLayoutDelegate {
       old.anchor != anchor ||
       old.side != side ||
       old.align != align ||
-      old.gap != gap;
+      old.gap != gap ||
+      old.rtl != rtl;
 }
 
 /// Fades the panel in, grown from 95%, sliding a little from the trigger's side.
@@ -4322,11 +4338,17 @@ class _MenuSubState extends State<MenuSub> {
     onClose: () => setState(() => _open = false),
     overlayBuilder: (context, info) => PopoverPanel(
       info: info,
-      side: PopoverSide.right,
+      side: isRtl(context) ? PopoverSide.left : PopoverSide.right,
       align: PopoverAlign.start,
       gap: -4,
       child: CallbackShortcuts(
-        bindings: {const SingleActivator(LogicalKeyboardKey.arrowLeft): _back},
+        bindings: {
+          SingleActivator(
+            isRtl(context)
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowLeft,
+          ): _back,
+        },
         child: MenuList(focusFirst: true, children: widget.items),
       ),
     ),
@@ -4347,8 +4369,18 @@ class _MenuSubState extends State<MenuSub> {
           () => mounted ? _show() : null,
         );
       },
-      keys: {const SingleActivator(LogicalKeyboardKey.arrowRight): _show},
-      trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+      keys: {
+        SingleActivator(
+          isRtl(context)
+              ? LogicalKeyboardKey.arrowLeft
+              : LogicalKeyboardKey.arrowRight,
+        ): _show,
+      },
+      trailing: AshlarIcon(
+        isRtl(context)
+            ? AshlarIconsRoundedStroke.chevronLeft
+            : AshlarIconsRoundedStroke.chevronRight,
+      ),
       child: widget.child,
     ),
   );
@@ -5873,23 +5905,27 @@ class JoinedPosition extends InheritedWidget {
       context.dependOnInheritedWidgetOfExactType<JoinedPosition>();
 
   /// Round only on the group's outer corners.
-  BorderRadius radius(double r) {
+  BorderRadiusGeometry radius(double r) {
     final start = first ? Radius.circular(r) : Radius.zero,
         end = last ? Radius.circular(r) : Radius.zero;
     return axis == Axis.horizontal
-        ? BorderRadius.horizontal(left: start, right: end)
+        ? BorderRadiusDirectional.horizontal(start: start, end: end)
         : BorderRadius.vertical(top: start, bottom: end);
   }
 
-  /// A border with no leading edge after the first, so neighbours share one line.
-  Border border(Color color) {
+  /// A border with no leading edge after the first, so neighbours share one line. The
+  /// leading edge is the right in right-to-left text. (A plain [Border], resolved here,
+  /// because only it can round corners with an edge missing.)
+  Border border(Color color, TextDirection direction) {
     final side = BorderSide(color: color);
+    final lead = first ? side : BorderSide.none;
+    final rtl = direction == TextDirection.rtl;
     return axis == Axis.horizontal
         ? Border(
             top: side,
             bottom: side,
-            right: side,
-            left: first ? side : BorderSide.none,
+            left: rtl ? side : lead,
+            right: rtl ? lead : side,
           )
         : Border(
             left: side,
@@ -5905,12 +5941,14 @@ class JoinedPosition extends InheritedWidget {
 }
 
 /// A control's corners: [r] all round, or only the outer ones inside a [JoinedGroup].
-BorderRadius joinedRadius(BuildContext context, double r) =>
+BorderRadiusGeometry joinedRadius(BuildContext context, double r) =>
     JoinedPosition.maybeOf(context)?.radius(r) ?? BorderRadius.circular(r);
 
 /// A control's border: all round, or sharing edges inside a [JoinedGroup].
 Border joinedBorder(BuildContext context, Color color) =>
-    JoinedPosition.maybeOf(context)?.border(color) ?? Border.all(color: color);
+    JoinedPosition.maybeOf(context)
+        ?.border(color, Directionality.maybeOf(context) ?? TextDirection.ltr) ??
+    Border.all(color: color);
 ''',
     },
   ),
@@ -6124,10 +6162,10 @@ class Blockquote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.only(left: 24),
+    padding: const EdgeInsetsDirectional.only(start: 24),
     decoration: BoxDecoration(
-      border: Border(
-        left: BorderSide(
+      border: BorderDirectional(
+        start: BorderSide(
           color: AshlarTheme.of(context).colors.border,
           width: 2,
         ),
@@ -6182,7 +6220,7 @@ class BulletList extends StatelessWidget {
       children: [
         for (final item in items)
           Padding(
-            padding: const EdgeInsets.only(left: 24, bottom: 8),
+            padding: const EdgeInsetsDirectional.only(start: 24, bottom: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -6710,7 +6748,7 @@ class _ProgressState extends State<Progress>
         ),
         child: value != null
             ? Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: TweenAnimationBuilder<double>(
                   tween: Tween(end: value),
                   duration: t.duration * 2,
@@ -6839,7 +6877,11 @@ class Breadcrumb extends StatelessWidget {
           style: style.copyWith(color: c.mutedForeground),
           child:
               separator ??
-              const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+              AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
         ),
       ),
     );
@@ -7302,6 +7344,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'group.dart';
+import 'theme.dart';
 import 'toggle.dart';
 
 /// One choice in a [ToggleGroup].
@@ -7405,11 +7448,18 @@ class ToggleGroup<T> extends StatelessWidget {
     container: true,
     label: semanticLabel,
     child: Shortcuts(
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.arrowRight): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowDown): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): PreviousFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
+      // Right is next in left-to-right text, and back in right-to-left.
+      shortcuts: {
+        SingleActivator(LogicalKeyboardKey.arrowRight): isRtl(context)
+            ? const PreviousFocusIntent()
+            : const NextFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const NextFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): isRtl(context)
+            ? const NextFocusIntent()
+            : const PreviousFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const PreviousFocusIntent(),
       },
       child: FocusTraversalGroup(
         child: _layout([
@@ -7594,6 +7644,7 @@ class _SliderState extends State<Slider> {
     final c = t.colors;
     const thumb = 16.0;
     final across = widget.axis == Axis.horizontal;
+    final rtl = isRtl(context);
     final values = _values;
     return LayoutBuilder(
       builder: (context, box) {
@@ -7601,10 +7652,13 @@ class _SliderState extends State<Slider> {
             ? (box.maxWidth.isFinite ? box.maxWidth : 200.0)
             : widget.length;
         final usable = length - thumb;
-        // Along the track from its start; upright, the start is the bottom.
+        // Along the track from its start; upright, the start is the bottom, and in
+        // right-to-left text it is the right.
         double at(double v) => _fraction(v) * usable;
         double valueAt(Offset p) {
-          final d = across ? p.dx - thumb / 2 : (length - thumb / 2) - p.dy;
+          final d = across
+              ? (rtl ? (length - thumb / 2) - p.dx : p.dx - thumb / 2)
+              : (length - thumb / 2) - p.dy;
           return widget.min +
               (d / usable).clamp(0.0, 1.0) * (widget.max - widget.min);
         }
@@ -7622,9 +7676,9 @@ class _SliderState extends State<Slider> {
 
         final from = values.length == 1 ? 0.0 : at(values.first),
             to = at(values.last);
-        Positioned along(double start, double extent, Widget child) => across
-            ? Positioned(
-                left: start,
+        Widget along(double start, double extent, Widget child) => across
+            ? PositionedDirectional(
+                start: start,
                 width: extent,
                 top: 0,
                 bottom: 0,
@@ -7771,15 +7825,28 @@ class _ThumbState extends State<_Thumb> {
             : SystemMouseCursors.basic,
         onShowFocusHighlight: (v) => setState(() => _focused = v),
         onShowHoverHighlight: (v) => setState(() => _hovered = v),
-        shortcuts: const {
-          SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowUp): _StepIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowLeft): _StepIntent(-1),
-          SingleActivator(LogicalKeyboardKey.arrowDown): _StepIntent(-1),
-          SingleActivator(LogicalKeyboardKey.pageUp): _StepIntent(10),
-          SingleActivator(LogicalKeyboardKey.pageDown): _StepIntent(-10),
-          SingleActivator(LogicalKeyboardKey.home): _EndIntent(false),
-          SingleActivator(LogicalKeyboardKey.end): _EndIntent(true),
+        shortcuts: {
+          SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(
+            isRtl(context) ? -1 : 1,
+          ),
+          const SingleActivator(LogicalKeyboardKey.arrowUp): const _StepIntent(
+            1,
+          ),
+          SingleActivator(LogicalKeyboardKey.arrowLeft): _StepIntent(
+            isRtl(context) ? 1 : -1,
+          ),
+          const SingleActivator(LogicalKeyboardKey.arrowDown):
+              const _StepIntent(-1),
+          const SingleActivator(LogicalKeyboardKey.pageUp): const _StepIntent(
+            10,
+          ),
+          const SingleActivator(LogicalKeyboardKey.pageDown): const _StepIntent(
+            -10,
+          ),
+          const SingleActivator(LogicalKeyboardKey.home): const _EndIntent(
+            false,
+          ),
+          const SingleActivator(LogicalKeyboardKey.end): const _EndIntent(true),
         },
         actions: {
           _StepIntent: CallbackAction<_StepIntent>(
@@ -7902,7 +7969,11 @@ class Pagination extends StatelessWidget {
               size: ButtonSize.iconSm,
               semanticLabel: 'Previous page',
               onPressed: page > 1 ? () => onChanged(page - 1) : null,
-              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronRight
+                    : AshlarIconsRoundedStroke.chevronLeft,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -7919,7 +7990,11 @@ class Pagination extends StatelessWidget {
               size: ButtonSize.iconSm,
               semanticLabel: 'Next page',
               onPressed: page < pageCount ? () => onChanged(page + 1) : null,
-              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
             ),
           ],
         ),
@@ -7936,7 +8011,11 @@ class Pagination extends StatelessWidget {
         children: [
           Button(
             variant: ButtonVariant.ghost,
-            leading: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+            leading: AshlarIcon(
+              isRtl(context)
+                  ? AshlarIconsRoundedStroke.chevronRight
+                  : AshlarIconsRoundedStroke.chevronLeft,
+            ),
             semanticLabel: 'Previous page',
             onPressed: page > 1 ? () => onChanged(page - 1) : null,
             child: const Text('Previous'),
@@ -7970,7 +8049,11 @@ class Pagination extends StatelessWidget {
               ),
           Button(
             variant: ButtonVariant.ghost,
-            trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+            trailing: AshlarIcon(
+              isRtl(context)
+                  ? AshlarIconsRoundedStroke.chevronLeft
+                  : AshlarIconsRoundedStroke.chevronRight,
+            ),
             semanticLabel: 'Next page',
             onPressed: page < pageCount ? () => onChanged(page + 1) : null,
             child: const Text('Next'),
@@ -8575,8 +8658,8 @@ class DataTable extends StatelessWidget {
                   constraints: BoxConstraints(minHeight: rowHeight),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: col.numeric
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                      ? AlignmentDirectional.centerEnd
+                      : AlignmentDirectional.centerStart,
                   child: DefaultTextStyle.merge(
                     style: style,
                     maxLines: 1,
@@ -8927,7 +9010,12 @@ class Sheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 48, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      16,
+                      16,
+                      48,
+                      16,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -8982,9 +9070,9 @@ class Sheet extends StatelessWidget {
                 ],
               ),
               if (showClose)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Button(
                     variant: ButtonVariant.ghost,
                     size: ButtonSize.icon,
@@ -9383,7 +9471,7 @@ class _InputGroupState extends State<InputGroup> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    Widget addon(Widget w, EdgeInsets padding) => Padding(
+    Widget addon(Widget w, EdgeInsetsGeometry padding) => Padding(
       padding: padding,
       child: DefaultTextStyle.merge(
         style: t.text.sm.copyWith(color: c.mutedForeground),
@@ -9432,23 +9520,29 @@ class _InputGroupState extends State<InputGroup> {
                 if (widget.start != null)
                   addon(
                     widget.start!,
-                    const EdgeInsets.only(left: 12, right: 2),
+                    const EdgeInsetsDirectional.only(start: 12, end: 2),
                   ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      left: widget.start == null ? 12 : 4,
-                      right: widget.end == null ? 12 : 4,
+                    padding: EdgeInsetsDirectional.only(
+                      start: widget.start == null ? 12 : 4,
+                      end: widget.end == null ? 12 : 4,
                     ),
                     child: widget.child,
                   ),
                 ),
                 if (widget.end != null)
-                  addon(widget.end!, const EdgeInsets.only(left: 2, right: 8)),
+                  addon(
+                    widget.end!,
+                    const EdgeInsetsDirectional.only(start: 2, end: 8),
+                  ),
               ],
             ),
             if (widget.bottom != null)
-              addon(widget.bottom!, const EdgeInsets.fromLTRB(12, 0, 8, 8)),
+              addon(
+                widget.bottom!,
+                const EdgeInsetsDirectional.fromSTEB(12, 0, 8, 8),
+              ),
           ],
         ),
       ),
@@ -9844,6 +9938,9 @@ class _HandleState extends State<_Handle> {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final horizontal = widget.axis == Axis.horizontal;
+    // Across, the panels run from the start of the line, which is the right in
+    // right-to-left text: a move to the right shrinks the first panel there.
+    final sign = horizontal && isRtl(context) ? -1.0 : 1.0;
     const step = 16.0;
     return Semantics(
       slider: true,
@@ -9865,15 +9962,15 @@ class _HandleState extends State<_Handle> {
             horizontal
                 ? LogicalKeyboardKey.arrowRight
                 : LogicalKeyboardKey.arrowDown,
-          ): const _NudgeIntent(
-            step,
+          ): _NudgeIntent(
+            step * sign,
           ),
           SingleActivator(
             horizontal
                 ? LogicalKeyboardKey.arrowLeft
                 : LogicalKeyboardKey.arrowUp,
-          ): const _NudgeIntent(
-            -step,
+          ): _NudgeIntent(
+            -step * sign,
           ),
         },
         actions: {
@@ -9884,7 +9981,7 @@ class _HandleState extends State<_Handle> {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onHorizontalDragUpdate: horizontal
-              ? (d) => widget.onDrag(d.delta.dx)
+              ? (d) => widget.onDrag(d.delta.dx * sign)
               : null,
           onVerticalDragUpdate: horizontal
               ? null
@@ -10822,9 +10919,13 @@ class _MenubarState extends State<Menubar> {
     _focus[i].requestFocus();
   }
 
-  void _step(int by) => _show(
-    (((_open ?? 0) + by) % _menus.length + _menus.length) % _menus.length,
-  );
+  /// Moves [by] menus along the bar: the arrow keys, which swap in right-to-left text.
+  void _step(int by) {
+    if (isRtl(context)) by = -by;
+    _show(
+      (((_open ?? 0) + by) % _menus.length + _menus.length) % _menus.length,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11194,6 +11295,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'button.dart';
+import 'theme.dart';
 
 /// Moves a [Carousel] from outside it, and tells which slide leads.
 class CarouselController extends ChangeNotifier {
@@ -11329,6 +11431,7 @@ class _CarouselState extends State<Carousel> {
   @override
   Widget build(BuildContext context) {
     final across = widget.axis == Axis.horizontal;
+    final rtl = isRtl(context);
     final track = Semantics(
       container: true,
       label: widget.semanticLabel,
@@ -11338,12 +11441,18 @@ class _CarouselState extends State<Carousel> {
         bindings: {
           SingleActivator(
             across
-                ? LogicalKeyboardKey.arrowRight
+                ? (rtl
+                      ? LogicalKeyboardKey.arrowLeft
+                      : LogicalKeyboardKey.arrowRight)
                 : LogicalKeyboardKey.arrowDown,
           ): () =>
               _go(_at + 1),
           SingleActivator(
-            across ? LogicalKeyboardKey.arrowLeft : LogicalKeyboardKey.arrowUp,
+            across
+                ? (rtl
+                      ? LogicalKeyboardKey.arrowRight
+                      : LogicalKeyboardKey.arrowLeft)
+                : LogicalKeyboardKey.arrowUp,
           ): () =>
               _go(_at - 1),
         },
@@ -11388,14 +11497,18 @@ class _CarouselState extends State<Carousel> {
         );
     final back = arrow(
       across
-          ? AshlarIconsRoundedStroke.arrowLeft
+          ? (rtl
+                ? AshlarIconsRoundedStroke.arrowRight
+                : AshlarIconsRoundedStroke.arrowLeft)
           : AshlarIconsRoundedStroke.arrowUp,
       'Previous slide',
       _at > 0 || widget.loop ? () => _go(_at - 1) : null,
     );
     final on = arrow(
       across
-          ? AshlarIconsRoundedStroke.arrowRight
+          ? (rtl
+                ? AshlarIconsRoundedStroke.arrowLeft
+                : AshlarIconsRoundedStroke.arrowRight)
           : AshlarIconsRoundedStroke.arrowDown,
       'Next slide',
       _at < _last || widget.loop ? () => _go(_at + 1) : null,
@@ -11899,8 +12012,16 @@ class _CalendarState extends State<Calendar> {
     final k = e.logicalKey;
     final f = _focus;
     final DateTime? to = switch (k) {
-      LogicalKeyboardKey.arrowLeft => DateTime(f.year, f.month, f.day - 1),
-      LogicalKeyboardKey.arrowRight => DateTime(f.year, f.month, f.day + 1),
+      LogicalKeyboardKey.arrowLeft => DateTime(
+        f.year,
+        f.month,
+        f.day - (isRtl(context) ? -1 : 1),
+      ),
+      LogicalKeyboardKey.arrowRight => DateTime(
+        f.year,
+        f.month,
+        f.day + (isRtl(context) ? -1 : 1),
+      ),
       LogicalKeyboardKey.arrowUp => DateTime(f.year, f.month, f.day - 7),
       LogicalKeyboardKey.arrowDown => DateTime(f.year, f.month, f.day + 7),
       LogicalKeyboardKey.pageUp => DateTime(f.year, f.month - 1, f.day),
@@ -12126,7 +12247,9 @@ class _CalendarState extends State<Calendar> {
                       width: 32,
                       child: first
                           ? _Nav(
-                              icon: AshlarIconsRoundedStroke.chevronLeft,
+                              icon: isRtl(context)
+                                  ? AshlarIconsRoundedStroke.chevronRight
+                                  : AshlarIconsRoundedStroke.chevronLeft,
                               label: 'Previous month',
                               onPressed: back,
                             )
@@ -12138,7 +12261,9 @@ class _CalendarState extends State<Calendar> {
                       width: 32,
                       child: last
                           ? _Nav(
-                              icon: AshlarIconsRoundedStroke.chevronRight,
+                              icon: isRtl(context)
+                                  ? AshlarIconsRoundedStroke.chevronLeft
+                                  : AshlarIconsRoundedStroke.chevronRight,
                               label: 'Next month',
                               onPressed: on,
                             )
@@ -12738,8 +12863,10 @@ class _CartesianState extends State<_Cartesian>
                             right: 0,
                             bottom: 0,
                             height: 20,
+                            // Time runs left to right in any language, as the plot is drawn.
                             child: ExcludeSemantics(
                               child: Row(
+                                textDirection: TextDirection.ltr,
                                 children: [
                                   for (final l in widget.labels)
                                     Expanded(
@@ -13726,7 +13853,6 @@ class _Panel extends StatelessWidget {
           boxShadow: floating ? t.shadowSm : null,
         ),
         child: SafeArea(
-          right: false,
           child: DefaultTextStyle.merge(
             style: t.text.sm.copyWith(color: c.sidebarForeground),
             child: Column(
@@ -13941,7 +14067,9 @@ class _ItemState extends State<_Item> {
                         turns: _open ? .25 : 0,
                         duration: t.duration,
                         child: AshlarIcon(
-                          AshlarIconsRoundedStroke.chevronRight,
+                          isRtl(context)
+                              ? AshlarIconsRoundedStroke.chevronLeft
+                              : AshlarIconsRoundedStroke.chevronRight,
                           size: 16,
                           color: fg,
                         ),

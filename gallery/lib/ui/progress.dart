@@ -78,7 +78,7 @@ class _ProgressState extends State<Progress>
         ),
         child: value != null
             ? Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: TweenAnimationBuilder<double>(
                   tween: Tween(end: value),
                   duration: t.duration * 2,

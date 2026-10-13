@@ -226,8 +226,8 @@ class _InputState extends State<Input>
                     Expanded(
                       child: Stack(
                         alignment: multiline
-                            ? Alignment.topLeft
-                            : Alignment.centerLeft,
+                            ? AlignmentDirectional.topStart
+                            : AlignmentDirectional.centerStart,
                         children: [
                           if (_controller.text.isEmpty &&
                               widget.placeholder != null)

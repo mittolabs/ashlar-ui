@@ -60,9 +60,13 @@ class _MenubarState extends State<Menubar> {
     _focus[i].requestFocus();
   }
 
-  void _step(int by) => _show(
-    (((_open ?? 0) + by) % _menus.length + _menus.length) % _menus.length,
-  );
+  /// Moves [by] menus along the bar: the arrow keys, which swap in right-to-left text.
+  void _step(int by) {
+    if (isRtl(context)) by = -by;
+    _show(
+      (((_open ?? 0) + by) % _menus.length + _menus.length) % _menus.length,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

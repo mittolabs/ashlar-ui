@@ -54,7 +54,7 @@ class _InputGroupState extends State<InputGroup> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    Widget addon(Widget w, EdgeInsets padding) => Padding(
+    Widget addon(Widget w, EdgeInsetsGeometry padding) => Padding(
       padding: padding,
       child: DefaultTextStyle.merge(
         style: t.text.sm.copyWith(color: c.mutedForeground),
@@ -103,23 +103,29 @@ class _InputGroupState extends State<InputGroup> {
                 if (widget.start != null)
                   addon(
                     widget.start!,
-                    const EdgeInsets.only(left: 12, right: 2),
+                    const EdgeInsetsDirectional.only(start: 12, end: 2),
                   ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      left: widget.start == null ? 12 : 4,
-                      right: widget.end == null ? 12 : 4,
+                    padding: EdgeInsetsDirectional.only(
+                      start: widget.start == null ? 12 : 4,
+                      end: widget.end == null ? 12 : 4,
                     ),
                     child: widget.child,
                   ),
                 ),
                 if (widget.end != null)
-                  addon(widget.end!, const EdgeInsets.only(left: 2, right: 8)),
+                  addon(
+                    widget.end!,
+                    const EdgeInsetsDirectional.only(start: 2, end: 8),
+                  ),
               ],
             ),
             if (widget.bottom != null)
-              addon(widget.bottom!, const EdgeInsets.fromLTRB(12, 0, 8, 8)),
+              addon(
+                widget.bottom!,
+                const EdgeInsetsDirectional.fromSTEB(12, 0, 8, 8),
+              ),
           ],
         ),
       ),

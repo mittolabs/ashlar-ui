@@ -129,8 +129,8 @@ class DataTable extends StatelessWidget {
                   constraints: BoxConstraints(minHeight: rowHeight),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: col.numeric
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                      ? AlignmentDirectional.centerEnd
+                      : AlignmentDirectional.centerStart,
                   child: DefaultTextStyle.merge(
                     style: style,
                     maxLines: 1,

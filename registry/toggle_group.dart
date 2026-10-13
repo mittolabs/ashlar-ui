@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'group.dart';
+import 'theme.dart';
 import 'toggle.dart';
 
 /// One choice in a [ToggleGroup].
@@ -108,11 +109,18 @@ class ToggleGroup<T> extends StatelessWidget {
     container: true,
     label: semanticLabel,
     child: Shortcuts(
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.arrowRight): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowDown): NextFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): PreviousFocusIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
+      // Right is next in left-to-right text, and back in right-to-left.
+      shortcuts: {
+        SingleActivator(LogicalKeyboardKey.arrowRight): isRtl(context)
+            ? const PreviousFocusIntent()
+            : const NextFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const NextFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): isRtl(context)
+            ? const NextFocusIntent()
+            : const PreviousFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const PreviousFocusIntent(),
       },
       child: FocusTraversalGroup(
         child: _layout([

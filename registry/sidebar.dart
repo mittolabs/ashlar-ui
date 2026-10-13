@@ -362,7 +362,6 @@ class _Panel extends StatelessWidget {
           boxShadow: floating ? t.shadowSm : null,
         ),
         child: SafeArea(
-          right: false,
           child: DefaultTextStyle.merge(
             style: t.text.sm.copyWith(color: c.sidebarForeground),
             child: Column(
@@ -577,7 +576,9 @@ class _ItemState extends State<_Item> {
                         turns: _open ? .25 : 0,
                         duration: t.duration,
                         child: AshlarIcon(
-                          AshlarIconsRoundedStroke.chevronRight,
+                          isRtl(context)
+                              ? AshlarIconsRoundedStroke.chevronLeft
+                              : AshlarIconsRoundedStroke.chevronRight,
                           size: 16,
                           color: fg,
                         ),

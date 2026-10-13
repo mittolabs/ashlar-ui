@@ -137,7 +137,12 @@ class Sheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 48, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      16,
+                      16,
+                      48,
+                      16,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -192,9 +197,9 @@ class Sheet extends StatelessWidget {
                 ],
               ),
               if (showClose)
-                Positioned(
+                PositionedDirectional(
                   top: 8,
-                  right: 8,
+                  end: 8,
                   child: Button(
                     variant: ButtonVariant.ghost,
                     size: ButtonSize.icon,

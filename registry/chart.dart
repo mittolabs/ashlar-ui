@@ -261,8 +261,10 @@ class _CartesianState extends State<_Cartesian>
                             right: 0,
                             bottom: 0,
                             height: 20,
+                            // Time runs left to right in any language, as the plot is drawn.
                             child: ExcludeSemantics(
                               child: Row(
+                                textDirection: TextDirection.ltr,
                                 children: [
                                   for (final l in widget.labels)
                                     Expanded(

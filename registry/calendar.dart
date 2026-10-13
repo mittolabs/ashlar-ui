@@ -294,8 +294,16 @@ class _CalendarState extends State<Calendar> {
     final k = e.logicalKey;
     final f = _focus;
     final DateTime? to = switch (k) {
-      LogicalKeyboardKey.arrowLeft => DateTime(f.year, f.month, f.day - 1),
-      LogicalKeyboardKey.arrowRight => DateTime(f.year, f.month, f.day + 1),
+      LogicalKeyboardKey.arrowLeft => DateTime(
+        f.year,
+        f.month,
+        f.day - (isRtl(context) ? -1 : 1),
+      ),
+      LogicalKeyboardKey.arrowRight => DateTime(
+        f.year,
+        f.month,
+        f.day + (isRtl(context) ? -1 : 1),
+      ),
       LogicalKeyboardKey.arrowUp => DateTime(f.year, f.month, f.day - 7),
       LogicalKeyboardKey.arrowDown => DateTime(f.year, f.month, f.day + 7),
       LogicalKeyboardKey.pageUp => DateTime(f.year, f.month - 1, f.day),
@@ -521,7 +529,9 @@ class _CalendarState extends State<Calendar> {
                       width: 32,
                       child: first
                           ? _Nav(
-                              icon: AshlarIconsRoundedStroke.chevronLeft,
+                              icon: isRtl(context)
+                                  ? AshlarIconsRoundedStroke.chevronRight
+                                  : AshlarIconsRoundedStroke.chevronLeft,
                               label: 'Previous month',
                               onPressed: back,
                             )
@@ -533,7 +543,9 @@ class _CalendarState extends State<Calendar> {
                       width: 32,
                       child: last
                           ? _Nav(
-                              icon: AshlarIconsRoundedStroke.chevronRight,
+                              icon: isRtl(context)
+                                  ? AshlarIconsRoundedStroke.chevronLeft
+                                  : AshlarIconsRoundedStroke.chevronRight,
                               label: 'Next month',
                               onPressed: on,
                             )

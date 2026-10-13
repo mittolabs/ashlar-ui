@@ -64,7 +64,9 @@ class Switch extends StatelessWidget {
           child: AnimatedAlign(
             duration: t.duration,
             curve: Curves.easeOutCubic,
-            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: value
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
             child: Container(
               width: size == SwitchSize.sm ? 12 : 16,
               height: size == SwitchSize.sm ? 12 : 16,

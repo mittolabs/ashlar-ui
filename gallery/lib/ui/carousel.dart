@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'button.dart';
+import 'theme.dart';
 
 /// Moves a [Carousel] from outside it, and tells which slide leads.
 class CarouselController extends ChangeNotifier {
@@ -142,6 +143,7 @@ class _CarouselState extends State<Carousel> {
   @override
   Widget build(BuildContext context) {
     final across = widget.axis == Axis.horizontal;
+    final rtl = isRtl(context);
     final track = Semantics(
       container: true,
       label: widget.semanticLabel,
@@ -151,12 +153,18 @@ class _CarouselState extends State<Carousel> {
         bindings: {
           SingleActivator(
             across
-                ? LogicalKeyboardKey.arrowRight
+                ? (rtl
+                      ? LogicalKeyboardKey.arrowLeft
+                      : LogicalKeyboardKey.arrowRight)
                 : LogicalKeyboardKey.arrowDown,
           ): () =>
               _go(_at + 1),
           SingleActivator(
-            across ? LogicalKeyboardKey.arrowLeft : LogicalKeyboardKey.arrowUp,
+            across
+                ? (rtl
+                      ? LogicalKeyboardKey.arrowRight
+                      : LogicalKeyboardKey.arrowLeft)
+                : LogicalKeyboardKey.arrowUp,
           ): () =>
               _go(_at - 1),
         },
@@ -201,14 +209,18 @@ class _CarouselState extends State<Carousel> {
         );
     final back = arrow(
       across
-          ? AshlarIconsRoundedStroke.arrowLeft
+          ? (rtl
+                ? AshlarIconsRoundedStroke.arrowRight
+                : AshlarIconsRoundedStroke.arrowLeft)
           : AshlarIconsRoundedStroke.arrowUp,
       'Previous slide',
       _at > 0 || widget.loop ? () => _go(_at - 1) : null,
     );
     final on = arrow(
       across
-          ? AshlarIconsRoundedStroke.arrowRight
+          ? (rtl
+                ? AshlarIconsRoundedStroke.arrowLeft
+                : AshlarIconsRoundedStroke.arrowRight)
           : AshlarIconsRoundedStroke.arrowDown,
       'Next slide',
       _at < _last || widget.loop ? () => _go(_at + 1) : null,

@@ -156,10 +156,10 @@ class Blockquote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.only(left: 24),
+    padding: const EdgeInsetsDirectional.only(start: 24),
     decoration: BoxDecoration(
-      border: Border(
-        left: BorderSide(
+      border: BorderDirectional(
+        start: BorderSide(
           color: AshlarTheme.of(context).colors.border,
           width: 2,
         ),
@@ -214,7 +214,7 @@ class BulletList extends StatelessWidget {
       children: [
         for (final item in items)
           Padding(
-            padding: const EdgeInsets.only(left: 24, bottom: 8),
+            padding: const EdgeInsetsDirectional.only(start: 24, bottom: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -86,6 +86,8 @@ class _TabsState extends State<Tabs> {
 
   /// The next enabled tab from the chosen one, [step] along, wrapping round.
   void _move(int step) {
+    // Across, the arrows follow the reading direction.
+    if (widget.axis == Axis.horizontal && isRtl(context)) step = -step;
     final n = widget.tabs.length;
     for (var k = 1; k <= n; k++) {
       final i = ((_index + step * k) % n + n) % n;

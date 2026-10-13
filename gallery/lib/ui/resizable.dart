@@ -146,6 +146,9 @@ class _HandleState extends State<_Handle> {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final horizontal = widget.axis == Axis.horizontal;
+    // Across, the panels run from the start of the line, which is the right in
+    // right-to-left text: a move to the right shrinks the first panel there.
+    final sign = horizontal && isRtl(context) ? -1.0 : 1.0;
     const step = 16.0;
     return Semantics(
       slider: true,
@@ -167,15 +170,15 @@ class _HandleState extends State<_Handle> {
             horizontal
                 ? LogicalKeyboardKey.arrowRight
                 : LogicalKeyboardKey.arrowDown,
-          ): const _NudgeIntent(
-            step,
+          ): _NudgeIntent(
+            step * sign,
           ),
           SingleActivator(
             horizontal
                 ? LogicalKeyboardKey.arrowLeft
                 : LogicalKeyboardKey.arrowUp,
-          ): const _NudgeIntent(
-            -step,
+          ): _NudgeIntent(
+            -step * sign,
           ),
         },
         actions: {
@@ -186,7 +189,7 @@ class _HandleState extends State<_Handle> {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onHorizontalDragUpdate: horizontal
-              ? (d) => widget.onDrag(d.delta.dx)
+              ? (d) => widget.onDrag(d.delta.dx * sign)
               : null,
           onVerticalDragUpdate: horizontal
               ? null

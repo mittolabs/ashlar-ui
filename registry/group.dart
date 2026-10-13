@@ -49,23 +49,27 @@ class JoinedPosition extends InheritedWidget {
       context.dependOnInheritedWidgetOfExactType<JoinedPosition>();
 
   /// Round only on the group's outer corners.
-  BorderRadius radius(double r) {
+  BorderRadiusGeometry radius(double r) {
     final start = first ? Radius.circular(r) : Radius.zero,
         end = last ? Radius.circular(r) : Radius.zero;
     return axis == Axis.horizontal
-        ? BorderRadius.horizontal(left: start, right: end)
+        ? BorderRadiusDirectional.horizontal(start: start, end: end)
         : BorderRadius.vertical(top: start, bottom: end);
   }
 
-  /// A border with no leading edge after the first, so neighbours share one line.
-  Border border(Color color) {
+  /// A border with no leading edge after the first, so neighbours share one line. The
+  /// leading edge is the right in right-to-left text. (A plain [Border], resolved here,
+  /// because only it can round corners with an edge missing.)
+  Border border(Color color, TextDirection direction) {
     final side = BorderSide(color: color);
+    final lead = first ? side : BorderSide.none;
+    final rtl = direction == TextDirection.rtl;
     return axis == Axis.horizontal
         ? Border(
             top: side,
             bottom: side,
-            right: side,
-            left: first ? side : BorderSide.none,
+            left: rtl ? side : lead,
+            right: rtl ? lead : side,
           )
         : Border(
             left: side,
@@ -81,9 +85,11 @@ class JoinedPosition extends InheritedWidget {
 }
 
 /// A control's corners: [r] all round, or only the outer ones inside a [JoinedGroup].
-BorderRadius joinedRadius(BuildContext context, double r) =>
+BorderRadiusGeometry joinedRadius(BuildContext context, double r) =>
     JoinedPosition.maybeOf(context)?.radius(r) ?? BorderRadius.circular(r);
 
 /// A control's border: all round, or sharing edges inside a [JoinedGroup].
 Border joinedBorder(BuildContext context, Color color) =>
-    JoinedPosition.maybeOf(context)?.border(color) ?? Border.all(color: color);
+    JoinedPosition.maybeOf(context)
+        ?.border(color, Directionality.maybeOf(context) ?? TextDirection.ltr) ??
+    Border.all(color: color);

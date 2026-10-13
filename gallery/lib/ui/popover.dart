@@ -127,6 +127,7 @@ class PopoverPanel extends StatelessWidget {
         side,
         align,
         gap,
+        isRtl(context),
       ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
@@ -166,12 +167,15 @@ class PopoverPanel extends StatelessWidget {
 }
 
 class _Place extends SingleChildLayoutDelegate {
-  _Place(this.anchor, this.side, this.align, this.gap);
+  _Place(this.anchor, this.side, this.align, this.gap, this.rtl);
 
   final Rect anchor;
   final PopoverSide side;
   final PopoverAlign align;
   final double gap;
+
+  /// Start and end swap in right-to-left text.
+  final bool rtl;
   static const margin = 8.0;
 
   bool get _across => side == PopoverSide.left || side == PopoverSide.right;
@@ -209,10 +213,12 @@ class _Place extends SingleChildLayoutDelegate {
       double length,
       double room,
     ) {
+      // Along the line, start is the right in right-to-left text.
+      final flip = rtl && !_across;
       final v = switch (align) {
-        PopoverAlign.start => start,
+        PopoverAlign.start => flip ? end - length : start,
         PopoverAlign.center => centre - length / 2,
-        PopoverAlign.end => end - length,
+        PopoverAlign.end => flip ? start : end - length,
       };
       return v.clamp(
         margin,
@@ -263,7 +269,8 @@ class _Place extends SingleChildLayoutDelegate {
       old.anchor != anchor ||
       old.side != side ||
       old.align != align ||
-      old.gap != gap;
+      old.gap != gap ||
+      old.rtl != rtl;
 }
 
 /// Fades the panel in, grown from 95%, sliding a little from the trigger's side.

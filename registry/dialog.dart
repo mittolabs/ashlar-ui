@@ -191,9 +191,9 @@ class Dialog extends StatelessWidget {
                         ],
                       ),
                       if (showClose)
-                        Positioned(
+                        PositionedDirectional(
                           top: -12,
-                          right: -12,
+                          end: -12,
                           child: Button(
                             variant: ButtonVariant.ghost,
                             size: ButtonSize.icon,

@@ -103,8 +103,8 @@ class _TextareaState extends State<Textarea> {
     return Stack(
       children: [
         field,
-        Positioned(
-          right: 2,
+        PositionedDirectional(
+          end: 2,
           bottom: 2,
           // A mouse and touch handle, as in a browser; the text itself needs no keyboard way.
           child: ExcludeSemantics(

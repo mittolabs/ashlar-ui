@@ -51,11 +51,11 @@ void main() {
         final first = box(tester, buttons.at(0)),
             middle = box(tester, buttons.at(1)),
             last = box(tester, buttons.at(2));
-        final r = (first.borderRadius! as BorderRadius);
+        final r = first.borderRadius!.resolve(TextDirection.ltr);
         expect(r.topLeft.x, greaterThan(0));
         expect(r.topRight, Radius.zero);
-        expect((middle.borderRadius! as BorderRadius), BorderRadius.zero);
-        expect((last.borderRadius! as BorderRadius).topRight.x, greaterThan(0));
+        expect(middle.borderRadius!.resolve(TextDirection.ltr), BorderRadius.zero);
+        expect(last.borderRadius!.resolve(TextDirection.ltr).topRight.x, greaterThan(0));
         expect((middle.border! as Border).left, BorderSide.none);
         expect((first.border! as Border).left, isNot(BorderSide.none));
         // Touching: one piece.

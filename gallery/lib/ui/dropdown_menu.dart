@@ -430,11 +430,17 @@ class _MenuSubState extends State<MenuSub> {
     onClose: () => setState(() => _open = false),
     overlayBuilder: (context, info) => PopoverPanel(
       info: info,
-      side: PopoverSide.right,
+      side: isRtl(context) ? PopoverSide.left : PopoverSide.right,
       align: PopoverAlign.start,
       gap: -4,
       child: CallbackShortcuts(
-        bindings: {const SingleActivator(LogicalKeyboardKey.arrowLeft): _back},
+        bindings: {
+          SingleActivator(
+            isRtl(context)
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowLeft,
+          ): _back,
+        },
         child: MenuList(focusFirst: true, children: widget.items),
       ),
     ),
@@ -455,8 +461,18 @@ class _MenuSubState extends State<MenuSub> {
           () => mounted ? _show() : null,
         );
       },
-      keys: {const SingleActivator(LogicalKeyboardKey.arrowRight): _show},
-      trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+      keys: {
+        SingleActivator(
+          isRtl(context)
+              ? LogicalKeyboardKey.arrowLeft
+              : LogicalKeyboardKey.arrowRight,
+        ): _show,
+      },
+      trailing: AshlarIcon(
+        isRtl(context)
+            ? AshlarIconsRoundedStroke.chevronLeft
+            : AshlarIconsRoundedStroke.chevronRight,
+      ),
       child: widget.child,
     ),
   );

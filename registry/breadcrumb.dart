@@ -92,7 +92,11 @@ class Breadcrumb extends StatelessWidget {
           style: style.copyWith(color: c.mutedForeground),
           child:
               separator ??
-              const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+              AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
         ),
       ),
     );

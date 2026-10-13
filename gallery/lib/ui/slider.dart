@@ -155,6 +155,7 @@ class _SliderState extends State<Slider> {
     final c = t.colors;
     const thumb = 16.0;
     final across = widget.axis == Axis.horizontal;
+    final rtl = isRtl(context);
     final values = _values;
     return LayoutBuilder(
       builder: (context, box) {
@@ -162,10 +163,13 @@ class _SliderState extends State<Slider> {
             ? (box.maxWidth.isFinite ? box.maxWidth : 200.0)
             : widget.length;
         final usable = length - thumb;
-        // Along the track from its start; upright, the start is the bottom.
+        // Along the track from its start; upright, the start is the bottom, and in
+        // right-to-left text it is the right.
         double at(double v) => _fraction(v) * usable;
         double valueAt(Offset p) {
-          final d = across ? p.dx - thumb / 2 : (length - thumb / 2) - p.dy;
+          final d = across
+              ? (rtl ? (length - thumb / 2) - p.dx : p.dx - thumb / 2)
+              : (length - thumb / 2) - p.dy;
           return widget.min +
               (d / usable).clamp(0.0, 1.0) * (widget.max - widget.min);
         }
@@ -183,9 +187,9 @@ class _SliderState extends State<Slider> {
 
         final from = values.length == 1 ? 0.0 : at(values.first),
             to = at(values.last);
-        Positioned along(double start, double extent, Widget child) => across
-            ? Positioned(
-                left: start,
+        Widget along(double start, double extent, Widget child) => across
+            ? PositionedDirectional(
+                start: start,
                 width: extent,
                 top: 0,
                 bottom: 0,
@@ -332,15 +336,28 @@ class _ThumbState extends State<_Thumb> {
             : SystemMouseCursors.basic,
         onShowFocusHighlight: (v) => setState(() => _focused = v),
         onShowHoverHighlight: (v) => setState(() => _hovered = v),
-        shortcuts: const {
-          SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowUp): _StepIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowLeft): _StepIntent(-1),
-          SingleActivator(LogicalKeyboardKey.arrowDown): _StepIntent(-1),
-          SingleActivator(LogicalKeyboardKey.pageUp): _StepIntent(10),
-          SingleActivator(LogicalKeyboardKey.pageDown): _StepIntent(-10),
-          SingleActivator(LogicalKeyboardKey.home): _EndIntent(false),
-          SingleActivator(LogicalKeyboardKey.end): _EndIntent(true),
+        shortcuts: {
+          SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(
+            isRtl(context) ? -1 : 1,
+          ),
+          const SingleActivator(LogicalKeyboardKey.arrowUp): const _StepIntent(
+            1,
+          ),
+          SingleActivator(LogicalKeyboardKey.arrowLeft): _StepIntent(
+            isRtl(context) ? 1 : -1,
+          ),
+          const SingleActivator(LogicalKeyboardKey.arrowDown):
+              const _StepIntent(-1),
+          const SingleActivator(LogicalKeyboardKey.pageUp): const _StepIntent(
+            10,
+          ),
+          const SingleActivator(LogicalKeyboardKey.pageDown): const _StepIntent(
+            -10,
+          ),
+          const SingleActivator(LogicalKeyboardKey.home): const _EndIntent(
+            false,
+          ),
+          const SingleActivator(LogicalKeyboardKey.end): const _EndIntent(true),
         },
         actions: {
           _StepIntent: CallbackAction<_StepIntent>(

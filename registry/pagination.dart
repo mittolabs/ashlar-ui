@@ -72,7 +72,11 @@ class Pagination extends StatelessWidget {
               size: ButtonSize.iconSm,
               semanticLabel: 'Previous page',
               onPressed: page > 1 ? () => onChanged(page - 1) : null,
-              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronRight
+                    : AshlarIconsRoundedStroke.chevronLeft,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -89,7 +93,11 @@ class Pagination extends StatelessWidget {
               size: ButtonSize.iconSm,
               semanticLabel: 'Next page',
               onPressed: page < pageCount ? () => onChanged(page + 1) : null,
-              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
             ),
           ],
         ),
@@ -106,7 +114,11 @@ class Pagination extends StatelessWidget {
         children: [
           Button(
             variant: ButtonVariant.ghost,
-            leading: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+            leading: AshlarIcon(
+              isRtl(context)
+                  ? AshlarIconsRoundedStroke.chevronRight
+                  : AshlarIconsRoundedStroke.chevronLeft,
+            ),
             semanticLabel: 'Previous page',
             onPressed: page > 1 ? () => onChanged(page - 1) : null,
             child: const Text('Previous'),
@@ -140,7 +152,11 @@ class Pagination extends StatelessWidget {
               ),
           Button(
             variant: ButtonVariant.ghost,
-            trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+            trailing: AshlarIcon(
+              isRtl(context)
+                  ? AshlarIconsRoundedStroke.chevronLeft
+                  : AshlarIconsRoundedStroke.chevronRight,
+            ),
             semanticLabel: 'Next page',
             onPressed: page < pageCount ? () => onChanged(page + 1) : null,
             child: const Text('Next'),

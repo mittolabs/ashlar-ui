@@ -381,3 +381,8 @@ class AshlarTheme extends InheritedWidget {
   @override
   bool updateShouldNotify(AshlarTheme old) => old.data != data;
 }
+
+/// Whether the reading direction runs right to left: for keys and icons that point along
+/// the line, which turn round with it.
+bool isRtl(BuildContext context) =>
+    Directionality.maybeOf(context) == TextDirection.rtl;
