@@ -3907,39 +3907,62 @@ class MenuSeparator extends StatelessWidget {
     },
   ),
   'select': Component(
-    description: "Picks one value from a list that opens under it.",
-    requires: ["theme","pressable","popover","dropdown-menu"],
+    description: "Picks one value from a list: groups, icons, type to find, and long lists.",
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     files: {
       'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
+
+import 'dart:async';
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'dropdown_menu.dart';
 import 'popover.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
-/// One choice in a [Select].
+/// One choice in a [Select]. Options with the same [group] are listed together under it.
 @immutable
 class SelectOption<T> {
-  const SelectOption(this.value, this.label, {this.enabled = true});
+  const SelectOption(
+    this.value,
+    this.label, {
+    this.enabled = true,
+    this.icon,
+    this.group,
+  });
 
   final T value;
   final String label;
   final bool enabled;
+
+  /// A 16px icon before the label, in the list and in the trigger.
+  final Widget? icon;
+
+  /// The heading it is listed under; a line separates groups.
+  final String? group;
 }
 
-/// Picks one value from a list that opens under it. It opens on a tap, Enter, Space or
-/// the down arrow, with the chosen option focused.
+enum SelectSize {
+  /// 32 tall.
+  sm,
+
+  /// 36 tall.
+  md,
+}
+
+/// Picks one value from a list that opens under it. It opens on a tap, Enter, Space or the
+/// down arrow, on the chosen option. In the list the arrow keys, Home, End, Page Up and
+/// Page Down move, typing jumps to the option that starts with what was typed, and Enter
+/// picks. Only the rows on screen are built, so a list of thousands is as quick as ten.
 ///
 /// ```dart
 /// Select<String>(
 ///   value: county,
 ///   placeholder: 'Choose a county',
-///   options: [SelectOption('nbo', 'Nairobi'), SelectOption('msa', 'Mombasa')],
+///   options: [SelectOption('nbo', 'Nairobi', group: 'Cities'), SelectOption('ksm', 'Kisumu', group: 'Cities')],
 ///   onChanged: (v) => setState(() => county = v),
 /// )
 /// ```
@@ -3951,6 +3974,7 @@ class Select<T> extends StatefulWidget {
     required this.onChanged,
     this.placeholder,
     this.error = false,
+    this.size = SelectSize.md,
     this.focusNode,
     this.semanticLabel,
   });
@@ -3964,6 +3988,7 @@ class Select<T> extends StatefulWidget {
 
   /// Draws it as invalid.
   final bool error;
+  final SelectSize size;
   final FocusNode? focusNode;
 
   /// What it chooses, for screen readers: 'County'. The chosen option is read after it.
@@ -4002,24 +4027,13 @@ class _SelectState<T> extends State<Select<T>> {
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
         matchWidth: true,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 320),
-          child: MenuList(
-            children: [
-              for (final o in widget.options)
-                MenuItem(
-                  autofocus: o.value == widget.value,
-                  selected: o.value == widget.value,
-                  trailing: o.value == widget.value
-                      ? const AshlarIcon(AshlarIconsRoundedStroke.check)
-                      : const SizedBox(width: 16),
-                  onPressed: o.enabled
-                      ? () => widget.onChanged?.call(o.value)
-                      : null,
-                  child: Text(o.label),
-                ),
-            ],
-          ),
+        child: _SelectList<T>(
+          options: widget.options,
+          value: widget.value,
+          onPicked: (v) {
+            _menu.close();
+            widget.onChanged?.call(v);
+          },
         ),
       ),
       child: Shortcuts(
@@ -4039,8 +4053,8 @@ class _SelectState<T> extends State<Select<T>> {
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
-                height: 36,
-                padding: const EdgeInsets.only(left: 12, right: 10),
+                height: widget.size == SelectSize.sm ? 32 : 36,
+                padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
                       ? Color.alphaBlend(
@@ -4065,31 +4079,377 @@ class _SelectState<T> extends State<Select<T>> {
                     ...t.shadowXs,
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        chosen?.label ?? widget.placeholder ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: t.text.sm.copyWith(
-                          color: chosen == null
-                              ? c.mutedForeground
-                              : c.foreground,
+                child: IconTheme.merge(
+                  data: IconThemeData(color: c.mutedForeground, size: 16),
+                  child: Row(
+                    children: [
+                      if (chosen?.icon != null) ...[
+                        chosen!.icon!,
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: Text(
+                          chosen?.label ?? widget.placeholder ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.text.sm.copyWith(
+                            color: chosen == null
+                                ? c.mutedForeground
+                                : c.foreground,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    AshlarIcon(
-                      AshlarIconsRoundedStroke.chevronDown,
-                      size: 16,
-                      color: c.mutedForeground.withValues(alpha: .5),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      AshlarIcon(
+                        AshlarIconsRoundedStroke.chevronDown,
+                        size: 16,
+                        color: c.mutedForeground.withValues(alpha: .5),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// A row of the open list: a group's heading, a line between groups, or an option.
+class _Line<T> {
+  const _Line.heading(String this.heading) : option = null;
+  const _Line.gap() : heading = null, option = null;
+  const _Line.option(SelectOption<T> this.option) : heading = null;
+
+  final String? heading;
+  final SelectOption<T>? option;
+}
+
+/// The open list: a highlight that keys and the pointer move, built a screenful at a time.
+class _SelectList<T> extends StatefulWidget {
+  const _SelectList({
+    required this.options,
+    required this.value,
+    required this.onPicked,
+  });
+
+  final List<SelectOption<T>> options;
+  final T? value;
+  final ValueChanged<T> onPicked;
+
+  @override
+  State<_SelectList<T>> createState() => _SelectListState<T>();
+}
+
+class _SelectListState<T> extends State<_SelectList<T>> {
+  static const _row = 32.0,
+      _heading = 28.0,
+      _gap = 9.0,
+      _pad = 4.0,
+      _most = 320.0;
+
+  late final List<_Line<T>> _lines = _layout();
+
+  /// Where each option sits among the lines.
+  late final List<int> _optionLines = [
+    for (final (i, l) in _lines.indexed)
+      if (l.option != null) i,
+  ];
+  late int _at = _start();
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: _offsetFor(_at),
+  );
+  String _typed = '';
+  Timer? _typing;
+  final _focus = FocusNode(debugLabel: 'Select list');
+
+  @override
+  void initState() {
+    super.initState();
+    // Take the keys from the trigger as the list opens: autofocus would leave them there.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => mounted ? _focus.requestFocus() : null,
+    );
+  }
+
+  List<_Line<T>> _layout() {
+    final lines = <_Line<T>>[];
+    String? group;
+    for (final (i, o) in widget.options.indexed) {
+      if (i == 0 || o.group != group) {
+        if (i > 0) lines.add(const _Line.gap());
+        if (o.group != null) lines.add(_Line.heading(o.group!));
+        group = o.group;
+      }
+      lines.add(_Line.option(o));
+    }
+    return lines;
+  }
+
+  int _start() {
+    final i = widget.options.indexWhere((o) => o.value == widget.value);
+    if (i >= 0) return i;
+    return widget.options
+        .indexWhere((o) => o.enabled)
+        .clamp(0, widget.options.length);
+  }
+
+  double _extent(_Line<T> l) =>
+      l.option != null ? _row : (l.heading != null ? _heading : _gap);
+
+  double _top(int line) {
+    var y = _pad;
+    for (var i = 0; i < line; i++) {
+      y += _extent(_lines[i]);
+    }
+    return y;
+  }
+
+  double get _height => _lines.fold<double>(_pad * 2, (h, l) => h + _extent(l));
+
+  /// Opens with the chosen option in the middle of the list, where it can be seen.
+  double _offsetFor(int option) {
+    if (_lines.isEmpty || option >= _optionLines.length) return 0;
+    final view = _height < _most ? _height : _most;
+    return (_top(_optionLines[option]) - view / 2 + _row / 2).clamp(
+      0,
+      (_height - view).clamp(0, double.infinity),
+    );
+  }
+
+  @override
+  void dispose() {
+    _typing?.cancel();
+    _scroll.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _go(int to, {int step = 1}) {
+    final n = widget.options.length;
+    if (n == 0) return;
+    // Skip what cannot be picked, in the direction of travel.
+    var i = to.clamp(0, n - 1);
+    while (!widget.options[i].enabled) {
+      i += step;
+      if (i < 0 || i >= n) return;
+    }
+    setState(() => _at = i);
+    if (!_scroll.hasClients) return;
+    final top = _top(_optionLines[i]), view = _scroll.position;
+    if (top - _pad < view.pixels) {
+      _scroll.jumpTo((top - _pad).clamp(0, view.maxScrollExtent));
+    } else if (top + _row + _pad > view.pixels + view.viewportDimension) {
+      _scroll.jumpTo(
+        (top + _row + _pad - view.viewportDimension).clamp(
+          0,
+          view.maxScrollExtent,
+        ),
+      );
+    }
+  }
+
+  void _pick() {
+    if (_at < widget.options.length && widget.options[_at].enabled) {
+      widget.onPicked(widget.options[_at].value);
+    }
+  }
+
+  /// Typing jumps to the next option starting with what was typed in the last moment.
+  void _type(String ch) {
+    _typing?.cancel();
+    _typed += ch.toLowerCase();
+    _typing = Timer(const Duration(milliseconds: 600), () => _typed = '');
+    final n = widget.options.length;
+    for (var k = _typed.length == 1 ? 1 : 0; k <= n; k++) {
+      final i = (_at + k) % n;
+      final o = widget.options[i];
+      if (o.enabled && o.label.toLowerCase().startsWith(_typed)) return _go(i);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final perPage = (_most / _row).floor();
+    return Focus(
+      focusNode: _focus,
+      onKeyEvent: (node, e) {
+        if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
+          return KeyEventResult.ignored;
+        }
+        final k = e.logicalKey;
+        if (k == LogicalKeyboardKey.arrowDown) {
+          _go(_at + 1);
+        } else if (k == LogicalKeyboardKey.arrowUp) {
+          _go(_at - 1, step: -1);
+        } else if (k == LogicalKeyboardKey.home) {
+          _go(0);
+        } else if (k == LogicalKeyboardKey.end) {
+          _go(widget.options.length - 1, step: -1);
+        } else if (k == LogicalKeyboardKey.pageDown) {
+          _go(_at + perPage);
+        } else if (k == LogicalKeyboardKey.pageUp) {
+          _go(_at - perPage, step: -1);
+        } else if (k == LogicalKeyboardKey.enter ||
+            k == LogicalKeyboardKey.space) {
+          _pick();
+        } else if (e.character != null && e.character!.trim().isNotEmpty) {
+          _type(e.character!);
+        } else {
+          return KeyEventResult.ignored;
+        }
+        return KeyEventResult.handled;
+      },
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // The highlighted option, read out as it changes.
+            Semantics(
+              liveRegion: true,
+              label: widget.options.isEmpty
+                  ? ''
+                  : widget
+                        .options[_at.clamp(0, widget.options.length - 1)]
+                        .label,
+              child: const SizedBox(),
+            ),
+            // Gives way when the room beside the trigger is shorter than the list.
+            Flexible(
+              child: SizedBox(
+                height: _height < _most ? _height : _most,
+                child: ListView.builder(
+                  controller: _scroll,
+                  padding: const EdgeInsets.all(_pad),
+                  itemCount: _lines.length,
+                  itemExtentBuilder: (i, _) =>
+                      i < _lines.length ? _extent(_lines[i]) : null,
+                  itemBuilder: (context, i) {
+                    final line = _lines[i];
+                    if (line.option case final o?) {
+                      final index = _optionLines.indexOf(i);
+                      return _Option(
+                        option: o,
+                        lit: index == _at,
+                        chosen: o.value == widget.value,
+                        onHover: () => o.enabled && index != _at
+                            ? setState(() => _at = index)
+                            : null,
+                        onTap: () => widget.onPicked(o.value),
+                      );
+                    }
+                    if (line.heading case final h?) {
+                      return Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          8,
+                          6,
+                          8,
+                          6,
+                        ),
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            h,
+                            style: t.text.xs.copyWith(color: c.mutedForeground),
+                          ),
+                        ),
+                      );
+                    }
+                    return Container(
+                      height: 1,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color: c.border,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Option<T> extends StatelessWidget {
+  const _Option({
+    required this.option,
+    required this.lit,
+    required this.chosen,
+    required this.onHover,
+    required this.onTap,
+  });
+
+  final SelectOption<T> option;
+  final bool lit, chosen;
+  final VoidCallback onHover, onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final fg = lit ? c.accentForeground : c.popoverForeground;
+    return MouseRegion(
+      cursor: option.enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: (_) => onHover(),
+      child: Semantics(
+        button: true,
+        selected: chosen,
+        enabled: option.enabled,
+        onTap: option.enabled ? onTap : null,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: option.enabled ? onTap : null,
+          child: Opacity(
+            opacity: option.enabled ? 1 : .5,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: lit && option.enabled
+                    ? c.accent
+                    : const Color(0x00000000),
+                borderRadius: BorderRadius.circular(t.radiusSm),
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(color: c.mutedForeground, size: 16),
+                child: Row(
+                  children: [
+                    if (option.icon != null) ...[
+                      option.icon!,
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        option.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.text.sm.copyWith(color: fg),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 16,
+                      child: chosen
+                          ? AshlarIcon(
+                              AshlarIconsRoundedStroke.check,
+                              size: 16,
+                              color: fg,
+                            )
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -8427,7 +8787,7 @@ Future<void> showCommandDialog({
     },
   ),
   'combobox': Component(
-    description: "A select you can search, for long lists.",
+    description: "A select you can search: one pick or several as chips, groups, clearing.",
     requires: ["theme","pressable","popover","command"],
     packages: ["ashlar_icons"],
     files: {
@@ -8441,18 +8801,28 @@ import 'popover.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
-/// One choice in a [Combobox].
+/// One choice in a [Combobox]. Options with the same [group] are listed together under it.
 @immutable
 class ComboboxOption<T> {
-  const ComboboxOption(this.value, this.label, {this.keywords = const []});
+  const ComboboxOption(
+    this.value,
+    this.label, {
+    this.keywords = const [],
+    this.enabled = true,
+    this.group,
+    this.icon,
+  });
 
   final T value;
   final String label;
   final List<String> keywords;
+  final bool enabled;
+  final String? group;
+  final Widget? icon;
 }
 
-/// A Select you can search: it opens a list with a search box, for choosing from more
-/// options than fit a plain list.
+/// A Select you can search: it opens a list with a search box, for more options than fit a
+/// plain list. [Combobox.multiple] picks several, shown as chips that a tap removes.
 ///
 /// ```dart
 /// Combobox<String>(
@@ -8460,7 +8830,9 @@ class ComboboxOption<T> {
 ///   placeholder: 'Choose a county',
 ///   options: [for (final c in counties) ComboboxOption(c.code, c.name)],
 ///   onChanged: (v) => setState(() => county = v),
+///   onCleared: () => setState(() => county = null),
 /// )
+/// Combobox<String>.multiple(values: tags, options: allTags, onValuesChanged: (v) => setState(() => tags = v))
 /// ```
 class Combobox<T> extends StatefulWidget {
   const Combobox({
@@ -8468,18 +8840,43 @@ class Combobox<T> extends StatefulWidget {
     required this.value,
     required this.options,
     required this.onChanged,
+    this.onCleared,
     this.placeholder = 'Choose…',
     this.searchPlaceholder = 'Search…',
     this.emptyText = 'Nothing found.',
+    this.error = false,
     this.semanticLabel,
-  });
+  }) : values = null,
+       onValuesChanged = null;
+
+  const Combobox.multiple({
+    super.key,
+    required Set<T> this.values,
+    required this.options,
+    required this.onValuesChanged,
+    this.placeholder = 'Choose…',
+    this.searchPlaceholder = 'Search…',
+    this.emptyText = 'Nothing found.',
+    this.error = false,
+    this.semanticLabel,
+  }) : value = null,
+       onChanged = null,
+       onCleared = null;
 
   final T? value;
+  final Set<T>? values;
   final List<ComboboxOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
+  final ValueChanged<Set<T>>? onValuesChanged;
+
+  /// Shows a button that clears the choice, and is called by it.
+  final VoidCallback? onCleared;
   final String placeholder, searchPlaceholder, emptyText;
+
+  /// Draws it as invalid.
+  final bool error;
   final String? semanticLabel;
 
   @override
@@ -8490,19 +8887,78 @@ class _ComboboxState<T> extends State<Combobox<T>> {
   final _menu = MenuController();
   final _focus = FocusNode();
 
+  bool get _many => widget.values != null;
+  bool get _enabled =>
+      _many ? widget.onValuesChanged != null : widget.onChanged != null;
+
   @override
   void dispose() {
     _focus.dispose();
     super.dispose();
   }
 
+  void _toggle(T v) {
+    final next = {...widget.values!};
+    next.contains(v) ? next.remove(v) : next.add(v);
+    widget.onValuesChanged?.call(next);
+  }
+
+  List<CommandGroup> get _groups {
+    final groups = <String?, List<ComboboxOption<T>>>{};
+    for (final o in widget.options) {
+      (groups[o.group] ??= []).add(o);
+    }
+    bool chosen(T v) => _many ? widget.values!.contains(v) : widget.value == v;
+    return [
+      for (final MapEntry(key: heading, value: options) in groups.entries)
+        CommandGroup(heading: heading, [
+          for (final o in options)
+            CommandItem(
+              o.label,
+              keywords: o.keywords,
+              enabled: o.enabled,
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    child: chosen(o.value)
+                        ? const AshlarIcon(AshlarIconsRoundedStroke.check)
+                        : null,
+                  ),
+                  if (o.icon != null) ...[const SizedBox(width: 8), o.icon!],
+                ],
+              ),
+              onSelected: () {
+                if (_many) {
+                  // Several are picked in one go: the list stays open.
+                  _toggle(o.value);
+                } else {
+                  _menu.close();
+                  widget.onChanged?.call(o.value);
+                }
+              },
+            ),
+        ]),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final chosen = widget.options
-        .where((o) => o.value == widget.value)
-        .firstOrNull;
+    final chosen = _many
+        ? [
+            for (final o in widget.options)
+              if (widget.values!.contains(o.value)) o,
+          ]
+        : [
+            for (final o in widget.options)
+              if (o.value == widget.value) o,
+          ];
+    final shown = chosen.isEmpty
+        ? widget.placeholder
+        : chosen.map((o) => o.label).join(', ');
     return RawMenuAnchor(
       controller: _menu,
       childFocusNode: _focus,
@@ -8515,67 +8971,180 @@ class _ComboboxState<T> extends State<Combobox<T>> {
         child: Command(
           placeholder: widget.searchPlaceholder,
           emptyText: widget.emptyText,
-          groups: [
-            CommandGroup([
-              for (final o in widget.options)
-                CommandItem(
-                  o.label,
-                  keywords: o.keywords,
-                  leading: o.value == widget.value
-                      ? const AshlarIcon(AshlarIconsRoundedStroke.check)
-                      : const SizedBox(width: 16),
-                  onSelected: () {
-                    _menu.close();
-                    widget.onChanged?.call(o.value);
-                  },
-                ),
-            ]),
-          ],
+          groups: _groups,
         ),
       ),
       child: Pressable(
         focusNode: _focus,
-        onPressed: widget.onChanged == null
-            ? null
-            : () => _menu.isOpen ? _menu.close() : _menu.open(),
+        onPressed: _enabled
+            ? () => _menu.isOpen ? _menu.close() : _menu.open()
+            : null,
         semanticLabel: widget.semanticLabel,
-        semanticValue: widget.semanticLabel == null
-            ? null
-            : (chosen?.label ?? widget.placeholder),
-        builder: (context, state) => Opacity(
-          opacity: state.enabled ? 1 : .5,
-          child: AnimatedContainer(
-            duration: t.duration,
-            height: 36,
-            padding: const EdgeInsets.only(left: 12, right: 10),
-            decoration: BoxDecoration(
-              color: state.hovered ? c.accent : c.background,
-              borderRadius: BorderRadius.circular(t.radiusMd),
-              border: Border.all(color: state.focused ? c.ring : c.input),
-              boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    chosen?.label ?? widget.placeholder,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(
-                      color: chosen == null ? c.mutedForeground : c.foreground,
-                      fontWeight: FontWeight.w500,
+        semanticValue: widget.semanticLabel == null ? null : shown,
+        builder: (context, state) {
+          final ring = widget.error ? c.destructive : c.ring;
+          return Opacity(
+            opacity: state.enabled ? 1 : .5,
+            child: AnimatedContainer(
+              duration: t.duration,
+              constraints: const BoxConstraints(minHeight: 36),
+              padding: EdgeInsetsDirectional.only(
+                start: _many && chosen.isNotEmpty ? 4 : 12,
+                end: 10,
+                top: 3,
+                bottom: 3,
+              ),
+              decoration: BoxDecoration(
+                color: state.hovered && !_many ? c.accent : c.background,
+                borderRadius: BorderRadius.circular(t.radiusMd),
+                border: Border.all(
+                  color: widget.error
+                      ? c.destructive
+                      : (state.focused ? c.ring : c.input),
+                ),
+                boxShadow: [
+                  if (state.focused)
+                    BoxShadow(
+                      color: ring.withValues(alpha: widget.error ? .2 : .5),
+                      spreadRadius: 3,
                     ),
+                  ...t.shadowXs,
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _many && chosen.isNotEmpty
+                        ? Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              for (final o in chosen)
+                                _Chip(
+                                  label: o.label,
+                                  onRemove: _enabled
+                                      ? () => _toggle(o.value)
+                                      : null,
+                                ),
+                            ],
+                          )
+                        : Text(
+                            shown,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.text.sm.copyWith(
+                              color: chosen.isEmpty
+                                  ? c.mutedForeground
+                                  : c.foreground,
+                              fontWeight: chosen.isEmpty
+                                  ? null
+                                  : FontWeight.w500,
+                            ),
+                          ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                AshlarIcon(
-                  AshlarIconsRoundedStroke.chevronsUpDown,
-                  size: 16,
-                  color: c.mutedForeground.withValues(alpha: .5),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  if (widget.onCleared != null &&
+                      widget.value != null &&
+                      _enabled)
+                    _Clear(onPressed: widget.onCleared!)
+                  else
+                    AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronsUpDown,
+                      size: 16,
+                      color: c.mutedForeground.withValues(alpha: .5),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// One picked option in a multiple combobox, with a button that removes it.
+class _Chip extends StatelessWidget {
+  const _Chip({required this.label, required this.onRemove});
+
+  final String label;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Container(
+      height: 26,
+      padding: const EdgeInsetsDirectional.only(start: 8, end: 2),
+      decoration: BoxDecoration(
+        color: c.secondary,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: t.text.xs.copyWith(
+              color: c.secondaryForeground,
+              fontWeight: FontWeight.w500,
             ),
           ),
+          if (onRemove != null)
+            Pressable(
+              onPressed: onRemove,
+              semanticLabel: 'Remove $label',
+              builder: (context, state) => Container(
+                width: 20,
+                height: 20,
+                margin: const EdgeInsetsDirectional.only(start: 2),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: state.hovered
+                      ? c.background.withValues(alpha: .6)
+                      : const Color(0x00000000),
+                  borderRadius: BorderRadius.circular(t.radiusSm),
+                ),
+                child: AshlarIcon(
+                  AshlarIconsRoundedStroke.x,
+                  size: 12,
+                  color: c.secondaryForeground,
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 6),
+        ],
+      ),
+    );
+  }
+}
+
+class _Clear extends StatelessWidget {
+  const _Clear({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Pressable(
+      onPressed: onPressed,
+      semanticLabel: 'Clear',
+      builder: (context, state) => Container(
+        width: 20,
+        height: 20,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: state.hovered ? c.accent : const Color(0x00000000),
+          borderRadius: BorderRadius.circular(t.radiusSm),
+        ),
+        child: AshlarIcon(
+          AshlarIconsRoundedStroke.x,
+          size: 14,
+          color: c.mutedForeground,
         ),
       ),
     );
