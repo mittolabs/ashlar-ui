@@ -13007,46 +13007,49 @@ class _NavigationMenuState extends State<NavigationMenu> {
                   duration: move,
                   curve: Curves.easeOutCubic,
                   width: item.width,
-                  child: AnimatedSize(
-                    duration: move,
-                    curve: Curves.easeOutCubic,
-                    alignment: AlignmentDirectional.topStart,
-                    child: AnimatedSwitcher(
+                  // What leaves stays inside the panel as it changes size.
+                  child: ClipRect(
+                    child: AnimatedSize(
                       duration: move,
-                      // The new panel's content comes in from the side it was moved
-                      // towards; the old goes the other way.
-                      transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: Tween(
-                            begin: Offset(
-                              child.key == ValueKey(i)
-                                  ? _direction * .15
-                                  : -_direction * .15,
-                              0,
-                            ),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: child,
-                        ),
-                      ),
-                      layoutBuilder: (current, previous) => Stack(
-                        alignment: AlignmentDirectional.topStart,
-                        children: [
-                          for (final p in previous)
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                child: ExcludeSemantics(child: p),
+                      curve: Curves.easeOutCubic,
+                      alignment: AlignmentDirectional.topStart,
+                      child: AnimatedSwitcher(
+                        duration: move,
+                        // The new panel's content comes in from the side it was moved
+                        // towards; the old goes the other way.
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween(
+                              begin: Offset(
+                                child.key == ValueKey(i)
+                                    ? _direction * .15
+                                    : -_direction * .15,
+                                0,
                               ),
-                            ),
-                          ?current,
-                        ],
-                      ),
-                      child: KeyedSubtree(
-                        key: ValueKey(i),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Builder(builder: item.content!),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        ),
+                        layoutBuilder: (current, previous) => Stack(
+                          alignment: AlignmentDirectional.topStart,
+                          children: [
+                            for (final p in previous)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: ExcludeSemantics(child: p),
+                                ),
+                              ),
+                            ?current,
+                          ],
+                        ),
+                        child: KeyedSubtree(
+                          key: ValueKey(i),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Builder(builder: item.content!),
+                          ),
                         ),
                       ),
                     ),
