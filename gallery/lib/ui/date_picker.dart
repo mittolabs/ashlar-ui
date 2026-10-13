@@ -113,54 +113,57 @@ class _DatePickerState extends State<DatePicker> {
       onClose: _focus.requestFocus,
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
-        // Scrolls when the room by the trigger is shorter than the calendar.
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(12),
-          child: _isRange
-              ? Calendar.range(
-                  autofocus: true,
-                  range: widget.range,
-                  firstDate: widget.firstDate,
-                  lastDate: widget.lastDate,
-                  isDisabled: widget.isDisabled,
-                  onRangeChanged: (v) {
-                    widget.onRangeChanged?.call(v);
-                    if (v.end != null) _menu.close();
-                  },
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (widget.presets.isNotEmpty) ...[
-                      Select<int>(
-                        value: null,
-                        size: SelectSize.sm,
-                        placeholder: 'Pick a preset',
-                        options: [
-                          for (final (i, p) in widget.presets.indexed)
-                            SelectOption(i, p.$1),
-                        ],
-                        onChanged: (i) {
-                          widget.onChanged?.call(widget.presets[i].$2);
+        // Scrolls when the room by the trigger is shorter than the calendar, and is as wide
+        // as the calendar: a scroll view alone takes all the width it is given.
+        child: IntrinsicWidth(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(12),
+            child: _isRange
+                ? Calendar.range(
+                    autofocus: true,
+                    range: widget.range,
+                    firstDate: widget.firstDate,
+                    lastDate: widget.lastDate,
+                    isDisabled: widget.isDisabled,
+                    onRangeChanged: (v) {
+                      widget.onRangeChanged?.call(v);
+                      if (v.end != null) _menu.close();
+                    },
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (widget.presets.isNotEmpty) ...[
+                        Select<int>(
+                          value: null,
+                          size: SelectSize.sm,
+                          placeholder: 'Pick a preset',
+                          options: [
+                            for (final (i, p) in widget.presets.indexed)
+                              SelectOption(i, p.$1),
+                          ],
+                          onChanged: (i) {
+                            widget.onChanged?.call(widget.presets[i].$2);
+                            _menu.close();
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      Calendar(
+                        autofocus: widget.presets.isEmpty,
+                        selected: widget.value,
+                        firstDate: widget.firstDate,
+                        lastDate: widget.lastDate,
+                        isDisabled: widget.isDisabled,
+                        onSelected: (d) {
+                          widget.onChanged?.call(d);
                           _menu.close();
                         },
                       ),
-                      const SizedBox(height: 8),
                     ],
-                    Calendar(
-                      autofocus: widget.presets.isEmpty,
-                      selected: widget.value,
-                      firstDate: widget.firstDate,
-                      lastDate: widget.lastDate,
-                      isDisabled: widget.isDisabled,
-                      onSelected: (d) {
-                        widget.onChanged?.call(d);
-                        _menu.close();
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+          ),
         ),
       ),
       child: Pressable(

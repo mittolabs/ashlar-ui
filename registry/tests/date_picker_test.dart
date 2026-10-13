@@ -42,6 +42,24 @@ void main() {
       },
     );
 
+    testWidgets('the calendar opens in a panel as wide as it, not the screen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(DatePicker(value: null, onChanged: (_) {})));
+      await tester.tap(find.text('Pick a date'));
+      await tester.pumpAndSettle();
+      final calendar = tester.getRect(find.byType(Calendar));
+      final panel = tester.getRect(
+        find.ancestor(
+          of: find.byType(Calendar),
+          matching: find.byType(IntrinsicWidth),
+        ),
+      );
+      // The calendar and the panel's padding, on an 800 wide screen.
+      expect(panel.width, lessThan(calendar.width + 40));
+      expect(panel.width, lessThan(400));
+    });
+
     testWidgets('a range stays open until both ends are picked', (
       tester,
     ) async {
