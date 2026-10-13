@@ -7176,4 +7176,1111 @@ class _NudgeIntent extends Intent {
 ''',
     },
   ),
+  'command': Component(
+    description: "A search box over a list of things to do, picked with the keyboard.",
+    requires: ["theme","input","dialog"],
+    packages: ["ashlar_icons"],
+    files: {
+      'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'dialog.dart';
+import 'input.dart';
+import 'theme.dart';
+
+/// Something a [Command] can do or pick.
+@immutable
+class CommandItem {
+  const CommandItem(
+    this.label, {
+    required this.onSelected,
+    this.keywords = const [],
+    this.leading,
+    this.shortcut,
+    this.enabled = true,
+  });
+
+  final String label;
+  final VoidCallback onSelected;
+
+  /// Other words it is found by: "invoice" for "Billing".
+  final List<String> keywords;
+  final Widget? leading;
+  final String? shortcut;
+  final bool enabled;
+}
+
+/// A titled run of items in a [Command].
+@immutable
+class CommandGroup {
+  const CommandGroup(this.items, {this.heading});
+
+  final String? heading;
+  final List<CommandItem> items;
+}
+
+/// A search box over a list of things to do: typing narrows the list, the arrow keys
+/// move the highlight while the typing stays in the box, and Enter picks. For a menu of
+/// many commands, or a picker over a long list; [showCommandDialog] opens one over the
+/// page, the way ⌘K does.
+///
+/// ```dart
+/// Command(groups: [
+///   CommandGroup(heading: 'Suggestions', [
+///     CommandItem('Calendar', leading: AshlarIcon(AshlarIconsRoundedStroke.calendar), onSelected: openCalendar),
+///     CommandItem('Search emoji', onSelected: openEmoji),
+///   ]),
+///   CommandGroup(heading: 'Settings', [CommandItem('Profile', shortcut: '⌘P', onSelected: openProfile)]),
+/// ])
+/// ```
+class Command extends StatefulWidget {
+  const Command({
+    super.key,
+    required this.groups,
+    this.placeholder = 'Type a command or search…',
+    this.emptyText = 'No results found.',
+    this.autofocus = true,
+    this.maxHeight = 300,
+  });
+
+  final List<CommandGroup> groups;
+  final String placeholder;
+  final String emptyText;
+  final bool autofocus;
+  final double maxHeight;
+
+  @override
+  State<Command> createState() => _CommandState();
+}
+
+class _CommandState extends State<Command> {
+  final _query = TextEditingController();
+  int _at = 0;
+  final _keys = <CommandItem, GlobalKey>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _query.addListener(() => setState(() => _at = 0));
+  }
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  /// Every word typed is somewhere in the item's label or keywords.
+  bool _matches(CommandItem item) {
+    final words = _query.text
+        .toLowerCase()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty);
+    final hay = [item.label, ...item.keywords].join(' ').toLowerCase();
+    return words.every(hay.contains);
+  }
+
+  List<CommandGroup> get _shown => [
+    for (final g in widget.groups)
+      if (g.items.any(_matches))
+        CommandGroup(g.items.where(_matches).toList(), heading: g.heading),
+  ];
+
+  List<CommandItem> get _pickable => [
+    for (final g in _shown) ...g.items.where((i) => i.enabled),
+  ];
+
+  void _move(int by) {
+    final n = _pickable.length;
+    if (n == 0) return;
+    setState(() => _at = (_at + by).clamp(0, n - 1));
+    final key = _keys[_pickable[_at]];
+    if (key?.currentContext != null) {
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        alignmentPolicy: by > 0
+            ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+            : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      );
+    }
+  }
+
+  void _pick() {
+    final items = _pickable;
+    if (_at < items.length) items[_at].onSelected();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final shown = _shown, pickable = _pickable;
+    final lit = pickable.isEmpty
+        ? null
+        : pickable[_at.clamp(0, pickable.length - 1)];
+    return DefaultTextStyle.merge(
+      style: t.text.sm.copyWith(color: c.popoverForeground),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                  _move(1),
+              const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                  _move(-1),
+              const SingleActivator(
+                LogicalKeyboardKey.home,
+                control: true,
+              ): () =>
+                  _move(-pickable.length),
+              const SingleActivator(
+                LogicalKeyboardKey.end,
+                control: true,
+              ): () =>
+                  _move(pickable.length),
+              const SingleActivator(LogicalKeyboardKey.enter): _pick,
+            },
+            child: Container(
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: c.border)),
+              ),
+              child: Row(
+                children: [
+                  AshlarIcon(
+                    AshlarIconsRoundedStroke.search,
+                    size: 16,
+                    color: c.mutedForeground.withValues(alpha: .5),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Input(
+                      decorated: false,
+                      controller: _query,
+                      autofocus: widget.autofocus,
+                      placeholder: widget.placeholder,
+                      textInputAction: TextInputAction.go,
+                      onSubmitted: (_) => _pick(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // The highlighted item, read out as it changes: the typing stays in the box.
+          Semantics(
+            liveRegion: true,
+            label: lit?.label ?? (shown.isEmpty ? widget.emptyText : ''),
+            child: const SizedBox(),
+          ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: widget.maxHeight),
+            child: shown.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      widget.emptyText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: c.mutedForeground),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (gi, g) in shown.indexed) ...[
+                          if (gi > 0)
+                            Container(
+                              height: 1,
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              color: c.border,
+                            ),
+                          if (g.heading != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                              child: Semantics(
+                                header: true,
+                                child: Text(
+                                  g.heading!,
+                                  style: t.text.xs.copyWith(
+                                    color: c.mutedForeground,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          for (final item in g.items)
+                            _Row(
+                              key: _keys.putIfAbsent(item, GlobalKey.new),
+                              item: item,
+                              lit: identical(item, lit),
+                              onHover: () {
+                                final i = pickable.indexOf(item);
+                                if (i >= 0 && i != _at) setState(() => _at = i);
+                              },
+                            ),
+                        ],
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  const _Row({
+    super.key,
+    required this.item,
+    required this.lit,
+    required this.onHover,
+  });
+
+  final CommandItem item;
+  final bool lit;
+  final VoidCallback onHover;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final fg = lit ? c.accentForeground : c.popoverForeground;
+    return MouseRegion(
+      cursor: item.enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: item.enabled ? (_) => onHover() : null,
+      child: Semantics(
+        button: true,
+        selected: lit,
+        enabled: item.enabled,
+        onTap: item.enabled ? item.onSelected : null,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: item.enabled ? item.onSelected : null,
+          child: Opacity(
+            opacity: item.enabled ? 1 : .5,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: lit ? c.accent : const Color(0x00000000),
+                borderRadius: BorderRadius.circular(t.radiusSm),
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(color: c.mutedForeground, size: 16),
+                child: Row(
+                  children: [
+                    if (item.leading != null) ...[
+                      item.leading!,
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        item.label,
+                        style: TextStyle(color: fg),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (item.shortcut != null)
+                      Text(
+                        item.shortcut!,
+                        style: t.text.xs.copyWith(
+                          color: c.mutedForeground,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Opens a [Command] over the page, the way ⌘K does. Picking an item closes it first.
+Future<void> showCommandDialog({
+  required BuildContext context,
+  required List<CommandGroup> groups,
+  String placeholder = 'Type a command or search…',
+}) => showAshlarDialog<void>(
+  context: context,
+  builder: (context) {
+    final t = AshlarTheme.of(context);
+    void close() => Navigator.pop(context);
+    return SafeArea(
+      child: Align(
+        alignment: const Alignment(0, -.4),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 512),
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: t.colors.popover,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+                border: Border.all(color: t.colors.border),
+                boxShadow: t.shadowLg,
+              ),
+              child: Command(
+                placeholder: placeholder,
+                groups: [
+                  for (final g in groups)
+                    CommandGroup(heading: g.heading, [
+                      for (final i in g.items)
+                        CommandItem(
+                          i.label,
+                          keywords: i.keywords,
+                          leading: i.leading,
+                          shortcut: i.shortcut,
+                          enabled: i.enabled,
+                          onSelected: () {
+                            close();
+                            i.onSelected();
+                          },
+                        ),
+                    ]),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+);
+''',
+    },
+  ),
+  'combobox': Component(
+    description: "A select you can search, for long lists.",
+    requires: ["theme","pressable","popover","command"],
+    packages: ["ashlar_icons"],
+    files: {
+      'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'command.dart';
+import 'popover.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One choice in a [Combobox].
+@immutable
+class ComboboxOption<T> {
+  const ComboboxOption(this.value, this.label, {this.keywords = const []});
+
+  final T value;
+  final String label;
+  final List<String> keywords;
+}
+
+/// A Select you can search: it opens a list with a search box, for choosing from more
+/// options than fit a plain list.
+///
+/// ```dart
+/// Combobox<String>(
+///   value: county,
+///   placeholder: 'Choose a county',
+///   options: [for (final c in counties) ComboboxOption(c.code, c.name)],
+///   onChanged: (v) => setState(() => county = v),
+/// )
+/// ```
+class Combobox<T> extends StatefulWidget {
+  const Combobox({
+    super.key,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.placeholder = 'Choose…',
+    this.searchPlaceholder = 'Search…',
+    this.emptyText = 'Nothing found.',
+    this.semanticLabel,
+  });
+
+  final T? value;
+  final List<ComboboxOption<T>> options;
+
+  /// Null disables it.
+  final ValueChanged<T>? onChanged;
+  final String placeholder, searchPlaceholder, emptyText;
+  final String? semanticLabel;
+
+  @override
+  State<Combobox<T>> createState() => _ComboboxState<T>();
+}
+
+class _ComboboxState<T> extends State<Combobox<T>> {
+  final _menu = MenuController();
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final chosen = widget.options
+        .where((o) => o.value == widget.value)
+        .firstOrNull;
+    return RawMenuAnchor(
+      controller: _menu,
+      childFocusNode: _focus,
+      onClose: _focus.requestFocus,
+      overlayBuilder: (context, info) => PopoverPanel(
+        info: info,
+        matchWidth: true,
+        child: Command(
+          placeholder: widget.searchPlaceholder,
+          emptyText: widget.emptyText,
+          groups: [
+            CommandGroup([
+              for (final o in widget.options)
+                CommandItem(
+                  o.label,
+                  keywords: o.keywords,
+                  leading: o.value == widget.value
+                      ? const AshlarIcon(AshlarIconsRoundedStroke.check)
+                      : const SizedBox(width: 16),
+                  onSelected: () {
+                    _menu.close();
+                    widget.onChanged?.call(o.value);
+                  },
+                ),
+            ]),
+          ],
+        ),
+      ),
+      child: Pressable(
+        focusNode: _focus,
+        onPressed: widget.onChanged == null
+            ? null
+            : () => _menu.isOpen ? _menu.close() : _menu.open(),
+        semanticLabel: widget.semanticLabel,
+        semanticValue: widget.semanticLabel == null
+            ? null
+            : (chosen?.label ?? widget.placeholder),
+        builder: (context, state) => Opacity(
+          opacity: state.enabled ? 1 : .5,
+          child: AnimatedContainer(
+            duration: t.duration,
+            height: 36,
+            padding: const EdgeInsets.only(left: 12, right: 10),
+            decoration: BoxDecoration(
+              color: state.hovered ? c.accent : c.background,
+              borderRadius: BorderRadius.circular(t.radiusMd),
+              border: Border.all(color: state.focused ? c.ring : c.input),
+              boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    chosen?.label ?? widget.placeholder,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(
+                      color: chosen == null ? c.mutedForeground : c.foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                AshlarIcon(
+                  AshlarIconsRoundedStroke.chevronsUpDown,
+                  size: 16,
+                  color: c.mutedForeground.withValues(alpha: .5),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'menubar': Component(
+    description: "A bar of menus, as at the top of a desktop app.",
+    requires: ["theme","pressable","popover","dropdown-menu"],
+    packages: [],
+    files: {
+      'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
+
+import 'dart:ui' show SemanticsRole;
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'dropdown_menu.dart';
+import 'popover.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One menu on a [Menubar]: its name on the bar and its items.
+@immutable
+class MenubarMenu {
+  const MenubarMenu(this.label, {required this.items});
+
+  final String label;
+
+  /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
+  final List<Widget> items;
+}
+
+/// A bar of menus, as at the top of a desktop app. Once one menu is open, pointing at
+/// another opens that one instead, and the left and right arrows move between them.
+///
+/// ```dart
+/// Menubar(menus: [
+///   MenubarMenu('File', items: [MenuItem(shortcut: Text('⌘N'), onPressed: newFile, child: Text('New')), ...]),
+///   MenubarMenu('Edit', items: [MenuItem(shortcut: Text('⌘Z'), onPressed: undo, child: Text('Undo')), ...]),
+/// ])
+/// ```
+class Menubar extends StatefulWidget {
+  const Menubar({super.key, required this.menus});
+
+  final List<MenubarMenu> menus;
+
+  @override
+  State<Menubar> createState() => _MenubarState();
+}
+
+class _MenubarState extends State<Menubar> {
+  late final _menus = [for (final _ in widget.menus) MenuController()];
+  late final _focus = [for (final _ in widget.menus) FocusNode()];
+  int? _open;
+
+  @override
+  void dispose() {
+    for (final f in _focus) {
+      f.dispose();
+    }
+    super.dispose();
+  }
+
+  void _show(int i) {
+    for (final (j, m) in _menus.indexed) {
+      if (j != i && m.isOpen) m.close();
+    }
+    _menus[i].open();
+    _focus[i].requestFocus();
+  }
+
+  void _step(int by) => _show(
+    (((_open ?? 0) + by) % _menus.length + _menus.length) % _menus.length,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Semantics(
+      role: SemanticsRole.menuBar,
+      container: true,
+      explicitChildNodes: true,
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: c.background,
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: Border.all(color: c.border),
+          boxShadow: t.shadowXs,
+        ),
+        child: CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+                _step(1),
+            const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+                _step(-1),
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (i, menu) in widget.menus.indexed)
+                RawMenuAnchor(
+                  controller: _menus[i],
+                  childFocusNode: _focus[i],
+                  onOpen: () => setState(() => _open = i),
+                  onClose: () =>
+                      setState(() => _open = _open == i ? null : _open),
+                  overlayBuilder: (context, info) => PopoverPanel(
+                    info: info,
+                    minWidth: 192,
+                    // The arrows reach the next menu from inside this one too.
+                    child: CallbackShortcuts(
+                      bindings: {
+                        const SingleActivator(
+                          LogicalKeyboardKey.arrowRight,
+                        ): () =>
+                            _step(1),
+                        const SingleActivator(
+                          LogicalKeyboardKey.arrowLeft,
+                        ): () =>
+                            _step(-1),
+                      },
+                      child: MenuList(children: menu.items),
+                    ),
+                  ),
+                  // Inside the anchor: its own arrow keys would otherwise move focus first.
+                  child: CallbackShortcuts(
+                    bindings: {
+                      const SingleActivator(
+                        LogicalKeyboardKey.arrowRight,
+                      ): () =>
+                          _step(1),
+                      const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+                          _step(-1),
+                    },
+                    child: MouseRegion(
+                      onEnter: (_) {
+                        if (_open != null && _open != i) _show(i);
+                      },
+                      child: Pressable(
+                        focusNode: _focus[i],
+                        role: SemanticsRole.menuItem,
+                        expanded: _open == i,
+                        onPressed: () =>
+                            _open == i ? _menus[i].close() : _show(i),
+                        builder: (context, state) => AnimatedContainer(
+                          duration: t.duration,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: _open == i || state.hovered || state.focused
+                                ? c.accent
+                                : const Color(0x00000000),
+                            borderRadius: BorderRadius.circular(t.radiusSm),
+                          ),
+                          child: Text(
+                            menu.label,
+                            style: t.text.sm.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: _open == i || state.hovered
+                                  ? c.accentForeground
+                                  : c.foreground,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'navigation-menu': Component(
+    description: "A site's main links, with panels that open from headings.",
+    requires: ["theme","pressable","popover"],
+    packages: ["ashlar_icons"],
+    files: {
+      'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
+// yours to change.
+
+import 'dart:async';
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'popover.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One entry of a [NavigationMenu]: a link, or a heading that opens a panel of [content].
+@immutable
+class NavigationMenuItem {
+  const NavigationMenuItem.link(
+    this.label, {
+    required VoidCallback this.onPressed,
+  }) : content = null,
+       width = 0;
+  const NavigationMenuItem(
+    this.label, {
+    required WidgetBuilder this.content,
+    this.width = 400,
+  }) : onPressed = null;
+
+  final String label;
+  final VoidCallback? onPressed;
+  final WidgetBuilder? content;
+
+  /// The panel's width.
+  final double width;
+}
+
+/// A site's main navigation: links, and headings whose panels open on hover, on a click
+/// or from the keyboard, with links and a line about each inside. Moving to another
+/// heading while one is open switches straight to it.
+///
+/// ```dart
+/// NavigationMenu(items: [
+///   NavigationMenuItem('Components', content: (context) => Column(children: [
+///     NavigationMenuLink(title: 'Button', description: 'Six variants and four sizes.', onPressed: () => go('/button')),
+///   ])),
+///   NavigationMenuItem.link('Docs', onPressed: () => go('/docs')),
+/// ])
+/// ```
+class NavigationMenu extends StatefulWidget {
+  const NavigationMenu({super.key, required this.items});
+
+  final List<NavigationMenuItem> items;
+
+  @override
+  State<NavigationMenu> createState() => _NavigationMenuState();
+}
+
+class _NavigationMenuState extends State<NavigationMenu> {
+  late final _menus = [for (final _ in widget.items) MenuController()];
+  int? _open;
+  Timer? _timer;
+
+  void _show(int i) {
+    _timer?.cancel();
+    for (final (j, m) in _menus.indexed) {
+      if (j != i && m.isOpen) m.close();
+    }
+    if (!_menus[i].isOpen) _menus[i].open();
+  }
+
+  /// Opens after a moment on hover, straight away if one is already open.
+  void _hoverIn(int i) {
+    _timer?.cancel();
+    if (_open != null) return _show(i);
+    _timer = Timer(
+      const Duration(milliseconds: 200),
+      () => mounted ? _show(i) : null,
+    );
+  }
+
+  void _hoverOut() {
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted && _open != null) _menus[_open!].close();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget trigger(int i, NavigationMenuItem item, {required bool open}) =>
+        Pressable(
+          link: item.onPressed != null,
+          expanded: item.content == null ? null : open,
+          onPressed:
+              item.onPressed ?? () => open ? _menus[i].close() : _show(i),
+          builder: (context, state) => AnimatedContainer(
+            duration: t.duration,
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: open || state.hovered ? c.accent : const Color(0x00000000),
+              borderRadius: BorderRadius.circular(t.radiusMd),
+              boxShadow: [if (state.focused) ...t.focusRing],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  item.label,
+                  style: t.text.sm.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: open || state.hovered
+                        ? c.accentForeground
+                        : c.foreground,
+                  ),
+                ),
+                if (item.content != null) ...[
+                  const SizedBox(width: 4),
+                  AnimatedRotation(
+                    turns: open ? .5 : 0,
+                    duration: t.duration,
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronDown,
+                      size: 12,
+                      color: c.foreground,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+    return Semantics(
+      container: true,
+      label: 'Main',
+      explicitChildNodes: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (i, item) in widget.items.indexed)
+            if (item.content == null)
+              trigger(i, item, open: false)
+            else
+              RawMenuAnchor(
+                controller: _menus[i],
+                onOpen: () => setState(() => _open = i),
+                onClose: () =>
+                    setState(() => _open = _open == i ? null : _open),
+                overlayBuilder: (context, info) => PopoverPanel(
+                  info: info,
+                  width: item.width,
+                  child: MouseRegion(
+                    onEnter: (_) => _timer?.cancel(),
+                    onExit: (_) => _hoverOut(),
+                    child: FocusTraversalGroup(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Builder(builder: item.content!),
+                      ),
+                    ),
+                  ),
+                ),
+                child: MouseRegion(
+                  onEnter: (_) => _hoverIn(i),
+                  onExit: (_) => _hoverOut(),
+                  child: trigger(i, item, open: _open == i),
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A link in a navigation panel, with a line about where it goes. Picking it closes the
+/// panel.
+class NavigationMenuLink extends StatelessWidget {
+  const NavigationMenuLink({
+    super.key,
+    required this.title,
+    this.description,
+    required this.onPressed,
+  });
+
+  final String title;
+  final String? description;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Pressable(
+      link: true,
+      onPressed: () {
+        MenuController.maybeOf(context)?.close();
+        onPressed();
+      },
+      builder: (context, state) => AnimatedContainer(
+        duration: t.duration,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: state.hovered || state.focused
+              ? c.accent
+              : const Color(0x00000000),
+          borderRadius: BorderRadius.circular(t.radiusSm),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: t.text.sm.copyWith(
+                fontWeight: FontWeight.w500,
+                color: c.popoverForeground,
+              ),
+            ),
+            if (description != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                description!,
+                style: t.text.sm.copyWith(color: c.mutedForeground),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'carousel': Component(
+    description: "Slides in a row, moved by swiping, buttons or the arrow keys.",
+    requires: ["button"],
+    packages: ["ashlar_icons"],
+    files: {
+      'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+
+/// Slides in a row, one or several in view, moved by swiping, by the buttons either
+/// side, or by the arrow keys while it has focus. A screen reader hears which slide is
+/// showing.
+///
+/// ```dart
+/// Carousel(viewportFraction: 1 / 3, children: [for (final p in products) ProductCard(p)])
+/// ```
+class Carousel extends StatefulWidget {
+  const Carousel({
+    super.key,
+    required this.children,
+    this.viewportFraction = 1,
+    this.spacing = 16,
+    this.controls = true,
+    this.onChanged,
+    this.semanticLabel = 'Carousel',
+  });
+
+  final List<Widget> children;
+
+  /// How much of the width one slide takes: 1 shows one, 1 / 3 shows three.
+  final double viewportFraction;
+
+  /// The gap between slides.
+  final double spacing;
+
+  /// Previous and Next buttons outside the slides, left and right.
+  final bool controls;
+  final ValueChanged<int>? onChanged;
+  final String semanticLabel;
+
+  @override
+  State<Carousel> createState() => _CarouselState();
+}
+
+class _CarouselState extends State<Carousel> {
+  late final _pages = PageController(viewportFraction: widget.viewportFraction);
+  int _at = 0;
+
+  /// The last slide that can lead: with several in view, the end comes sooner.
+  int get _last =>
+      (widget.children.length - (1 / widget.viewportFraction).floor()).clamp(
+        0,
+        widget.children.length - 1,
+      );
+
+  void _go(int i) => _pages.animateToPage(
+    i.clamp(0, _last),
+    duration: const Duration(milliseconds: 300),
+    curve: Curves.easeOutCubic,
+  );
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final track = Semantics(
+      container: true,
+      label: widget.semanticLabel,
+      value: 'Slide ${_at + 1} of ${widget.children.length}',
+      // The keys go to what has focus and up from it, so the bindings sit outside the Focus.
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+              _go(_at + 1),
+          const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+              _go(_at - 1),
+        },
+        child: Focus(
+          child: PageView.builder(
+            controller: _pages,
+            padEnds: false,
+            itemCount: widget.children.length,
+            onPageChanged: (i) {
+              setState(() => _at = i);
+              widget.onChanged?.call(i);
+            },
+            itemBuilder: (context, i) => Padding(
+              padding: EdgeInsets.only(right: widget.spacing),
+              child: Semantics(
+                label: 'Slide ${i + 1} of ${widget.children.length}',
+                container: true,
+                child: widget.children[i],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (!widget.controls) return track;
+    Widget arrow(IconData icon, String label, VoidCallback? onPressed) =>
+        Button(
+          variant: ButtonVariant.outline,
+          size: ButtonSize.icon,
+          semanticLabel: label,
+          onPressed: onPressed,
+          child: AshlarIcon(icon),
+        );
+    return Row(
+      children: [
+        arrow(
+          AshlarIconsRoundedStroke.arrowLeft,
+          'Previous slide',
+          _at > 0 ? () => _go(_at - 1) : null,
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: track),
+        const SizedBox(width: 12),
+        arrow(
+          AshlarIconsRoundedStroke.arrowRight,
+          'Next slide',
+          _at < _last ? () => _go(_at + 1) : null,
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
 };

@@ -47,5 +47,10 @@
   "drawer": { "description": "A panel that comes up from the bottom and drags away.", "files": ["drawer.dart"], "requires": ["theme"] },
   "input-group": { "description": "A text field with text, buttons or a toolbar inside its border.", "files": ["input_group.dart"], "requires": ["theme", "input"] },
   "input-otp": { "description": "A one-time code, one character to a box.", "files": ["input_otp.dart"], "requires": ["theme", "group"] },
-  "resizable": { "description": "Panels with handles between them that drag to resize.", "files": ["resizable.dart"], "requires": ["theme"] }
+  "resizable": { "description": "Panels with handles between them that drag to resize.", "files": ["resizable.dart"], "requires": ["theme"] },
+  "command": { "description": "A search box over a list of things to do, picked with the keyboard.", "files": ["command.dart"], "requires": ["theme", "input", "dialog"], "packages": ["ashlar_icons"] },
+  "combobox": { "description": "A select you can search, for long lists.", "files": ["combobox.dart"], "requires": ["theme", "pressable", "popover", "command"], "packages": ["ashlar_icons"] },
+  "menubar": { "description": "A bar of menus, as at the top of a desktop app.", "files": ["menubar.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"] },
+  "navigation-menu": { "description": "A site's main links, with panels that open from headings.", "files": ["navigation_menu.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
+  "carousel": { "description": "Slides in a row, moved by swiping, buttons or the arrow keys.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] }
 }
