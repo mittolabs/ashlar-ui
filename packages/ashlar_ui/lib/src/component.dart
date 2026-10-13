@@ -9,6 +9,8 @@ class Component {
     this.block = false,
     this.tests = const {},
     this.testNeeds = const [],
+    this.preview,
+    this.previewWidget,
   });
 
   final String description;
@@ -32,4 +34,11 @@ class Component {
 
   /// The other items its tests use: the tests are written once the project has these.
   final List<String> testNeeds;
+
+  /// A small screen of it, for ashlar update --preview to draw before and after an
+  /// update: the site's demo, importing the gallery's ui folder as the tests do.
+  final String? preview;
+
+  /// The widget [preview] declares.
+  final String? previewWidget;
 }

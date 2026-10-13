@@ -11,6 +11,7 @@ import 'mcp.dart';
 import 'prefix.dart';
 import 'merge.dart';
 import 'registry.g.dart';
+import 'review.dart';
 import 'remote.dart';
 
 /// The version each pub.dev package a component needs is added at.
@@ -61,6 +62,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar list                           what there is, and what you have
   ashlar diff [item...]                 what changed in your copies, and what is newer
   ashlar update [item...] [--dry-run]   take what is newer, keeping your changes
+             [--preview]                draw what it would change, before and after
   ashlar check [--no-contrast]          what can be proved about your app's accessibility:
                                         theme contrast, labels, right to left, touch targets
   ashlar mcp                            these commands for a coding agent, over MCP on
@@ -297,7 +299,12 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     case 'diff':
       return await project.diff(words, o);
     case 'update':
-      return project.update(words, dryRun: rest.contains('--dry-run'), out: o);
+      return project.update(
+        words,
+        dryRun: rest.contains('--dry-run'),
+        preview: rest.contains('--preview'),
+        out: o,
+      );
     case 'build':
       final file = words.firstOrNull ?? 'registry.json';
       return build(
@@ -881,7 +888,12 @@ class Project {
     List<String> names, {
     required bool dryRun,
     required StringSink out,
+    bool preview = false,
   }) async {
+    // A preview changes nothing: it draws what would change.
+    if (preview) dryRun = true;
+    final would = <String, String>{};
+    final unsure = <String>{};
     final unknown = names.where((n) => !registry.containsKey(n)).toList();
     if (unknown.isNotEmpty) {
       out.writeln('No component named ${unknown.join(', ')}.');
@@ -943,6 +955,7 @@ class Project {
         final m = merge3(base, own, now);
         text = m.text;
         if (m.conflicts > 0) {
+          unsure.add(at);
           conflicts += m.conflicts;
           out.writeln(
             '  merged $at, ${m.conflicts} place${m.conflicts == 1 ? '' : 's'} to choose: between <<<<<<< yours and >>>>>>> ashlar',
@@ -952,6 +965,7 @@ class Project {
           out.writeln('  merged $at, your changes kept');
         }
       }
+      if (text != yours) would[at] = text;
       if (dryRun) continue;
       if (text != yours) File('${root.path}/$at').writeAsStringSync(text);
       fingerprints[at] = fingerprint(latest);
@@ -967,6 +981,7 @@ class Project {
         if (code != 0) return code;
       }
     }
+    if (preview) await _review(chosen, would, unsure, out);
     final changed = took + merged + conflicts;
     out.writeln(
       changed == 0 && kept == 0
@@ -974,6 +989,61 @@ class Project {
           : '${dryRun ? 'Would update' : 'Updated'}: $took taken, $merged merged, $conflicts to choose, $kept kept as they were.',
     );
     return conflicts > 0 ? 1 : 0;
+  }
+
+  /// Draws each of [chosen] that [would] changes, before and after; one with places to
+  /// choose ([unsure]) is not drawn, since it does not build until they are chosen.
+  Future<void> _review(
+    List<String> chosen,
+    Map<String, String> would,
+    Set<String> unsure,
+    StringSink out,
+  ) async {
+    final items = <ReviewItem>[];
+    final undrawn = <String>[];
+    for (final name in chosen) {
+      final c = registry[name]!;
+      final ats = [for (final f in c.files.keys) target(c, f)];
+      if (!ats.any(would.containsKey)) continue;
+      if (ats.any(unsure.contains) || c.preview == null || c.block) {
+        undrawn.add(name);
+        continue;
+      }
+      items.add((
+        name: name,
+        widget: named(c.previewWidget!),
+        preview: c.preview!,
+      ));
+    }
+    if (items.isEmpty) {
+      out.writeln(
+        undrawn.isEmpty
+            ? 'Nothing to draw: no component would look different.'
+            : 'Nothing drawn: ${undrawn.join(', ')} would change, with no picture to draw or places to choose first.',
+      );
+      return;
+    }
+    out.writeln(
+      '  drawing ${items.length} component${items.length == 1 ? '' : 's'} before and after…',
+    );
+    final r = await drawReview(
+      root: root,
+      path: path,
+      after: would,
+      items: items,
+      named: named,
+      rename: (s) => withPrefix(s, _names),
+    );
+    if (r.page != null) {
+      out.writeln('Before and after, side by side: ${r.page}');
+    } else {
+      out.writeln('Could not draw them: ${r.why}');
+    }
+    if (undrawn.isNotEmpty) {
+      out.writeln(
+        'Not drawn, with places to choose first or no picture: ${undrawn.join(', ')}',
+      );
+    }
   }
 
   /// Finds what can be proved about the app's accessibility: the contrast of its theme,

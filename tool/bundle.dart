@@ -49,6 +49,14 @@ void main() {
       }
       out.writeln('    },');
     }
+    // The picture ashlar update --preview draws, and the widget in it.
+    if (spec['preview'] case final String file) {
+      final source = File('registry/$file').readAsStringSync();
+      final widget = RegExp(r'class (\w+Demo) extends').firstMatch(source)![1];
+      out
+        ..writeln("    previewWidget: '$widget',")
+        ..writeln('    preview: ${_raw(source)},');
+    }
     out.writeln('  ),');
   }
   out.writeln('};');

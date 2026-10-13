@@ -25,6 +25,7 @@ void olderVersion(Directory dir, String at, String old) {
 }
 
 void main() {
+  previewTests();
   formattedApp();
   group('merge3', () {
     test('changes to different lines both come through', () {
@@ -246,4 +247,20 @@ void formattedApp() {
       },
     );
   });
+}
+
+void previewTests() {
+  test(
+    'update --preview changes nothing, and says when there is nothing to draw',
+    () async {
+      final dir = project();
+      await run(['add', 'badge'], dir: dir, out: StringBuffer());
+      final before = File('${dir.path}/lib/ui/badge.dart').readAsStringSync();
+      final out = StringBuffer();
+      await run(['update', '--preview'], dir: dir, out: out);
+      expect(out.toString(), contains('Nothing to draw'));
+      expect(File('${dir.path}/lib/ui/badge.dart').readAsStringSync(), before);
+      expect(Directory('${dir.path}/.ashlar/review').existsSync(), isFalse);
+    },
+  );
 }
