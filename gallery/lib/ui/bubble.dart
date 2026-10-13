@@ -110,14 +110,15 @@ class Bubble extends StatelessWidget {
     if (reactions != null) {
       final top = reactionsSide == BubbleReactionsSide.top;
       bubble = Padding(
-        padding: EdgeInsets.only(top: top ? 14 : 0, bottom: top ? 0 : 14),
+        // Three quarters of the pill hangs past the edge, so it covers little of the text.
+        padding: EdgeInsets.only(top: top ? 20 : 0, bottom: top ? 0 : 20),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             bubble,
             PositionedDirectional(
-              top: top ? -14 : null,
-              bottom: top ? null : -14,
+              top: top ? -20 : null,
+              bottom: top ? null : -20,
               end: end ? null : 12,
               start: end ? 12 : null,
               child: Container(

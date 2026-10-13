@@ -90,5 +90,6 @@
   "bubble": { "description": "What was said, in a rounded fill on the sender's side, with reactions.", "files": ["bubble.dart"], "requires": ["message", "pressable", "theme"] },
   "marker": { "description": "A note in a conversation that nobody said: a day, someone joining, thinking.", "files": ["marker.dart"], "requires": ["theme"] },
   "attachment": { "description": "A file or picture in a conversation: what it is and how its upload is going.", "files": ["attachment.dart"], "requires": ["button", "pressable", "spinner", "theme"], "packages": ["ashlar_icons"] },
-  "message-scroller": { "description": "A conversation that scrolls as people expect: new turns near the top, following only at the end.", "files": ["message_scroller.dart"], "requires": ["button"], "packages": ["ashlar_icons"] }
+  "message-scroller": { "description": "A conversation that scrolls as people expect: new turns near the top, following only at the end.", "files": ["message_scroller.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
+  "questionnaire": { "description": "Questions one at a time: one choice, several or words, with keys for every answer.", "files": ["questionnaire.dart"], "requires": ["button", "input", "kbd", "pressable", "progress", "theme"], "packages": ["ashlar_icons"] }
 }

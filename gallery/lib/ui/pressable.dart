@@ -46,6 +46,7 @@ class Pressable extends StatefulWidget {
     this.selected,
     this.expanded,
     this.link = false,
+    this.exclusive = false,
     this.role,
   });
 
@@ -85,6 +86,9 @@ class Pressable extends StatefulWidget {
   /// What a screen reader calls it, when it is not a button: a tab, a menu item.
   final SemanticsRole? role;
 
+  /// One of a group where only one is checked: a radio button, to a screen reader.
+  final bool exclusive;
+
   @override
   State<Pressable> createState() => _PressableState();
 }
@@ -116,6 +120,7 @@ class _PressableState extends State<Pressable> {
         selected: widget.selected,
         toggled: widget.toggled,
         checked: widget.mixed ? null : widget.checked,
+        inMutuallyExclusiveGroup: widget.exclusive ? true : null,
         mixed: widget.mixed ? true : null,
         enabled: _enabled,
         label: widget.semanticLabel,
