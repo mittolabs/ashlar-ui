@@ -41,7 +41,7 @@
   "alert-dialog": { "description": "A question that needs an answer before going on.", "files": ["alert_dialog.dart"], "requires": ["dialog", "button"] },
   "hover-card": { "description": "A card that appears when the pointer rests on something.", "files": ["hover_card.dart"], "requires": ["theme", "popover"] },
   "context-menu": { "description": "A menu that opens where something is right-clicked or long-pressed.", "files": ["context_menu.dart"], "requires": ["popover", "dropdown-menu"] },
-  "scroll-area": { "description": "Scrolling with a thin scrollbar in the theme's colours.", "files": ["scroll_area.dart"], "requires": ["theme"] },
+  "scroll-area": { "description": "Scrolling with a thin themed scrollbar; a builder for long lists.", "files": ["scroll_area.dart"], "requires": ["theme"] },
   "data-table": { "description": "Rows of data under column headings, with a footer and a caption.", "files": ["data_table.dart"], "requires": ["theme"] },
   "sheet": { "description": "A panel that slides in from an edge of the screen.", "files": ["sheet.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
   "drawer": { "description": "A panel that comes up from the bottom and drags away.", "files": ["drawer.dart"], "requires": ["theme"] },

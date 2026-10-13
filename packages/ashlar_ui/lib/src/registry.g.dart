@@ -5843,7 +5843,7 @@ class _OpenIntent extends Intent {
     },
   ),
   'scroll-area': Component(
-    description: "Scrolling with a thin scrollbar in the theme's colours.",
+    description: "Scrolling with a thin themed scrollbar; a builder for long lists.",
     requires: ["theme"],
     packages: [],
     files: {
@@ -5857,19 +5857,44 @@ import 'theme.dart';
 /// Scrolls [child] with a thin scrollbar in the theme's colours, shown while the pointer
 /// is over it and while it scrolls, in place of the platform's.
 ///
+/// With [child], everything in it is built at once: right for a page or a short list.
+/// For a long list use [ScrollArea.builder], which builds only the rows on screen.
+///
 /// ```dart
 /// SizedBox(height: 300, child: ScrollArea(child: Column(children: tags)))
 /// ```
 class ScrollArea extends StatefulWidget {
   const ScrollArea({
     super.key,
-    required this.child,
+    required Widget this.child,
     this.axis = Axis.vertical,
     this.controller,
     this.padding,
-  });
+  }) : itemCount = null,
+       itemBuilder = null,
+       itemExtent = null;
 
-  final Widget child;
+  /// A long list, built a row at a time as it scrolls into view: only what is on screen
+  /// exists. Use it for anything that can run to hundreds of rows. [itemExtent], when
+  /// every row is one height, makes scrolling a long way cheaper still.
+  ///
+  /// ```dart
+  /// ScrollArea.builder(itemCount: orders.length, itemExtent: 40, itemBuilder: (context, i) => OrderRow(orders[i]))
+  /// ```
+  const ScrollArea.builder({
+    super.key,
+    required int this.itemCount,
+    required IndexedWidgetBuilder this.itemBuilder,
+    this.itemExtent,
+    this.axis = Axis.vertical,
+    this.controller,
+    this.padding,
+  }) : child = null;
+
+  final Widget? child;
+  final int? itemCount;
+  final IndexedWidgetBuilder? itemBuilder;
+  final double? itemExtent;
   final Axis axis;
   final ScrollController? controller;
   final EdgeInsetsGeometry? padding;
@@ -5908,12 +5933,21 @@ class _ScrollAreaState extends State<ScrollArea> {
           crossAxisMargin: 1,
           mainAxisMargin: 1,
           interactive: true,
-          child: SingleChildScrollView(
-            controller: _controller,
-            scrollDirection: widget.axis,
-            padding: widget.padding,
-            child: widget.child,
-          ),
+          child: widget.itemBuilder == null
+              ? SingleChildScrollView(
+                  controller: _controller,
+                  scrollDirection: widget.axis,
+                  padding: widget.padding,
+                  child: widget.child,
+                )
+              : ListView.builder(
+                  controller: _controller,
+                  scrollDirection: widget.axis,
+                  padding: widget.padding,
+                  itemCount: widget.itemCount,
+                  itemExtent: widget.itemExtent,
+                  itemBuilder: widget.itemBuilder!,
+                ),
         ),
       ),
     );
@@ -7258,8 +7292,19 @@ class Command extends StatefulWidget {
 
 class _CommandState extends State<Command> {
   final _query = TextEditingController();
+  final _scroll = ScrollController();
   int _at = 0;
-  final _keys = <CommandItem, GlobalKey>{};
+
+  // The list as rows, worked out once per search rather than on every frame: headings,
+  // lines between groups, and the items, with where each item sits.
+  String? _for;
+  List<_Line> _lines = const [];
+  List<int> _items = const [];
+
+  static const _itemHeight = 32.0,
+      _headingHeight = 28.0,
+      _gapHeight = 9.0,
+      _pad = 4.0;
 
   @override
   void initState() {
@@ -7270,57 +7315,88 @@ class _CommandState extends State<Command> {
   @override
   void dispose() {
     _query.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  /// Every word typed is somewhere in the item's label or keywords.
-  bool _matches(CommandItem item) {
+  void _layout() {
+    if (_for == _query.text && _lines.isNotEmpty) return;
+    _for = _query.text;
     final words = _query.text
         .toLowerCase()
         .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty);
-    final hay = [item.label, ...item.keywords].join(' ').toLowerCase();
-    return words.every(hay.contains);
+        .where((w) => w.isNotEmpty)
+        .toList();
+    // Every word typed is somewhere in the item's label or keywords.
+    bool matches(CommandItem item) {
+      final hay = [item.label, ...item.keywords].join(' ').toLowerCase();
+      return words.every(hay.contains);
+    }
+
+    final lines = <_Line>[], items = <int>[];
+    for (final g in widget.groups) {
+      final hits = g.items.where(matches).toList();
+      if (hits.isEmpty) continue;
+      if (lines.isNotEmpty) lines.add(const _Line.gap());
+      if (g.heading != null) lines.add(_Line.heading(g.heading!));
+      for (final item in hits) {
+        if (item.enabled) items.add(lines.length);
+        lines.add(_Line.item(item));
+      }
+    }
+    _lines = lines;
+    _items = items;
   }
 
-  List<CommandGroup> get _shown => [
-    for (final g in widget.groups)
-      if (g.items.any(_matches))
-        CommandGroup(g.items.where(_matches).toList(), heading: g.heading),
-  ];
+  double _extent(_Line l) => l.item != null
+      ? _itemHeight
+      : (l.heading != null ? _headingHeight : _gapHeight);
 
-  List<CommandItem> get _pickable => [
-    for (final g in _shown) ...g.items.where((i) => i.enabled),
-  ];
+  /// Where a row starts in the list, from the top of the list's padding.
+  double _top(int line) {
+    var y = _pad;
+    for (var i = 0; i < line; i++) {
+      y += _extent(_lines[i]);
+    }
+    return y;
+  }
 
   void _move(int by) {
-    final n = _pickable.length;
+    final n = _items.length;
     if (n == 0) return;
     setState(() => _at = (_at + by).clamp(0, n - 1));
-    final key = _keys[_pickable[_at]];
-    if (key?.currentContext != null) {
-      Scrollable.ensureVisible(
-        key!.currentContext!,
-        alignmentPolicy: by > 0
-            ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
-            : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+    if (!_scroll.hasClients) return;
+    // Scroll just enough to bring the highlighted row into view.
+    final top = _top(_items[_at]), bottom = top + _itemHeight;
+    final view = _scroll.position;
+    if (top - _pad < view.pixels) {
+      _scroll.jumpTo((top - _pad).clamp(0, view.maxScrollExtent));
+    } else if (bottom + _pad > view.pixels + view.viewportDimension) {
+      _scroll.jumpTo(
+        (bottom + _pad - view.viewportDimension).clamp(0, view.maxScrollExtent),
       );
     }
   }
 
   void _pick() {
-    final items = _pickable;
-    if (_at < items.length) items[_at].onSelected();
+    if (_at < _items.length) _lines[_items[_at]].item!.onSelected();
+  }
+
+  @override
+  void didUpdateWidget(Command old) {
+    super.didUpdateWidget(old);
+    if (old.groups != widget.groups) _for = null;
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final shown = _shown, pickable = _pickable;
-    final lit = pickable.isEmpty
+    _layout();
+    final lit = _items.isEmpty
         ? null
-        : pickable[_at.clamp(0, pickable.length - 1)];
+        : _lines[_items[_at.clamp(0, _items.length - 1)]].item;
+    final height = _lines.fold<double>(_pad * 2, (h, l) => h + _extent(l));
     return LayoutBuilder(
       builder: (context, box) => DefaultTextStyle.merge(
         style: t.text.sm.copyWith(color: c.popoverForeground),
@@ -7338,12 +7414,12 @@ class _CommandState extends State<Command> {
                   LogicalKeyboardKey.home,
                   control: true,
                 ): () =>
-                    _move(-pickable.length),
+                    _move(-_items.length),
                 const SingleActivator(
                   LogicalKeyboardKey.end,
                   control: true,
                 ): () =>
-                    _move(pickable.length),
+                    _move(_items.length),
                 const SingleActivator(LogicalKeyboardKey.enter): _pick,
               },
               child: Container(
@@ -7377,80 +7453,86 @@ class _CommandState extends State<Command> {
             // The highlighted item, read out as it changes: the typing stays in the box.
             Semantics(
               liveRegion: true,
-              label: lit?.label ?? (shown.isEmpty ? widget.emptyText : ''),
+              label: lit?.label ?? (_lines.isEmpty ? widget.emptyText : ''),
               child: const SizedBox(),
             ),
             // In a bounded height (a popover near the screen's edge) the list gives way to
             // the search box; in a scrolling page it keeps its own height.
             _GiveWay(
               bounded: box.maxHeight.isFinite,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: widget.maxHeight),
-                child: shown.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Text(
-                          widget.emptyText,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: c.mutedForeground),
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        padding: const EdgeInsets.all(4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (final (gi, g) in shown.indexed) ...[
-                              if (gi > 0)
-                                Container(
-                                  height: 1,
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 4,
-                                  ),
-                                  color: c.border,
-                                ),
-                              if (g.heading != null)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    8,
-                                    6,
-                                    8,
-                                    6,
-                                  ),
-                                  child: Semantics(
-                                    header: true,
-                                    child: Text(
-                                      g.heading!,
-                                      style: t.text.xs.copyWith(
-                                        color: c.mutedForeground,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              for (final item in g.items)
-                                _Row(
-                                  key: _keys.putIfAbsent(item, GlobalKey.new),
-                                  item: item,
-                                  lit: identical(item, lit),
-                                  onHover: () {
-                                    final i = pickable.indexOf(item);
-                                    if (i >= 0 && i != _at) {
-                                      setState(() => _at = i);
-                                    }
-                                  },
-                                ),
-                            ],
-                          ],
-                        ),
+              child: _lines.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        widget.emptyText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: c.mutedForeground),
                       ),
-              ),
+                    )
+                  // Only the rows on screen are built, however long the list.
+                  : SizedBox(
+                      height: height < widget.maxHeight
+                          ? height
+                          : widget.maxHeight,
+                      child: ListView.builder(
+                        controller: _scroll,
+                        padding: const EdgeInsets.all(_pad),
+                        itemCount: _lines.length,
+                        itemExtentBuilder: (i, _) =>
+                            i < _lines.length ? _extent(_lines[i]) : null,
+                        itemBuilder: (context, i) {
+                          final line = _lines[i];
+                          if (line.item case final item?) {
+                            return _Row(
+                              item: item,
+                              lit: identical(item, lit),
+                              onHover: () {
+                                final at = _items.indexOf(i);
+                                if (at >= 0 && at != _at) {
+                                  setState(() => _at = at);
+                                }
+                              },
+                            );
+                          }
+                          if (line.heading case final heading?) {
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                              child: Semantics(
+                                header: true,
+                                child: Text(
+                                  heading,
+                                  style: t.text.xs.copyWith(
+                                    color: c.mutedForeground,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            color: c.border,
+                          );
+                        },
+                      ),
+                    ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+/// A row of the list: a heading, a line between groups, or an item.
+class _Line {
+  const _Line.gap() : heading = null, item = null;
+  const _Line.heading(String this.heading) : item = null;
+  const _Line.item(CommandItem this.item) : heading = null;
+
+  final String? heading;
+  final CommandItem? item;
 }
 
 /// Flexible in a bounded column, as it is otherwise.
@@ -7466,12 +7548,7 @@ class _GiveWay extends StatelessWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({
-    super.key,
-    required this.item,
-    required this.lit,
-    required this.onHover,
-  });
+  const _Row({required this.item, required this.lit, required this.onHover});
 
   final CommandItem item;
   final bool lit;

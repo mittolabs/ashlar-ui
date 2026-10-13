@@ -8,19 +8,44 @@ import 'theme.dart';
 /// Scrolls [child] with a thin scrollbar in the theme's colours, shown while the pointer
 /// is over it and while it scrolls, in place of the platform's.
 ///
+/// With [child], everything in it is built at once: right for a page or a short list.
+/// For a long list use [ScrollArea.builder], which builds only the rows on screen.
+///
 /// ```dart
 /// SizedBox(height: 300, child: ScrollArea(child: Column(children: tags)))
 /// ```
 class ScrollArea extends StatefulWidget {
   const ScrollArea({
     super.key,
-    required this.child,
+    required Widget this.child,
     this.axis = Axis.vertical,
     this.controller,
     this.padding,
-  });
+  }) : itemCount = null,
+       itemBuilder = null,
+       itemExtent = null;
 
-  final Widget child;
+  /// A long list, built a row at a time as it scrolls into view: only what is on screen
+  /// exists. Use it for anything that can run to hundreds of rows. [itemExtent], when
+  /// every row is one height, makes scrolling a long way cheaper still.
+  ///
+  /// ```dart
+  /// ScrollArea.builder(itemCount: orders.length, itemExtent: 40, itemBuilder: (context, i) => OrderRow(orders[i]))
+  /// ```
+  const ScrollArea.builder({
+    super.key,
+    required int this.itemCount,
+    required IndexedWidgetBuilder this.itemBuilder,
+    this.itemExtent,
+    this.axis = Axis.vertical,
+    this.controller,
+    this.padding,
+  }) : child = null;
+
+  final Widget? child;
+  final int? itemCount;
+  final IndexedWidgetBuilder? itemBuilder;
+  final double? itemExtent;
   final Axis axis;
   final ScrollController? controller;
   final EdgeInsetsGeometry? padding;
@@ -59,12 +84,21 @@ class _ScrollAreaState extends State<ScrollArea> {
           crossAxisMargin: 1,
           mainAxisMargin: 1,
           interactive: true,
-          child: SingleChildScrollView(
-            controller: _controller,
-            scrollDirection: widget.axis,
-            padding: widget.padding,
-            child: widget.child,
-          ),
+          child: widget.itemBuilder == null
+              ? SingleChildScrollView(
+                  controller: _controller,
+                  scrollDirection: widget.axis,
+                  padding: widget.padding,
+                  child: widget.child,
+                )
+              : ListView.builder(
+                  controller: _controller,
+                  scrollDirection: widget.axis,
+                  padding: widget.padding,
+                  itemCount: widget.itemCount,
+                  itemExtent: widget.itemExtent,
+                  itemBuilder: widget.itemBuilder!,
+                ),
         ),
       ),
     );
