@@ -137,8 +137,17 @@ class AshlarText {
   /// Null uses the platform's font. Set it, and add the font to pubspec.yaml, to use your own.
   final String? fontFamily;
 
-  TextStyle _size(double size, double height, [FontWeight weight = FontWeight.w400]) =>
-      TextStyle(fontFamily: fontFamily, fontSize: size, height: height / size, fontWeight: weight, letterSpacing: 0);
+  TextStyle _size(
+    double size,
+    double height, [
+    FontWeight weight = FontWeight.w400,
+  ]) => TextStyle(
+    fontFamily: fontFamily,
+    fontSize: size,
+    height: height / size,
+    fontWeight: weight,
+    letterSpacing: 0,
+  );
 
   /// 12/16: badges, captions.
   TextStyle get xs => _size(12, 16);
@@ -171,10 +180,12 @@ class AshlarThemeData {
   });
 
   /// Neutral, light.
-  const AshlarThemeData.light() : this(brightness: Brightness.light, colors: AshlarColors.light);
+  const AshlarThemeData.light()
+    : this(brightness: Brightness.light, colors: AshlarColors.light);
 
   /// Neutral, dark.
-  const AshlarThemeData.dark() : this(brightness: Brightness.dark, colors: AshlarColors.dark);
+  const AshlarThemeData.dark()
+    : this(brightness: Brightness.dark, colors: AshlarColors.dark);
 
   final Brightness brightness;
   final AshlarColors colors;
@@ -192,24 +203,48 @@ class AshlarThemeData {
   double get radiusXl => radius + 4;
 
   /// The ring drawn around a control that has keyboard focus.
-  List<BoxShadow> get focusRing => [BoxShadow(color: colors.ring.withValues(alpha: .5), spreadRadius: 3)];
+  List<BoxShadow> get focusRing => [
+    BoxShadow(color: colors.ring.withValues(alpha: .5), spreadRadius: 3),
+  ];
 
   /// The faint shadow under a control.
-  List<BoxShadow> get shadowXs => const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)];
+  List<BoxShadow> get shadowXs => const [
+    BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2),
+  ];
 
   /// The shadow under a card.
   List<BoxShadow> get shadowSm => const [
     BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 3),
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 2, spreadRadius: -1),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 1),
+      blurRadius: 2,
+      spreadRadius: -1,
+    ),
   ];
 
   /// The shadow under a dialog or a menu.
   List<BoxShadow> get shadowLg => const [
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 10), blurRadius: 15, spreadRadius: -3),
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 6, spreadRadius: -4),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 10),
+      blurRadius: 15,
+      spreadRadius: -3,
+    ),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 4),
+      blurRadius: 6,
+      spreadRadius: -4,
+    ),
   ];
 
-  AshlarThemeData copyWith({AshlarColors? colors, double? radius, AshlarText? text, Duration? duration}) => AshlarThemeData(
+  AshlarThemeData copyWith({
+    AshlarColors? colors,
+    double? radius,
+    AshlarText? text,
+    Duration? duration,
+  }) => AshlarThemeData(
     brightness: brightness,
     colors: colors ?? this.colors,
     radius: radius ?? this.radius,
@@ -226,7 +261,8 @@ class AshlarTheme extends InheritedWidget {
 
   /// The nearest theme, or the light one when there is none.
   static AshlarThemeData of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AshlarTheme>()?.data ?? const AshlarThemeData.light();
+      context.dependOnInheritedWidgetOfExactType<AshlarTheme>()?.data ??
+      const AshlarThemeData.light();
 
   @override
   bool updateShouldNotify(AshlarTheme old) => old.data != data;
@@ -286,7 +322,10 @@ class AshlarApp extends StatelessWidget {
   AshlarThemeData _themeFor(BuildContext context) => switch (themeMode) {
     AshlarThemeMode.light => theme,
     AshlarThemeMode.dark => darkTheme,
-    AshlarThemeMode.system => MediaQuery.platformBrightnessOf(context) == Brightness.dark ? darkTheme : theme,
+    AshlarThemeMode.system =>
+      MediaQuery.platformBrightnessOf(context) == Brightness.dark
+          ? darkTheme
+          : theme,
   };
 
   @override
@@ -305,7 +344,8 @@ class AshlarApp extends StatelessWidget {
       localizationsDelegates: localizationsDelegates,
       debugShowCheckedModeBanner: false,
       textStyle: data.text.sm.copyWith(color: data.colors.foreground),
-      pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) => AshlarPageRoute<T>(settings: settings, builder: builder),
+      pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) =>
+          AshlarPageRoute<T>(settings: settings, builder: builder),
       builder: (context, child) {
         final data = _themeFor(context);
         Widget page = AshlarTheme(
@@ -316,7 +356,10 @@ class AshlarApp extends StatelessWidget {
               data: IconThemeData(color: data.colors.foreground, size: 16),
               child: ScrollConfiguration(
                 behavior: const _AshlarScrollBehavior(),
-                child: ColoredBox(color: data.colors.background, child: child ?? const SizedBox.shrink()),
+                child: ColoredBox(
+                  color: data.colors.background,
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           ),
@@ -336,11 +379,17 @@ class AshlarPageRoute<T> extends PageRouteBuilder<T> {
         reverseTransitionDuration: const Duration(milliseconds: 180),
         pageBuilder: (context, animation, secondary) => builder(context),
         transitionsBuilder: (context, animation, secondary, child) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
           return FadeTransition(
             opacity: curved,
             child: SlideTransition(
-              position: Tween(begin: const Offset(0, .02), end: Offset.zero).animate(curved),
+              position: Tween(
+                begin: const Offset(0, .02),
+                end: Offset.zero,
+              ).animate(curved),
               child: child,
             ),
           );
@@ -353,7 +402,11 @@ class _AshlarScrollBehavior extends ScrollBehavior {
   const _AshlarScrollBehavior();
 
   @override
-  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) => child;
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
 }
 ''',
     },
@@ -365,6 +418,8 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     files: {
       'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
+
+import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -401,9 +456,12 @@ class Pressable extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.semanticLabel,
+    this.semanticValue,
     this.button = true,
     this.toggled,
     this.checked,
+    this.selected,
+    this.role,
   });
 
   /// Null disables it.
@@ -411,7 +469,12 @@ class Pressable extends StatefulWidget {
   final Widget Function(BuildContext context, PressableState state) builder;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Read out in place of the visible content.
   final String? semanticLabel;
+
+  /// Read out after the label: what a select or a field holds.
+  final String? semanticValue;
 
   /// Announced as a button.
   final bool button;
@@ -421,6 +484,12 @@ class Pressable extends StatefulWidget {
 
   /// Announced as a checkbox that is checked or not.
   final bool? checked;
+
+  /// Announced as the chosen one of several: a tab, an option.
+  final bool? selected;
+
+  /// What a screen reader calls it, when it is not a button: a tab, a menu item.
+  final SemanticsRole? role;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -442,11 +511,17 @@ class _PressableState extends State<Pressable> {
     return MergeSemantics(
       child: Semantics(
         button:
-            widget.button && widget.toggled == null && widget.checked == null,
+            widget.button &&
+            widget.toggled == null &&
+            widget.checked == null &&
+            widget.role == null,
+        role: widget.role,
+        selected: widget.selected,
         toggled: widget.toggled,
         checked: widget.checked,
         enabled: _enabled,
         label: widget.semanticLabel,
+        value: widget.semanticValue,
         onTap: _enabled ? _activate : null,
         child: FocusableActionDetector(
           focusNode: widget.focusNode,
@@ -481,13 +556,17 @@ class _PressableState extends State<Pressable> {
                   ? () => setState(() => _pressed = false)
                   : null,
               onTap: _enabled ? _activate : null,
-              child: widget.builder(
-                context,
-                PressableState(
-                  hovered: _hovered && _enabled,
-                  pressed: _pressed,
-                  focused: _focused,
-                  enabled: _enabled,
+              // A label replaces what the control shows, rather than adding to it.
+              child: ExcludeSemantics(
+                excluding: widget.semanticLabel != null,
+                child: widget.builder(
+                  context,
+                  PressableState(
+                    hovered: _hovered && _enabled,
+                    pressed: _pressed,
+                    focused: _focused,
+                    enabled: _enabled,
+                  ),
                 ),
               ),
             ),
@@ -593,11 +672,31 @@ class Button extends StatelessWidget {
       semanticLabel: semanticLabel,
       builder: (context, state) {
         final (Color bg, Color fg, Color? border) = switch (variant) {
-          ButtonVariant.primary => (state.hovered ? c.primary.withValues(alpha: .9) : c.primary, c.primaryForeground, null),
-          ButtonVariant.secondary => (state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary, c.secondaryForeground, null),
-          ButtonVariant.destructive => (state.hovered ? c.destructive.withValues(alpha: .9) : c.destructive, c.destructiveForeground, null),
-          ButtonVariant.outline => (state.hovered ? c.accent : c.background, state.hovered ? c.accentForeground : c.foreground, c.input),
-          ButtonVariant.ghost => (state.hovered ? c.accent : const Color(0x00000000), state.hovered ? c.accentForeground : c.foreground, null),
+          ButtonVariant.primary => (
+            state.hovered ? c.primary.withValues(alpha: .9) : c.primary,
+            c.primaryForeground,
+            null,
+          ),
+          ButtonVariant.secondary => (
+            state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary,
+            c.secondaryForeground,
+            null,
+          ),
+          ButtonVariant.destructive => (
+            state.hovered ? c.destructive.withValues(alpha: .9) : c.destructive,
+            c.destructiveForeground,
+            null,
+          ),
+          ButtonVariant.outline => (
+            state.hovered ? c.accent : c.background,
+            state.hovered ? c.accentForeground : c.foreground,
+            c.input,
+          ),
+          ButtonVariant.ghost => (
+            state.hovered ? c.accent : const Color(0x00000000),
+            state.hovered ? c.accentForeground : c.foreground,
+            null,
+          ),
           ButtonVariant.link => (const Color(0x00000000), c.primary, null),
         };
         final (double height, double padding, double gap) = switch (size) {
@@ -610,7 +709,9 @@ class Button extends StatelessWidget {
           style: t.text.sm.copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
-            decoration: variant == ButtonVariant.link && state.hovered ? TextDecoration.underline : null,
+            decoration: variant == ButtonVariant.link && state.hovered
+                ? TextDecoration.underline
+                : null,
             decorationColor: fg,
           ),
           maxLines: 1,
@@ -622,13 +723,13 @@ class Button extends StatelessWidget {
               height: height,
               width: size == ButtonSize.icon ? height : null,
               child: Row(
-              mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (leading != null) ...[leading!, SizedBox(width: gap)],
-                Flexible(child: child),
-                if (trailing != null) ...[SizedBox(width: gap), trailing!],
-              ],
+                mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (leading != null) ...[leading!, SizedBox(width: gap)],
+                  Flexible(child: child),
+                  if (trailing != null) ...[SizedBox(width: gap), trailing!],
+                ],
               ),
             ),
           ),
@@ -641,10 +742,16 @@ class Button extends StatelessWidget {
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(t.radiusMd),
-              border: border == null ? null : Border.all(color: state.focused ? c.ring : border),
+              border: border == null
+                  ? null
+                  : Border.all(color: state.focused ? c.ring : border),
               boxShadow: [
                 if (state.focused) ...t.focusRing,
-                if (variant == ButtonVariant.outline || variant == ButtonVariant.primary || variant == ButtonVariant.secondary || variant == ButtonVariant.destructive) ...t.shadowXs,
+                if (variant == ButtonVariant.outline ||
+                    variant == ButtonVariant.primary ||
+                    variant == ButtonVariant.secondary ||
+                    variant == ButtonVariant.destructive)
+                  ...t.shadowXs,
               ],
             ),
             child: label,
@@ -677,7 +784,12 @@ enum BadgeVariant { primary, secondary, destructive, outline }
 /// Badge(variant: BadgeVariant.outline, leading: AshlarIcon(AshlarIconsRoundedStroke.check, size: 12), child: Text('Paid'))
 /// ```
 class Badge extends StatelessWidget {
-  const Badge({super.key, required this.child, this.variant = BadgeVariant.primary, this.leading});
+  const Badge({
+    super.key,
+    required this.child,
+    this.variant = BadgeVariant.primary,
+    this.leading,
+  });
 
   final Widget child;
   final BadgeVariant variant;
@@ -690,7 +802,11 @@ class Badge extends StatelessWidget {
     final (Color bg, Color fg, Color? border) = switch (variant) {
       BadgeVariant.primary => (c.primary, c.primaryForeground, null),
       BadgeVariant.secondary => (c.secondary, c.secondaryForeground, null),
-      BadgeVariant.destructive => (c.destructive, c.destructiveForeground, null),
+      BadgeVariant.destructive => (
+        c.destructive,
+        c.destructiveForeground,
+        null,
+      ),
       BadgeVariant.outline => (const Color(0x00000000), c.foreground, c.border),
     };
     return Container(
@@ -705,10 +821,13 @@ class Badge extends StatelessWidget {
         maxLines: 1,
         child: IconTheme.merge(
           data: IconThemeData(color: fg, size: 12),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (leading != null) ...[leading!, const SizedBox(width: 4)],
-            Flexible(child: child),
-          ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leading != null) ...[leading!, const SizedBox(width: 4)],
+              Flexible(child: child),
+            ],
+          ),
         ),
       ),
     );
@@ -759,7 +878,10 @@ class Card extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final (i, child) in children.indexed) ...[if (i > 0) const SizedBox(height: 24), child],
+            for (final (i, child) in children.indexed) ...[
+              if (i > 0) const SizedBox(height: 24),
+              child,
+            ],
           ],
         ),
       ),
@@ -780,16 +902,34 @@ class CardHeader extends StatelessWidget {
     final t = AshlarTheme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (title != null) DefaultTextStyle.merge(style: t.text.base.copyWith(fontWeight: FontWeight.w600, height: 1), child: title!),
-            if (title != null && description != null) const SizedBox(height: 6),
-            if (description != null) DefaultTextStyle.merge(style: t.text.sm.copyWith(color: t.colors.mutedForeground), child: description!),
-          ]),
-        ),
-        if (action != null) ...[const SizedBox(width: 16), action!],
-      ]),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null)
+                  DefaultTextStyle.merge(
+                    style: t.text.base.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1,
+                    ),
+                    child: title!,
+                  ),
+                if (title != null && description != null)
+                  const SizedBox(height: 6),
+                if (description != null)
+                  DefaultTextStyle.merge(
+                    style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+                    child: description!,
+                  ),
+              ],
+            ),
+          ),
+          if (action != null) ...[const SizedBox(width: 16), action!],
+        ],
+      ),
     );
   }
 }
@@ -801,12 +941,19 @@ class CardContent extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.symmetric(horizontal: 24), child: child);
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    child: child,
+  );
 }
 
 /// A card's actions, in a row at its foot.
 class CardFooter extends StatelessWidget {
-  const CardFooter({super.key, required this.children, this.alignment = MainAxisAlignment.start});
+  const CardFooter({
+    super.key,
+    required this.children,
+    this.alignment = MainAxisAlignment.start,
+  });
 
   final List<Widget> children;
   final MainAxisAlignment alignment;
@@ -816,7 +963,12 @@ class CardFooter extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 24),
     child: Row(
       mainAxisAlignment: alignment,
-      children: [for (final (i, child) in children.indexed) ...[if (i > 0) const SizedBox(width: 8), child]],
+      children: [
+        for (final (i, child) in children.indexed) ...[
+          if (i > 0) const SizedBox(width: 8),
+          child,
+        ],
+      ],
     ),
   );
 }
@@ -844,8 +996,16 @@ class Separator extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = AshlarTheme.of(context).colors.border;
     return axis == Axis.horizontal
-        ? SizedBox(height: 1, width: double.infinity, child: ColoredBox(color: color))
-        : SizedBox(width: 1, height: double.infinity, child: ColoredBox(color: color));
+        ? SizedBox(
+            height: 1,
+            width: double.infinity,
+            child: ColoredBox(color: color),
+          )
+        : SizedBox(
+            width: 1,
+            height: double.infinity,
+            child: ColoredBox(color: color),
+          );
   }
 }
 ''',
@@ -888,6 +1048,7 @@ class Input extends StatefulWidget {
     this.error = false,
     this.autofocus = false,
     this.maxLines = 1,
+    this.minLines,
     this.keyboardType,
     this.textInputAction,
     this.autofillHints,
@@ -916,6 +1077,9 @@ class Input extends StatefulWidget {
 
   /// More than 1 makes a text area that grows to that many lines.
   final int maxLines;
+
+  /// How tall a text area starts, in lines. Defaults to [maxLines], up to 3.
+  final int? minLines;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
@@ -991,7 +1155,9 @@ class _InputState extends State<Input>
       selectionControls: _AshlarSelectionControls(c.foreground),
       contextMenuBuilder: (context, state) => _SelectionMenu(state: state),
       maxLines: widget.maxLines,
-      minLines: multiline ? widget.maxLines.clamp(1, 3) : null,
+      minLines: multiline
+          ? (widget.minLines ?? widget.maxLines.clamp(1, 3))
+          : null,
       keyboardType:
           widget.keyboardType ??
           (multiline ? TextInputType.multiline : TextInputType.text),
@@ -1283,7 +1449,14 @@ import 'theme.dart';
 /// Checkbox(value: agreed, onChanged: (v) => setState(() => agreed = v), semanticLabel: 'Accept terms')
 /// ```
 class Checkbox extends StatelessWidget {
-  const Checkbox({super.key, required this.value, required this.onChanged, this.semanticLabel, this.focusNode, this.autofocus = false});
+  const Checkbox({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.semanticLabel,
+    this.focusNode,
+    this.autofocus = false,
+  });
 
   final bool value;
 
@@ -1313,10 +1486,18 @@ class Checkbox extends StatelessWidget {
             // Opaque, so the shadow beneath does not show through.
             color: value ? c.primary : c.background,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: value ? c.primary : (state.focused ? c.ring : c.input)),
+            border: Border.all(
+              color: value ? c.primary : (state.focused ? c.ring : c.input),
+            ),
             boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
           ),
-          child: value ? AshlarIcon(AshlarIconsRoundedStroke.check, size: 14, color: c.primaryForeground) : null,
+          child: value
+              ? AshlarIcon(
+                  AshlarIconsRoundedStroke.check,
+                  size: 14,
+                  color: c.primaryForeground,
+                )
+              : null,
         ),
       ),
     );
@@ -1344,7 +1525,14 @@ import 'theme.dart';
 /// Switch(value: notify, onChanged: (v) => setState(() => notify = v), semanticLabel: 'Notifications')
 /// ```
 class Switch extends StatelessWidget {
-  const Switch({super.key, required this.value, required this.onChanged, this.semanticLabel, this.focusNode, this.autofocus = false});
+  const Switch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.semanticLabel,
+    this.focusNode,
+    this.autofocus = false,
+  });
 
   final bool value;
 
@@ -1384,7 +1572,9 @@ class Switch extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(
-                color: t.brightness == Brightness.dark && !value ? c.foreground : c.background,
+                color: t.brightness == Brightness.dark && !value
+                    ? c.foreground
+                    : c.background,
                 shape: BoxShape.circle,
               ),
             ),
@@ -1426,7 +1616,11 @@ import 'theme.dart';
 ///   ),
 /// );
 /// ```
-Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBuilder builder, bool dismissible = true}) {
+Future<T?> showAshlarDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool dismissible = true,
+}) {
   final theme = AshlarTheme.of(context);
   return Navigator.of(context).push<T>(
     RawDialogRoute<T>(
@@ -1435,12 +1629,21 @@ Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBu
       barrierColor: const Color(0x80000000),
       transitionDuration: const Duration(milliseconds: 200),
       // The route is above the app's AshlarTheme, so it carries the theme across.
-      pageBuilder: (context, animation, secondary) => AshlarTheme(data: theme, child: Builder(builder: builder)),
+      pageBuilder: (context, animation, secondary) => AshlarTheme(
+        data: theme,
+        child: Builder(builder: builder),
+      ),
       transitionBuilder: (context, animation, secondary, child) {
-        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
         return FadeTransition(
           opacity: curved,
-          child: ScaleTransition(scale: Tween(begin: .95, end: 1.0).animate(curved), child: child),
+          child: ScaleTransition(
+            scale: Tween(begin: .95, end: 1.0).animate(curved),
+            child: child,
+          ),
         );
       },
     ),
@@ -1450,7 +1653,15 @@ Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBu
 /// The panel a dialog shows: [title], [description], any [content], and [actions] at
 /// its foot, with a close button at the top right.
 class Dialog extends StatelessWidget {
-  const Dialog({super.key, this.title, this.description, this.content, this.actions = const [], this.showClose = true, this.maxWidth = 512});
+  const Dialog({
+    super.key,
+    this.title,
+    this.description,
+    this.content,
+    this.actions = const [],
+    this.showClose = true,
+    this.maxWidth = 512,
+  });
 
   final Widget? title;
   final Widget? description;
@@ -1483,49 +1694,2132 @@ class Dialog extends StatelessWidget {
                 ),
                 child: DefaultTextStyle(
                   style: t.text.sm.copyWith(color: c.foreground),
-                  child: Stack(clipBehavior: Clip.none, children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (title != null)
-                          Padding(
-                            padding: EdgeInsets.only(right: showClose ? 24 : 0),
-                            child: DefaultTextStyle.merge(style: t.text.lg.copyWith(fontWeight: FontWeight.w600, height: 1.2), child: title!),
-                          ),
-                        if (description != null) ...[
-                          const SizedBox(height: 8),
-                          DefaultTextStyle.merge(style: TextStyle(color: c.mutedForeground), child: description!),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (title != null)
+                            Padding(
+                              padding: EdgeInsets.only(
+                                right: showClose ? 24 : 0,
+                              ),
+                              child: DefaultTextStyle.merge(
+                                style: t.text.lg.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                ),
+                                child: title!,
+                              ),
+                            ),
+                          if (description != null) ...[
+                            const SizedBox(height: 8),
+                            DefaultTextStyle.merge(
+                              style: TextStyle(color: c.mutedForeground),
+                              child: description!,
+                            ),
+                          ],
+                          if (content != null) ...[
+                            const SizedBox(height: 16),
+                            content!,
+                          ],
+                          if (actions.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: actions,
+                            ),
+                          ],
                         ],
-                        if (content != null) ...[const SizedBox(height: 16), content!],
-                        if (actions.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Wrap(
-                            alignment: WrapAlignment.end,
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: actions,
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (showClose)
-                      Positioned(
-                        top: -12,
-                        right: -12,
-                        child: Button(
-                          variant: ButtonVariant.ghost,
-                          size: ButtonSize.icon,
-                          semanticLabel: 'Close',
-                          onPressed: () => Navigator.maybePop(context),
-                          child: AshlarIcon(AshlarIconsRoundedStroke.x, color: c.mutedForeground),
-                        ),
                       ),
-                  ]),
+                      if (showClose)
+                        Positioned(
+                          top: -12,
+                          right: -12,
+                          child: Button(
+                            variant: ButtonVariant.ghost,
+                            size: ButtonSize.icon,
+                            semanticLabel: 'Close',
+                            onPressed: () => Navigator.maybePop(context),
+                            child: AshlarIcon(
+                              AshlarIconsRoundedStroke.x,
+                              color: c.mutedForeground,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'label': Component(
+    description: "The name of a control, above it or beside it.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// The name of a control, set above it or beside it. [Field] places one for you.
+///
+/// ```dart
+/// Label(child: Text('Email'))
+/// ```
+class Label extends StatelessWidget {
+  const Label({super.key, required this.child, this.enabled = true});
+
+  final Widget child;
+
+  /// False fades it with the control it names.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Opacity(
+      opacity: enabled ? 1 : .5,
+      child: DefaultTextStyle.merge(
+        style: t.text.sm.copyWith(
+          color: t.colors.foreground,
+          fontWeight: FontWeight.w500,
+          height: 1,
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'field': Component(
+    description: "A control with its label, description and error, read out together.",
+    requires: ["theme","label"],
+    packages: [],
+    files: {
+      'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'label.dart';
+import 'theme.dart';
+
+/// A control with its label, a description under it and an error when it is wrong. A
+/// screen reader hears the label and description as part of the control.
+///
+/// Vertical puts the label above (inputs, selects); horizontal puts the control first and
+/// the label beside it (checkboxes, switches, radios).
+///
+/// ```dart
+/// Field(label: Text('Email'), description: Text('We send receipts here.'), child: Input(placeholder: 'you@solutech.co.ke'))
+/// Field(axis: Axis.horizontal, label: Text('Accept the terms'), child: Checkbox(value: agreed, onChanged: agree))
+/// ```
+class Field extends StatelessWidget {
+  const Field({
+    super.key,
+    required this.child,
+    this.label,
+    this.description,
+    this.error,
+    this.axis = Axis.vertical,
+    this.enabled = true,
+  });
+
+  final Widget child;
+  final Widget? label;
+  final Widget? description;
+
+  /// Shown under the description in the destructive colour, and read out with the field.
+  final Widget? error;
+  final Axis axis;
+
+  /// False fades the label and description with the control.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final notes = [
+      if (description != null)
+        Opacity(
+          opacity: enabled ? 1 : .5,
+          child: DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(color: c.mutedForeground),
+            child: description!,
+          ),
+        ),
+      if (error != null)
+        DefaultTextStyle.merge(
+          style: t.text.sm.copyWith(color: c.destructive),
+          child: error!,
+        ),
+    ];
+    final label = this.label == null
+        ? null
+        : Label(enabled: enabled, child: this.label!);
+    return MergeSemantics(
+      child: axis == Axis.vertical
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (label != null) ...[label, const SizedBox(height: 12)],
+                child,
+                for (final n in notes) ...[const SizedBox(height: 8), n],
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                child,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Lines the label up with the middle of a 16 tall control.
+                      if (label != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 1),
+                          child: label,
+                        ),
+                      for (final n in notes) ...[const SizedBox(height: 6), n],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'textarea': Component(
+    description: "A text field for several lines that grows with its text.",
+    requires: ["input"],
+    packages: [],
+    files: {
+      'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'input.dart';
+
+/// A text field for more than one line. It starts [minLines] tall and grows to [maxLines]
+/// as the text does, then scrolls.
+///
+/// ```dart
+/// Textarea(placeholder: 'Tell us what happened', onChanged: (v) => note = v)
+/// ```
+class Textarea extends StatelessWidget {
+  const Textarea({
+    super.key,
+    this.controller,
+    this.focusNode,
+    this.placeholder,
+    this.enabled = true,
+    this.readOnly = false,
+    this.error = false,
+    this.autofocus = false,
+    this.minLines = 3,
+    this.maxLines = 8,
+    this.inputFormatters,
+    this.onChanged,
+    this.semanticLabel,
+  });
+
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final String? placeholder;
+  final bool enabled;
+  final bool readOnly;
+  final bool error;
+  final bool autofocus;
+  final int minLines;
+  final int maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onChanged;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => Input(
+    controller: controller,
+    focusNode: focusNode,
+    placeholder: placeholder,
+    enabled: enabled,
+    readOnly: readOnly,
+    error: error,
+    autofocus: autofocus,
+    minLines: minLines,
+    maxLines: maxLines,
+    keyboardType: TextInputType.multiline,
+    textInputAction: TextInputAction.newline,
+    inputFormatters: inputFormatters,
+    onChanged: onChanged,
+    semanticLabel: semanticLabel,
+  );
+}
+''',
+    },
+  ),
+  'avatar': Component(
+    description: "A picture in a circle, with initials while it loads or when it fails.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A person's picture in a circle, or their initials while it loads or when it fails.
+///
+/// ```dart
+/// Avatar(image: NetworkImage(user.photoUrl), fallback: 'WM', semanticLabel: 'Wanjiru Mwangi')
+/// Avatar(fallback: 'WM', size: 40)
+/// ```
+class Avatar extends StatelessWidget {
+  const Avatar({
+    super.key,
+    this.image,
+    required this.fallback,
+    this.size = 32,
+    this.semanticLabel,
+  });
+
+  final ImageProvider? image;
+
+  /// Usually initials: one or two letters.
+  final String fallback;
+  final double size;
+
+  /// Who it is, for screen readers. Without it the avatar is left out of what they read.
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final initials = Container(
+      color: t.colors.muted,
+      alignment: Alignment.center,
+      child: Text(
+        fallback,
+        style: t.text.sm.copyWith(
+          color: t.colors.mutedForeground,
+          fontSize: size * .4,
+          height: 1,
+        ),
+        maxLines: 1,
+      ),
+    );
+    final body = SizedBox.square(
+      dimension: size,
+      child: ClipOval(
+        child: image == null
+            ? initials
+            : Image(
+                image: image!,
+                fit: BoxFit.cover,
+                frameBuilder: (context, child, frame, sync) =>
+                    frame == null && !sync ? initials : child,
+                errorBuilder: (context, error, stack) => initials,
+              ),
+      ),
+    );
+    return semanticLabel == null
+        ? ExcludeSemantics(child: body)
+        : Semantics(
+            label: semanticLabel,
+            image: true,
+            child: ExcludeSemantics(child: body),
+          );
+  }
+}
+''',
+    },
+  ),
+  'skeleton': Component(
+    description: "A pulsing placeholder in the shape of content still loading.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A placeholder in the shape of content that is still loading. It pulses, unless the
+/// device asks for less motion.
+///
+/// ```dart
+/// Row(children: [Skeleton(width: 40, height: 40, circle: true), SizedBox(width: 12), Skeleton(width: 160, height: 16)])
+/// ```
+class Skeleton extends StatefulWidget {
+  const Skeleton({
+    super.key,
+    this.width,
+    this.height = 16,
+    this.circle = false,
+  });
+
+  /// Null fills the width it is given.
+  final double? width;
+  final double height;
+  final bool circle;
+
+  @override
+  State<Skeleton> createState() => _SkeletonState();
+}
+
+class _SkeletonState extends State<Skeleton>
+    with SingleTickerProviderStateMixin {
+  late final _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 1),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final box = Container(
+      width: widget.width,
+      height: widget.height,
+      decoration: BoxDecoration(
+        color: t.colors.accent,
+        shape: widget.circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: widget.circle ? null : BorderRadius.circular(t.radiusMd),
+      ),
+    );
+    return ExcludeSemantics(
+      child: still
+          ? box
+          : FadeTransition(
+              opacity: Tween(begin: 1.0, end: .5).animate(
+                CurvedAnimation(parent: _pulse, curve: Curves.easeInOut),
+              ),
+              child: box,
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'spinner': Component(
+    description: "A turning ring that says something is working.",
+    requires: [],
+    packages: ["ashlar_icons"],
+    files: {
+      'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+/// A turning ring that says something is working. Its colour and size come from the
+/// IconTheme, so inside a Button it matches the label.
+///
+/// ```dart
+/// Button(onPressed: null, leading: Spinner(), child: Text('Saving'))
+/// ```
+class Spinner extends StatefulWidget {
+  const Spinner({
+    super.key,
+    this.size,
+    this.color,
+    this.semanticLabel = 'Loading',
+  });
+
+  final double? size;
+  final Color? color;
+  final String semanticLabel;
+
+  @override
+  State<Spinner> createState() => _SpinnerState();
+}
+
+class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
+  late final _turn = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 1),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _turn.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: widget.semanticLabel,
+    liveRegion: true,
+    child: ExcludeSemantics(
+      child: RotationTransition(
+        turns: _turn,
+        child: AshlarIcon(
+          AshlarIconsRoundedStroke.loaderCircle,
+          size: widget.size,
+          color: widget.color,
+        ),
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'alert': Component(
+    description: "A notice, warning or error in the page, read out when it appears.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+enum AlertVariant {
+  /// Something to know.
+  primary,
+
+  /// Something that went wrong or needs fixing.
+  destructive,
+}
+
+/// A message in the page that asks for attention: a notice, a warning, an error. A screen
+/// reader reads it out when it appears.
+///
+/// ```dart
+/// Alert(icon: AshlarIcon(AshlarIconsRoundedStroke.info), title: Text('Payment received'), description: Text('KES 2,400 from 0712 345 678.'))
+/// Alert(variant: AlertVariant.destructive, icon: AshlarIcon(AshlarIconsRoundedStroke.circleAlert), title: Text('The card was declined'))
+/// ```
+class Alert extends StatelessWidget {
+  const Alert({
+    super.key,
+    this.title,
+    this.description,
+    this.icon,
+    this.variant = AlertVariant.primary,
+    this.action,
+  });
+
+  final Widget? title;
+  final Widget? description;
+
+  /// A 16px icon at the top left.
+  final Widget? icon;
+  final AlertVariant variant;
+
+  /// A button at the top right.
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final destructive = variant == AlertVariant.destructive;
+    final fg = destructive ? c.destructive : c.cardForeground;
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(t.radiusLg),
+          border: Border.all(color: c.border),
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(color: fg, size: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (icon != null) ...[
+                Padding(padding: const EdgeInsets.only(top: 2), child: icon),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (title != null)
+                      DefaultTextStyle.merge(
+                        style: t.text.sm.copyWith(
+                          color: fg,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        child: title!,
+                      ),
+                    if (title != null && description != null)
+                      const SizedBox(height: 4),
+                    if (description != null)
+                      DefaultTextStyle.merge(
+                        style: t.text.sm.copyWith(
+                          color: destructive
+                              ? c.destructive.withValues(alpha: .9)
+                              : c.mutedForeground,
+                        ),
+                        child: description!,
+                      ),
+                  ],
+                ),
+              ),
+              if (action != null) ...[const SizedBox(width: 12), action!],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'kbd': Component(
+    description: "A keyboard key, for showing shortcuts.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A key on the keyboard, for showing a shortcut. [Kbd.group] sets several side by side.
+///
+/// ```dart
+/// Kbd(child: Text('Esc'))
+/// Kbd.group([Kbd(child: Text('⌘')), Kbd(child: Text('K'))])
+/// ```
+class Kbd extends StatelessWidget {
+  const Kbd({super.key, required this.child});
+
+  final Widget child;
+
+  /// Keys pressed together, with a small gap between them.
+  static Widget group(List<Widget> keys) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (final (i, k) in keys.indexed) ...[
+        if (i > 0) const SizedBox(width: 4),
+        k,
+      ],
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Container(
+      height: 20,
+      constraints: const BoxConstraints(minWidth: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: t.colors.muted,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+      ),
+      child: DefaultTextStyle.merge(
+        style: t.text.xs.copyWith(
+          color: t.colors.mutedForeground,
+          fontWeight: FontWeight.w500,
+          height: 1,
+        ),
+        maxLines: 1,
+        child: IconTheme.merge(
+          data: IconThemeData(color: t.colors.mutedForeground, size: 12),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'radio': Component(
+    description: "A choice of one, in Flutter's RadioGroup, with labels.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
+//
+// Flutter's widgets layer has the group: RadioGroup holds the chosen value, and moves the
+// choice with the arrow keys. This file draws the radios inside it.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// One choice in a [RadioGroup]. With a [label] the whole row picks it, and a screen
+/// reader hears the label.
+///
+/// ```dart
+/// RadioGroup<String>(
+///   groupValue: plan,
+///   onChanged: (v) => setState(() => plan = v),
+///   child: Column(children: [
+///     Radio(value: 'monthly', label: Text('Monthly')),
+///     Radio(value: 'yearly', label: Text('Yearly'), description: Text('Two months free.')),
+///   ]),
+/// )
+/// ```
+class Radio<T> extends StatefulWidget {
+  const Radio({
+    super.key,
+    required this.value,
+    this.label,
+    this.description,
+    this.enabled = true,
+    this.focusNode,
+    this.autofocus = false,
+  });
+
+  final T value;
+  final Widget? label;
+  final Widget? description;
+  final bool enabled;
+  final FocusNode? focusNode;
+  final bool autofocus;
+
+  @override
+  State<Radio<T>> createState() => _RadioState<T>();
+}
+
+class _RadioState<T> extends State<Radio<T>> {
+  FocusNode? _ownFocus;
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
+
+  @override
+  void dispose() {
+    _ownFocus?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final registry = RadioGroup.maybeOf<T>(context);
+    return RawRadio<T>(
+      value: widget.value,
+      mouseCursor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled)
+            ? SystemMouseCursors.basic
+            : SystemMouseCursors.click,
+      ),
+      toggleable: false,
+      focusNode: _focus,
+      autofocus: widget.autofocus,
+      groupRegistry: registry,
+      enabled: widget.enabled && registry != null,
+      builder: (context, state) {
+        final chosen = state.value ?? false;
+        final focused = state.states.contains(WidgetState.focused);
+        final enabled = !state.states.contains(WidgetState.disabled);
+        final dot = AnimatedContainer(
+          duration: t.duration,
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            // Opaque, so the shadow beneath does not show through.
+            color: c.background,
+            shape: BoxShape.circle,
+            border: Border.all(color: focused ? c.ring : c.input),
+            boxShadow: [if (focused) ...t.focusRing, ...t.shadowXs],
+          ),
+          alignment: Alignment.center,
+          child: AnimatedScale(
+            duration: t.duration,
+            scale: chosen ? 1 : 0,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: c.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        );
+        return Opacity(
+          opacity: enabled ? 1 : .5,
+          child: widget.label == null && widget.description == null
+              ? dot
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(padding: const EdgeInsets.only(top: 2), child: dot),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.label != null)
+                            DefaultTextStyle.merge(
+                              style: t.text.sm.copyWith(
+                                color: c.foreground,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              child: widget.label!,
+                            ),
+                          if (widget.description != null)
+                            DefaultTextStyle.merge(
+                              style: t.text.sm.copyWith(
+                                color: c.mutedForeground,
+                              ),
+                              child: widget.description!,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+        );
+      },
+    );
+  }
+}
+''',
+    },
+  ),
+  'tabs': Component(
+    description: "Views of one thing, one at a time, chosen from a row of tabs.",
+    requires: ["theme","pressable"],
+    packages: [],
+    files: {
+      'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
+
+import 'dart:ui' show SemanticsRole;
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One tab: its [label] in the list and the [content] shown when it is chosen.
+@immutable
+class TabItem {
+  const TabItem({
+    required this.label,
+    required this.content,
+    this.icon,
+    this.enabled = true,
+  });
+
+  final Widget label;
+  final Widget content;
+
+  /// A 16px icon before the label.
+  final Widget? icon;
+  final bool enabled;
+}
+
+/// Views of one thing, one at a time, chosen from a row of tabs. Tab moves into the row
+/// and out again; the arrow keys move along it, choosing as they go.
+///
+/// Give [index] and [onChanged] to hold the choice yourself; leave them out and the tabs
+/// hold it, starting at [initialIndex].
+///
+/// ```dart
+/// Tabs(tabs: [
+///   TabItem(label: Text('Account'), content: AccountForm()),
+///   TabItem(label: Text('Password'), content: PasswordForm()),
+/// ])
+/// ```
+class Tabs extends StatefulWidget {
+  const Tabs({
+    super.key,
+    required this.tabs,
+    this.index,
+    this.onChanged,
+    this.initialIndex = 0,
+    this.expand = false,
+  });
+
+  final List<TabItem> tabs;
+  final int? index;
+  final ValueChanged<int>? onChanged;
+  final int initialIndex;
+
+  /// Stretches the row of tabs across the width it is given.
+  final bool expand;
+
+  @override
+  State<Tabs> createState() => _TabsState();
+}
+
+class _TabsState extends State<Tabs> {
+  late int _own = widget.initialIndex;
+  final List<FocusNode> _nodes = [];
+
+  int get _index => widget.index ?? _own;
+
+  void _choose(int i, {bool focus = false}) {
+    if (!widget.tabs[i].enabled) return;
+    if (widget.index == null) setState(() => _own = i);
+    widget.onChanged?.call(i);
+    if (focus) _nodes[i].requestFocus();
+  }
+
+  /// The next enabled tab from the chosen one, [step] along, wrapping round.
+  void _move(int step) {
+    final n = widget.tabs.length;
+    for (var k = 1; k <= n; k++) {
+      final i = ((_index + step * k) % n + n) % n;
+      if (widget.tabs[i].enabled) return _choose(i, focus: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final n in _nodes) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final dark = t.brightness == Brightness.dark;
+    while (_nodes.length < widget.tabs.length) {
+      _nodes.add(FocusNode());
+    }
+    // Only the chosen tab is in the Tab order; the arrow keys reach the rest.
+    for (final (i, n) in _nodes.indexed) {
+      n.skipTraversal = i != _index;
+    }
+    final triggers = [
+      for (final (i, tab) in widget.tabs.indexed)
+        Pressable(
+          onPressed: tab.enabled ? () => _choose(i) : null,
+          focusNode: _nodes[i],
+          role: SemanticsRole.tab,
+          selected: i == _index,
+          builder: (context, state) {
+            final active = i == _index;
+            final fg = active || !dark ? c.foreground : c.mutedForeground;
+            return Opacity(
+              opacity: state.enabled ? 1 : .5,
+              child: AnimatedContainer(
+                duration: t.duration,
+                height: 29,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: active
+                      ? (dark ? c.input.withValues(alpha: .3) : c.background)
+                      : const Color(0x00000000),
+                  borderRadius: BorderRadius.circular(t.radiusMd),
+                  border: Border.all(
+                    color: active && dark ? c.input : const Color(0x00000000),
+                  ),
+                  boxShadow: [
+                    if (state.focused) ...t.focusRing,
+                    if (active) ...t.shadowSm,
+                  ],
+                ),
+                child: DefaultTextStyle.merge(
+                  style: t.text.sm.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  child: IconTheme.merge(
+                    data: IconThemeData(color: fg, size: 16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (tab.icon != null) ...[
+                          tab.icon!,
+                          const SizedBox(width: 6),
+                        ],
+                        Flexible(child: tab.label),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+    ];
+    final list = Shortcuts(
+      includeSemantics: false,
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowRight): _MoveIntent(1),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveIntent(-1),
+      },
+      child: Actions(
+        actions: {
+          _MoveIntent: CallbackAction<_MoveIntent>(
+            onInvoke: (i) => _move(i.step),
+          ),
+        },
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: c.muted,
+            borderRadius: BorderRadius.circular(t.radiusLg),
+          ),
+          child: Semantics(
+            role: SemanticsRole.tabBar,
+            container: true,
+            explicitChildNodes: true,
+            child: Row(
+              mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                for (final trigger in triggers)
+                  widget.expand ? Expanded(child: trigger) : trigger,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: widget.expand
+          ? CrossAxisAlignment.stretch
+          : CrossAxisAlignment.start,
+      children: [
+        list,
+        const SizedBox(height: 8),
+        Semantics(
+          role: SemanticsRole.tabPanel,
+          container: true,
+          child: KeyedSubtree(
+            key: ValueKey(_index),
+            child: widget.tabs[_index].content,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MoveIntent extends Intent {
+  const _MoveIntent(this.step);
+
+  final int step;
+}
+''',
+    },
+  ),
+  'popover': Component(
+    description: "A panel that opens from a trigger and floats over the page.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
+//
+// Built on RawMenuAnchor from Flutter's widgets layer, which opens and closes the panel,
+// closes it on Escape, and closes it when the page scrolls. This
+// file closes the panel on a tap outside, places it and draws it. Dropdown Menu and Select use the same panel.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Which side of its trigger a panel opens on. It flips when there is no room.
+enum PopoverSide { top, bottom }
+
+/// How a panel lines up with its trigger.
+enum PopoverAlign { start, center, end }
+
+/// A panel that opens from a trigger and floats over the page: extra settings, a short
+/// form, details. [builder] draws the trigger and gets the controller that opens it.
+///
+/// ```dart
+/// Popover(
+///   builder: (context, menu) => Button(onPressed: menu.open, child: Text('Dimensions')),
+///   content: (context) => Column(children: [...]),
+/// )
+/// ```
+class Popover extends StatefulWidget {
+  const Popover({
+    super.key,
+    required this.builder,
+    required this.content,
+    this.controller,
+    this.side = PopoverSide.bottom,
+    this.align = PopoverAlign.center,
+    this.width = 288,
+  });
+
+  final Widget Function(BuildContext context, MenuController controller)
+  builder;
+  final WidgetBuilder content;
+  final MenuController? controller;
+  final PopoverSide side;
+  final PopoverAlign align;
+  final double width;
+
+  @override
+  State<Popover> createState() => _PopoverState();
+}
+
+class _PopoverState extends State<Popover> {
+  final _own = MenuController();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return RawMenuAnchor(
+      controller: widget.controller ?? _own,
+      builder: (context, controller, _) => widget.builder(context, controller),
+      overlayBuilder: (context, info) => PopoverPanel(
+        info: info,
+        side: widget.side,
+        align: widget.align,
+        width: widget.width,
+        child: FocusScope(
+          autofocus: true,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: DefaultTextStyle.merge(
+              style: t.text.sm,
+              child: Builder(builder: widget.content),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The floating panel a Popover, Dropdown Menu or Select opens: placed against the
+/// trigger in [info], flipped and kept on screen, and drawn with the popover colours.
+class PopoverPanel extends StatelessWidget {
+  const PopoverPanel({
+    super.key,
+    required this.info,
+    required this.child,
+    this.side = PopoverSide.bottom,
+    this.align = PopoverAlign.start,
+    this.width,
+    this.minWidth = 128,
+    this.matchWidth = false,
+  });
+
+  final RawMenuOverlayInfo info;
+  final Widget child;
+  final PopoverSide side;
+  final PopoverAlign align;
+
+  /// Null sizes the panel to its content.
+  final double? width;
+  final double minWidth;
+
+  /// At least as wide as the trigger.
+  final bool matchWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final min = matchWidth ? info.anchorRect.width : minWidth;
+    return CustomSingleChildLayout(
+      delegate: _Place(info.anchorRect, side, align),
+      child: TapRegion(
+        groupId: info.tapRegionGroupId,
+        // RawMenuAnchor closes only submenus on a tap outside; the panel closes itself.
+        onTapOutside: (_) => MenuController.maybeOf(context)?.close(),
+        // RawMenuAnchor closes on DismissIntent; Escape inside the panel sends it.
+        child: Shortcuts(
+          includeSemantics: false,
+          shortcuts: const {
+            SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+          },
+          child: _Entrance(
+            fromTop: side == PopoverSide.bottom,
+            duration: t.duration,
+            child: Container(
+              width: width == null ? null : (width! < min ? min : width),
+              constraints: BoxConstraints(minWidth: min),
+              decoration: BoxDecoration(
+                color: c.popover,
+                borderRadius: BorderRadius.circular(t.radiusMd),
+                border: Border.all(color: c.border),
+                boxShadow: t.shadowLg,
+              ),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(color: c.popoverForeground),
+                child: IconTheme.merge(
+                  data: IconThemeData(color: c.popoverForeground, size: 16),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Place extends SingleChildLayoutDelegate {
+  _Place(this.anchor, this.side, this.align);
+
+  final Rect anchor;
+  final PopoverSide side;
+  final PopoverAlign align;
+  static const gap = 4.0, margin = 8.0;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    final room = constraints.biggest;
+    final below = room.height - anchor.bottom - gap - margin,
+        above = anchor.top - gap - margin;
+    final height = (side == PopoverSide.bottom
+        ? (below >= 200 || below >= above ? below : above)
+        : (above >= 200 || above >= below ? above : below));
+    return BoxConstraints.loose(
+      Size(room.width - margin * 2, height.clamp(0, room.height)),
+    );
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size child) {
+    var x = switch (align) {
+      PopoverAlign.start => anchor.left,
+      PopoverAlign.center => anchor.center.dx - child.width / 2,
+      PopoverAlign.end => anchor.right - child.width,
+    };
+    x = x.clamp(
+      margin,
+      (size.width - child.width - margin).clamp(margin, double.infinity),
+    );
+    final fitsBelow =
+        anchor.bottom + gap + child.height <= size.height - margin;
+    final fitsAbove = anchor.top - gap - child.height >= margin;
+    final down = side == PopoverSide.bottom
+        ? (fitsBelow || !fitsAbove)
+        : !(fitsAbove || !fitsBelow);
+    final y = down ? anchor.bottom + gap : anchor.top - gap - child.height;
+    return Offset(x, y);
+  }
+
+  @override
+  bool shouldRelayout(_Place old) =>
+      old.anchor != anchor || old.side != side || old.align != align;
+}
+
+/// Fades the panel in, grown from 95%, sliding a little from the trigger's side.
+class _Entrance extends StatelessWidget {
+  const _Entrance({
+    required this.child,
+    required this.fromTop,
+    required this.duration,
+  });
+
+  final Widget child;
+  final bool fromTop;
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: duration,
+      curve: Curves.easeOut,
+      child: child,
+      builder: (context, v, child) => Opacity(
+        opacity: v,
+        child: Transform.translate(
+          offset: Offset(0, (1 - v) * (fromTop ? -8 : 8)),
+          child: Transform.scale(
+            scale: .95 + .05 * v,
+            alignment: fromTop ? Alignment.topCenter : Alignment.bottomCenter,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'dropdown-menu': Component(
+    description: "A list of actions that opens from a trigger.",
+    requires: ["theme","pressable","popover"],
+    packages: [],
+    files: {
+      'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
+// yours to change.
+
+import 'dart:ui' show SemanticsRole;
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'popover.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// A list of actions that opens from a trigger. [builder] draws the trigger and gets the
+/// controller that opens it. The arrow keys move through the items, Enter picks one and
+/// Escape closes the menu.
+///
+/// ```dart
+/// DropdownMenu(
+///   builder: (context, menu) => Button(variant: ButtonVariant.outline, onPressed: menu.open, child: Text('Open')),
+///   items: [
+///     MenuLabel(child: Text('My account')),
+///     MenuItem(leading: AshlarIcon(AshlarIconsRoundedStroke.user), onPressed: profile, child: Text('Profile')),
+///     MenuSeparator(),
+///     MenuItem(destructive: true, onPressed: signOut, child: Text('Sign out')),
+///   ],
+/// )
+/// ```
+class DropdownMenu extends StatefulWidget {
+  const DropdownMenu({
+    super.key,
+    required this.builder,
+    required this.items,
+    this.controller,
+    this.side = PopoverSide.bottom,
+    this.align = PopoverAlign.start,
+    this.width,
+  });
+
+  final Widget Function(BuildContext context, MenuController controller)
+  builder;
+
+  /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
+  final List<Widget> items;
+  final MenuController? controller;
+  final PopoverSide side;
+  final PopoverAlign align;
+
+  /// Null sizes the menu to its widest item.
+  final double? width;
+
+  @override
+  State<DropdownMenu> createState() => _DropdownMenuState();
+}
+
+class _DropdownMenuState extends State<DropdownMenu> {
+  final _own = MenuController();
+
+  @override
+  Widget build(BuildContext context) => RawMenuAnchor(
+    controller: widget.controller ?? _own,
+    builder: (context, controller, _) => widget.builder(context, controller),
+    overlayBuilder: (context, info) => PopoverPanel(
+      info: info,
+      side: widget.side,
+      align: widget.align,
+      width: widget.width,
+      child: MenuList(children: widget.items),
+    ),
+  );
+}
+
+/// The items of an open menu, in a scrolling column: focus starts on the list, and the
+/// arrow keys, Home and End move through the items. A Select uses it too.
+class MenuList extends StatelessWidget {
+  const MenuList({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    role: SemanticsRole.menu,
+    container: true,
+    explicitChildNodes: true,
+    child: Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowDown): NextFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.home): _EdgeIntent(first: true),
+        SingleActivator(LogicalKeyboardKey.end): _EdgeIntent(first: false),
+      },
+      child: FocusScope(
+        autofocus: true,
+        child: Builder(
+          builder: (context) => Actions(
+            actions: {
+              _EdgeIntent: CallbackAction<_EdgeIntent>(
+                onInvoke: (i) {
+                  final scope = FocusScope.of(context);
+                  final items = scope.traversalDescendants.toList();
+                  if (items.isEmpty) return null;
+                  (i.first ? items.first : items.last).requestFocus();
+                  return null;
+                },
+              ),
+            },
+            child: IntrinsicWidth(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _EdgeIntent extends Intent {
+  const _EdgeIntent({required this.first});
+
+  final bool first;
+}
+
+/// An action in a menu. Picking it closes the menu, then calls [onPressed].
+class MenuItem extends StatefulWidget {
+  const MenuItem({
+    super.key,
+    required this.child,
+    required this.onPressed,
+    this.leading,
+    this.trailing,
+    this.shortcut,
+    this.destructive = false,
+    this.selected,
+    this.autofocus = false,
+  });
+
+  final Widget child;
+
+  /// Null disables the item.
+  final VoidCallback? onPressed;
+
+  /// A 16px icon before the label.
+  final Widget? leading;
+
+  /// An icon after the label, at the end of the row.
+  final Widget? trailing;
+
+  /// A key combination, shown faint at the end of the row: Text('⌘S').
+  final Widget? shortcut;
+
+  /// Drawn in the destructive colour: delete, sign out.
+  final bool destructive;
+
+  /// For a menu of choices: announced as chosen.
+  final bool? selected;
+  final bool autofocus;
+
+  @override
+  State<MenuItem> createState() => _MenuItemState();
+}
+
+class _MenuItemState extends State<MenuItem> {
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return MouseRegion(
+      // The pointer and the keyboard share one highlight, as in a native menu.
+      onEnter: (_) => widget.onPressed == null ? null : _focus.requestFocus(),
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onFocusChange: (_) => setState(() {}),
+        child: Pressable(
+          focusNode: _focus,
+          autofocus: widget.autofocus,
+          role: SemanticsRole.menuItem,
+          selected: widget.selected,
+          onPressed: widget.onPressed == null
+              ? null
+              : () {
+                  MenuController.maybeOf(context)?.close();
+                  widget.onPressed!();
+                },
+          builder: (context, state) {
+            final lit = state.enabled && (state.hovered || _focus.hasFocus);
+            final fg = widget.destructive
+                ? c.destructive
+                : (lit ? c.accentForeground : c.popoverForeground);
+            final bg = lit
+                ? (widget.destructive
+                      ? c.destructive.withValues(alpha: .1)
+                      : c.accent)
+                : const Color(0x00000000);
+            return Opacity(
+              opacity: state.enabled ? 1 : .5,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(t.radiusSm),
+                ),
+                child: DefaultTextStyle.merge(
+                  style: t.text.sm.copyWith(color: fg),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      color: widget.destructive
+                          ? c.destructive
+                          : c.mutedForeground,
+                      size: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        if (widget.leading != null) ...[
+                          widget.leading!,
+                          const SizedBox(width: 8),
+                        ],
+                        Expanded(child: widget.child),
+                        if (widget.shortcut != null) ...[
+                          const SizedBox(width: 16),
+                          DefaultTextStyle.merge(
+                            style: t.text.xs.copyWith(
+                              color: c.mutedForeground,
+                              letterSpacing: 1.2,
+                            ),
+                            child: widget.shortcut!,
+                          ),
+                        ],
+                        if (widget.trailing != null) ...[
+                          const SizedBox(width: 8),
+                          widget.trailing!,
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// A heading over a group of items.
+class MenuLabel extends StatelessWidget {
+  const MenuLabel({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: DefaultTextStyle.merge(
+        style: t.text.sm.copyWith(
+          color: t.colors.popoverForeground,
+          fontWeight: FontWeight.w500,
+        ),
+        child: Semantics(header: true, child: child),
+      ),
+    );
+  }
+}
+
+/// A line between groups of items.
+class MenuSeparator extends StatelessWidget {
+  const MenuSeparator({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: 1,
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    transform: Matrix4.translationValues(0, 0, 0),
+    color: AshlarTheme.of(context).colors.border,
+  );
+}
+''',
+    },
+  ),
+  'select': Component(
+    description: "Picks one value from a list that opens under it.",
+    requires: ["theme","pressable","popover","dropdown-menu"],
+    packages: ["ashlar_icons"],
+    files: {
+      'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'dropdown_menu.dart';
+import 'popover.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One choice in a [Select].
+@immutable
+class SelectOption<T> {
+  const SelectOption(this.value, this.label, {this.enabled = true});
+
+  final T value;
+  final String label;
+  final bool enabled;
+}
+
+/// Picks one value from a list that opens under it. It opens on a tap, Enter, Space or
+/// the down arrow, with the chosen option focused.
+///
+/// ```dart
+/// Select<String>(
+///   value: county,
+///   placeholder: 'Choose a county',
+///   options: [SelectOption('nbo', 'Nairobi'), SelectOption('msa', 'Mombasa')],
+///   onChanged: (v) => setState(() => county = v),
+/// )
+/// ```
+class Select<T> extends StatefulWidget {
+  const Select({
+    super.key,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.placeholder,
+    this.error = false,
+    this.focusNode,
+    this.semanticLabel,
+  });
+
+  final T? value;
+  final List<SelectOption<T>> options;
+
+  /// Null disables it.
+  final ValueChanged<T>? onChanged;
+  final String? placeholder;
+
+  /// Draws it as invalid.
+  final bool error;
+  final FocusNode? focusNode;
+
+  /// What it chooses, for screen readers: 'County'. The chosen option is read after it.
+  final String? semanticLabel;
+
+  @override
+  State<Select<T>> createState() => _SelectState<T>();
+}
+
+class _SelectState<T> extends State<Select<T>> {
+  final _menu = MenuController();
+  FocusNode? _ownFocus;
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
+
+  @override
+  void dispose() {
+    _ownFocus?.dispose();
+    super.dispose();
+  }
+
+  void _toggle() => _menu.isOpen ? _menu.close() : _menu.open();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final chosen = widget.options
+        .where((o) => o.value == widget.value)
+        .firstOrNull;
+    final enabled = widget.onChanged != null;
+    return RawMenuAnchor(
+      controller: _menu,
+      childFocusNode: _focus,
+      // Focus goes back to the trigger when the list closes.
+      onClose: () => _focus.requestFocus(),
+      overlayBuilder: (context, info) => PopoverPanel(
+        info: info,
+        matchWidth: true,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 320),
+          child: MenuList(
+            children: [
+              for (final o in widget.options)
+                MenuItem(
+                  autofocus: o.value == widget.value,
+                  selected: o.value == widget.value,
+                  trailing: o.value == widget.value
+                      ? const AshlarIcon(AshlarIconsRoundedStroke.check)
+                      : const SizedBox(width: 16),
+                  onPressed: o.enabled
+                      ? () => widget.onChanged?.call(o.value)
+                      : null,
+                  child: Text(o.label),
+                ),
+            ],
+          ),
+        ),
+      ),
+      child: Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.arrowDown): ActivateIntent(),
+        },
+        child: Pressable(
+          onPressed: enabled ? _toggle : null,
+          focusNode: _focus,
+          semanticLabel: widget.semanticLabel,
+          semanticValue: widget.semanticLabel == null
+              ? null
+              : (chosen?.label ?? widget.placeholder),
+          builder: (context, state) {
+            final ring = widget.error ? c.destructive : c.ring;
+            return Opacity(
+              opacity: state.enabled ? 1 : .5,
+              child: AnimatedContainer(
+                duration: t.duration,
+                height: 36,
+                padding: const EdgeInsets.only(left: 12, right: 10),
+                decoration: BoxDecoration(
+                  color: t.brightness == Brightness.dark
+                      ? Color.alphaBlend(
+                          c.input.withValues(alpha: state.hovered ? .5 : .3),
+                          c.background,
+                        )
+                      : c.background,
+                  borderRadius: BorderRadius.circular(t.radiusMd),
+                  border: Border.all(
+                    color: widget.error
+                        ? c.destructive
+                        : (state.focused ? c.ring : c.input),
+                  ),
+                  boxShadow: [
+                    if (state.focused)
+                      BoxShadow(
+                        color: ring.withValues(alpha: widget.error ? .2 : .5),
+                        spreadRadius: 3,
+                      ),
+                    ...t.shadowXs,
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        chosen?.label ?? widget.placeholder ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.text.sm.copyWith(
+                          color: chosen == null
+                              ? c.mutedForeground
+                              : c.foreground,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronDown,
+                      size: 16,
+                      color: c.mutedForeground.withValues(alpha: .5),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'tooltip': Component(
+    description: "A short label over a control on hover, focus or long press.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
+//
+// Built on RawTooltip from Flutter's widgets layer, which shows it on hover and on a long
+// press. This file also shows it on keyboard focus and gives screen readers the message.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A short label that appears over [child] when it is hovered, focused from the keyboard
+/// or long pressed. Use it for what an icon button does, not for anything a person needs.
+///
+/// ```dart
+/// Tooltip(message: 'Add to library', child: Button(size: ButtonSize.icon, semanticLabel: 'Add', onPressed: add, child: AshlarIcon(AshlarIconsRoundedStroke.plus)))
+/// ```
+class Tooltip extends StatefulWidget {
+  const Tooltip({
+    super.key,
+    required this.message,
+    required this.child,
+    this.below = false,
+  });
+
+  final String message;
+  final Widget child;
+
+  /// Under the child instead of over it. It flips when there is no room.
+  final bool below;
+
+  @override
+  State<Tooltip> createState() => _TooltipState();
+}
+
+class _TooltipState extends State<Tooltip> {
+  final _tip = GlobalKey<RawTooltipState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onFocusChange: (focused) {
+        if (!focused) {
+          RawTooltip.dismissAllToolTips();
+        } else if (FocusManager.instance.highlightMode ==
+            FocusHighlightMode.traditional) {
+          _tip.currentState?.ensureTooltipVisible();
+        }
+      },
+      child: RawTooltip(
+        key: _tip,
+        // The message goes on the control itself, so a screen reader hears it with the
+        // control's name rather than as a separate item.
+        semanticsTooltip: null,
+        hoverDelay: Duration.zero,
+        positionDelegate: (p) {
+          const gap = 4.0, margin = 8.0;
+          final above =
+              p.target.dy -
+              p.targetSize.height / 2 -
+              gap -
+              p.tooltipSize.height;
+          final under = p.target.dy + p.targetSize.height / 2 + gap;
+          final fitsAbove = above >= margin,
+              fitsUnder =
+                  under + p.tooltipSize.height <= p.overlaySize.height - margin;
+          final down = widget.below
+              ? (fitsUnder || !fitsAbove)
+              : !(fitsAbove || !fitsUnder);
+          final x = (p.target.dx - p.tooltipSize.width / 2).clamp(
+            margin,
+            (p.overlaySize.width - p.tooltipSize.width - margin).clamp(
+              margin,
+              double.infinity,
+            ),
+          );
+          return Offset(x, down ? under : above);
+        },
+        tooltipBuilder: (context, animation) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween(begin: .95, end: 1.0).animate(animation),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 280),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.primary,
+                borderRadius: BorderRadius.circular(t.radiusMd),
+              ),
+              child: Text(
+                widget.message,
+                style: t.text.xs.copyWith(color: c.primaryForeground),
+              ),
+            ),
+          ),
+        ),
+        child: MergeSemantics(
+          child: Semantics(tooltip: widget.message, child: widget.child),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'toast': Component(
+    description: "A short message at the bottom of the screen that goes by itself.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
+
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Shows a short message at the bottom of the screen that goes by itself after
+/// [duration]. It stays while the pointer is over it, and a swipe sends it away. A screen
+/// reader reads it out. Up to three show at once; the newest is at the bottom.
+///
+/// ```dart
+/// showToast(context, title: 'Payment sent', description: 'KES 2,400 to Wanjiru.')
+/// showToast(context, title: 'Event deleted', action: Button(size: ButtonSize.sm, onPressed: undo, child: Text('Undo')))
+/// ```
+void showToast(
+  BuildContext context, {
+  required String title,
+  String? description,
+  Widget? icon,
+  Widget? action,
+  Duration duration = const Duration(seconds: 4),
+}) {
+  final overlay = Overlay.of(context, rootOverlay: true);
+  final host = _hosts[overlay] ??= _ToastHost(overlay, AshlarTheme.of(context));
+  host.add(
+    _Toast(
+      title: title,
+      description: description,
+      icon: icon,
+      action: action,
+      duration: duration,
+    ),
+  );
+}
+
+final _hosts = Expando<_ToastHost>();
+
+class _Toast {
+  _Toast({
+    required this.title,
+    this.description,
+    this.icon,
+    this.action,
+    required this.duration,
+  });
+
+  final String title;
+  final String? description;
+  final Widget? icon;
+  final Widget? action;
+  final Duration duration;
+  final key = UniqueKey();
+}
+
+/// The column of toasts, in one entry on the root overlay.
+class _ToastHost {
+  _ToastHost(this.overlay, this.theme) {
+    entry = OverlayEntry(
+      builder: (_) => AshlarTheme(
+        data: theme,
+        child: _ToastStack(host: this),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
+  final OverlayState overlay;
+  final AshlarThemeData theme;
+  late final OverlayEntry entry;
+  final toasts = ValueNotifier<List<_Toast>>([]);
+
+  void add(_Toast toast) {
+    final list = [...toasts.value, toast];
+    toasts.value = list.length > 3 ? list.sublist(list.length - 3) : list;
+  }
+
+  void remove(_Toast toast) => toasts.value = [...toasts.value]..remove(toast);
+}
+
+class _ToastStack extends StatelessWidget {
+  const _ToastStack({required this.host});
+
+  final _ToastHost host;
+
+  @override
+  Widget build(BuildContext context) {
+    final padding = MediaQuery.paddingOf(context);
+    return ValueListenableBuilder(
+      valueListenable: host.toasts,
+      builder: (context, toasts, _) => toasts.isEmpty
+          ? const SizedBox.shrink()
+          : Positioned(
+              right: 16 + padding.right,
+              bottom: 16 + padding.bottom,
+              left: 16 + padding.left,
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 356),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final toast in toasts)
+                        Padding(
+                          key: toast.key,
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _ToastCard(
+                            toast: toast,
+                            onDone: () => host.remove(toast),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+class _ToastCard extends StatefulWidget {
+  const _ToastCard({required this.toast, required this.onDone});
+
+  final _Toast toast;
+  final VoidCallback onDone;
+
+  @override
+  State<_ToastCard> createState() => _ToastCardState();
+}
+
+class _ToastCardState extends State<_ToastCard>
+    with SingleTickerProviderStateMixin {
+  late final _enter = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+  )..forward();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  void _start() => _timer = Timer(widget.toast.duration, _leave);
+
+  Future<void> _leave() async {
+    _timer?.cancel();
+    if (!mounted) return;
+    await _enter.reverse();
+    widget.onDone();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _enter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final toast = widget.toast;
+    final card = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: c.popover,
+        borderRadius: BorderRadius.circular(t.radiusMd),
+        border: Border.all(color: c.border),
+        boxShadow: t.shadowLg,
+      ),
+      child: IconTheme.merge(
+        data: IconThemeData(color: c.popoverForeground, size: 16),
+        child: Row(
+          children: [
+            if (toast.icon != null) ...[toast.icon!, const SizedBox(width: 12)],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    toast.title,
+                    style: t.text.sm.copyWith(
+                      color: c.popoverForeground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (toast.description != null)
+                    Text(
+                      toast.description!,
+                      style: t.text.sm.copyWith(color: c.mutedForeground),
+                    ),
+                ],
+              ),
+            ),
+            if (toast.action != null) ...[
+              const SizedBox(width: 12),
+              toast.action!,
+            ],
+          ],
+        ),
+      ),
+    );
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final curve = CurvedAnimation(parent: _enter, curve: Curves.easeOut);
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: MouseRegion(
+        onEnter: (_) => _timer?.cancel(),
+        onExit: (_) => _start(),
+        child: Dismissible(
+          key: toast.key,
+          direction: DismissDirection.horizontal,
+          onDismissed: (_) => widget.onDone(),
+          child: still
+              ? card
+              : FadeTransition(
+                  opacity: curve,
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, .5),
+                      end: Offset.zero,
+                    ).animate(curve),
+                    child: card,
+                  ),
+                ),
         ),
       ),
     );

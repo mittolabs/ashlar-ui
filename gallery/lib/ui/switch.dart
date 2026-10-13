@@ -12,7 +12,14 @@ import 'theme.dart';
 /// Switch(value: notify, onChanged: (v) => setState(() => notify = v), semanticLabel: 'Notifications')
 /// ```
 class Switch extends StatelessWidget {
-  const Switch({super.key, required this.value, required this.onChanged, this.semanticLabel, this.focusNode, this.autofocus = false});
+  const Switch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.semanticLabel,
+    this.focusNode,
+    this.autofocus = false,
+  });
 
   final bool value;
 
@@ -52,7 +59,9 @@ class Switch extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(
-                color: t.brightness == Brightness.dark && !value ? c.foreground : c.background,
+                color: t.brightness == Brightness.dark && !value
+                    ? c.foreground
+                    : c.background,
                 shape: BoxShape.circle,
               ),
             ),

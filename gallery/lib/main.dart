@@ -1,16 +1,30 @@
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import 'ui/alert.dart';
 import 'ui/app.dart';
+import 'ui/avatar.dart';
 import 'ui/badge.dart';
 import 'ui/button.dart';
 import 'ui/card.dart';
 import 'ui/checkbox.dart';
 import 'ui/dialog.dart';
+import 'ui/dropdown_menu.dart';
+import 'ui/field.dart';
 import 'ui/input.dart';
+import 'ui/kbd.dart';
+import 'ui/popover.dart';
+import 'ui/radio.dart';
+import 'ui/select.dart';
 import 'ui/separator.dart';
+import 'ui/skeleton.dart';
+import 'ui/spinner.dart';
 import 'ui/switch.dart';
+import 'ui/tabs.dart';
+import 'ui/textarea.dart';
 import 'ui/theme.dart';
+import 'ui/toast.dart';
+import 'ui/tooltip.dart';
 
 void main() => runApp(const Gallery());
 
@@ -51,7 +65,7 @@ class GalleryPage extends StatefulWidget {
 
 class _GalleryPageState extends State<GalleryPage> {
   bool terms = true, news = false, notify = true, wifi = false;
-  String? result;
+  String? result, county, plan = 'monthly';
 
   Widget section(String title, Widget body) {
     final t = AshlarTheme.of(context);
@@ -322,6 +336,260 @@ class _GalleryPageState extends State<GalleryPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              section(
+                'Field, Textarea and Select',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Field(
+                      label: Text('Email'),
+                      description: Text('We send receipts here.'),
+                      child: Input(placeholder: 'you@solutech.co.ke'),
+                    ),
+                    const SizedBox(height: 20),
+                    Field(
+                      label: const Text('County'),
+                      error: county == null
+                          ? const Text('Choose a county')
+                          : null,
+                      child: Select<String>(
+                        value: county,
+                        placeholder: 'Choose a county',
+                        error: county == null,
+                        options: const [
+                          SelectOption('nbo', 'Nairobi'),
+                          SelectOption('msa', 'Mombasa'),
+                          SelectOption('ksm', 'Kisumu'),
+                          SelectOption('nku', 'Nakuru'),
+                        ],
+                        onChanged: (v) => setState(() => county = v),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Field(
+                      label: Text('Note'),
+                      child: Textarea(placeholder: 'Tell us what happened'),
+                    ),
+                  ],
+                ),
+              ),
+              section(
+                'Radio',
+                RadioGroup<String>(
+                  groupValue: plan,
+                  onChanged: (v) => setState(() => plan = v),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Radio(
+                        value: 'monthly',
+                        label: Text('Monthly'),
+                        description: Text('KES 500 a month.'),
+                      ),
+                      SizedBox(height: 12),
+                      Radio(
+                        value: 'yearly',
+                        label: Text('Yearly'),
+                        description: Text('Two months free.'),
+                      ),
+                      SizedBox(height: 12),
+                      Radio(value: 'team', label: Text('Team'), enabled: false),
+                    ],
+                  ),
+                ),
+              ),
+              section(
+                'Tabs',
+                const Tabs(
+                  tabs: [
+                    TabItem(
+                      label: Text('Account'),
+                      content: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text('Change your name and email.'),
+                      ),
+                    ),
+                    TabItem(
+                      label: Text('Password'),
+                      content: Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text('Change your password.'),
+                      ),
+                    ),
+                    TabItem(
+                      label: Text('Billing'),
+                      content: SizedBox(),
+                      enabled: false,
+                    ),
+                  ],
+                ),
+              ),
+              section(
+                'Dropdown menu, popover and tooltip',
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    DropdownMenu(
+                      builder: (context, menu) => Button(
+                        variant: ButtonVariant.outline,
+                        trailing: const AshlarIcon(
+                          AshlarIconsRoundedStroke.chevronDown,
+                        ),
+                        onPressed: () =>
+                            menu.isOpen ? menu.close() : menu.open(),
+                        child: const Text('My account'),
+                      ),
+                      items: [
+                        const MenuLabel(child: Text('My account')),
+                        MenuItem(
+                          leading: const AshlarIcon(
+                            AshlarIconsRoundedStroke.user,
+                          ),
+                          shortcut: const Text('⇧⌘P'),
+                          onPressed: () {},
+                          child: const Text('Profile'),
+                        ),
+                        MenuItem(
+                          leading: const AshlarIcon(
+                            AshlarIconsRoundedStroke.creditCard,
+                          ),
+                          onPressed: () {},
+                          child: const Text('Billing'),
+                        ),
+                        MenuItem(
+                          leading: const AshlarIcon(
+                            AshlarIconsRoundedStroke.settings,
+                          ),
+                          shortcut: const Text('⌘,'),
+                          onPressed: () {},
+                          child: const Text('Settings'),
+                        ),
+                        const MenuSeparator(),
+                        MenuItem(
+                          leading: const AshlarIcon(
+                            AshlarIconsRoundedStroke.logOut,
+                          ),
+                          destructive: true,
+                          onPressed: () {},
+                          child: const Text('Sign out'),
+                        ),
+                      ],
+                    ),
+                    Popover(
+                      builder: (context, menu) => Button(
+                        variant: ButtonVariant.outline,
+                        onPressed: () =>
+                            menu.isOpen ? menu.close() : menu.open(),
+                        child: const Text('Dimensions'),
+                      ),
+                      content: (context) => const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('Set the size of the layer.'),
+                          SizedBox(height: 12),
+                          Field(
+                            label: Text('Width'),
+                            child: Input(placeholder: '100%'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Add to library',
+                      child: Button(
+                        size: ButtonSize.icon,
+                        variant: ButtonVariant.outline,
+                        semanticLabel: 'Add',
+                        onPressed: () {},
+                        child: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              section(
+                'Toast',
+                Button(
+                  variant: ButtonVariant.outline,
+                  onPressed: () => showToast(
+                    context,
+                    title: 'Payment sent',
+                    description: 'KES 2,400 to Wanjiru Mwangi.',
+                    action: Button(
+                      size: ButtonSize.sm,
+                      onPressed: () {},
+                      child: const Text('Undo'),
+                    ),
+                  ),
+                  child: const Text('Show a toast'),
+                ),
+              ),
+              section(
+                'Alert',
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Alert(
+                      icon: AshlarIcon(AshlarIconsRoundedStroke.circleCheck),
+                      title: Text('Payment received'),
+                      description: Text('KES 2,400 from 0712 345 678.'),
+                    ),
+                    SizedBox(height: 12),
+                    Alert(
+                      variant: AlertVariant.destructive,
+                      icon: AshlarIcon(AshlarIconsRoundedStroke.circleAlert),
+                      title: Text('The card was declined'),
+                      description: Text(
+                        'Try another card or pay by mobile money.',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              section(
+                'Avatar, skeleton, spinner and kbd',
+                Wrap(
+                  spacing: 24,
+                  runSpacing: 16,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+                        SizedBox(width: 8),
+                        Avatar(fallback: 'OK', size: 40),
+                      ],
+                    ),
+                    const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Skeleton(width: 40, height: 40, circle: true),
+                        SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Skeleton(width: 160),
+                            SizedBox(height: 8),
+                            Skeleton(width: 120),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const Button(
+                      onPressed: null,
+                      leading: Spinner(),
+                      child: Text('Saving'),
+                    ),
+                    Kbd.group(const [
+                      Kbd(child: Text('⌘')),
+                      Kbd(child: Text('K')),
+                    ]),
+                  ],
                 ),
               ),
               section(

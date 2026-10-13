@@ -1,6 +1,8 @@
 // Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
 
+import 'dart:ui' show SemanticsRole;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -36,9 +38,12 @@ class Pressable extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.semanticLabel,
+    this.semanticValue,
     this.button = true,
     this.toggled,
     this.checked,
+    this.selected,
+    this.role,
   });
 
   /// Null disables it.
@@ -46,7 +51,12 @@ class Pressable extends StatefulWidget {
   final Widget Function(BuildContext context, PressableState state) builder;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Read out in place of the visible content.
   final String? semanticLabel;
+
+  /// Read out after the label: what a select or a field holds.
+  final String? semanticValue;
 
   /// Announced as a button.
   final bool button;
@@ -56,6 +66,12 @@ class Pressable extends StatefulWidget {
 
   /// Announced as a checkbox that is checked or not.
   final bool? checked;
+
+  /// Announced as the chosen one of several: a tab, an option.
+  final bool? selected;
+
+  /// What a screen reader calls it, when it is not a button: a tab, a menu item.
+  final SemanticsRole? role;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -77,11 +93,17 @@ class _PressableState extends State<Pressable> {
     return MergeSemantics(
       child: Semantics(
         button:
-            widget.button && widget.toggled == null && widget.checked == null,
+            widget.button &&
+            widget.toggled == null &&
+            widget.checked == null &&
+            widget.role == null,
+        role: widget.role,
+        selected: widget.selected,
         toggled: widget.toggled,
         checked: widget.checked,
         enabled: _enabled,
         label: widget.semanticLabel,
+        value: widget.semanticValue,
         onTap: _enabled ? _activate : null,
         child: FocusableActionDetector(
           focusNode: widget.focusNode,
@@ -116,13 +138,17 @@ class _PressableState extends State<Pressable> {
                   ? () => setState(() => _pressed = false)
                   : null,
               onTap: _enabled ? _activate : null,
-              child: widget.builder(
-                context,
-                PressableState(
-                  hovered: _hovered && _enabled,
-                  pressed: _pressed,
-                  focused: _focused,
-                  enabled: _enabled,
+              // A label replaces what the control shows, rather than adding to it.
+              child: ExcludeSemantics(
+                excluding: widget.semanticLabel != null,
+                child: widget.builder(
+                  context,
+                  PressableState(
+                    hovered: _hovered && _enabled,
+                    pressed: _pressed,
+                    focused: _focused,
+                    enabled: _enabled,
+                  ),
                 ),
               ),
             ),

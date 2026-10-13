@@ -13,7 +13,12 @@ enum BadgeVariant { primary, secondary, destructive, outline }
 /// Badge(variant: BadgeVariant.outline, leading: AshlarIcon(AshlarIconsRoundedStroke.check, size: 12), child: Text('Paid'))
 /// ```
 class Badge extends StatelessWidget {
-  const Badge({super.key, required this.child, this.variant = BadgeVariant.primary, this.leading});
+  const Badge({
+    super.key,
+    required this.child,
+    this.variant = BadgeVariant.primary,
+    this.leading,
+  });
 
   final Widget child;
   final BadgeVariant variant;
@@ -26,7 +31,11 @@ class Badge extends StatelessWidget {
     final (Color bg, Color fg, Color? border) = switch (variant) {
       BadgeVariant.primary => (c.primary, c.primaryForeground, null),
       BadgeVariant.secondary => (c.secondary, c.secondaryForeground, null),
-      BadgeVariant.destructive => (c.destructive, c.destructiveForeground, null),
+      BadgeVariant.destructive => (
+        c.destructive,
+        c.destructiveForeground,
+        null,
+      ),
       BadgeVariant.outline => (const Color(0x00000000), c.foreground, c.border),
     };
     return Container(
@@ -41,10 +50,13 @@ class Badge extends StatelessWidget {
         maxLines: 1,
         child: IconTheme.merge(
           data: IconThemeData(color: fg, size: 12),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (leading != null) ...[leading!, const SizedBox(width: 4)],
-            Flexible(child: child),
-          ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leading != null) ...[leading!, const SizedBox(width: 4)],
+              Flexible(child: child),
+            ],
+          ),
         ),
       ),
     );

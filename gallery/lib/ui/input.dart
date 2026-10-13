@@ -30,6 +30,7 @@ class Input extends StatefulWidget {
     this.error = false,
     this.autofocus = false,
     this.maxLines = 1,
+    this.minLines,
     this.keyboardType,
     this.textInputAction,
     this.autofillHints,
@@ -58,6 +59,9 @@ class Input extends StatefulWidget {
 
   /// More than 1 makes a text area that grows to that many lines.
   final int maxLines;
+
+  /// How tall a text area starts, in lines. Defaults to [maxLines], up to 3.
+  final int? minLines;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
@@ -133,7 +137,9 @@ class _InputState extends State<Input>
       selectionControls: _AshlarSelectionControls(c.foreground),
       contextMenuBuilder: (context, state) => _SelectionMenu(state: state),
       maxLines: widget.maxLines,
-      minLines: multiline ? widget.maxLines.clamp(1, 3) : null,
+      minLines: multiline
+          ? (widget.minLines ?? widget.maxLines.clamp(1, 3))
+          : null,
       keyboardType:
           widget.keyboardType ??
           (multiline ? TextInputType.multiline : TextInputType.text),

@@ -125,8 +125,17 @@ class AshlarText {
   /// Null uses the platform's font. Set it, and add the font to pubspec.yaml, to use your own.
   final String? fontFamily;
 
-  TextStyle _size(double size, double height, [FontWeight weight = FontWeight.w400]) =>
-      TextStyle(fontFamily: fontFamily, fontSize: size, height: height / size, fontWeight: weight, letterSpacing: 0);
+  TextStyle _size(
+    double size,
+    double height, [
+    FontWeight weight = FontWeight.w400,
+  ]) => TextStyle(
+    fontFamily: fontFamily,
+    fontSize: size,
+    height: height / size,
+    fontWeight: weight,
+    letterSpacing: 0,
+  );
 
   /// 12/16: badges, captions.
   TextStyle get xs => _size(12, 16);
@@ -159,10 +168,12 @@ class AshlarThemeData {
   });
 
   /// Neutral, light.
-  const AshlarThemeData.light() : this(brightness: Brightness.light, colors: AshlarColors.light);
+  const AshlarThemeData.light()
+    : this(brightness: Brightness.light, colors: AshlarColors.light);
 
   /// Neutral, dark.
-  const AshlarThemeData.dark() : this(brightness: Brightness.dark, colors: AshlarColors.dark);
+  const AshlarThemeData.dark()
+    : this(brightness: Brightness.dark, colors: AshlarColors.dark);
 
   final Brightness brightness;
   final AshlarColors colors;
@@ -180,24 +191,48 @@ class AshlarThemeData {
   double get radiusXl => radius + 4;
 
   /// The ring drawn around a control that has keyboard focus.
-  List<BoxShadow> get focusRing => [BoxShadow(color: colors.ring.withValues(alpha: .5), spreadRadius: 3)];
+  List<BoxShadow> get focusRing => [
+    BoxShadow(color: colors.ring.withValues(alpha: .5), spreadRadius: 3),
+  ];
 
   /// The faint shadow under a control.
-  List<BoxShadow> get shadowXs => const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)];
+  List<BoxShadow> get shadowXs => const [
+    BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2),
+  ];
 
   /// The shadow under a card.
   List<BoxShadow> get shadowSm => const [
     BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 3),
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 2, spreadRadius: -1),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 1),
+      blurRadius: 2,
+      spreadRadius: -1,
+    ),
   ];
 
   /// The shadow under a dialog or a menu.
   List<BoxShadow> get shadowLg => const [
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 10), blurRadius: 15, spreadRadius: -3),
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 6, spreadRadius: -4),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 10),
+      blurRadius: 15,
+      spreadRadius: -3,
+    ),
+    BoxShadow(
+      color: Color(0x1A000000),
+      offset: Offset(0, 4),
+      blurRadius: 6,
+      spreadRadius: -4,
+    ),
   ];
 
-  AshlarThemeData copyWith({AshlarColors? colors, double? radius, AshlarText? text, Duration? duration}) => AshlarThemeData(
+  AshlarThemeData copyWith({
+    AshlarColors? colors,
+    double? radius,
+    AshlarText? text,
+    Duration? duration,
+  }) => AshlarThemeData(
     brightness: brightness,
     colors: colors ?? this.colors,
     radius: radius ?? this.radius,
@@ -214,7 +249,8 @@ class AshlarTheme extends InheritedWidget {
 
   /// The nearest theme, or the light one when there is none.
   static AshlarThemeData of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AshlarTheme>()?.data ?? const AshlarThemeData.light();
+      context.dependOnInheritedWidgetOfExactType<AshlarTheme>()?.data ??
+      const AshlarThemeData.light();
 
   @override
   bool updateShouldNotify(AshlarTheme old) => old.data != data;

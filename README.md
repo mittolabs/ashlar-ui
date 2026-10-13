@@ -26,7 +26,15 @@ Button(onPressed: save, child: Text('Save'))
 
 ## Components
 
-theme, app, button, badge, card, separator, input, checkbox, switch, dialog.
+- **Foundation:** theme, app, pressable.
+- **Actions:** button, dropdown-menu.
+- **Forms:** label, field, input, textarea, select, checkbox, radio, switch.
+- **Overlays:** dialog, popover, tooltip, toast.
+- **Layout and display:** card, separator, tabs, badge, alert, avatar, skeleton, spinner, kbd.
+
+Radio works inside Flutter's own `RadioGroup`, and Popover, Dropdown Menu, Select and
+Tooltip are built on Flutter's `RawMenuAnchor` and `RawTooltip`. The keyboard handling
+and screen reader support come from Flutter itself.
 `ashlar list` shows them with what each does.
 
 ## This repository

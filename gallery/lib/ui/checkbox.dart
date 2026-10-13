@@ -12,7 +12,14 @@ import 'theme.dart';
 /// Checkbox(value: agreed, onChanged: (v) => setState(() => agreed = v), semanticLabel: 'Accept terms')
 /// ```
 class Checkbox extends StatelessWidget {
-  const Checkbox({super.key, required this.value, required this.onChanged, this.semanticLabel, this.focusNode, this.autofocus = false});
+  const Checkbox({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.semanticLabel,
+    this.focusNode,
+    this.autofocus = false,
+  });
 
   final bool value;
 
@@ -42,10 +49,18 @@ class Checkbox extends StatelessWidget {
             // Opaque, so the shadow beneath does not show through.
             color: value ? c.primary : c.background,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: value ? c.primary : (state.focused ? c.ring : c.input)),
+            border: Border.all(
+              color: value ? c.primary : (state.focused ? c.ring : c.input),
+            ),
             boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
           ),
-          child: value ? AshlarIcon(AshlarIconsRoundedStroke.check, size: 14, color: c.primaryForeground) : null,
+          child: value
+              ? AshlarIcon(
+                  AshlarIconsRoundedStroke.check,
+                  size: 14,
+                  color: c.primaryForeground,
+                )
+              : null,
         ),
       ),
     );

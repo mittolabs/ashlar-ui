@@ -86,11 +86,31 @@ class Button extends StatelessWidget {
       semanticLabel: semanticLabel,
       builder: (context, state) {
         final (Color bg, Color fg, Color? border) = switch (variant) {
-          ButtonVariant.primary => (state.hovered ? c.primary.withValues(alpha: .9) : c.primary, c.primaryForeground, null),
-          ButtonVariant.secondary => (state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary, c.secondaryForeground, null),
-          ButtonVariant.destructive => (state.hovered ? c.destructive.withValues(alpha: .9) : c.destructive, c.destructiveForeground, null),
-          ButtonVariant.outline => (state.hovered ? c.accent : c.background, state.hovered ? c.accentForeground : c.foreground, c.input),
-          ButtonVariant.ghost => (state.hovered ? c.accent : const Color(0x00000000), state.hovered ? c.accentForeground : c.foreground, null),
+          ButtonVariant.primary => (
+            state.hovered ? c.primary.withValues(alpha: .9) : c.primary,
+            c.primaryForeground,
+            null,
+          ),
+          ButtonVariant.secondary => (
+            state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary,
+            c.secondaryForeground,
+            null,
+          ),
+          ButtonVariant.destructive => (
+            state.hovered ? c.destructive.withValues(alpha: .9) : c.destructive,
+            c.destructiveForeground,
+            null,
+          ),
+          ButtonVariant.outline => (
+            state.hovered ? c.accent : c.background,
+            state.hovered ? c.accentForeground : c.foreground,
+            c.input,
+          ),
+          ButtonVariant.ghost => (
+            state.hovered ? c.accent : const Color(0x00000000),
+            state.hovered ? c.accentForeground : c.foreground,
+            null,
+          ),
           ButtonVariant.link => (const Color(0x00000000), c.primary, null),
         };
         final (double height, double padding, double gap) = switch (size) {
@@ -103,7 +123,9 @@ class Button extends StatelessWidget {
           style: t.text.sm.copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
-            decoration: variant == ButtonVariant.link && state.hovered ? TextDecoration.underline : null,
+            decoration: variant == ButtonVariant.link && state.hovered
+                ? TextDecoration.underline
+                : null,
             decorationColor: fg,
           ),
           maxLines: 1,
@@ -115,13 +137,13 @@ class Button extends StatelessWidget {
               height: height,
               width: size == ButtonSize.icon ? height : null,
               child: Row(
-              mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (leading != null) ...[leading!, SizedBox(width: gap)],
-                Flexible(child: child),
-                if (trailing != null) ...[SizedBox(width: gap), trailing!],
-              ],
+                mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (leading != null) ...[leading!, SizedBox(width: gap)],
+                  Flexible(child: child),
+                  if (trailing != null) ...[SizedBox(width: gap), trailing!],
+                ],
               ),
             ),
           ),
@@ -134,10 +156,16 @@ class Button extends StatelessWidget {
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(t.radiusMd),
-              border: border == null ? null : Border.all(color: state.focused ? c.ring : border),
+              border: border == null
+                  ? null
+                  : Border.all(color: state.focused ? c.ring : border),
               boxShadow: [
                 if (state.focused) ...t.focusRing,
-                if (variant == ButtonVariant.outline || variant == ButtonVariant.primary || variant == ButtonVariant.secondary || variant == ButtonVariant.destructive) ...t.shadowXs,
+                if (variant == ButtonVariant.outline ||
+                    variant == ButtonVariant.primary ||
+                    variant == ButtonVariant.secondary ||
+                    variant == ButtonVariant.destructive)
+                  ...t.shadowXs,
               ],
             ),
             child: label,

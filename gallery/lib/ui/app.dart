@@ -45,7 +45,10 @@ class AshlarApp extends StatelessWidget {
   AshlarThemeData _themeFor(BuildContext context) => switch (themeMode) {
     AshlarThemeMode.light => theme,
     AshlarThemeMode.dark => darkTheme,
-    AshlarThemeMode.system => MediaQuery.platformBrightnessOf(context) == Brightness.dark ? darkTheme : theme,
+    AshlarThemeMode.system =>
+      MediaQuery.platformBrightnessOf(context) == Brightness.dark
+          ? darkTheme
+          : theme,
   };
 
   @override
@@ -64,7 +67,8 @@ class AshlarApp extends StatelessWidget {
       localizationsDelegates: localizationsDelegates,
       debugShowCheckedModeBanner: false,
       textStyle: data.text.sm.copyWith(color: data.colors.foreground),
-      pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) => AshlarPageRoute<T>(settings: settings, builder: builder),
+      pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) =>
+          AshlarPageRoute<T>(settings: settings, builder: builder),
       builder: (context, child) {
         final data = _themeFor(context);
         Widget page = AshlarTheme(
@@ -75,7 +79,10 @@ class AshlarApp extends StatelessWidget {
               data: IconThemeData(color: data.colors.foreground, size: 16),
               child: ScrollConfiguration(
                 behavior: const _AshlarScrollBehavior(),
-                child: ColoredBox(color: data.colors.background, child: child ?? const SizedBox.shrink()),
+                child: ColoredBox(
+                  color: data.colors.background,
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           ),
@@ -95,11 +102,17 @@ class AshlarPageRoute<T> extends PageRouteBuilder<T> {
         reverseTransitionDuration: const Duration(milliseconds: 180),
         pageBuilder: (context, animation, secondary) => builder(context),
         transitionsBuilder: (context, animation, secondary, child) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
           return FadeTransition(
             opacity: curved,
             child: SlideTransition(
-              position: Tween(begin: const Offset(0, .02), end: Offset.zero).animate(curved),
+              position: Tween(
+                begin: const Offset(0, .02),
+                end: Offset.zero,
+              ).animate(curved),
               child: child,
             ),
           );
@@ -112,5 +125,9 @@ class _AshlarScrollBehavior extends ScrollBehavior {
   const _AshlarScrollBehavior();
 
   @override
-  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) => child;
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
 }

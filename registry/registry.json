@@ -9,5 +9,20 @@
   "input": { "description": "A text field with selection handles and a cut, copy and paste menu.", "files": ["input.dart"], "requires": ["theme"] },
   "checkbox": { "description": "A box that is ticked or not.", "files": ["checkbox.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"] },
   "switch": { "description": "An on and off switch.", "files": ["switch.dart"], "requires": ["theme", "pressable"] },
-  "dialog": { "description": "A modal panel over a dimmed page, with title, content and actions.", "files": ["dialog.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] }
+  "dialog": { "description": "A modal panel over a dimmed page, with title, content and actions.", "files": ["dialog.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
+  "label": { "description": "The name of a control, above it or beside it.", "files": ["label.dart"], "requires": ["theme"] },
+  "field": { "description": "A control with its label, description and error, read out together.", "files": ["field.dart"], "requires": ["theme", "label"] },
+  "textarea": { "description": "A text field for several lines that grows with its text.", "files": ["textarea.dart"], "requires": ["input"] },
+  "avatar": { "description": "A picture in a circle, with initials while it loads or when it fails.", "files": ["avatar.dart"], "requires": ["theme"] },
+  "skeleton": { "description": "A pulsing placeholder in the shape of content still loading.", "files": ["skeleton.dart"], "requires": ["theme"] },
+  "spinner": { "description": "A turning ring that says something is working.", "files": ["spinner.dart"], "packages": ["ashlar_icons"] },
+  "alert": { "description": "A notice, warning or error in the page, read out when it appears.", "files": ["alert.dart"], "requires": ["theme"] },
+  "kbd": { "description": "A keyboard key, for showing shortcuts.", "files": ["kbd.dart"], "requires": ["theme"] },
+  "radio": { "description": "A choice of one, in Flutter's RadioGroup, with labels.", "files": ["radio.dart"], "requires": ["theme"] },
+  "tabs": { "description": "Views of one thing, one at a time, chosen from a row of tabs.", "files": ["tabs.dart"], "requires": ["theme", "pressable"] },
+  "popover": { "description": "A panel that opens from a trigger and floats over the page.", "files": ["popover.dart"], "requires": ["theme"] },
+  "dropdown-menu": { "description": "A list of actions that opens from a trigger.", "files": ["dropdown_menu.dart"], "requires": ["theme", "pressable", "popover"] },
+  "select": { "description": "Picks one value from a list that opens under it.", "files": ["select.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"], "packages": ["ashlar_icons"] },
+  "tooltip": { "description": "A short label over a control on hover, focus or long press.", "files": ["tooltip.dart"], "requires": ["theme"] },
+  "toast": { "description": "A short message at the bottom of the screen that goes by itself.", "files": ["toast.dart"], "requires": ["theme"] }
 }

@@ -14,7 +14,15 @@ class Separator extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = AshlarTheme.of(context).colors.border;
     return axis == Axis.horizontal
-        ? SizedBox(height: 1, width: double.infinity, child: ColoredBox(color: color))
-        : SizedBox(width: 1, height: double.infinity, child: ColoredBox(color: color));
+        ? SizedBox(
+            height: 1,
+            width: double.infinity,
+            child: ColoredBox(color: color),
+          )
+        : SizedBox(
+            width: 1,
+            height: double.infinity,
+            child: ColoredBox(color: color),
+          );
   }
 }

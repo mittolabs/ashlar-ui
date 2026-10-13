@@ -22,7 +22,11 @@ import 'theme.dart';
 ///   ),
 /// );
 /// ```
-Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBuilder builder, bool dismissible = true}) {
+Future<T?> showAshlarDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool dismissible = true,
+}) {
   final theme = AshlarTheme.of(context);
   return Navigator.of(context).push<T>(
     RawDialogRoute<T>(
@@ -31,12 +35,21 @@ Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBu
       barrierColor: const Color(0x80000000),
       transitionDuration: const Duration(milliseconds: 200),
       // The route is above the app's AshlarTheme, so it carries the theme across.
-      pageBuilder: (context, animation, secondary) => AshlarTheme(data: theme, child: Builder(builder: builder)),
+      pageBuilder: (context, animation, secondary) => AshlarTheme(
+        data: theme,
+        child: Builder(builder: builder),
+      ),
       transitionBuilder: (context, animation, secondary, child) {
-        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
         return FadeTransition(
           opacity: curved,
-          child: ScaleTransition(scale: Tween(begin: .95, end: 1.0).animate(curved), child: child),
+          child: ScaleTransition(
+            scale: Tween(begin: .95, end: 1.0).animate(curved),
+            child: child,
+          ),
         );
       },
     ),
@@ -46,7 +59,15 @@ Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBu
 /// The panel a dialog shows: [title], [description], any [content], and [actions] at
 /// its foot, with a close button at the top right.
 class Dialog extends StatelessWidget {
-  const Dialog({super.key, this.title, this.description, this.content, this.actions = const [], this.showClose = true, this.maxWidth = 512});
+  const Dialog({
+    super.key,
+    this.title,
+    this.description,
+    this.content,
+    this.actions = const [],
+    this.showClose = true,
+    this.maxWidth = 512,
+  });
 
   final Widget? title;
   final Widget? description;
@@ -79,45 +100,65 @@ class Dialog extends StatelessWidget {
                 ),
                 child: DefaultTextStyle(
                   style: t.text.sm.copyWith(color: c.foreground),
-                  child: Stack(clipBehavior: Clip.none, children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (title != null)
-                          Padding(
-                            padding: EdgeInsets.only(right: showClose ? 24 : 0),
-                            child: DefaultTextStyle.merge(style: t.text.lg.copyWith(fontWeight: FontWeight.w600, height: 1.2), child: title!),
-                          ),
-                        if (description != null) ...[
-                          const SizedBox(height: 8),
-                          DefaultTextStyle.merge(style: TextStyle(color: c.mutedForeground), child: description!),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (title != null)
+                            Padding(
+                              padding: EdgeInsets.only(
+                                right: showClose ? 24 : 0,
+                              ),
+                              child: DefaultTextStyle.merge(
+                                style: t.text.lg.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.2,
+                                ),
+                                child: title!,
+                              ),
+                            ),
+                          if (description != null) ...[
+                            const SizedBox(height: 8),
+                            DefaultTextStyle.merge(
+                              style: TextStyle(color: c.mutedForeground),
+                              child: description!,
+                            ),
+                          ],
+                          if (content != null) ...[
+                            const SizedBox(height: 16),
+                            content!,
+                          ],
+                          if (actions.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.end,
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: actions,
+                            ),
+                          ],
                         ],
-                        if (content != null) ...[const SizedBox(height: 16), content!],
-                        if (actions.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Wrap(
-                            alignment: WrapAlignment.end,
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: actions,
-                          ),
-                        ],
-                      ],
-                    ),
-                    if (showClose)
-                      Positioned(
-                        top: -12,
-                        right: -12,
-                        child: Button(
-                          variant: ButtonVariant.ghost,
-                          size: ButtonSize.icon,
-                          semanticLabel: 'Close',
-                          onPressed: () => Navigator.maybePop(context),
-                          child: AshlarIcon(AshlarIconsRoundedStroke.x, color: c.mutedForeground),
-                        ),
                       ),
-                  ]),
+                      if (showClose)
+                        Positioned(
+                          top: -12,
+                          right: -12,
+                          child: Button(
+                            variant: ButtonVariant.ghost,
+                            size: ButtonSize.icon,
+                            semanticLabel: 'Close',
+                            onPressed: () => Navigator.maybePop(context),
+                            child: AshlarIcon(
+                              AshlarIconsRoundedStroke.x,
+                              color: c.mutedForeground,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
