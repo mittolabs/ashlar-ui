@@ -27,6 +27,19 @@ class AshlarColors {
     required this.border,
     required this.input,
     required this.ring,
+    required this.chart1,
+    required this.chart2,
+    required this.chart3,
+    required this.chart4,
+    required this.chart5,
+    required this.sidebar,
+    required this.sidebarForeground,
+    required this.sidebarPrimary,
+    required this.sidebarPrimaryForeground,
+    required this.sidebarAccent,
+    required this.sidebarAccentForeground,
+    required this.sidebarBorder,
+    required this.sidebarRing,
   });
 
   /// The page.
@@ -70,6 +83,89 @@ class AshlarColors {
   /// The focus ring.
   final Color ring;
 
+  /// The series of a chart, in order: the first five get these.
+  final Color chart1, chart2, chart3, chart4, chart5;
+
+  /// A Sidebar's own surface, text, chosen item, hovered item, lines and focus ring.
+  final Color sidebar, sidebarForeground;
+  final Color sidebarPrimary, sidebarPrimaryForeground;
+  final Color sidebarAccent, sidebarAccentForeground;
+  final Color sidebarBorder, sidebarRing;
+
+  /// The chart colours as a list, for drawing series in turn.
+  List<Color> get charts => [chart1, chart2, chart3, chart4, chart5];
+
+  /// These colours with some changed: `AshlarColors.light.copyWith(primary: brand)`.
+  AshlarColors copyWith({
+    Color? background,
+    Color? foreground,
+    Color? card,
+    Color? cardForeground,
+    Color? popover,
+    Color? popoverForeground,
+    Color? primary,
+    Color? primaryForeground,
+    Color? secondary,
+    Color? secondaryForeground,
+    Color? muted,
+    Color? mutedForeground,
+    Color? accent,
+    Color? accentForeground,
+    Color? destructive,
+    Color? destructiveForeground,
+    Color? border,
+    Color? input,
+    Color? ring,
+    Color? chart1,
+    Color? chart2,
+    Color? chart3,
+    Color? chart4,
+    Color? chart5,
+    Color? sidebar,
+    Color? sidebarForeground,
+    Color? sidebarPrimary,
+    Color? sidebarPrimaryForeground,
+    Color? sidebarAccent,
+    Color? sidebarAccentForeground,
+    Color? sidebarBorder,
+    Color? sidebarRing,
+  }) => AshlarColors(
+    background: background ?? this.background,
+    foreground: foreground ?? this.foreground,
+    card: card ?? this.card,
+    cardForeground: cardForeground ?? this.cardForeground,
+    popover: popover ?? this.popover,
+    popoverForeground: popoverForeground ?? this.popoverForeground,
+    primary: primary ?? this.primary,
+    primaryForeground: primaryForeground ?? this.primaryForeground,
+    secondary: secondary ?? this.secondary,
+    secondaryForeground: secondaryForeground ?? this.secondaryForeground,
+    muted: muted ?? this.muted,
+    mutedForeground: mutedForeground ?? this.mutedForeground,
+    accent: accent ?? this.accent,
+    accentForeground: accentForeground ?? this.accentForeground,
+    destructive: destructive ?? this.destructive,
+    destructiveForeground: destructiveForeground ?? this.destructiveForeground,
+    border: border ?? this.border,
+    input: input ?? this.input,
+    ring: ring ?? this.ring,
+    chart1: chart1 ?? this.chart1,
+    chart2: chart2 ?? this.chart2,
+    chart3: chart3 ?? this.chart3,
+    chart4: chart4 ?? this.chart4,
+    chart5: chart5 ?? this.chart5,
+    sidebar: sidebar ?? this.sidebar,
+    sidebarForeground: sidebarForeground ?? this.sidebarForeground,
+    sidebarPrimary: sidebarPrimary ?? this.sidebarPrimary,
+    sidebarPrimaryForeground:
+        sidebarPrimaryForeground ?? this.sidebarPrimaryForeground,
+    sidebarAccent: sidebarAccent ?? this.sidebarAccent,
+    sidebarAccentForeground:
+        sidebarAccentForeground ?? this.sidebarAccentForeground,
+    sidebarBorder: sidebarBorder ?? this.sidebarBorder,
+    sidebarRing: sidebarRing ?? this.sidebarRing,
+  );
+
   /// Neutral, light.
   static const light = AshlarColors(
     background: Color(0xFFFFFFFF),
@@ -91,6 +187,19 @@ class AshlarColors {
     border: Color(0xFFE5E5E5),
     input: Color(0xFFE5E5E5),
     ring: Color(0xFFA1A1A1),
+    chart1: Color(0xFFF54A00),
+    chart2: Color(0xFF009689),
+    chart3: Color(0xFF104E64),
+    chart4: Color(0xFFFFB900),
+    chart5: Color(0xFFFE9A00),
+    sidebar: Color(0xFFFAFAFA),
+    sidebarForeground: Color(0xFF0A0A0A),
+    sidebarPrimary: Color(0xFF171717),
+    sidebarPrimaryForeground: Color(0xFFFAFAFA),
+    sidebarAccent: Color(0xFFF5F5F5),
+    sidebarAccentForeground: Color(0xFF171717),
+    sidebarBorder: Color(0xFFE5E5E5),
+    sidebarRing: Color(0xFFA1A1A1),
   );
 
   /// Neutral, dark.
@@ -114,6 +223,19 @@ class AshlarColors {
     border: Color(0x1AFFFFFF),
     input: Color(0x26FFFFFF),
     ring: Color(0xFF737373),
+    chart1: Color(0xFF1447E6),
+    chart2: Color(0xFF00BC7D),
+    chart3: Color(0xFFFE9A00),
+    chart4: Color(0xFFAD46FF),
+    chart5: Color(0xFFFF2056),
+    sidebar: Color(0xFF171717),
+    sidebarForeground: Color(0xFFFAFAFA),
+    sidebarPrimary: Color(0xFF1447E6),
+    sidebarPrimaryForeground: Color(0xFFFAFAFA),
+    sidebarAccent: Color(0xFF262626),
+    sidebarAccentForeground: Color(0xFFFAFAFA),
+    sidebarBorder: Color(0x1AFFFFFF),
+    sidebarRing: Color(0xFF737373),
   );
 }
 
