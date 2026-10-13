@@ -5100,10 +5100,10 @@ class PopoverPanel extends StatelessWidget {
   /// Null sizes the panel to its content.
   final double? width;
 
-  /// The narrowest it is; as wide as what opened it, at least, when not given.
+  /// The narrowest it is.
   final double minWidth;
 
-  /// At least as wide as the trigger.
+  /// As wide as the trigger, unless [width] says wider: a select's list under its field.
   final bool matchWidth;
 
   /// The space between the trigger and the panel; a submenu overlaps its row with a
@@ -5145,7 +5145,9 @@ class PopoverPanel extends StatelessWidget {
             side: side,
             duration: t.duration,
             child: Container(
-              width: width == null ? null : (width! < min ? min : width),
+              width: width != null
+                  ? (width! < min ? min : width)
+                  : (matchWidth ? min : null),
               constraints: BoxConstraints(minWidth: min),
               decoration: BoxDecoration(
                 color: c.popover,

@@ -188,4 +188,28 @@ void main() {
       semantics.dispose();
     });
   });
+
+  testWidgets('a select\'s list is as wide as its field', (tester) async {
+    String? picked;
+    await tester.pumpWidget(
+      app(
+        StatefulBuilder(
+          builder: (context, set) => Select<String>(
+            value: picked,
+            placeholder: 'Choose',
+            options: fruit,
+            onChanged: (v) => set(() => picked = v),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Choose'));
+    await tester.pumpAndSettle();
+    final list = tester.getRect(
+      find
+          .ancestor(of: find.text('Banana'), matching: find.byType(Container))
+          .last,
+    );
+    expect(list.width, closeTo(260, 1));
+  });
 }
