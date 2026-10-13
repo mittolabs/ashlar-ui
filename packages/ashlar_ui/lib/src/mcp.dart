@@ -128,7 +128,7 @@ Future<void> serveMcp(
             'capabilities': {'tools': <String, Object>{}},
             'serverInfo': {'name': 'ashlar', 'version': ashlarVersion},
             'instructions':
-                'Ashlar UI: components for Flutter on the widgets layer, copied into the app as source it owns. Search, view a component\'s source and API, then add it; import it from the app\'s components folder (lib/ui unless ashlar.json says otherwise). The app needs ashlar init first, which a person runs.',
+                'Ashlar UI: components for Flutter on the widgets layer, copied into the app as source it owns. Search, view a component\'s source and API, then add it; import it from the app\'s components folder (lib/ui unless ashlar.yaml says otherwise). The app needs ashlar init first, which a person runs.',
           },
         });
       case 'ping':

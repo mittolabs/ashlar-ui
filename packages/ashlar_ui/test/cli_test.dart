@@ -13,14 +13,15 @@ Directory project({Map<String, String>? config}) {
     'name: app\ndependencies:\n  flutter:\n    sdk: flutter\n  ashlar_icons: ^0.2.0\n',
   );
   if (config != null) {
-    File('${dir.path}/ashlar.json').writeAsStringSync(
-      '{${config.entries.map((e) => '"${e.key}": "${e.value}"').join(', ')}}',
+    File('${dir.path}/ashlar.yaml').writeAsStringSync(
+      config.entries.map((e) => '${e.key}: ${e.value}\n').join(),
     );
   }
   return dir;
 }
 
 void main() {
+  yamlConfig();
   test(
     'a block goes beside the components and imports them from there',
     () async {
@@ -96,8 +97,8 @@ void main() {
     expect(theme, contains('brightness: Brightness.dark'));
     expect(File('${dir.path}/lib/ui/palette.dart').existsSync(), isTrue);
     expect(
-      File('${dir.path}/ashlar.json').readAsStringSync(),
-      contains('"accent": "blue"'),
+      File('${dir.path}/ashlar.yaml').readAsStringSync(),
+      contains('accent: blue'),
     );
   });
 
@@ -166,17 +167,15 @@ void main() {
       '// Older.\nclass Badge',
     );
     badge.writeAsStringSync(old);
-    final config =
-        jsonDecode(File('${dir.path}/ashlar.json').readAsStringSync())
-            as Map<String, dynamic>;
-    (config['files'] as Map)['lib/ui/badge.dart'] = fingerprint(old);
-    File('${dir.path}/ashlar.json').writeAsStringSync(jsonEncode(config));
+    final files = File('${dir.path}/.ashlar/files.json');
+    final written =
+        jsonDecode(files.readAsStringSync()) as Map<String, dynamic>;
+    written['lib/ui/badge.dart'] = fingerprint(old);
+    files.writeAsStringSync(jsonEncode(written));
+    File('${dir.path}/.ashlar/base/lib/ui/badge.dart').writeAsStringSync(old);
     out = StringBuffer();
     await run(['diff'], dir: dir, out: out);
-    expect(
-      out.toString(),
-      contains('newer here: ashlar add badge --overwrite takes it'),
-    );
+    expect(out.toString(), contains('newer here: ashlar update takes it'));
   });
 
   test('apply chooses the theme again and leaves components alone', () async {
@@ -239,7 +238,7 @@ void main() {
           File('${dir.path}/public/r/brand-card.json').existsSync(),
           isTrue,
         );
-        File('${dir.path}/ashlar.json').writeAsStringSync(
+        File('${dir.path}/ashlar.yaml').writeAsStringSync(
           jsonEncode({
             'registries': {'@acme': 'public/r'},
           }),
@@ -271,7 +270,7 @@ void main() {
         if (f.existsSync()) request.response.write(f.readAsStringSync());
         request.response.close();
       });
-      File('${dir.path}/ashlar.json').writeAsStringSync(
+      File('${dir.path}/ashlar.yaml').writeAsStringSync(
         jsonEncode({
           'registries': {'@web': 'http://127.0.0.1:${server.port}/r'},
         }),
@@ -293,7 +292,7 @@ void main() {
           'files': {'../../outside.dart': 'class Outside {}'},
         }),
       );
-      File('${dir.path}/ashlar.json').writeAsStringSync(
+      File('${dir.path}/ashlar.yaml').writeAsStringSync(
         jsonEncode({
           'registries': {'@x': 'r'},
         }),
@@ -312,4 +311,39 @@ void main() {
     expect(d, contains('+e'));
     expect(d, contains(' a'));
   });
+}
+
+void yamlConfig() {
+  test(
+    'ashlar.yaml holds the choices; ashlar keeps your comments when it changes one',
+    () async {
+      final dir = Directory.systemTemp.createTempSync('ashlar_yaml_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      File('${dir.path}/pubspec.yaml').writeAsStringSync(
+        'name: app\ndependencies:\n  flutter:\n    sdk: flutter\n  ashlar_icons: ^0.2.0\n',
+      );
+      await run(['init', '--accent', 'blue'], dir: dir, out: StringBuffer());
+      final file = File('${dir.path}/ashlar.yaml');
+      final first = file.readAsStringSync();
+      expect(first, startsWith('# Ashlar UI'));
+      expect(first, contains('path: lib/ui\n'));
+      expect(first, contains('accent: blue\n'));
+      // The fingerprints are machine state, beside the copies, not in your file.
+      expect(first, isNot(contains('files')));
+      expect(
+        (jsonDecode(File('${dir.path}/.ashlar/files.json').readAsStringSync())
+                as Map)
+            .keys,
+        contains('lib/ui/theme.dart'),
+      );
+      file.writeAsStringSync(
+        first.replaceFirst('accent: blue', '# Our brand blue.\naccent: blue'),
+      );
+      await run(['apply', '--accent', 'green'], dir: dir, out: StringBuffer());
+      final after = file.readAsStringSync();
+      expect(after, contains('# Our brand blue.\naccent: green'));
+      await run(['apply', '--accent', 'none'], dir: dir, out: StringBuffer());
+      expect(file.readAsStringSync(), isNot(contains('accent:')));
+    },
+  );
 }

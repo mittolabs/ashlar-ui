@@ -18,11 +18,10 @@ Directory project() {
 void olderVersion(Directory dir, String at, String old) {
   File('${dir.path}/$at').writeAsStringSync(old);
   File('${dir.path}/.ashlar/base/$at').writeAsStringSync(old);
-  final config =
-      jsonDecode(File('${dir.path}/ashlar.json').readAsStringSync())
-          as Map<String, dynamic>;
-  (config['files'] as Map)[at] = fingerprint(old);
-  File('${dir.path}/ashlar.json').writeAsStringSync(jsonEncode(config));
+  final files = File('${dir.path}/.ashlar/files.json');
+  final written = jsonDecode(files.readAsStringSync()) as Map<String, dynamic>;
+  written[at] = fingerprint(old);
+  files.writeAsStringSync(jsonEncode(written));
 }
 
 void main() {
@@ -142,11 +141,11 @@ void main() {
       () async {
         File('${dir.path}/.ashlar/base/$at').deleteSync();
         File('${dir.path}/$at').writeAsStringSync('// Mine alone.\n$old');
-        final config =
-            jsonDecode(File('${dir.path}/ashlar.json').readAsStringSync())
-                as Map<String, dynamic>;
-        (config['files'] as Map)[at] = fingerprint(old);
-        File('${dir.path}/ashlar.json').writeAsStringSync(jsonEncode(config));
+        final files = File('${dir.path}/.ashlar/files.json');
+        final written =
+            jsonDecode(files.readAsStringSync()) as Map<String, dynamic>;
+        written[at] = fingerprint(old);
+        files.writeAsStringSync(jsonEncode(written));
         final out = StringBuffer();
         await run(['update'], dir: dir, out: out);
         expect(
@@ -211,6 +210,21 @@ void formattedApp() {
         expect(text, isNot(contains('<<<<<<<')));
         expect(text, isNot(contains('An older first line')));
         expect(text, atWidth120(text), reason: 'still laid out at 120');
+      },
+    );
+
+    test(
+      'diff does not take a different layout for a change of yours',
+      () async {
+        final latest = registry['toggle']!.files['toggle.dart']!;
+        File('${dir.path}/$at').writeAsStringSync(atWidth120(latest));
+        File('${dir.path}/.ashlar/base/$at').writeAsStringSync(latest);
+        final out = StringBuffer();
+        await run(['diff', 'toggle'], dir: dir, out: out);
+        expect(
+          out.toString(),
+          contains('Your copies are as this version writes them.'),
+        );
       },
     );
 

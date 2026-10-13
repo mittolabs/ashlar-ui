@@ -187,7 +187,7 @@ fonts), and shadcn's per-component rules beyond spacing and shape.
 **Step 7, CLI: done** (13 October 2026, 85951df). `view`, `search` (with `list`), `diff` (your
 changes told from newer versions by fingerprints recorded at install), `apply` (the theme
 chosen again), `build` (a registry of your own to host), and `@name/item` from a web
-address or a folder named in `ashlar.json`, with paths that would leave the project
+address or a folder named in `ashlar.yaml`, with paths that would leave the project
 refused. Not carried over: `mcp`, `migrate`, `eject` and preset codes; `docs` and `info`
 are covered by `view` and `list`.
 

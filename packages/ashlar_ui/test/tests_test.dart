@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:ashlar_ui/ashlar_ui.dart';
 import 'package:test/test.dart';
+import 'package:yaml/yaml.dart';
 
 Directory project({String name = 'shop'}) {
   final dir = Directory.systemTemp.createTempSync('ashlar_tests_');
@@ -14,11 +15,12 @@ Directory project({String name = 'shop'}) {
   return dir;
 }
 
-/// Sets [values] in the project's ashlar.json, keeping what is there.
+/// Sets [values] in the project's ashlar.yaml, keeping what is there. JSON is YAML too.
 void configure(Directory dir, Map<String, Object> values) {
-  final file = File('${dir.path}/ashlar.json');
+  final file = File('${dir.path}/ashlar.yaml');
   final config = file.existsSync()
-      ? jsonDecode(file.readAsStringSync()) as Map<String, dynamic>
+      ? jsonDecode(jsonEncode(loadYaml(file.readAsStringSync())))
+            as Map<String, dynamic>
       : <String, dynamic>{};
   file.writeAsStringSync(jsonEncode({...config, ...values}));
 }
@@ -121,11 +123,11 @@ void main() {
         ...latest.split('\n').skip(1),
       ].join('\n');
       File('${dir.path}/.ashlar/base/$at').writeAsStringSync(old);
-      final config =
-          jsonDecode(File('${dir.path}/ashlar.json').readAsStringSync())
-              as Map<String, dynamic>;
-      (config['files'] as Map)[at] = fingerprint(old);
-      File('${dir.path}/ashlar.json').writeAsStringSync(jsonEncode(config));
+      final files = File('${dir.path}/.ashlar/files.json');
+      final written =
+          jsonDecode(files.readAsStringSync()) as Map<String, dynamic>;
+      written[at] = fingerprint(old);
+      files.writeAsStringSync(jsonEncode(written));
       file.writeAsStringSync('$old\n// Mine.\n');
 
       final said = await ashlar(dir, ['update']);

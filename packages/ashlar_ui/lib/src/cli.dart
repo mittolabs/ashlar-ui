@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:yaml/yaml.dart';
+import 'package:yaml_edit/yaml_edit.dart';
+
 import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
@@ -62,11 +65,11 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar build [registry.json]          make your own registry's files to host
              [--out public/r]
 
-Items from a registry of your own are named @name/item, where ashlar.json says where
-@name is: "registries": {"@acme": "https://acme.dev/r"} or a folder.
+Items from a registry of your own are named @name/item, where ashlar.yaml says where
+@name is, under registries: "@acme": https://acme.dev/r, or a folder.
 
 Each component comes with its tests, in test/ashlar, so you can change it and check it
-still does what it promised. "tests": false in ashlar.json leaves them out.
+still does what it promised. tests: false in ashlar.yaml leaves them out.
 
 Run it in a Flutter project's root. The files are yours to change: ashlar never
 replaces one unless you pass --overwrite.''';
@@ -126,14 +129,13 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
           style = option('style') ?? 'standard';
       if (!_checkTheme(base, accent, style, o)) return 64;
       project.save({
-        ...project.config,
         'path': path,
         'base': base,
         'accent': accent,
         'style': style,
       });
       o.writeln(
-        'ashlar.json: components go in $path; $base${accent == null ? '' : ', $accent'}, $style',
+        'ashlar.yaml: components go in $path; $base${accent == null ? '' : ', $accent'}, $style',
       );
       final code = await project.add(
         ['theme', 'app'],
@@ -163,7 +165,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
           : given ?? config['accent'] as String?;
       final style = option('style') ?? config['style'] as String? ?? 'standard';
       if (!_checkTheme(base, accent, style, o)) return 64;
-      project.save({...config, 'base': base, 'accent': accent, 'style': style});
+      project.save({'base': base, 'accent': accent, 'style': style});
       // The palette came after some projects began: add it if it is not there.
       final code = await project.add(['theme'], overwrite: false, out: o);
       if (code != 0) return code;
@@ -269,7 +271,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     case 'check':
       return project.check(contrast: !rest.contains('--no-contrast'), out: o);
     case 'diff':
-      return project.diff(words, o);
+      return await project.diff(words, o);
     case 'update':
       return project.update(words, dryRun: rest.contains('--dry-run'), out: o);
     case 'build':
@@ -384,21 +386,95 @@ class Project {
 
   final Directory root;
 
-  File get _file => File('${root.path}/ashlar.json');
+  /// The choices made for this project: where things go, the theme, registries.
+  File get _file => File('${root.path}/ashlar.yaml');
 
-  Map<String, dynamic> get config => _file.existsSync()
-      ? jsonDecode(_file.readAsStringSync()) as Map<String, dynamic>
-      : <String, dynamic>{};
+  /// What ashlar wrote, by path: a fingerprint of each file, beside the copies in
+  /// .ashlar/base. Machine-written; commit it with the copies.
+  File get _files => File('${root.path}/.ashlar/files.json');
 
-  void save(Map<String, dynamic> config) => _file.writeAsStringSync(
-    '${const JsonEncoder.withIndent('  ').convert({for (final e in config.entries)
-      if (e.value != null) e.key: e.value})}\n',
-  );
+  Map<String, dynamic> get config {
+    if (!_file.existsSync()) return <String, dynamic>{};
+    final yaml = loadYaml(_file.readAsStringSync());
+    return yaml is YamlMap
+        ? _plain(yaml) as Map<String, dynamic>
+        : <String, dynamic>{};
+  }
+
+  /// Sets [values] in ashlar.yaml, a null removing its key; the rest of the file, its
+  /// comments too, is left as it was.
+  void save(Map<String, Object?> values) {
+    final existing = _file.existsSync() ? _file.readAsStringSync() : '';
+    // From nothing: a block, with a word on what the file is.
+    if (existing.trim().isEmpty) {
+      final all = <String, dynamic>{
+        ...config,
+        for (final e in values.entries)
+          if (e.value != null) e.key: e.value,
+      };
+      _file.writeAsStringSync(
+        '# Ashlar UI: where components go and how they look. ashlar init and apply\n'
+        '# change these, and so can you.\n${_block(all)}',
+      );
+      return;
+    }
+    final edit = YamlEditor(existing);
+    final top = edit.parseAt([]);
+    for (final MapEntry(:key, :value) in values.entries) {
+      if (value != null) {
+        edit.update([key], value);
+      } else if (top is YamlMap && top.containsKey(key)) {
+        edit.remove([key]);
+      }
+    }
+    final text = edit.toString();
+    _file.writeAsStringSync(text.endsWith('\n') ? text : '$text\n');
+  }
+
+  /// [map] as block YAML, for a file written from nothing.
+  static String _block(Map<String, dynamic> map, [String indent = '']) {
+    final out = StringBuffer();
+    for (final MapEntry(:key, :value) in map.entries) {
+      if (value is Map) {
+        out
+          ..writeln('$indent$key:')
+          ..write(_block(value.cast<String, dynamic>(), '$indent  '));
+      } else {
+        out.writeln('$indent$key: ${value is String ? _scalar(value) : value}');
+      }
+    }
+    return out.toString();
+  }
+
+  /// A string as YAML writes it, quoted only when it must be.
+  static String _scalar(String s) =>
+      RegExp(r'^[\w./@-][\w./@ -]*$').hasMatch(s) &&
+          s.trim() == s &&
+          !const {
+            'true',
+            'false',
+            'null',
+            'yes',
+            'no',
+            'on',
+            'off',
+          }.contains(s.toLowerCase())
+      ? s
+      : jsonEncode(s);
+
+  /// YAML read into plain maps and lists.
+  static Object? _plain(Object? node) => switch (node) {
+    YamlMap m => <String, dynamic>{
+      for (final e in m.entries) '${e.key}': _plain(e.value),
+    },
+    YamlList l => [for (final v in l) _plain(v)],
+    _ => node,
+  };
 
   /// Where components go, from the project root.
   String get path => config['path'] as String? ?? 'lib/ui';
 
-  /// Where blocks go: ashlar.json's "blocks", or a blocks folder beside the components.
+  /// Where blocks go: ashlar.yaml's blocks, or a blocks folder beside the components.
   String get blocks {
     final set = config['blocks'] as String?;
     if (set != null) return set;
@@ -419,7 +495,7 @@ class Project {
         )
       : source;
 
-  /// Where components' tests go: ashlar.json's "tests", or test/ashlar; null when it
+  /// Where components' tests go: ashlar.yaml's tests, or test/ashlar; null when it
   /// says false.
   String? get tests {
     final set = config['tests'];
@@ -464,15 +540,23 @@ class Project {
   );
 
   /// The fingerprints of the files as ashlar wrote them, by path.
-  Map<String, String> get _written =>
-      (config['files'] as Map<String, dynamic>? ?? {}).cast<String, String>();
+  Map<String, String> get _written => _files.existsSync()
+      ? (jsonDecode(_files.readAsStringSync()) as Map<String, dynamic>)
+            .cast<String, String>()
+      : <String, String>{};
 
-  /// Another registry: from ashlar.json's "registries".
+  void _saveWritten(Map<String, String> fingerprints) => _files
+    ..parent.createSync(recursive: true)
+    ..writeAsStringSync(
+      '${const JsonEncoder.withIndent('  ').convert(Map.fromEntries(fingerprints.entries.toList()..sort((a, b) => a.key.compareTo(b.key))))}\n',
+    );
+
+  /// Another registry: from ashlar.yaml's registries.
   Remote? _remote(String namespace, StringSink out) {
     final at = (config['registries'] as Map<String, dynamic>? ?? {})[namespace];
     if (at is! String) {
       out.writeln(
-        'No registry $namespace. Name it in ashlar.json: "registries": {"$namespace": "https://…/r"}.',
+        'No registry $namespace. Name it in ashlar.yaml, under registries: "$namespace": https://…/r',
       );
       return null;
     }
@@ -574,9 +658,7 @@ class Project {
       }
     }
     if (tests) _addTests(order, overwrite, fingerprints, out);
-    if (_file.existsSync() || fingerprints.isNotEmpty) {
-      save({...config, 'files': fingerprints});
-    }
+    if (fingerprints.isNotEmpty) _saveWritten(fingerprints);
     final pubspec = File('${root.path}/pubspec.yaml').readAsStringSync();
     final missing = packages
         .where((p) => !RegExp('^\\s+$p:', multiLine: true).hasMatch(pubspec))
@@ -750,21 +832,24 @@ class Project {
       for (final p in pending) ...{
         'base/${p.at}': p.base,
         'latest/${p.at}': p.latest,
+        'yours/${p.at}': p.yours,
       },
     });
     for (final p in pending) {
       final at = p.at, yours = p.yours, latest = p.latest;
       final base = styled['base/$at']!, now = styled['latest/$at']!;
+      // Yours, laid out by your formatter too: a file never formatted is not a change.
+      final own = styled['yours/$at']!;
       final String text;
-      if (yours == now) {
-        // Already as this version writes it, in your layout.
+      if (own == now) {
+        // Already as this version writes it.
         text = yours;
-      } else if (yours == base) {
+      } else if (own == base) {
         text = now;
         took++;
         out.writeln('  took   $at');
       } else {
-        final m = merge3(base, yours, now);
+        final m = merge3(base, own, now);
         text = m.text;
         if (m.conflicts > 0) {
           conflicts += m.conflicts;
@@ -782,7 +867,7 @@ class Project {
       _keep(at, latest);
     }
     if (!dryRun) {
-      save({...config, 'files': fingerprints});
+      _saveWritten(fingerprints);
       // What the updated items need now and the project does not have.
       final needed = resolve(chosen).where((n) => !has(registry[n]!)).toList();
       if (needed.isNotEmpty) {
@@ -924,7 +1009,7 @@ class Project {
   /// For each item you have (or each named), whether your copy is as it was written,
   /// changed by you, or older than this version of ashlar's; with the lines that differ
   /// when items are named.
-  int diff(List<String> names, StringSink out) {
+  Future<int> diff(List<String> names, StringSink out) async {
     final unknown = names.where((n) => !registry.containsKey(n)).toList();
     if (unknown.isNotEmpty) {
       out.writeln('No component named ${unknown.join(', ')}.');
@@ -933,7 +1018,7 @@ class Project {
     final chosen = names.isEmpty
         ? registry.keys.where((n) => has(registry[n]!)).toList()
         : names;
-    var differing = 0;
+    final found = <({String name, String at, String yours, String latest})>[];
     for (final name in chosen) {
       final c = registry[name]!;
       for (final (:at, text: latest, :test) in _placed(c)) {
@@ -944,23 +1029,43 @@ class Project {
           continue;
         }
         final yours = f.readAsStringSync();
-        if (yours == latest) continue;
-        differing++;
-        final then = _written[at];
-        final mine = then != null && fingerprint(yours) != then;
-        final newer = then == null || fingerprint(latest) != then;
-        final what = switch ((mine, newer)) {
-          (true, true) => 'changed by you, and newer here',
-          (true, false) => 'changed by you',
-          (false, true) => 'newer here: ashlar add $name --overwrite takes it',
-          (false, false) => 'differs',
-        };
-        out.writeln('  $at: $what');
-        if (names.isNotEmpty) {
-          out.writeln(
-            unifiedDiff(yours, latest, from: 'yours', to: 'this version'),
-          );
+        if (yours != latest) {
+          found.add((name: name, at: at, yours: yours, latest: latest));
         }
+      }
+    }
+    // What ashlar wrote and writes now, laid out as the app lays out its code, so a
+    // different line length is not taken for a change.
+    final styled = await _inYourStyle({
+      for (final x in found) ...{
+        'latest/${x.at}': x.latest,
+        'yours/${x.at}': x.yours,
+        if (_base(x.at).existsSync())
+          'base/${x.at}': _base(x.at).readAsStringSync(),
+      },
+    });
+    var differing = 0;
+    for (final (name: _, :at, :yours, latest: _) in found) {
+      final now = styled['latest/$at']!, base = styled['base/$at'];
+      // Yours, laid out by your formatter too: a file never formatted is not a change.
+      final own = styled['yours/$at']!;
+      if (own == now) continue;
+      differing++;
+      final then = _written[at];
+      final mine = base != null
+          ? own != base
+          : then != null && fingerprint(yours) != then;
+      final newer = base != null ? now != base : then == null;
+      final what = switch ((mine, newer)) {
+        (true, true) =>
+          'changed by you, and newer here: ashlar update merges them',
+        (true, false) => 'changed by you',
+        (false, true) => 'newer here: ashlar update takes it',
+        (false, false) => 'differs',
+      };
+      out.writeln('  $at: $what');
+      if (names.isNotEmpty) {
+        out.writeln(unifiedDiff(own, now, from: 'yours', to: 'this version'));
       }
     }
     if (differing == 0) {
@@ -973,7 +1078,7 @@ class Project {
 /// Makes the files of a registry of your own: [manifest] names the items as Ashlar's
 /// registry.json does ({"name": {"description", "files", "requires", "packages",
 /// "block"}}, files relative to it); [out] gets registry.json, the index, and an item
-/// file for each, ready to host or to point ashlar.json at.
+/// file for each, ready to host or to point ashlar.yaml at.
 int build(File manifest, Directory out, StringSink o) {
   if (!manifest.existsSync()) {
     o.writeln('No ${manifest.path}: write one naming your items.');

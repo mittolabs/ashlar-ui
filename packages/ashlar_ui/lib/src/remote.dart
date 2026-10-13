@@ -18,7 +18,7 @@ class RemoteException implements Exception {
 class Remote {
   Remote(this.at, this.root);
 
-  /// The address or folder, as ashlar.json gives it; a folder is from the project root.
+  /// The address or folder, as ashlar.yaml gives it; a folder is from the project root.
   final String at;
   final Directory root;
 

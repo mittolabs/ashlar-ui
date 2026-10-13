@@ -40,7 +40,7 @@ The files are yours, so change a component and its tests tell you which promise 
 change broke; change the tests when you meant to break it. Tests that use another
 component (most use a Button as a trigger) are written once you have that one too.
 A test you delete stays deleted. `ashlar update` merges tests as it merges components.
-`"tests": false` in `ashlar.json` leaves them out, and `"tests": "test/ui"` puts them
+`tests: false` in `ashlar.yaml` leaves them out, and `tests: test/ui` puts them
 elsewhere. Components outside `lib` get no tests, since a test cannot import them.
 
 ## Checking your app
@@ -81,10 +81,25 @@ Other agents take the same command in their MCP settings:
 { "mcpServers": { "ashlar": { "command": "ashlar", "args": ["mcp"] } } }
 ```
 
+## Your choices, and what ashlar wrote
+
+`ashlar.yaml` holds your choices: where components go, the theme, your registries, whether
+tests come along. `ashlar init` and `ashlar apply` change it and keep your comments; you can
+edit it too.
+
+```yaml
+path: lib/ui
+base: stone
+accent: teal
+style: standard
+```
+
 ## Keeping your changes through updates
 
-Each file ashlar writes is also copied to `.ashlar/base/`, so `ashlar update` knows what you
-started from. Commit that folder with your code, so your whole team can update.
+Each file ashlar writes is also copied to `.ashlar/base/`, with its fingerprint in
+`.ashlar/files.json`, so `ashlar update` knows what you started from. Commit that folder
+with your code, so your whole team can update. Both are compared as your own formatter lays
+out code, so a different line length is never taken for a change of yours.
 
 ## Registries of your own
 
@@ -102,10 +117,11 @@ Describe your items in a `registry.json`, the way Ashlar's own is written:
 
 `ashlar build` writes `registry.json` (the list) and `brand-card.json` (the item and its
 files) to host anywhere, or to keep in a folder. Name the registry in a project's
-`ashlar.json`:
+`ashlar.yaml`:
 
-```json
-{ "registries": { "@acme": "https://acme.dev/r" } }
+```yaml
+registries:
+  "@acme": https://acme.dev/r
 ```
 
 Then `ashlar add @acme/brand-card`, `ashlar view @acme/brand-card` and
