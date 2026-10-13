@@ -164,6 +164,16 @@ login-01` writes to `lib/blocks` beside the components with imports pointing at 
 when too wide; a stacked area chart now fills to the series below. Social sign-in buttons
 carry names only: Ashlar's icons have no Google or Meta marks.
 
+**Step 5, chat: done** (13 October 2026, 148c828 and after). Message (sides that follow
+the reading direction, avatar, header, footer), Bubble (seven fills, groups, reactions,
+pressable), Marker (plain, separator, border), Attachment (five states shown and spoken,
+three sizes, tiles, actions, a scrolling group) and Message Scroller: it opens at the last
+turn, lifts a new turn near the top with room below and a peek of the turn before, follows
+an answer only while the reader is at the end, keeps its place as older rows load, jumps
+to any row and says which turn is being read. Then Questionnaire: one question at a time,
+one choice or several or words, required or skippable, conditional questions, letter or
+number keys, arrows and Enter. Each has a page on the site.
+
 ## Plan
 
 In order of what makes Ashlar UI feel complete soonest:
