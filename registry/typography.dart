@@ -227,3 +227,54 @@ class BulletList extends StatelessWidget {
     );
   }
 }
+
+/// A small table in running text: headings and rows of plain words, lined and banded.
+class TypographyTable extends StatelessWidget {
+  const TypographyTable({
+    super.key,
+    required this.headings,
+    required this.rows,
+  });
+
+  final List<String> headings;
+  final List<List<String>> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final line = BorderSide(color: c.border);
+    TableRow row(
+      List<String> cells, {
+      bool head = false,
+      bool band = false,
+    }) => TableRow(
+      decoration: BoxDecoration(color: band ? c.muted : null),
+      children: [
+        for (final cell in cells)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              border: Border(left: line, right: line, top: line, bottom: line),
+            ),
+            child: Semantics(
+              header: head,
+              child: Text(
+                cell,
+                style: t.text.base.copyWith(
+                  color: c.foreground,
+                  fontWeight: head ? FontWeight.w700 : null,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+    return Table(
+      children: [
+        row(headings, head: true),
+        for (final (i, r) in rows.indexed) row(r, band: i.isOdd),
+      ],
+    );
+  }
+}

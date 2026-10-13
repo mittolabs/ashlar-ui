@@ -67,6 +67,8 @@ class Dialog extends StatelessWidget {
     this.actions = const [],
     this.showClose = true,
     this.maxWidth = 512,
+    this.media,
+    this.centered = false,
   });
 
   final Widget? title;
@@ -75,6 +77,13 @@ class Dialog extends StatelessWidget {
   final List<Widget> actions;
   final bool showClose;
   final double maxWidth;
+
+  /// Above the title: an icon on a muted circle, or an image.
+  final Widget? media;
+
+  /// Title, description and media centred, and the actions sharing the width: for a short
+  /// question in a small dialog.
+  final bool centered;
 
   @override
   Widget build(BuildContext context) {
@@ -105,40 +114,79 @@ class Dialog extends StatelessWidget {
                     children: [
                       Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment: centered
+                            ? CrossAxisAlignment.center
+                            : CrossAxisAlignment.stretch,
                         children: [
+                          if (media != null) ...[
+                            IconTheme.merge(
+                              data: IconThemeData(
+                                color: c.foreground,
+                                size: 24,
+                              ),
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: c.muted,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: media,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                           if (title != null)
                             Padding(
-                              padding: EdgeInsets.only(
-                                right: showClose ? 24 : 0,
+                              padding: EdgeInsetsDirectional.only(
+                                end: showClose && !centered ? 24 : 0,
                               ),
-                              child: DefaultTextStyle.merge(
-                                style: t.text.lg.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
+                              child: Semantics(
+                                header: true,
+                                child: DefaultTextStyle.merge(
+                                  style: t.text.lg.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2,
+                                  ),
+                                  textAlign: centered ? TextAlign.center : null,
+                                  child: title!,
                                 ),
-                                child: title!,
                               ),
                             ),
                           if (description != null) ...[
                             const SizedBox(height: 8),
                             DefaultTextStyle.merge(
                               style: TextStyle(color: c.mutedForeground),
+                              textAlign: centered ? TextAlign.center : null,
                               child: description!,
                             ),
                           ],
+                          // Long content scrolls; the title and the actions stay in view.
                           if (content != null) ...[
                             const SizedBox(height: 16),
-                            content!,
+                            Flexible(
+                              child: SingleChildScrollView(child: content!),
+                            ),
                           ],
                           if (actions.isNotEmpty) ...[
                             const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.end,
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: actions,
-                            ),
+                            if (centered)
+                              Row(
+                                children: [
+                                  for (final (i, a) in actions.indexed) ...[
+                                    if (i > 0) const SizedBox(width: 8),
+                                    Expanded(child: a),
+                                  ],
+                                ],
+                              )
+                            else
+                              Wrap(
+                                alignment: WrapAlignment.end,
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: actions,
+                              ),
                           ],
                         ],
                       ),

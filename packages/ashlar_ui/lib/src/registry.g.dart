@@ -1098,6 +1098,15 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
+/// How much room a card leaves round its parts.
+enum CardSize {
+  /// 24 round the edges and between parts.
+  md,
+
+  /// 16: for a dense grid of cards.
+  sm,
+}
+
 /// A panel on the page, usually [CardHeader], [CardContent] and [CardFooter] in order.
 ///
 /// ```dart
@@ -1108,51 +1117,102 @@ import 'theme.dart';
 /// ])
 /// ```
 class Card extends StatelessWidget {
-  const Card({super.key, required this.children});
+  const Card({super.key, required this.children, this.size = CardSize.md});
 
   final List<Widget> children;
+  final CardSize size;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: BoxDecoration(
-        color: t.colors.card,
-        borderRadius: BorderRadius.circular(t.radiusXl),
-        border: Border.all(color: t.colors.border),
-        boxShadow: t.shadowSm,
-      ),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: t.colors.cardForeground),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final (i, child) in children.indexed) ...[
-              if (i > 0) const SizedBox(height: 24),
-              child,
+    final pad = size == CardSize.sm ? 16.0 : 24.0;
+    // An image at the top or the foot runs to the card's edges.
+    final topImage = children.isNotEmpty && children.first is CardImage;
+    final footImage = children.isNotEmpty && children.last is CardImage;
+    return _CardScope(
+      pad: pad,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        padding: EdgeInsets.only(
+          top: topImage ? 0 : pad,
+          bottom: footImage ? 0 : pad,
+        ),
+        decoration: BoxDecoration(
+          color: t.colors.card,
+          borderRadius: BorderRadius.circular(t.radiusXl),
+          border: Border.all(color: t.colors.border),
+          boxShadow: t.shadowSm,
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: t.colors.cardForeground),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, child) in children.indexed) ...[
+                if (i > 0) SizedBox(height: pad),
+                child,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// A card's title and description, with an optional [action] at the top right.
+/// The spacing of the card around a part.
+class _CardScope extends InheritedWidget {
+  const _CardScope({required this.pad, required super.child});
+
+  final double pad;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_CardScope>()?.pad ?? 24;
+
+  @override
+  bool updateShouldNotify(_CardScope old) => old.pad != pad;
+}
+
+/// A picture across the card's full width: first, at the top edge; last, at the foot.
+class CardImage extends StatelessWidget {
+  const CardImage({super.key, required this.child, this.height = 180});
+
+  /// Usually an Image with BoxFit.cover.
+  final Widget child;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(height: height, child: child);
+}
+
+/// A card's title and description, with an optional [action] at the top right. With
+/// [border], a line runs under it.
 class CardHeader extends StatelessWidget {
-  const CardHeader({super.key, this.title, this.description, this.action});
+  const CardHeader({
+    super.key,
+    this.title,
+    this.description,
+    this.action,
+    this.border = false,
+  });
 
   final Widget? title;
   final Widget? description;
   final Widget? action;
+  final bool border;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    final pad = _CardScope.of(context);
+    return Container(
+      padding: EdgeInsets.only(left: pad, right: pad, bottom: border ? pad : 0),
+      decoration: border
+          ? BoxDecoration(
+              border: Border(bottom: BorderSide(color: t.colors.border)),
+            )
+          : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1161,14 +1221,17 @@ class CardHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title != null)
-                  DefaultTextStyle.merge(
-                    style: t.text.base.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 1,
-                      // The font's spare leading split above and below, so the text sits centred.
-                      leadingDistribution: TextLeadingDistribution.even,
+                  Semantics(
+                    header: true,
+                    child: DefaultTextStyle.merge(
+                      style: t.text.base.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1,
+                        // The font's spare leading split above and below, so the text sits centred.
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
+                      child: title!,
                     ),
-                    child: title!,
                   ),
                 if (title != null && description != null)
                   const SizedBox(height: 6),
@@ -1195,35 +1258,47 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24),
+    padding: EdgeInsets.symmetric(horizontal: _CardScope.of(context)),
     child: child,
   );
 }
 
-/// A card's actions, in a row at its foot.
+/// A card's actions, in a row at its foot. With [border], a line runs over it.
 class CardFooter extends StatelessWidget {
   const CardFooter({
     super.key,
     required this.children,
     this.alignment = MainAxisAlignment.start,
+    this.border = false,
   });
 
   final List<Widget> children;
   final MainAxisAlignment alignment;
+  final bool border;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24),
-    child: Row(
-      mainAxisAlignment: alignment,
-      children: [
-        for (final (i, child) in children.indexed) ...[
-          if (i > 0) const SizedBox(width: 8),
-          child,
+  Widget build(BuildContext context) {
+    final pad = _CardScope.of(context);
+    return Container(
+      padding: EdgeInsets.only(left: pad, right: pad, top: border ? pad : 0),
+      decoration: border
+          ? BoxDecoration(
+              border: Border(
+                top: BorderSide(color: AshlarTheme.of(context).colors.border),
+              ),
+            )
+          : null,
+      child: Row(
+        mainAxisAlignment: alignment,
+        children: [
+          for (final (i, child) in children.indexed) ...[
+            if (i > 0) const SizedBox(width: 8),
+            child,
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 ''',
     },
@@ -1814,6 +1889,8 @@ class Dialog extends StatelessWidget {
     this.actions = const [],
     this.showClose = true,
     this.maxWidth = 512,
+    this.media,
+    this.centered = false,
   });
 
   final Widget? title;
@@ -1822,6 +1899,13 @@ class Dialog extends StatelessWidget {
   final List<Widget> actions;
   final bool showClose;
   final double maxWidth;
+
+  /// Above the title: an icon on a muted circle, or an image.
+  final Widget? media;
+
+  /// Title, description and media centred, and the actions sharing the width: for a short
+  /// question in a small dialog.
+  final bool centered;
 
   @override
   Widget build(BuildContext context) {
@@ -1852,40 +1936,79 @@ class Dialog extends StatelessWidget {
                     children: [
                       Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment: centered
+                            ? CrossAxisAlignment.center
+                            : CrossAxisAlignment.stretch,
                         children: [
+                          if (media != null) ...[
+                            IconTheme.merge(
+                              data: IconThemeData(
+                                color: c.foreground,
+                                size: 24,
+                              ),
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: c.muted,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: media,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
                           if (title != null)
                             Padding(
-                              padding: EdgeInsets.only(
-                                right: showClose ? 24 : 0,
+                              padding: EdgeInsetsDirectional.only(
+                                end: showClose && !centered ? 24 : 0,
                               ),
-                              child: DefaultTextStyle.merge(
-                                style: t.text.lg.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.2,
+                              child: Semantics(
+                                header: true,
+                                child: DefaultTextStyle.merge(
+                                  style: t.text.lg.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2,
+                                  ),
+                                  textAlign: centered ? TextAlign.center : null,
+                                  child: title!,
                                 ),
-                                child: title!,
                               ),
                             ),
                           if (description != null) ...[
                             const SizedBox(height: 8),
                             DefaultTextStyle.merge(
                               style: TextStyle(color: c.mutedForeground),
+                              textAlign: centered ? TextAlign.center : null,
                               child: description!,
                             ),
                           ],
+                          // Long content scrolls; the title and the actions stay in view.
                           if (content != null) ...[
                             const SizedBox(height: 16),
-                            content!,
+                            Flexible(
+                              child: SingleChildScrollView(child: content!),
+                            ),
                           ],
                           if (actions.isNotEmpty) ...[
                             const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.end,
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: actions,
-                            ),
+                            if (centered)
+                              Row(
+                                children: [
+                                  for (final (i, a) in actions.indexed) ...[
+                                    if (i > 0) const SizedBox(width: 8),
+                                    Expanded(child: a),
+                                  ],
+                                ],
+                              )
+                            else
+                              Wrap(
+                                alignment: WrapAlignment.end,
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: actions,
+                              ),
                           ],
                         ],
                       ),
@@ -1994,6 +2117,10 @@ class Field extends StatelessWidget {
     this.error,
     this.axis = Axis.vertical,
     this.enabled = true,
+    this.responsive = false,
+    this.card = false,
+    this.selected = false,
+    this.onPressed,
   });
 
   final Widget child;
@@ -2006,6 +2133,15 @@ class Field extends StatelessWidget {
 
   /// False fades the label and description with the control.
   final bool enabled;
+
+  /// The label beside the control where there is room (480 or more), above it where not.
+  final bool responsive;
+
+  /// Drawn as a card to choose: a border round label and control, marked when [selected].
+  /// Give it [onPressed] to make the whole card a target, as the control is.
+  final bool card;
+  final bool selected;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -2029,38 +2165,175 @@ class Field extends StatelessWidget {
     final label = this.label == null
         ? null
         : Label(enabled: enabled, child: this.label!);
-    return MergeSemantics(
-      child: axis == Axis.vertical
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (label != null) ...[label, const SizedBox(height: 12)],
-                child,
-                for (final n in notes) ...[const SizedBox(height: 8), n],
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                child,
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Lines the label up with the middle of a 16 tall control.
-                      if (label != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 1),
-                          child: label,
-                        ),
-                      for (final n in notes) ...[const SizedBox(height: 6), n],
-                    ],
-                  ),
+    Widget beside() => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ?label,
+              for (final n in notes) ...[const SizedBox(height: 6), n],
+            ],
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(child: child),
+      ],
+    );
+    Widget body = responsive
+        ? LayoutBuilder(
+            builder: (context, box) =>
+                box.maxWidth >= 480 ? beside() : _stacked(label, notes),
+          )
+        : axis == Axis.vertical
+        ? _stacked(label, notes)
+        : _sideBySide(label, notes);
+    if (card) {
+      body = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: enabled ? onPressed : null,
+        child: AnimatedContainer(
+          duration: t.duration,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: selected
+                ? c.primary.withValues(alpha: .05)
+                : const Color(0x00000000),
+            borderRadius: BorderRadius.circular(t.radiusMd),
+            border: Border.all(color: selected ? c.primary : c.border),
+          ),
+          child: body,
+        ),
+      );
+    }
+    return MergeSemantics(child: body);
+  }
+
+  Widget _stacked(Widget? label, List<Widget> notes) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      if (label != null) ...[label, const SizedBox(height: 12)],
+      child,
+      for (final n in notes) ...[const SizedBox(height: 8), n],
+    ],
+  );
+
+  Widget _sideBySide(Widget? label, List<Widget> notes) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      child,
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Lines the label up with the middle of a 16 tall control.
+            if (label != null)
+              Padding(padding: const EdgeInsets.only(top: 1), child: label),
+            for (final n in notes) ...[const SizedBox(height: 6), n],
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// Fields that belong together, under a [legend]: an address, a set of notifications.
+/// A screen reader hears the legend with them.
+class FieldSet extends StatelessWidget {
+  const FieldSet({
+    super.key,
+    required this.children,
+    this.legend,
+    this.description,
+  });
+
+  final List<Widget> children;
+  final Widget? legend;
+  final Widget? description;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (legend != null)
+            Semantics(
+              header: true,
+              child: DefaultTextStyle.merge(
+                style: t.text.base.copyWith(
+                  color: c.foreground,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
+                child: legend!,
+              ),
             ),
+          if (description != null) ...[
+            const SizedBox(height: 4),
+            DefaultTextStyle.merge(
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+              child: description!,
+            ),
+          ],
+          if (legend != null || description != null) const SizedBox(height: 16),
+          FieldGroup(children: children),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fields one under the other, evenly spaced.
+class FieldGroup extends StatelessWidget {
+  const FieldGroup({super.key, required this.children, this.spacing = 24});
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, child) in children.indexed) ...[
+        if (i > 0) SizedBox(height: spacing),
+        child,
+      ],
+    ],
+  );
+}
+
+/// A line between fields, with an optional word in its middle: "Or continue with".
+class FieldSeparator extends StatelessWidget {
+  const FieldSeparator({super.key, this.child});
+
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final line = Expanded(child: Container(height: 1, color: t.colors.border));
+    if (child == null) return Row(children: [line]);
+    return Row(
+      children: [
+        line,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            child: child!,
+          ),
+        ),
+        line,
+      ],
     );
   }
 }
@@ -2799,6 +3072,8 @@ class Radio<T> extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
+    this.card = false,
+    this.error = false,
   });
 
   final T value;
@@ -2807,6 +3082,12 @@ class Radio<T> extends StatefulWidget {
   final bool enabled;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Drawn as a card to choose: a border round it, marked when chosen.
+  final bool card;
+
+  /// Draws it as invalid.
+  final bool error;
 
   @override
   State<Radio<T>> createState() => _RadioState<T>();
@@ -2851,7 +3132,11 @@ class _RadioState<T> extends State<Radio<T>> {
             // Opaque, so the shadow beneath does not show through.
             color: c.background,
             shape: BoxShape.circle,
-            border: Border.all(color: focused ? c.ring : c.input),
+            border: Border.all(
+              color: widget.error
+                  ? c.destructive
+                  : (focused ? c.ring : c.input),
+            ),
             boxShadow: [if (focused) ...t.focusRing, ...t.shadowXs],
           ),
           alignment: Alignment.center,
@@ -2868,40 +3153,52 @@ class _RadioState<T> extends State<Radio<T>> {
             ),
           ),
         );
+        final body = widget.label == null && widget.description == null
+            ? dot
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: const EdgeInsets.only(top: 2), child: dot),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.label != null)
+                          DefaultTextStyle.merge(
+                            style: t.text.sm.copyWith(
+                              color: c.foreground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            child: widget.label!,
+                          ),
+                        if (widget.description != null)
+                          DefaultTextStyle.merge(
+                            style: t.text.sm.copyWith(color: c.mutedForeground),
+                            child: widget.description!,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
         return Opacity(
           opacity: enabled ? 1 : .5,
-          child: widget.label == null && widget.description == null
-              ? dot
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(padding: const EdgeInsets.only(top: 2), child: dot),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.label != null)
-                            DefaultTextStyle.merge(
-                              style: t.text.sm.copyWith(
-                                color: c.foreground,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              child: widget.label!,
-                            ),
-                          if (widget.description != null)
-                            DefaultTextStyle.merge(
-                              style: t.text.sm.copyWith(
-                                color: c.mutedForeground,
-                              ),
-                              child: widget.description!,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+          child: widget.card
+              ? AnimatedContainer(
+                  duration: t.duration,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: chosen
+                        ? c.primary.withValues(alpha: .05)
+                        : const Color(0x00000000),
+                    borderRadius: BorderRadius.circular(t.radiusMd),
+                    border: Border.all(color: chosen ? c.primary : c.border),
+                  ),
+                  child: body,
+                )
+              : body,
         );
       },
     );
@@ -5862,6 +6159,57 @@ class BulletList extends StatelessWidget {
     );
   }
 }
+
+/// A small table in running text: headings and rows of plain words, lined and banded.
+class TypographyTable extends StatelessWidget {
+  const TypographyTable({
+    super.key,
+    required this.headings,
+    required this.rows,
+  });
+
+  final List<String> headings;
+  final List<List<String>> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final line = BorderSide(color: c.border);
+    TableRow row(
+      List<String> cells, {
+      bool head = false,
+      bool band = false,
+    }) => TableRow(
+      decoration: BoxDecoration(color: band ? c.muted : null),
+      children: [
+        for (final cell in cells)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              border: Border(left: line, right: line, top: line, bottom: line),
+            ),
+            child: Semantics(
+              header: head,
+              child: Text(
+                cell,
+                style: t.text.base.copyWith(
+                  color: c.foreground,
+                  fontWeight: head ? FontWeight.w700 : null,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+    return Table(
+      children: [
+        row(headings, head: true),
+        for (final (i, r) in rows.indexed) row(r, band: i.isOdd),
+      ],
+    );
+  }
+}
 ''',
     },
   ),
@@ -5893,6 +6241,8 @@ class Empty extends StatelessWidget {
     required this.title,
     this.description,
     this.actions = const [],
+    this.background = false,
+    this.border = false,
   });
 
   /// Drawn in a small muted square above the title.
@@ -5901,11 +6251,18 @@ class Empty extends StatelessWidget {
   final Widget? description;
   final List<Widget> actions;
 
+  /// On a muted ground, filling the width it is given.
+  final bool background;
+
+  /// Inside a line, filling the width it is given.
+  final bool border;
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return ConstrainedBox(
+    final framed = background || border;
+    final content = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 384),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -5957,6 +6314,17 @@ class Empty extends StatelessWidget {
         ],
       ),
     );
+    if (!framed) return content;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      decoration: BoxDecoration(
+        color: background ? c.muted.withValues(alpha: c.muted.a * .5) : null,
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: border ? Border.all(color: c.border) : null,
+      ),
+      child: Center(child: content),
+    );
   }
 }
 ''',
@@ -5985,13 +6353,25 @@ enum ItemVariant {
   muted,
 }
 
-/// A row in a list: something to the left (an icon, an avatar), a title and a
-/// description, and actions to the right. With [onPressed] the whole row is a button.
+enum ItemSize {
+  /// 16 of padding.
+  md,
+
+  /// 12, tighter.
+  sm,
+
+  /// 8, for dense lists.
+  xs,
+}
+
+/// A row in a list: media at the start (an icon, an avatar, an image), a title and a
+/// description, and actions at the end. [header] and [footer] run across the whole item,
+/// above and below. With [onPressed] the whole row is a button.
 ///
 /// ```dart
 /// Item(
 ///   variant: ItemVariant.outline,
-///   leading: AshlarIcon(AshlarIconsRoundedStroke.shieldCheck),
+///   leading: ItemMedia.icon(AshlarIcon(AshlarIconsRoundedStroke.shieldCheck)),
 ///   title: Text('Two-step sign in is on'),
 ///   description: Text('A code from your phone is asked for at each sign in.'),
 ///   trailing: Button(size: ButtonSize.sm, variant: ButtonVariant.outline, onPressed: manage, child: Text('Manage')),
@@ -6004,65 +6384,91 @@ class Item extends StatelessWidget {
     this.description,
     this.leading,
     this.trailing,
+    this.header,
+    this.footer,
     this.variant = ItemVariant.plain,
+    this.size = ItemSize.md,
     this.onPressed,
   });
 
   final Widget title;
   final Widget? description;
+
+  /// Usually an [ItemMedia].
   final Widget? leading;
   final Widget? trailing;
+
+  /// Across the top and the foot of the item: an image, a row of tags.
+  final Widget? header, footer;
   final ItemVariant variant;
+  final ItemSize size;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    Widget body(bool hovered) => AnimatedContainer(
+    final pad = switch (size) {
+      ItemSize.md => 16.0,
+      ItemSize.sm => 12.0,
+      ItemSize.xs => 8.0,
+    };
+    final grouped = _ItemGroupScope.of(context);
+    Widget body(bool lit) => AnimatedContainer(
       duration: t.duration,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: pad,
+        vertical: size == ItemSize.xs ? 6 : pad,
+      ),
       decoration: BoxDecoration(
-        color: hovered
+        color: lit
             ? c.accent.withValues(alpha: c.accent.a * .5)
             : (variant == ItemVariant.muted
                   ? c.muted.withValues(alpha: c.muted.a * .5)
                   : const Color(0x00000000)),
-        borderRadius: BorderRadius.circular(t.radiusMd),
-        border: Border.all(
-          color: variant == ItemVariant.outline
-              ? c.border
-              : const Color(0x00000000),
-        ),
+        borderRadius: grouped ? null : BorderRadius.circular(t.radiusMd),
+        border: variant == ItemVariant.outline && !grouped
+            ? Border.all(color: c.border)
+            : null,
       ),
       child: IconTheme.merge(
-        data: IconThemeData(color: c.foreground, size: 20),
-        child: Row(
+        data: IconThemeData(color: c.foreground, size: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (leading != null) ...[leading!, const SizedBox(width: 16)],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DefaultTextStyle.merge(
-                    style: t.text.sm.copyWith(
-                      color: c.foreground,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    child: title,
+            if (header != null) ...[header!, SizedBox(height: pad * .75)],
+            Row(
+              children: [
+                if (leading != null) ...[leading!, SizedBox(width: pad)],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DefaultTextStyle.merge(
+                        style: t.text.sm.copyWith(
+                          color: c.foreground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        child: title,
+                      ),
+                      if (description != null) ...[
+                        const SizedBox(height: 4),
+                        DefaultTextStyle.merge(
+                          style: t.text.sm.copyWith(color: c.mutedForeground),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          child: description!,
+                        ),
+                      ],
+                    ],
                   ),
-                  if (description != null) ...[
-                    const SizedBox(height: 4),
-                    DefaultTextStyle.merge(
-                      style: t.text.sm.copyWith(color: c.mutedForeground),
-                      child: description!,
-                    ),
-                  ],
-                ],
-              ),
+                ),
+                if (trailing != null) ...[SizedBox(width: pad), trailing!],
+              ],
             ),
-            if (trailing != null) ...[const SizedBox(width: 16), trailing!],
+            if (footer != null) ...[SizedBox(height: pad * .75), footer!],
           ],
         ),
       ),
@@ -6073,6 +6479,112 @@ class Item extends StatelessWidget {
       builder: (context, state) => body(state.hovered || state.focused),
     );
   }
+}
+
+/// What sits at the start of an [Item]: an icon on a muted square, an image, or anything.
+class ItemMedia extends StatelessWidget {
+  const ItemMedia({super.key, required this.child}) : _kind = 0;
+
+  /// An icon on a small muted square.
+  const ItemMedia.icon(this.child, {super.key}) : _kind = 1;
+
+  /// A picture, cropped to a rounded square.
+  const ItemMedia.image(this.child, {super.key}) : _kind = 2;
+
+  final Widget child;
+  final int _kind;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return switch (_kind) {
+      1 => Container(
+        width: 32,
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: t.colors.muted,
+          borderRadius: BorderRadius.circular(t.radiusSm),
+          border: Border.all(color: t.colors.border),
+        ),
+        child: child,
+      ),
+      2 => ClipRRect(
+        borderRadius: BorderRadius.circular(t.radiusSm),
+        child: SizedBox.square(dimension: 40, child: child),
+      ),
+      _ => child,
+    };
+  }
+}
+
+/// Items in one block, as a list: one border round them all, and a line between each.
+class ItemGroup extends StatelessWidget {
+  const ItemGroup({
+    super.key,
+    required this.children,
+    this.variant = ItemVariant.outline,
+    this.separated = true,
+  });
+
+  final List<Widget> children;
+  final ItemVariant variant;
+
+  /// A line between items.
+  final bool separated;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: variant == ItemVariant.muted
+              ? c.muted.withValues(alpha: c.muted.a * .5)
+              : null,
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: variant == ItemVariant.outline
+              ? Border.all(color: c.border)
+              : null,
+        ),
+        child: _ItemGroupScope(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, item) in children.indexed) ...[
+                if (i > 0 && separated) const ItemSeparator(),
+                item,
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ItemGroupScope extends InheritedWidget {
+  const _ItemGroupScope({required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_ItemGroupScope>() != null;
+
+  @override
+  bool updateShouldNotify(_ItemGroupScope old) => false;
+}
+
+/// A line between items.
+class ItemSeparator extends StatelessWidget {
+  const ItemSeparator({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      Container(height: 1, color: AshlarTheme.of(context).colors.border);
 }
 ''',
     },
@@ -6193,8 +6705,8 @@ class _ProgressState extends State<Progress>
     },
   ),
   'breadcrumb': Component(
-    description: "Where a page sits, as links to the pages above it.",
-    requires: ["theme","pressable"],
+    description: "Where a page sits, as links to the pages above it, folding long trails.",
+    requires: ["theme","pressable","dropdown-menu"],
     packages: ["ashlar_icons"],
     files: {
       'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
@@ -6203,6 +6715,7 @@ class _ProgressState extends State<Progress>
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import 'dropdown_menu.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
@@ -6215,25 +6728,121 @@ class BreadcrumbItem {
   final VoidCallback? onPressed;
 }
 
-/// Where a page sits: the pages above it, each a link, then the page itself.
+/// Where a page sits: the pages above it, each a link, then the page itself. Past
+/// [maxItems] the middle steps fold into an ellipsis that opens them as a menu.
 ///
 /// ```dart
-/// Breadcrumb(items: [
+/// Breadcrumb(maxItems: 3, items: [
 ///   BreadcrumbItem('Home', onPressed: () => go('/')),
-///   BreadcrumbItem('Components', onPressed: () => go('/components')),
+///   BreadcrumbItem('Docs', onPressed: () => go('/docs')),
+///   BreadcrumbItem('Components', onPressed: () => go('/docs/components')),
 ///   BreadcrumbItem('Breadcrumb'),
 /// ])
 /// ```
 class Breadcrumb extends StatelessWidget {
-  const Breadcrumb({super.key, required this.items});
+  const Breadcrumb({
+    super.key,
+    required this.items,
+    this.separator,
+    this.maxItems,
+  });
 
   final List<BreadcrumbItem> items;
+
+  /// Between steps; a chevron unless given: a slash, a dot.
+  final Widget? separator;
+
+  /// How many steps show before the middle ones fold away: the first, and the last ones.
+  final int? maxItems;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final style = t.text.sm;
+    final fold = maxItems != null && items.length > maxItems! && maxItems! >= 2;
+    final hidden = fold
+        ? items.sublist(1, items.length - (maxItems! - 1))
+        : const <BreadcrumbItem>[];
+    final shown = fold
+        ? [items.first, ...items.sublist(items.length - (maxItems! - 1))]
+        : items;
+    Widget step(BreadcrumbItem item, bool last) {
+      if (last || item.onPressed == null) {
+        return Semantics(
+          // The page itself: aria-current="page".
+          selected: last,
+          child: Text(
+            item.label,
+            style: style.copyWith(
+              color: last ? c.foreground : c.mutedForeground,
+            ),
+          ),
+        );
+      }
+      return Pressable(
+        onPressed: item.onPressed,
+        link: true,
+        builder: (context, state) => Text(
+          item.label,
+          style: style.copyWith(
+            color: state.hovered || state.focused
+                ? c.foreground
+                : c.mutedForeground,
+            decoration: state.focused ? TextDecoration.underline : null,
+            decorationColor: c.foreground,
+          ),
+        ),
+      );
+    }
+
+    final between = ExcludeSemantics(
+      child: IconTheme.merge(
+        data: IconThemeData(color: c.mutedForeground, size: 14),
+        child: DefaultTextStyle.merge(
+          style: style.copyWith(color: c.mutedForeground),
+          child:
+              separator ??
+              const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+        ),
+      ),
+    );
+    final parts = <Widget>[];
+    for (final (i, item) in shown.indexed) {
+      if (i > 0) parts.add(between);
+      parts.add(step(item, i == shown.length - 1));
+      if (fold && i == 0) {
+        parts
+          ..add(between)
+          ..add(
+            DropdownMenu(
+              builder: (context, menu) => Pressable(
+                onPressed: menu.open,
+                semanticLabel: 'Show ${hidden.length} more',
+                builder: (context, state) => Container(
+                  width: 24,
+                  height: 24,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: state.hovered ? c.accent : const Color(0x00000000),
+                    borderRadius: BorderRadius.circular(t.radiusSm),
+                    boxShadow: [if (state.focused) ...t.focusRing],
+                  ),
+                  child: AshlarIcon(
+                    AshlarIconsRoundedStroke.ellipsis,
+                    size: 16,
+                    color: c.mutedForeground,
+                  ),
+                ),
+              ),
+              items: [
+                for (final h in hidden)
+                  MenuItem(onPressed: h.onPressed, child: Text(h.label)),
+              ],
+            ),
+          );
+      }
+    }
     return Semantics(
       container: true,
       label: 'Breadcrumb',
@@ -6242,46 +6851,7 @@ class Breadcrumb extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 6,
         runSpacing: 4,
-        children: [
-          for (final (i, item) in items.indexed) ...[
-            if (i > 0)
-              ExcludeSemantics(
-                child: AshlarIcon(
-                  AshlarIconsRoundedStroke.chevronRight,
-                  size: 14,
-                  color: c.mutedForeground,
-                ),
-              ),
-            if (i == items.length - 1 || item.onPressed == null)
-              Semantics(
-                // The page itself: aria-current="page".
-                selected: i == items.length - 1,
-                child: Text(
-                  item.label,
-                  style: style.copyWith(
-                    color: i == items.length - 1
-                        ? c.foreground
-                        : c.mutedForeground,
-                  ),
-                ),
-              )
-            else
-              Pressable(
-                onPressed: item.onPressed,
-                link: true,
-                builder: (context, state) => Text(
-                  item.label,
-                  style: style.copyWith(
-                    color: state.hovered || state.focused
-                        ? c.foreground
-                        : c.mutedForeground,
-                    decoration: state.focused ? TextDecoration.underline : null,
-                    decorationColor: c.foreground,
-                  ),
-                ),
-              ),
-          ],
-        ],
+        children: parts,
       ),
     );
   }
@@ -6427,10 +6997,17 @@ import 'theme.dart';
 /// One section of an [Accordion]: its heading and what opens under it.
 @immutable
 class AccordionItem {
-  const AccordionItem({required this.title, required this.content});
+  const AccordionItem({
+    required this.title,
+    required this.content,
+    this.enabled = true,
+  });
 
   final Widget title;
   final Widget content;
+
+  /// False keeps it shut, its heading faded.
+  final bool enabled;
 }
 
 /// Sections stacked one above the other, each opening under its heading. One open at a
@@ -6449,6 +7026,7 @@ class Accordion extends StatefulWidget {
     required this.items,
     this.multiple = false,
     this.initiallyOpen = const {},
+    this.bordered = false,
   });
 
   final List<AccordionItem> items;
@@ -6456,6 +7034,9 @@ class Accordion extends StatefulWidget {
 
   /// The sections open at first, by index.
   final Set<int> initiallyOpen;
+
+  /// In a box with rounded corners, the open section on a muted ground.
+  final bool bordered;
 
   @override
   State<Accordion> createState() => _AccordionState();
@@ -6477,13 +7058,19 @@ class _AccordionState extends State<Accordion> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return Column(
+    final pad = widget.bordered ? 16.0 : 0.0;
+    final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (i, item) in widget.items.indexed)
-          DecoratedBox(
+          AnimatedContainer(
+            duration: t.duration,
+            padding: EdgeInsets.symmetric(horizontal: pad),
             decoration: BoxDecoration(
+              color: widget.bordered && _open.contains(i)
+                  ? c.muted.withValues(alpha: c.muted.a * .5)
+                  : const Color(0x00000000),
               border: Border(
                 bottom: BorderSide(
                   color: i == widget.items.length - 1
@@ -6495,7 +7082,7 @@ class _AccordionState extends State<Accordion> {
             child: Collapsible(
               open: _open.contains(i),
               builder: (context, open, _) => Pressable(
-                onPressed: () => _toggle(i),
+                onPressed: item.enabled ? () => _toggle(i) : null,
                 expanded: open,
                 builder: (context, state) => AnimatedContainer(
                   duration: t.duration,
@@ -6510,9 +7097,11 @@ class _AccordionState extends State<Accordion> {
                       Expanded(
                         child: DefaultTextStyle.merge(
                           style: t.text.sm.copyWith(
-                            color: c.foreground,
+                            color: item.enabled
+                                ? c.foreground
+                                : c.mutedForeground,
                             fontWeight: FontWeight.w500,
-                            decoration: state.hovered
+                            decoration: state.hovered && item.enabled
                                 ? TextDecoration.underline
                                 : null,
                             decorationColor: c.foreground,
@@ -6544,6 +7133,15 @@ class _AccordionState extends State<Accordion> {
             ),
           ),
       ],
+    );
+    if (!widget.bordered) return column;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: column,
     );
   }
 }
@@ -7216,6 +7814,7 @@ class Pagination extends StatelessWidget {
     required this.pageCount,
     required this.onChanged,
     this.siblings = 1,
+    this.simple = false,
   });
 
   final int page;
@@ -7224,6 +7823,9 @@ class Pagination extends StatelessWidget {
 
   /// How many pages either side of this one are shown by number.
   final int siblings;
+
+  /// Previous, "Page 2 of 10" and Next, without the numbers.
+  final bool simple;
 
   /// The pages to show by number, with null for a gap.
   List<int?> get _pages {
@@ -7249,7 +7851,44 @@ class Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = AshlarTheme.of(context).colors;
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    if (simple) {
+      return Semantics(
+        container: true,
+        label: 'Pagination',
+        explicitChildNodes: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Button(
+              variant: ButtonVariant.outline,
+              size: ButtonSize.iconSm,
+              semanticLabel: 'Previous page',
+              onPressed: page > 1 ? () => onChanged(page - 1) : null,
+              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                'Page $page of $pageCount',
+                style: t.text.sm.copyWith(
+                  color: c.foreground,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Button(
+              variant: ButtonVariant.outline,
+              size: ButtonSize.iconSm,
+              semanticLabel: 'Next page',
+              onPressed: page < pageCount ? () => onChanged(page + 1) : null,
+              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+            ),
+          ],
+        ),
+      );
+    }
     return Semantics(
       container: true,
       label: 'Pagination',
@@ -7338,6 +7977,8 @@ Future<bool> showAlertDialog(
   String cancel = 'Cancel',
   String action = 'Continue',
   bool destructive = false,
+  Widget? media,
+  bool small = false,
 }) async =>
     await showAshlarDialog<bool>(
       context: context,
@@ -7348,6 +7989,8 @@ Future<bool> showAlertDialog(
         cancel: cancel,
         action: action,
         destructive: destructive,
+        media: media,
+        small: small,
       ),
     ) ??
     false;
@@ -7361,12 +8004,20 @@ class AlertDialog extends StatelessWidget {
     this.cancel = 'Cancel',
     this.action = 'Continue',
     this.destructive = false,
+    this.media,
+    this.small = false,
   });
 
   final String title;
   final String? description;
   final String cancel, action;
   final bool destructive;
+
+  /// An icon above the title, on a muted circle.
+  final Widget? media;
+
+  /// Narrow and centred, the two buttons sharing the width.
+  final bool small;
 
   @override
   Widget build(BuildContext context) => CallbackShortcuts(
@@ -7378,6 +8029,9 @@ class AlertDialog extends StatelessWidget {
       autofocus: true,
       child: Dialog(
         showClose: false,
+        media: media,
+        centered: small,
+        maxWidth: small ? 320 : 512,
         title: Text(title),
         description: description == null ? null : Text(description!),
         actions: [
@@ -8184,6 +8838,7 @@ class Sheet extends StatelessWidget {
     this.content,
     this.footer = const [],
     this.width = 384,
+    this.showClose = true,
   });
 
   final Widget? title;
@@ -8193,6 +8848,9 @@ class Sheet extends StatelessWidget {
 
   /// For a left or right sheet; it is never more than three quarters of the screen.
   final double width;
+
+  /// False leaves the close button out, when the footer has its own way out.
+  final bool showClose;
 
   @override
   Widget build(BuildContext context) {
@@ -8287,20 +8945,21 @@ class Sheet extends StatelessWidget {
                     ),
                 ],
               ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Button(
-                  variant: ButtonVariant.ghost,
-                  size: ButtonSize.icon,
-                  semanticLabel: 'Close',
-                  onPressed: () => Navigator.maybePop(context),
-                  child: AshlarIcon(
-                    AshlarIconsRoundedStroke.x,
-                    color: c.mutedForeground,
+              if (showClose)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.icon,
+                    semanticLabel: 'Close',
+                    onPressed: () => Navigator.maybePop(context),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.x,
+                      color: c.mutedForeground,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -8336,8 +8995,12 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
-/// Brings a panel up from the bottom of the screen, the way phones show choices and
-/// short forms. Drag it down, tap outside or press Escape to close it.
+/// The edge a drawer comes from.
+enum DrawerSide { bottom, top, left, right }
+
+/// Brings a panel in from an edge of the screen, the bottom by default, the way phones
+/// show choices and short forms. Drag it back to its edge, tap outside or press Escape to
+/// close it.
 ///
 /// ```dart
 /// showDrawer(
@@ -8353,6 +9016,7 @@ import 'theme.dart';
 Future<T?> showDrawer<T>({
   required BuildContext context,
   required WidgetBuilder builder,
+  DrawerSide side = DrawerSide.bottom,
 }) {
   final theme = AshlarTheme.of(context);
   return Navigator.of(context).push<T>(
@@ -8363,7 +9027,10 @@ Future<T?> showDrawer<T>({
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondary) => AshlarTheme(
         data: theme,
-        child: Builder(builder: builder),
+        child: _DrawerSide(
+          side: side,
+          child: Builder(builder: builder),
+        ),
       ),
       transitionBuilder: (context, animation, secondary, child) {
         final curved = CurvedAnimation(
@@ -8371,11 +9038,14 @@ Future<T?> showDrawer<T>({
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic,
         );
+        final from = switch (side) {
+          DrawerSide.bottom => const Offset(0, 1),
+          DrawerSide.top => const Offset(0, -1),
+          DrawerSide.left => const Offset(-1, 0),
+          DrawerSide.right => const Offset(1, 0),
+        };
         return SlideTransition(
-          position: Tween(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(curved),
+          position: Tween(begin: from, end: Offset.zero).animate(curved),
           child: child,
         );
       },
@@ -8383,7 +9053,17 @@ Future<T?> showDrawer<T>({
   );
 }
 
-/// The panel [showDrawer] brings up: a handle to drag, a header, [content] and a [footer].
+class _DrawerSide extends InheritedWidget {
+  const _DrawerSide({required this.side, required super.child});
+
+  final DrawerSide side;
+
+  @override
+  bool updateShouldNotify(_DrawerSide old) => old.side != side;
+}
+
+/// The panel [showDrawer] brings in: a handle to drag (at the top and bottom), a header,
+/// [content] and a [footer].
 class Drawer extends StatefulWidget {
   const Drawer({
     super.key,
@@ -8399,7 +9079,8 @@ class Drawer extends StatefulWidget {
   final Widget? content;
   final List<Widget> footer;
 
-  /// On a wide screen the content is kept to this width, centred.
+  /// From the top or the bottom of a wide screen, the content is kept to this width,
+  /// centred; from a side, the panel is this wide at most.
   final double maxWidth;
 
   @override
@@ -8407,13 +9088,25 @@ class Drawer extends StatefulWidget {
 }
 
 class _DrawerState extends State<Drawer> {
-  /// How far it has been dragged down.
+  /// How far it has been dragged back towards its edge.
   double _drag = 0;
-  double _height = 1;
 
-  void _end(DragEndDetails d) {
-    // Down far enough, or flicked down: close. Otherwise it springs back.
-    if (_drag > _height * .3 || (d.primaryVelocity ?? 0) > 700) {
+  DrawerSide get _side =>
+      context.dependOnInheritedWidgetOfExactType<_DrawerSide>()?.side ??
+      DrawerSide.bottom;
+  bool get _vertical => _side == DrawerSide.bottom || _side == DrawerSide.top;
+
+  /// Positive is towards the drawer's own edge.
+  double _towardsEdge(Offset delta) => switch (_side) {
+    DrawerSide.bottom => delta.dy,
+    DrawerSide.top => -delta.dy,
+    DrawerSide.left => -delta.dx,
+    DrawerSide.right => delta.dx,
+  };
+
+  void _end(double velocity, double extent) {
+    // Back far enough, or flicked towards its edge: close. Otherwise it springs back.
+    if (_drag > extent * .3 || velocity > 700) {
       Navigator.maybePop(context);
     } else {
       setState(() => _drag = 0);
@@ -8424,126 +9117,168 @@ class _DrawerState extends State<Drawer> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
+    final side = _side, vertical = _vertical;
     final radius = Radius.circular(t.radiusLg);
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: GestureDetector(
-        onVerticalDragUpdate: (d) => setState(
-          () => _drag = (_drag + d.delta.dy).clamp(0, double.infinity),
+    final screen = MediaQuery.sizeOf(context);
+    final shift = switch (side) {
+      DrawerSide.bottom => Offset(0, _drag),
+      DrawerSide.top => Offset(0, -_drag),
+      DrawerSide.left => Offset(-_drag, 0),
+      DrawerSide.right => Offset(_drag, 0),
+    };
+    final handle = Container(
+      margin: EdgeInsets.only(
+        top: side == DrawerSide.bottom ? 16 : 0,
+        bottom: side == DrawerSide.top ? 16 : 0,
+      ),
+      width: 100,
+      height: 8,
+      decoration: BoxDecoration(
+        color: c.muted,
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+    final body = Column(
+      mainAxisSize: vertical ? MainAxisSize.min : MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: vertical
+                ? CrossAxisAlignment.center
+                : CrossAxisAlignment.start,
+            children: [
+              if (widget.title != null)
+                Semantics(
+                  header: true,
+                  child: DefaultTextStyle.merge(
+                    style: t.text.base.copyWith(fontWeight: FontWeight.w600),
+                    textAlign: vertical ? TextAlign.center : null,
+                    child: widget.title!,
+                  ),
+                ),
+              if (widget.description != null) ...[
+                const SizedBox(height: 6),
+                DefaultTextStyle.merge(
+                  style: TextStyle(color: c.mutedForeground),
+                  textAlign: vertical ? TextAlign.center : null,
+                  child: widget.description!,
+                ),
+              ],
+            ],
+          ),
         ),
-        onVerticalDragEnd: _end,
-        child: AnimatedContainer(
-          duration: _drag == 0 ? t.duration : Duration.zero,
-          transform: Matrix4.translationValues(0, _drag, 0),
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * .8,
+        if (widget.content != null)
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: widget.content,
+            ),
           ),
-          decoration: BoxDecoration(
-            color: c.background,
-            borderRadius: BorderRadius.vertical(top: radius),
-            border: Border(top: BorderSide(color: c.border)),
-            boxShadow: t.shadowLg,
+        if (!vertical) const Spacer(),
+        if (widget.footer.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, f) in widget.footer.indexed) ...[
+                  if (i > 0) const SizedBox(height: 8),
+                  f,
+                ],
+              ],
+            ),
           ),
-          child: LayoutBuilder(
-            builder: (context, box) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final size = context.size;
-                if (size != null) _height = size.height;
-              });
-              return SafeArea(
-                top: false,
+      ],
+    );
+    return Align(
+      alignment: switch (side) {
+        DrawerSide.bottom => Alignment.bottomCenter,
+        DrawerSide.top => Alignment.topCenter,
+        DrawerSide.left => Alignment.centerLeft,
+        DrawerSide.right => Alignment.centerRight,
+      },
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final extent = vertical
+              ? screen.height * .8
+              : (widget.maxWidth < screen.width * .8
+                    ? widget.maxWidth
+                    : screen.width * .8);
+          void update(Offset delta) => setState(
+            () =>
+                _drag = (_drag + _towardsEdge(delta)).clamp(0, double.infinity),
+          );
+          return GestureDetector(
+            onVerticalDragUpdate: vertical ? (d) => update(d.delta) : null,
+            onVerticalDragEnd: vertical
+                ? (d) => _end(
+                    side == DrawerSide.bottom
+                        ? d.primaryVelocity ?? 0
+                        : -(d.primaryVelocity ?? 0),
+                    extent,
+                  )
+                : null,
+            onHorizontalDragUpdate: vertical ? null : (d) => update(d.delta),
+            onHorizontalDragEnd: vertical
+                ? null
+                : (d) => _end(
+                    side == DrawerSide.right
+                        ? d.primaryVelocity ?? 0
+                        : -(d.primaryVelocity ?? 0),
+                    extent,
+                  ),
+            child: AnimatedContainer(
+              duration: _drag == 0 ? t.duration : Duration.zero,
+              transform: Matrix4.translationValues(shift.dx, shift.dy, 0),
+              width: vertical ? null : extent,
+              height: vertical ? null : double.infinity,
+              constraints: vertical ? BoxConstraints(maxHeight: extent) : null,
+              decoration: BoxDecoration(
+                color: c.background,
+                borderRadius: switch (side) {
+                  DrawerSide.bottom => BorderRadius.vertical(top: radius),
+                  DrawerSide.top => BorderRadius.vertical(bottom: radius),
+                  DrawerSide.left => BorderRadius.horizontal(right: radius),
+                  DrawerSide.right => BorderRadius.horizontal(left: radius),
+                },
+                border: Border.all(color: c.border),
+                boxShadow: t.shadowLg,
+              ),
+              child: SafeArea(
+                top: side != DrawerSide.bottom,
+                bottom: side != DrawerSide.top,
                 child: Semantics(
                   scopesRoute: true,
                   namesRoute: true,
                   explicitChildNodes: true,
                   child: DefaultTextStyle(
                     style: t.text.sm.copyWith(color: c.foreground),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // The handle: a reminder it can be dragged, not a control.
-                        Container(
-                          margin: const EdgeInsets.only(top: 16),
-                          width: 100,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: c.muted,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        Flexible(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: widget.maxWidth,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    children: [
-                                      if (widget.title != null)
-                                        Semantics(
-                                          header: true,
-                                          child: DefaultTextStyle.merge(
-                                            style: t.text.base.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            child: widget.title!,
-                                          ),
-                                        ),
-                                      if (widget.description != null) ...[
-                                        const SizedBox(height: 6),
-                                        DefaultTextStyle.merge(
-                                          style: TextStyle(
-                                            color: c.mutedForeground,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          child: widget.description!,
-                                        ),
-                                      ],
-                                    ],
+                    child: vertical
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // The handle: a reminder it can be dragged, not a control.
+                              if (side == DrawerSide.bottom) handle,
+                              Flexible(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: widget.maxWidth,
                                   ),
+                                  child: body,
                                 ),
-                                if (widget.content != null)
-                                  Flexible(
-                                    child: SingleChildScrollView(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      child: widget.content,
-                                    ),
-                                  ),
-                                if (widget.footer.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        for (final (i, f)
-                                            in widget.footer.indexed) ...[
-                                          if (i > 0) const SizedBox(height: 8),
-                                          f,
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                              ),
+                              if (side == DrawerSide.top) handle,
+                            ],
+                          )
+                        : body,
                   ),
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -8962,6 +9697,7 @@ class Resizable extends StatefulWidget {
     required this.panels,
     this.axis = Axis.horizontal,
     this.withHandle = false,
+    this.onResize,
   });
 
   final List<ResizablePanel> panels;
@@ -8969,6 +9705,9 @@ class Resizable extends StatefulWidget {
 
   /// Draws a grip on each handle, to show it can be dragged.
   final bool withHandle;
+
+  /// Told each panel's share of the room, from 0 to 1, after every move: to keep it.
+  final ValueChanged<List<double>>? onResize;
 
   @override
   State<Resizable> createState() => _ResizableState();
@@ -8997,6 +9736,7 @@ class _ResizableState extends State<Resizable> {
       _sizes[i] = next;
       _sizes[i + 1] = pair - next;
     });
+    widget.onResize?.call(List.unmodifiable(_sizes));
   }
 
   @override

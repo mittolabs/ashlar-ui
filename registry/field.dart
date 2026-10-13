@@ -24,6 +24,10 @@ class Field extends StatelessWidget {
     this.error,
     this.axis = Axis.vertical,
     this.enabled = true,
+    this.responsive = false,
+    this.card = false,
+    this.selected = false,
+    this.onPressed,
   });
 
   final Widget child;
@@ -36,6 +40,15 @@ class Field extends StatelessWidget {
 
   /// False fades the label and description with the control.
   final bool enabled;
+
+  /// The label beside the control where there is room (480 or more), above it where not.
+  final bool responsive;
+
+  /// Drawn as a card to choose: a border round label and control, marked when [selected].
+  /// Give it [onPressed] to make the whole card a target, as the control is.
+  final bool card;
+  final bool selected;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -59,38 +72,175 @@ class Field extends StatelessWidget {
     final label = this.label == null
         ? null
         : Label(enabled: enabled, child: this.label!);
-    return MergeSemantics(
-      child: axis == Axis.vertical
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (label != null) ...[label, const SizedBox(height: 12)],
-                child,
-                for (final n in notes) ...[const SizedBox(height: 8), n],
-              ],
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                child,
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Lines the label up with the middle of a 16 tall control.
-                      if (label != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 1),
-                          child: label,
-                        ),
-                      for (final n in notes) ...[const SizedBox(height: 6), n],
-                    ],
-                  ),
+    Widget beside() => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ?label,
+              for (final n in notes) ...[const SizedBox(height: 6), n],
+            ],
+          ),
+        ),
+        const SizedBox(width: 24),
+        Expanded(child: child),
+      ],
+    );
+    Widget body = responsive
+        ? LayoutBuilder(
+            builder: (context, box) =>
+                box.maxWidth >= 480 ? beside() : _stacked(label, notes),
+          )
+        : axis == Axis.vertical
+        ? _stacked(label, notes)
+        : _sideBySide(label, notes);
+    if (card) {
+      body = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: enabled ? onPressed : null,
+        child: AnimatedContainer(
+          duration: t.duration,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: selected
+                ? c.primary.withValues(alpha: .05)
+                : const Color(0x00000000),
+            borderRadius: BorderRadius.circular(t.radiusMd),
+            border: Border.all(color: selected ? c.primary : c.border),
+          ),
+          child: body,
+        ),
+      );
+    }
+    return MergeSemantics(child: body);
+  }
+
+  Widget _stacked(Widget? label, List<Widget> notes) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      if (label != null) ...[label, const SizedBox(height: 12)],
+      child,
+      for (final n in notes) ...[const SizedBox(height: 8), n],
+    ],
+  );
+
+  Widget _sideBySide(Widget? label, List<Widget> notes) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      child,
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Lines the label up with the middle of a 16 tall control.
+            if (label != null)
+              Padding(padding: const EdgeInsets.only(top: 1), child: label),
+            for (final n in notes) ...[const SizedBox(height: 6), n],
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// Fields that belong together, under a [legend]: an address, a set of notifications.
+/// A screen reader hears the legend with them.
+class FieldSet extends StatelessWidget {
+  const FieldSet({
+    super.key,
+    required this.children,
+    this.legend,
+    this.description,
+  });
+
+  final List<Widget> children;
+  final Widget? legend;
+  final Widget? description;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (legend != null)
+            Semantics(
+              header: true,
+              child: DefaultTextStyle.merge(
+                style: t.text.base.copyWith(
+                  color: c.foreground,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
+                child: legend!,
+              ),
             ),
+          if (description != null) ...[
+            const SizedBox(height: 4),
+            DefaultTextStyle.merge(
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+              child: description!,
+            ),
+          ],
+          if (legend != null || description != null) const SizedBox(height: 16),
+          FieldGroup(children: children),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fields one under the other, evenly spaced.
+class FieldGroup extends StatelessWidget {
+  const FieldGroup({super.key, required this.children, this.spacing = 24});
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, child) in children.indexed) ...[
+        if (i > 0) SizedBox(height: spacing),
+        child,
+      ],
+    ],
+  );
+}
+
+/// A line between fields, with an optional word in its middle: "Or continue with".
+class FieldSeparator extends StatelessWidget {
+  const FieldSeparator({super.key, this.child});
+
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final line = Expanded(child: Container(height: 1, color: t.colors.border));
+    if (child == null) return Row(children: [line]);
+    return Row(
+      children: [
+        line,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            child: child!,
+          ),
+        ),
+        line,
+      ],
     );
   }
 }

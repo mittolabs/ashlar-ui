@@ -29,6 +29,8 @@ class Radio<T> extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
+    this.card = false,
+    this.error = false,
   });
 
   final T value;
@@ -37,6 +39,12 @@ class Radio<T> extends StatefulWidget {
   final bool enabled;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Drawn as a card to choose: a border round it, marked when chosen.
+  final bool card;
+
+  /// Draws it as invalid.
+  final bool error;
 
   @override
   State<Radio<T>> createState() => _RadioState<T>();
@@ -81,7 +89,11 @@ class _RadioState<T> extends State<Radio<T>> {
             // Opaque, so the shadow beneath does not show through.
             color: c.background,
             shape: BoxShape.circle,
-            border: Border.all(color: focused ? c.ring : c.input),
+            border: Border.all(
+              color: widget.error
+                  ? c.destructive
+                  : (focused ? c.ring : c.input),
+            ),
             boxShadow: [if (focused) ...t.focusRing, ...t.shadowXs],
           ),
           alignment: Alignment.center,
@@ -98,40 +110,52 @@ class _RadioState<T> extends State<Radio<T>> {
             ),
           ),
         );
+        final body = widget.label == null && widget.description == null
+            ? dot
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: const EdgeInsets.only(top: 2), child: dot),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.label != null)
+                          DefaultTextStyle.merge(
+                            style: t.text.sm.copyWith(
+                              color: c.foreground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            child: widget.label!,
+                          ),
+                        if (widget.description != null)
+                          DefaultTextStyle.merge(
+                            style: t.text.sm.copyWith(color: c.mutedForeground),
+                            child: widget.description!,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
         return Opacity(
           opacity: enabled ? 1 : .5,
-          child: widget.label == null && widget.description == null
-              ? dot
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(padding: const EdgeInsets.only(top: 2), child: dot),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.label != null)
-                            DefaultTextStyle.merge(
-                              style: t.text.sm.copyWith(
-                                color: c.foreground,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              child: widget.label!,
-                            ),
-                          if (widget.description != null)
-                            DefaultTextStyle.merge(
-                              style: t.text.sm.copyWith(
-                                color: c.mutedForeground,
-                              ),
-                              child: widget.description!,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+          child: widget.card
+              ? AnimatedContainer(
+                  duration: t.duration,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: chosen
+                        ? c.primary.withValues(alpha: .05)
+                        : const Color(0x00000000),
+                    borderRadius: BorderRadius.circular(t.radiusMd),
+                    border: Border.all(color: chosen ? c.primary : c.border),
+                  ),
+                  child: body,
+                )
+              : body,
         );
       },
     );

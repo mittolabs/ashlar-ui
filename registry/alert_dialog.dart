@@ -23,6 +23,8 @@ Future<bool> showAlertDialog(
   String cancel = 'Cancel',
   String action = 'Continue',
   bool destructive = false,
+  Widget? media,
+  bool small = false,
 }) async =>
     await showAshlarDialog<bool>(
       context: context,
@@ -33,6 +35,8 @@ Future<bool> showAlertDialog(
         cancel: cancel,
         action: action,
         destructive: destructive,
+        media: media,
+        small: small,
       ),
     ) ??
     false;
@@ -46,12 +50,20 @@ class AlertDialog extends StatelessWidget {
     this.cancel = 'Cancel',
     this.action = 'Continue',
     this.destructive = false,
+    this.media,
+    this.small = false,
   });
 
   final String title;
   final String? description;
   final String cancel, action;
   final bool destructive;
+
+  /// An icon above the title, on a muted circle.
+  final Widget? media;
+
+  /// Narrow and centred, the two buttons sharing the width.
+  final bool small;
 
   @override
   Widget build(BuildContext context) => CallbackShortcuts(
@@ -63,6 +75,9 @@ class AlertDialog extends StatelessWidget {
       autofocus: true,
       child: Dialog(
         showClose: false,
+        media: media,
+        centered: small,
+        maxWidth: small ? 320 : 512,
         title: Text(title),
         description: description == null ? null : Text(description!),
         actions: [

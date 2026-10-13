@@ -84,6 +84,7 @@ class Sheet extends StatelessWidget {
     this.content,
     this.footer = const [],
     this.width = 384,
+    this.showClose = true,
   });
 
   final Widget? title;
@@ -93,6 +94,9 @@ class Sheet extends StatelessWidget {
 
   /// For a left or right sheet; it is never more than three quarters of the screen.
   final double width;
+
+  /// False leaves the close button out, when the footer has its own way out.
+  final bool showClose;
 
   @override
   Widget build(BuildContext context) {
@@ -187,20 +191,21 @@ class Sheet extends StatelessWidget {
                     ),
                 ],
               ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Button(
-                  variant: ButtonVariant.ghost,
-                  size: ButtonSize.icon,
-                  semanticLabel: 'Close',
-                  onPressed: () => Navigator.maybePop(context),
-                  child: AshlarIcon(
-                    AshlarIconsRoundedStroke.x,
-                    color: c.mutedForeground,
+              if (showClose)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.icon,
+                    semanticLabel: 'Close',
+                    onPressed: () => Navigator.maybePop(context),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.x,
+                      color: c.mutedForeground,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

@@ -35,6 +35,7 @@ class Resizable extends StatefulWidget {
     required this.panels,
     this.axis = Axis.horizontal,
     this.withHandle = false,
+    this.onResize,
   });
 
   final List<ResizablePanel> panels;
@@ -42,6 +43,9 @@ class Resizable extends StatefulWidget {
 
   /// Draws a grip on each handle, to show it can be dragged.
   final bool withHandle;
+
+  /// Told each panel's share of the room, from 0 to 1, after every move: to keep it.
+  final ValueChanged<List<double>>? onResize;
 
   @override
   State<Resizable> createState() => _ResizableState();
@@ -70,6 +74,7 @@ class _ResizableState extends State<Resizable> {
       _sizes[i] = next;
       _sizes[i + 1] = pair - next;
     });
+    widget.onResize?.call(List.unmodifiable(_sizes));
   }
 
   @override

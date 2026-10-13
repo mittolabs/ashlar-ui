@@ -4,6 +4,7 @@
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import 'dropdown_menu.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
@@ -16,25 +17,121 @@ class BreadcrumbItem {
   final VoidCallback? onPressed;
 }
 
-/// Where a page sits: the pages above it, each a link, then the page itself.
+/// Where a page sits: the pages above it, each a link, then the page itself. Past
+/// [maxItems] the middle steps fold into an ellipsis that opens them as a menu.
 ///
 /// ```dart
-/// Breadcrumb(items: [
+/// Breadcrumb(maxItems: 3, items: [
 ///   BreadcrumbItem('Home', onPressed: () => go('/')),
-///   BreadcrumbItem('Components', onPressed: () => go('/components')),
+///   BreadcrumbItem('Docs', onPressed: () => go('/docs')),
+///   BreadcrumbItem('Components', onPressed: () => go('/docs/components')),
 ///   BreadcrumbItem('Breadcrumb'),
 /// ])
 /// ```
 class Breadcrumb extends StatelessWidget {
-  const Breadcrumb({super.key, required this.items});
+  const Breadcrumb({
+    super.key,
+    required this.items,
+    this.separator,
+    this.maxItems,
+  });
 
   final List<BreadcrumbItem> items;
+
+  /// Between steps; a chevron unless given: a slash, a dot.
+  final Widget? separator;
+
+  /// How many steps show before the middle ones fold away: the first, and the last ones.
+  final int? maxItems;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final style = t.text.sm;
+    final fold = maxItems != null && items.length > maxItems! && maxItems! >= 2;
+    final hidden = fold
+        ? items.sublist(1, items.length - (maxItems! - 1))
+        : const <BreadcrumbItem>[];
+    final shown = fold
+        ? [items.first, ...items.sublist(items.length - (maxItems! - 1))]
+        : items;
+    Widget step(BreadcrumbItem item, bool last) {
+      if (last || item.onPressed == null) {
+        return Semantics(
+          // The page itself: aria-current="page".
+          selected: last,
+          child: Text(
+            item.label,
+            style: style.copyWith(
+              color: last ? c.foreground : c.mutedForeground,
+            ),
+          ),
+        );
+      }
+      return Pressable(
+        onPressed: item.onPressed,
+        link: true,
+        builder: (context, state) => Text(
+          item.label,
+          style: style.copyWith(
+            color: state.hovered || state.focused
+                ? c.foreground
+                : c.mutedForeground,
+            decoration: state.focused ? TextDecoration.underline : null,
+            decorationColor: c.foreground,
+          ),
+        ),
+      );
+    }
+
+    final between = ExcludeSemantics(
+      child: IconTheme.merge(
+        data: IconThemeData(color: c.mutedForeground, size: 14),
+        child: DefaultTextStyle.merge(
+          style: style.copyWith(color: c.mutedForeground),
+          child:
+              separator ??
+              const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+        ),
+      ),
+    );
+    final parts = <Widget>[];
+    for (final (i, item) in shown.indexed) {
+      if (i > 0) parts.add(between);
+      parts.add(step(item, i == shown.length - 1));
+      if (fold && i == 0) {
+        parts
+          ..add(between)
+          ..add(
+            DropdownMenu(
+              builder: (context, menu) => Pressable(
+                onPressed: menu.open,
+                semanticLabel: 'Show ${hidden.length} more',
+                builder: (context, state) => Container(
+                  width: 24,
+                  height: 24,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: state.hovered ? c.accent : const Color(0x00000000),
+                    borderRadius: BorderRadius.circular(t.radiusSm),
+                    boxShadow: [if (state.focused) ...t.focusRing],
+                  ),
+                  child: AshlarIcon(
+                    AshlarIconsRoundedStroke.ellipsis,
+                    size: 16,
+                    color: c.mutedForeground,
+                  ),
+                ),
+              ),
+              items: [
+                for (final h in hidden)
+                  MenuItem(onPressed: h.onPressed, child: Text(h.label)),
+              ],
+            ),
+          );
+      }
+    }
     return Semantics(
       container: true,
       label: 'Breadcrumb',
@@ -43,46 +140,7 @@ class Breadcrumb extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 6,
         runSpacing: 4,
-        children: [
-          for (final (i, item) in items.indexed) ...[
-            if (i > 0)
-              ExcludeSemantics(
-                child: AshlarIcon(
-                  AshlarIconsRoundedStroke.chevronRight,
-                  size: 14,
-                  color: c.mutedForeground,
-                ),
-              ),
-            if (i == items.length - 1 || item.onPressed == null)
-              Semantics(
-                // The page itself: aria-current="page".
-                selected: i == items.length - 1,
-                child: Text(
-                  item.label,
-                  style: style.copyWith(
-                    color: i == items.length - 1
-                        ? c.foreground
-                        : c.mutedForeground,
-                  ),
-                ),
-              )
-            else
-              Pressable(
-                onPressed: item.onPressed,
-                link: true,
-                builder: (context, state) => Text(
-                  item.label,
-                  style: style.copyWith(
-                    color: state.hovered || state.focused
-                        ? c.foreground
-                        : c.mutedForeground,
-                    decoration: state.focused ? TextDecoration.underline : null,
-                    decorationColor: c.foreground,
-                  ),
-                ),
-              ),
-          ],
-        ],
+        children: parts,
       ),
     );
   }

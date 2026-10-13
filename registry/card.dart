@@ -4,6 +4,15 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
+/// How much room a card leaves round its parts.
+enum CardSize {
+  /// 24 round the edges and between parts.
+  md,
+
+  /// 16: for a dense grid of cards.
+  sm,
+}
+
 /// A panel on the page, usually [CardHeader], [CardContent] and [CardFooter] in order.
 ///
 /// ```dart
@@ -14,51 +23,102 @@ import 'theme.dart';
 /// ])
 /// ```
 class Card extends StatelessWidget {
-  const Card({super.key, required this.children});
+  const Card({super.key, required this.children, this.size = CardSize.md});
 
   final List<Widget> children;
+  final CardSize size;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: BoxDecoration(
-        color: t.colors.card,
-        borderRadius: BorderRadius.circular(t.radiusXl),
-        border: Border.all(color: t.colors.border),
-        boxShadow: t.shadowSm,
-      ),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: t.colors.cardForeground),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final (i, child) in children.indexed) ...[
-              if (i > 0) const SizedBox(height: 24),
-              child,
+    final pad = size == CardSize.sm ? 16.0 : 24.0;
+    // An image at the top or the foot runs to the card's edges.
+    final topImage = children.isNotEmpty && children.first is CardImage;
+    final footImage = children.isNotEmpty && children.last is CardImage;
+    return _CardScope(
+      pad: pad,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        padding: EdgeInsets.only(
+          top: topImage ? 0 : pad,
+          bottom: footImage ? 0 : pad,
+        ),
+        decoration: BoxDecoration(
+          color: t.colors.card,
+          borderRadius: BorderRadius.circular(t.radiusXl),
+          border: Border.all(color: t.colors.border),
+          boxShadow: t.shadowSm,
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: t.colors.cardForeground),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, child) in children.indexed) ...[
+                if (i > 0) SizedBox(height: pad),
+                child,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// A card's title and description, with an optional [action] at the top right.
+/// The spacing of the card around a part.
+class _CardScope extends InheritedWidget {
+  const _CardScope({required this.pad, required super.child});
+
+  final double pad;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_CardScope>()?.pad ?? 24;
+
+  @override
+  bool updateShouldNotify(_CardScope old) => old.pad != pad;
+}
+
+/// A picture across the card's full width: first, at the top edge; last, at the foot.
+class CardImage extends StatelessWidget {
+  const CardImage({super.key, required this.child, this.height = 180});
+
+  /// Usually an Image with BoxFit.cover.
+  final Widget child;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(height: height, child: child);
+}
+
+/// A card's title and description, with an optional [action] at the top right. With
+/// [border], a line runs under it.
 class CardHeader extends StatelessWidget {
-  const CardHeader({super.key, this.title, this.description, this.action});
+  const CardHeader({
+    super.key,
+    this.title,
+    this.description,
+    this.action,
+    this.border = false,
+  });
 
   final Widget? title;
   final Widget? description;
   final Widget? action;
+  final bool border;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    final pad = _CardScope.of(context);
+    return Container(
+      padding: EdgeInsets.only(left: pad, right: pad, bottom: border ? pad : 0),
+      decoration: border
+          ? BoxDecoration(
+              border: Border(bottom: BorderSide(color: t.colors.border)),
+            )
+          : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -67,14 +127,17 @@ class CardHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title != null)
-                  DefaultTextStyle.merge(
-                    style: t.text.base.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 1,
-                      // The font's spare leading split above and below, so the text sits centred.
-                      leadingDistribution: TextLeadingDistribution.even,
+                  Semantics(
+                    header: true,
+                    child: DefaultTextStyle.merge(
+                      style: t.text.base.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1,
+                        // The font's spare leading split above and below, so the text sits centred.
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
+                      child: title!,
                     ),
-                    child: title!,
                   ),
                 if (title != null && description != null)
                   const SizedBox(height: 6),
@@ -101,33 +164,45 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24),
+    padding: EdgeInsets.symmetric(horizontal: _CardScope.of(context)),
     child: child,
   );
 }
 
-/// A card's actions, in a row at its foot.
+/// A card's actions, in a row at its foot. With [border], a line runs over it.
 class CardFooter extends StatelessWidget {
   const CardFooter({
     super.key,
     required this.children,
     this.alignment = MainAxisAlignment.start,
+    this.border = false,
   });
 
   final List<Widget> children;
   final MainAxisAlignment alignment;
+  final bool border;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24),
-    child: Row(
-      mainAxisAlignment: alignment,
-      children: [
-        for (final (i, child) in children.indexed) ...[
-          if (i > 0) const SizedBox(width: 8),
-          child,
+  Widget build(BuildContext context) {
+    final pad = _CardScope.of(context);
+    return Container(
+      padding: EdgeInsets.only(left: pad, right: pad, top: border ? pad : 0),
+      decoration: border
+          ? BoxDecoration(
+              border: Border(
+                top: BorderSide(color: AshlarTheme.of(context).colors.border),
+              ),
+            )
+          : null,
+      child: Row(
+        mainAxisAlignment: alignment,
+        children: [
+          for (final (i, child) in children.indexed) ...[
+            if (i > 0) const SizedBox(width: 8),
+            child,
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

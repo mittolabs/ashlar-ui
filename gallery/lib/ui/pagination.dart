@@ -20,6 +20,7 @@ class Pagination extends StatelessWidget {
     required this.pageCount,
     required this.onChanged,
     this.siblings = 1,
+    this.simple = false,
   });
 
   final int page;
@@ -28,6 +29,9 @@ class Pagination extends StatelessWidget {
 
   /// How many pages either side of this one are shown by number.
   final int siblings;
+
+  /// Previous, "Page 2 of 10" and Next, without the numbers.
+  final bool simple;
 
   /// The pages to show by number, with null for a gap.
   List<int?> get _pages {
@@ -53,7 +57,44 @@ class Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = AshlarTheme.of(context).colors;
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    if (simple) {
+      return Semantics(
+        container: true,
+        label: 'Pagination',
+        explicitChildNodes: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Button(
+              variant: ButtonVariant.outline,
+              size: ButtonSize.iconSm,
+              semanticLabel: 'Previous page',
+              onPressed: page > 1 ? () => onChanged(page - 1) : null,
+              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                'Page $page of $pageCount',
+                style: t.text.sm.copyWith(
+                  color: c.foreground,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Button(
+              variant: ButtonVariant.outline,
+              size: ButtonSize.iconSm,
+              semanticLabel: 'Next page',
+              onPressed: page < pageCount ? () => onChanged(page + 1) : null,
+              child: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+            ),
+          ],
+        ),
+      );
+    }
     return Semantics(
       container: true,
       label: 'Pagination',

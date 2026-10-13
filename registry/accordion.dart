@@ -10,10 +10,17 @@ import 'theme.dart';
 /// One section of an [Accordion]: its heading and what opens under it.
 @immutable
 class AccordionItem {
-  const AccordionItem({required this.title, required this.content});
+  const AccordionItem({
+    required this.title,
+    required this.content,
+    this.enabled = true,
+  });
 
   final Widget title;
   final Widget content;
+
+  /// False keeps it shut, its heading faded.
+  final bool enabled;
 }
 
 /// Sections stacked one above the other, each opening under its heading. One open at a
@@ -32,6 +39,7 @@ class Accordion extends StatefulWidget {
     required this.items,
     this.multiple = false,
     this.initiallyOpen = const {},
+    this.bordered = false,
   });
 
   final List<AccordionItem> items;
@@ -39,6 +47,9 @@ class Accordion extends StatefulWidget {
 
   /// The sections open at first, by index.
   final Set<int> initiallyOpen;
+
+  /// In a box with rounded corners, the open section on a muted ground.
+  final bool bordered;
 
   @override
   State<Accordion> createState() => _AccordionState();
@@ -60,13 +71,19 @@ class _AccordionState extends State<Accordion> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return Column(
+    final pad = widget.bordered ? 16.0 : 0.0;
+    final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (i, item) in widget.items.indexed)
-          DecoratedBox(
+          AnimatedContainer(
+            duration: t.duration,
+            padding: EdgeInsets.symmetric(horizontal: pad),
             decoration: BoxDecoration(
+              color: widget.bordered && _open.contains(i)
+                  ? c.muted.withValues(alpha: c.muted.a * .5)
+                  : const Color(0x00000000),
               border: Border(
                 bottom: BorderSide(
                   color: i == widget.items.length - 1
@@ -78,7 +95,7 @@ class _AccordionState extends State<Accordion> {
             child: Collapsible(
               open: _open.contains(i),
               builder: (context, open, _) => Pressable(
-                onPressed: () => _toggle(i),
+                onPressed: item.enabled ? () => _toggle(i) : null,
                 expanded: open,
                 builder: (context, state) => AnimatedContainer(
                   duration: t.duration,
@@ -93,9 +110,11 @@ class _AccordionState extends State<Accordion> {
                       Expanded(
                         child: DefaultTextStyle.merge(
                           style: t.text.sm.copyWith(
-                            color: c.foreground,
+                            color: item.enabled
+                                ? c.foreground
+                                : c.mutedForeground,
                             fontWeight: FontWeight.w500,
-                            decoration: state.hovered
+                            decoration: state.hovered && item.enabled
                                 ? TextDecoration.underline
                                 : null,
                             decorationColor: c.foreground,
@@ -127,6 +146,15 @@ class _AccordionState extends State<Accordion> {
             ),
           ),
       ],
+    );
+    if (!widget.bordered) return column;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: column,
     );
   }
 }

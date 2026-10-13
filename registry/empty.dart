@@ -21,6 +21,8 @@ class Empty extends StatelessWidget {
     required this.title,
     this.description,
     this.actions = const [],
+    this.background = false,
+    this.border = false,
   });
 
   /// Drawn in a small muted square above the title.
@@ -29,11 +31,18 @@ class Empty extends StatelessWidget {
   final Widget? description;
   final List<Widget> actions;
 
+  /// On a muted ground, filling the width it is given.
+  final bool background;
+
+  /// Inside a line, filling the width it is given.
+  final bool border;
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return ConstrainedBox(
+    final framed = background || border;
+    final content = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 384),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,6 +93,17 @@ class Empty extends StatelessWidget {
           ],
         ],
       ),
+    );
+    if (!framed) return content;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      decoration: BoxDecoration(
+        color: background ? c.muted.withValues(alpha: c.muted.a * .5) : null,
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: border ? Border.all(color: c.border) : null,
+      ),
+      child: Center(child: content),
     );
   }
 }

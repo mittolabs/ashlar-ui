@@ -31,7 +31,7 @@
   "empty": { "description": "What to show when there is nothing here yet.", "files": ["empty.dart"], "requires": ["theme"] },
   "item": { "description": "A row in a list: media, a title and description, and actions.", "files": ["item.dart"], "requires": ["theme", "pressable"] },
   "progress": { "description": "How far along something is, as a bar.", "files": ["progress.dart"], "requires": ["theme"] },
-  "breadcrumb": { "description": "Where a page sits, as links to the pages above it.", "files": ["breadcrumb.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"] },
+  "breadcrumb": { "description": "Where a page sits, as links to the pages above it, folding long trails.", "files": ["breadcrumb.dart"], "requires": ["theme", "pressable", "dropdown-menu"], "packages": ["ashlar_icons"] },
   "collapsible": { "description": "Content that opens and closes under a trigger.", "files": ["collapsible.dart"], "requires": ["theme"] },
   "accordion": { "description": "Sections that open one at a time under their headings.", "files": ["accordion.dart"], "requires": ["theme", "pressable", "collapsible"], "packages": ["ashlar_icons"] },
   "toggle": { "description": "A button that stays pressed: bold, italic, a filter.", "files": ["toggle.dart"], "requires": ["theme", "pressable", "group"] },
