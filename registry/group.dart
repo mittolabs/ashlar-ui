@@ -1,0 +1,89 @@
+// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
+// Group; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+/// Sets controls side by side as one piece: only the outer corners are round, and
+/// neighbours share one border between them. Button and Toggle read where they sit.
+class JoinedGroup extends StatelessWidget {
+  const JoinedGroup({
+    super.key,
+    required this.children,
+    this.axis = Axis.horizontal,
+  });
+
+  final List<Widget> children;
+  final Axis axis;
+
+  @override
+  Widget build(BuildContext context) => Flex(
+    direction: axis,
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, child) in children.indexed)
+        JoinedPosition(
+          first: i == 0,
+          last: i == children.length - 1,
+          axis: axis,
+          child: child,
+        ),
+    ],
+  );
+}
+
+/// Where a control sits in a [JoinedGroup].
+class JoinedPosition extends InheritedWidget {
+  const JoinedPosition({
+    super.key,
+    required this.first,
+    required this.last,
+    required this.axis,
+    required super.child,
+  });
+
+  final bool first, last;
+  final Axis axis;
+
+  static JoinedPosition? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<JoinedPosition>();
+
+  /// Round only on the group's outer corners.
+  BorderRadius radius(double r) {
+    final start = first ? Radius.circular(r) : Radius.zero,
+        end = last ? Radius.circular(r) : Radius.zero;
+    return axis == Axis.horizontal
+        ? BorderRadius.horizontal(left: start, right: end)
+        : BorderRadius.vertical(top: start, bottom: end);
+  }
+
+  /// A border with no leading edge after the first, so neighbours share one line.
+  Border border(Color color) {
+    final side = BorderSide(color: color);
+    return axis == Axis.horizontal
+        ? Border(
+            top: side,
+            bottom: side,
+            right: side,
+            left: first ? side : BorderSide.none,
+          )
+        : Border(
+            left: side,
+            right: side,
+            bottom: side,
+            top: first ? side : BorderSide.none,
+          );
+  }
+
+  @override
+  bool updateShouldNotify(JoinedPosition old) =>
+      old.first != first || old.last != last || old.axis != axis;
+}
+
+/// A control's corners: [r] all round, or only the outer ones inside a [JoinedGroup].
+BorderRadius joinedRadius(BuildContext context, double r) =>
+    JoinedPosition.maybeOf(context)?.radius(r) ?? BorderRadius.circular(r);
+
+/// A control's border: all round, or sharing edges inside a [JoinedGroup].
+Border joinedBorder(BuildContext context, Color color) =>
+    JoinedPosition.maybeOf(context)?.border(color) ?? Border.all(color: color);

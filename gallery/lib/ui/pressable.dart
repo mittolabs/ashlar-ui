@@ -43,6 +43,8 @@ class Pressable extends StatefulWidget {
     this.toggled,
     this.checked,
     this.selected,
+    this.expanded,
+    this.link = false,
     this.role,
   });
 
@@ -70,6 +72,12 @@ class Pressable extends StatefulWidget {
   /// Announced as the chosen one of several: a tab, an option.
   final bool? selected;
 
+  /// Announced as expanded or collapsed: an accordion's or a collapsible's trigger.
+  final bool? expanded;
+
+  /// Announced as a link rather than a button: a breadcrumb.
+  final bool link;
+
   /// What a screen reader calls it, when it is not a button: a tab, a menu item.
   final SemanticsRole? role;
 
@@ -96,7 +104,10 @@ class _PressableState extends State<Pressable> {
             widget.button &&
             widget.toggled == null &&
             widget.checked == null &&
-            widget.role == null,
+            widget.role == null &&
+            !widget.link,
+        link: widget.link,
+        expanded: widget.expanded,
         role: widget.role,
         selected: widget.selected,
         toggled: widget.toggled,

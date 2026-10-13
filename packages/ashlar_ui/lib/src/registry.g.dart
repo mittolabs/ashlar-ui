@@ -465,6 +465,8 @@ class Pressable extends StatefulWidget {
     this.toggled,
     this.checked,
     this.selected,
+    this.expanded,
+    this.link = false,
     this.role,
   });
 
@@ -492,6 +494,12 @@ class Pressable extends StatefulWidget {
   /// Announced as the chosen one of several: a tab, an option.
   final bool? selected;
 
+  /// Announced as expanded or collapsed: an accordion's or a collapsible's trigger.
+  final bool? expanded;
+
+  /// Announced as a link rather than a button: a breadcrumb.
+  final bool link;
+
   /// What a screen reader calls it, when it is not a button: a tab, a menu item.
   final SemanticsRole? role;
 
@@ -518,7 +526,10 @@ class _PressableState extends State<Pressable> {
             widget.button &&
             widget.toggled == null &&
             widget.checked == null &&
-            widget.role == null,
+            widget.role == null &&
+            !widget.link,
+        link: widget.link,
+        expanded: widget.expanded,
         role: widget.role,
         selected: widget.selected,
         toggled: widget.toggled,
@@ -585,13 +596,14 @@ class _PressableState extends State<Pressable> {
   ),
   'button': Component(
     description: "Six variants and four sizes, with leading and trailing icons.",
-    requires: ["theme","pressable"],
+    requires: ["theme","pressable","group"],
     packages: [],
     files: {
       'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
+import 'group.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
@@ -745,10 +757,10 @@ class Button extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: padding),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: BorderRadius.circular(t.radiusMd),
+              borderRadius: joinedRadius(context, t.radiusMd),
               border: border == null
                   ? null
-                  : Border.all(color: state.focused ? c.ring : border),
+                  : joinedBorder(context, state.focused ? c.ring : border),
               boxShadow: [
                 if (state.focused) ...t.focusRing,
                 if (variant == ButtonVariant.outline ||
@@ -3838,6 +3850,811 @@ class _ToastCardState extends State<_ToastCard>
                   ),
                 ),
         ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'group': Component(
+    description: "Joins controls into one piece: Button Group and Toggle Group use it.",
+    requires: [],
+    packages: [],
+    files: {
+      'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
+// Group; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+/// Sets controls side by side as one piece: only the outer corners are round, and
+/// neighbours share one border between them. Button and Toggle read where they sit.
+class JoinedGroup extends StatelessWidget {
+  const JoinedGroup({
+    super.key,
+    required this.children,
+    this.axis = Axis.horizontal,
+  });
+
+  final List<Widget> children;
+  final Axis axis;
+
+  @override
+  Widget build(BuildContext context) => Flex(
+    direction: axis,
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, child) in children.indexed)
+        JoinedPosition(
+          first: i == 0,
+          last: i == children.length - 1,
+          axis: axis,
+          child: child,
+        ),
+    ],
+  );
+}
+
+/// Where a control sits in a [JoinedGroup].
+class JoinedPosition extends InheritedWidget {
+  const JoinedPosition({
+    super.key,
+    required this.first,
+    required this.last,
+    required this.axis,
+    required super.child,
+  });
+
+  final bool first, last;
+  final Axis axis;
+
+  static JoinedPosition? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<JoinedPosition>();
+
+  /// Round only on the group's outer corners.
+  BorderRadius radius(double r) {
+    final start = first ? Radius.circular(r) : Radius.zero,
+        end = last ? Radius.circular(r) : Radius.zero;
+    return axis == Axis.horizontal
+        ? BorderRadius.horizontal(left: start, right: end)
+        : BorderRadius.vertical(top: start, bottom: end);
+  }
+
+  /// A border with no leading edge after the first, so neighbours share one line.
+  Border border(Color color) {
+    final side = BorderSide(color: color);
+    return axis == Axis.horizontal
+        ? Border(
+            top: side,
+            bottom: side,
+            right: side,
+            left: first ? side : BorderSide.none,
+          )
+        : Border(
+            left: side,
+            right: side,
+            bottom: side,
+            top: first ? side : BorderSide.none,
+          );
+  }
+
+  @override
+  bool updateShouldNotify(JoinedPosition old) =>
+      old.first != first || old.last != last || old.axis != axis;
+}
+
+/// A control's corners: [r] all round, or only the outer ones inside a [JoinedGroup].
+BorderRadius joinedRadius(BuildContext context, double r) =>
+    JoinedPosition.maybeOf(context)?.radius(r) ?? BorderRadius.circular(r);
+
+/// A control's border: all round, or sharing edges inside a [JoinedGroup].
+Border joinedBorder(BuildContext context, Color color) =>
+    JoinedPosition.maybeOf(context)?.border(color) ?? Border.all(color: color);
+''',
+    },
+  ),
+  'button-group': Component(
+    description: "Buttons joined into one piece, for actions that belong together.",
+    requires: ["group"],
+    packages: [],
+    files: {
+      'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
+// to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'group.dart';
+
+/// Buttons joined into one piece, for actions that belong together.
+///
+/// ```dart
+/// ButtonGroup(children: [
+///   Button(variant: ButtonVariant.outline, onPressed: archive, child: Text('Archive')),
+///   Button(variant: ButtonVariant.outline, onPressed: report, child: Text('Report')),
+///   Button(variant: ButtonVariant.outline, onPressed: snooze, child: Text('Snooze')),
+/// ])
+/// ```
+class ButtonGroup extends StatelessWidget {
+  const ButtonGroup({
+    super.key,
+    required this.children,
+    this.axis = Axis.horizontal,
+    this.semanticLabel,
+  });
+
+  final List<Widget> children;
+  final Axis axis;
+
+  /// What the buttons are for, read before them: 'Text alignment'.
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: semanticLabel,
+    child: IntrinsicHeight(
+      child: JoinedGroup(axis: axis, children: children),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'typography': Component(
+    description: "Headings, paragraphs, quotes and lists in the theme's type.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
+// change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+TextStyle _style(
+  BuildContext context,
+  TextStyle Function(AshlarText t) size, {
+  FontWeight? weight,
+  double? spacing,
+  Color? color,
+}) {
+  final t = AshlarTheme.of(context);
+  return size(t.text).copyWith(
+    color: color ?? t.colors.foreground,
+    fontWeight: weight,
+    letterSpacing: spacing,
+  );
+}
+
+Widget _heading(BuildContext context, String text, TextStyle style) =>
+    Semantics(header: true, child: Text(text, style: style));
+
+/// The page's title: 36, bold.
+class H1 extends StatelessWidget {
+  const H1(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => _heading(
+    context,
+    text,
+    _style(
+      context,
+      (t) => t.xxl,
+      weight: FontWeight.w800,
+      spacing: -.9,
+    ).copyWith(fontSize: 36, height: 40 / 36),
+  );
+}
+
+/// A section: 30, semibold.
+class H2 extends StatelessWidget {
+  const H2(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => _heading(
+    context,
+    text,
+    _style(
+      context,
+      (t) => t.xxl,
+      weight: FontWeight.w600,
+      spacing: -.75,
+    ).copyWith(fontSize: 30, height: 36 / 30),
+  );
+}
+
+/// A part of a section: 24, semibold.
+class H3 extends StatelessWidget {
+  const H3(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => _heading(
+    context,
+    text,
+    _style(context, (t) => t.xxl, weight: FontWeight.w600, spacing: -.6),
+  );
+}
+
+/// A small heading: 20, semibold.
+class H4 extends StatelessWidget {
+  const H4(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => _heading(
+    context,
+    text,
+    _style(context, (t) => t.xl, weight: FontWeight.w600, spacing: -.5),
+  );
+}
+
+/// A paragraph of reading text: 16, with room between lines.
+class P extends StatelessWidget {
+  const P(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: _style(context, (t) => t.base).copyWith(height: 28 / 16),
+  );
+}
+
+/// The opening paragraph, larger and quieter: 20, muted.
+class Lead extends StatelessWidget {
+  const Lead(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: _style(
+      context,
+      (t) => t.xl,
+      color: AshlarTheme.of(context).colors.mutedForeground,
+    ),
+  );
+}
+
+/// Text that stands out a little: 18, semibold.
+class Large extends StatelessWidget {
+  const Large(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) =>
+      Text(text, style: _style(context, (t) => t.lg, weight: FontWeight.w600));
+}
+
+/// A small note: 14, medium.
+class Small extends StatelessWidget {
+  const Small(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) =>
+      Text(text, style: _style(context, (t) => t.sm, weight: FontWeight.w500));
+}
+
+/// Text that recedes: 14, muted.
+class Muted extends StatelessWidget {
+  const Muted(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: _style(
+      context,
+      (t) => t.sm,
+      color: AshlarTheme.of(context).colors.mutedForeground,
+    ),
+  );
+}
+
+/// A quotation, set in from a line at its left.
+class Blockquote extends StatelessWidget {
+  const Blockquote(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.only(left: 24),
+    decoration: BoxDecoration(
+      border: Border(
+        left: BorderSide(
+          color: AshlarTheme.of(context).colors.border,
+          width: 2,
+        ),
+      ),
+    ),
+    child: Text(
+      text,
+      style: _style(
+        context,
+        (t) => t.base,
+      ).copyWith(fontStyle: FontStyle.italic, height: 28 / 16),
+    ),
+  );
+}
+
+/// A word of code inside a sentence.
+class InlineCode extends StatelessWidget {
+  const InlineCode(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: t.colors.muted,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: t.text.sm.copyWith(
+          fontFamily: 'monospace',
+          fontWeight: FontWeight.w600,
+          color: t.colors.foreground,
+        ),
+      ),
+    );
+  }
+}
+
+/// A bulleted list.
+class BulletList extends StatelessWidget {
+  const BulletList(this.items, {super.key});
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _style(context, (t) => t.base);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final item in items)
+          Padding(
+            padding: const EdgeInsets.only(left: 24, bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExcludeSemantics(child: Text('•  ', style: style)),
+                Expanded(child: Text(item, style: style)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'empty': Component(
+    description: "What to show when there is nothing here yet.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// What a list or a page shows when there is nothing in it yet, and what to do about it.
+///
+/// ```dart
+/// Empty(
+///   icon: AshlarIcon(AshlarIconsRoundedStroke.folder),
+///   title: Text('No projects yet'),
+///   description: Text('Create a project to get started.'),
+///   actions: [Button(onPressed: create, child: Text('Create project'))],
+/// )
+/// ```
+class Empty extends StatelessWidget {
+  const Empty({
+    super.key,
+    this.icon,
+    required this.title,
+    this.description,
+    this.actions = const [],
+  });
+
+  /// Drawn in a small muted square above the title.
+  final Widget? icon;
+  final Widget title;
+  final Widget? description;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 384),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.muted,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(color: c.foreground, size: 24),
+                child: icon!,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          DefaultTextStyle.merge(
+            style: t.text.lg.copyWith(
+              color: c.foreground,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            child: Semantics(header: true, child: title),
+          ),
+          if (description != null) ...[
+            const SizedBox(height: 8),
+            DefaultTextStyle.merge(
+              style: t.text.sm.copyWith(
+                color: c.mutedForeground,
+                height: 22 / 14,
+              ),
+              textAlign: TextAlign.center,
+              child: description!,
+            ),
+          ],
+          if (actions.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: actions,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'item': Component(
+    description: "A row in a list: media, a title and description, and actions.",
+    requires: ["theme","pressable"],
+    packages: [],
+    files: {
+      'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'pressable.dart';
+import 'theme.dart';
+
+enum ItemVariant {
+  /// No border or fill.
+  plain,
+
+  /// A border round it.
+  outline,
+
+  /// A muted fill.
+  muted,
+}
+
+/// A row in a list: something to the left (an icon, an avatar), a title and a
+/// description, and actions to the right. With [onPressed] the whole row is a button.
+///
+/// ```dart
+/// Item(
+///   variant: ItemVariant.outline,
+///   leading: AshlarIcon(AshlarIconsRoundedStroke.shieldCheck),
+///   title: Text('Two-step sign in is on'),
+///   description: Text('A code from your phone is asked for at each sign in.'),
+///   trailing: Button(size: ButtonSize.sm, variant: ButtonVariant.outline, onPressed: manage, child: Text('Manage')),
+/// )
+/// ```
+class Item extends StatelessWidget {
+  const Item({
+    super.key,
+    required this.title,
+    this.description,
+    this.leading,
+    this.trailing,
+    this.variant = ItemVariant.plain,
+    this.onPressed,
+  });
+
+  final Widget title;
+  final Widget? description;
+  final Widget? leading;
+  final Widget? trailing;
+  final ItemVariant variant;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget body(bool hovered) => AnimatedContainer(
+      duration: t.duration,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: hovered
+            ? c.accent.withValues(alpha: c.accent.a * .5)
+            : (variant == ItemVariant.muted
+                  ? c.muted.withValues(alpha: c.muted.a * .5)
+                  : const Color(0x00000000)),
+        borderRadius: BorderRadius.circular(t.radiusMd),
+        border: Border.all(
+          color: variant == ItemVariant.outline
+              ? c.border
+              : const Color(0x00000000),
+        ),
+      ),
+      child: IconTheme.merge(
+        data: IconThemeData(color: c.foreground, size: 20),
+        child: Row(
+          children: [
+            if (leading != null) ...[leading!, const SizedBox(width: 16)],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DefaultTextStyle.merge(
+                    style: t.text.sm.copyWith(
+                      color: c.foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    child: title,
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 4),
+                    DefaultTextStyle.merge(
+                      style: t.text.sm.copyWith(color: c.mutedForeground),
+                      child: description!,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing != null) ...[const SizedBox(width: 16), trailing!],
+          ],
+        ),
+      ),
+    );
+    if (onPressed == null) return body(false);
+    return Pressable(
+      onPressed: onPressed,
+      builder: (context, state) => body(state.hovered || state.focused),
+    );
+  }
+}
+''',
+    },
+  ),
+  'progress': Component(
+    description: "How far along something is, as a bar.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// How far along something is, as a bar. A null [value] means not known yet: the bar
+/// then sweeps across, unless the device asks for less motion.
+///
+/// ```dart
+/// Progress(value: uploaded / total, semanticLabel: 'Upload')
+/// ```
+class Progress extends StatefulWidget {
+  const Progress({super.key, this.value, this.semanticLabel});
+
+  /// From 0 to 1, or null when it is not known.
+  final double? value;
+  final String? semanticLabel;
+
+  @override
+  State<Progress> createState() => _ProgressState();
+}
+
+class _ProgressState extends State<Progress>
+    with SingleTickerProviderStateMixin {
+  late final _sweep = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _update();
+  }
+
+  @override
+  void didUpdateWidget(Progress old) {
+    super.didUpdateWidget(old);
+    _update();
+  }
+
+  void _update() {
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (widget.value == null && !still) {
+      if (!_sweep.isAnimating) _sweep.repeat();
+    } else {
+      _sweep.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _sweep.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final value = widget.value?.clamp(0.0, 1.0);
+    final fill = DecoratedBox(
+      decoration: BoxDecoration(
+        color: c.primary,
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+    return Semantics(
+      label: widget.semanticLabel,
+      value: value == null ? null : '${(value * 100).round()}%',
+      child: Container(
+        height: 8,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: c.primary.withValues(alpha: c.primary.a * .2),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: value != null
+            ? Align(
+                alignment: Alignment.centerLeft,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(end: value),
+                  duration: t.duration * 2,
+                  builder: (context, v, child) => FractionallySizedBox(
+                    widthFactor: v,
+                    heightFactor: 1,
+                    child: child,
+                  ),
+                  child: fill,
+                ),
+              )
+            : AnimatedBuilder(
+                animation: _sweep,
+                builder: (context, child) => FractionallySizedBox(
+                  widthFactor: .4,
+                  heightFactor: 1,
+                  // From off the left edge to off the right.
+                  alignment: Alignment(-2.4 + _sweep.value * 4.8, 0),
+                  child: child,
+                ),
+                child: fill,
+              ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'breadcrumb': Component(
+    description: "Where a page sits, as links to the pages above it.",
+    requires: ["theme","pressable"],
+    packages: ["ashlar_icons"],
+    files: {
+      'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
+// change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One step on the way to where you are. The last is the page itself and is not a link.
+@immutable
+class BreadcrumbItem {
+  const BreadcrumbItem(this.label, {this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+}
+
+/// Where a page sits: the pages above it, each a link, then the page itself.
+///
+/// ```dart
+/// Breadcrumb(items: [
+///   BreadcrumbItem('Home', onPressed: () => go('/')),
+///   BreadcrumbItem('Components', onPressed: () => go('/components')),
+///   BreadcrumbItem('Breadcrumb'),
+/// ])
+/// ```
+class Breadcrumb extends StatelessWidget {
+  const Breadcrumb({super.key, required this.items});
+
+  final List<BreadcrumbItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final style = t.text.sm;
+    return Semantics(
+      container: true,
+      label: 'Breadcrumb',
+      explicitChildNodes: true,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 6,
+        runSpacing: 4,
+        children: [
+          for (final (i, item) in items.indexed) ...[
+            if (i > 0)
+              ExcludeSemantics(
+                child: AshlarIcon(
+                  AshlarIconsRoundedStroke.chevronRight,
+                  size: 14,
+                  color: c.mutedForeground,
+                ),
+              ),
+            if (i == items.length - 1 || item.onPressed == null)
+              Semantics(
+                // The page itself: aria-current="page".
+                selected: i == items.length - 1,
+                child: Text(
+                  item.label,
+                  style: style.copyWith(
+                    color: i == items.length - 1
+                        ? c.foreground
+                        : c.mutedForeground,
+                  ),
+                ),
+              )
+            else
+              Pressable(
+                onPressed: item.onPressed,
+                link: true,
+                builder: (context, state) => Text(
+                  item.label,
+                  style: style.copyWith(
+                    color: state.hovered || state.focused
+                        ? c.foreground
+                        : c.mutedForeground,
+                    decoration: state.focused ? TextDecoration.underline : null,
+                    decorationColor: c.foreground,
+                  ),
+                ),
+              ),
+          ],
+        ],
       ),
     );
   }

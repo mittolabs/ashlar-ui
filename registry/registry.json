@@ -2,7 +2,7 @@
   "theme": { "description": "Colours, corners, text and motion, light and dark.", "files": ["theme.dart"] },
   "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.", "files": ["app.dart"], "requires": ["theme"] },
   "pressable": { "description": "Hover, press, keyboard focus and activation, for every control.", "files": ["pressable.dart"] },
-  "button": { "description": "Six variants and four sizes, with leading and trailing icons.", "files": ["button.dart"], "requires": ["theme", "pressable"] },
+  "button": { "description": "Six variants and four sizes, with leading and trailing icons.", "files": ["button.dart"], "requires": ["theme", "pressable", "group"] },
   "badge": { "description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"] },
   "card": { "description": "A panel with a header, content and a footer.", "files": ["card.dart"], "requires": ["theme"] },
   "separator": { "description": "A one-pixel line, across or down.", "files": ["separator.dart"], "requires": ["theme"] },
@@ -24,5 +24,12 @@
   "dropdown-menu": { "description": "A list of actions that opens from a trigger.", "files": ["dropdown_menu.dart"], "requires": ["theme", "pressable", "popover"] },
   "select": { "description": "Picks one value from a list that opens under it.", "files": ["select.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"], "packages": ["ashlar_icons"] },
   "tooltip": { "description": "A short label over a control on hover, focus or long press.", "files": ["tooltip.dart"], "requires": ["theme"] },
-  "toast": { "description": "A short message at the bottom of the screen that goes by itself.", "files": ["toast.dart"], "requires": ["theme"] }
+  "toast": { "description": "A short message at the bottom of the screen that goes by itself.", "files": ["toast.dart"], "requires": ["theme"] },
+  "group": { "description": "Joins controls into one piece: Button Group and Toggle Group use it.", "files": ["group.dart"] },
+  "button-group": { "description": "Buttons joined into one piece, for actions that belong together.", "files": ["button_group.dart"], "requires": ["group"] },
+  "typography": { "description": "Headings, paragraphs, quotes and lists in the theme's type.", "files": ["typography.dart"], "requires": ["theme"] },
+  "empty": { "description": "What to show when there is nothing here yet.", "files": ["empty.dart"], "requires": ["theme"] },
+  "item": { "description": "A row in a list: media, a title and description, and actions.", "files": ["item.dart"], "requires": ["theme", "pressable"] },
+  "progress": { "description": "How far along something is, as a bar.", "files": ["progress.dart"], "requires": ["theme"] },
+  "breadcrumb": { "description": "Where a page sits, as links to the pages above it.", "files": ["breadcrumb.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"] }
 }

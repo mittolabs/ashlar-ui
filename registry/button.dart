@@ -2,6 +2,7 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'group.dart';
 import 'pressable.dart';
 import 'theme.dart';
 
@@ -155,10 +156,10 @@ class Button extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: padding),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: BorderRadius.circular(t.radiusMd),
+              borderRadius: joinedRadius(context, t.radiusMd),
               border: border == null
                   ? null
-                  : Border.all(color: state.focused ? c.ring : border),
+                  : joinedBorder(context, state.focused ? c.ring : border),
               boxShadow: [
                 if (state.focused) ...t.focusRing,
                 if (variant == ButtonVariant.outline ||
