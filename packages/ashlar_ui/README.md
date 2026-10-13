@@ -1,39 +1,58 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# ashlar_ui
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+The `ashlar` command for [Ashlar UI](https://ui.ashlar.ke): components for Flutter built
+on the widgets layer alone, copied into your app as source files you own and change.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/tools/pub/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+The command works offline: each version carries its components, so a version of the
+command is a version of the components.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Install
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```sh
+dart pub global activate ashlar_ui
 ```
 
-## Additional information
+Run it in the root of a Flutter project.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Commands
+
+| Command | What it does |
+|---|---|
+| `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say). |
+| `ashlar apply` | Chooses the theme again with the same options; `--accent none` takes the accent away. Your components are left as they are. |
+| `ashlar add <item>...` | Copies components, and what they need. `--all` adds every component, `--blocks` every block (whole screens, written to `lib/blocks`). A file you already have is kept unless you pass `--overwrite`. |
+| `ashlar view <item>...` | Shows what an item is, what it needs and its files, before you add it. |
+| `ashlar search [words]` | Finds items by name or description. `ashlar list` lists them all, ticking the ones you have. |
+| `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
+| `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
+
+## Registries of your own
+
+Describe your items in a `registry.json`, the way Ashlar's own is written:
+
+```json
+{
+  "brand-card": {
+    "description": "A card with our mark.",
+    "files": ["brand_card.dart"],
+    "requires": ["card", "brand"]
+  }
+}
+```
+
+`ashlar build` writes `registry.json` (the list) and `brand-card.json` (the item and its
+files) to host anywhere, or to keep in a folder. Name the registry in a project's
+`ashlar.json`:
+
+```json
+{ "registries": { "@acme": "https://acme.dev/r" } }
+```
+
+Then `ashlar add @acme/brand-card`, `ashlar view @acme/brand-card` and
+`ashlar search @acme` work as they do for Ashlar's items. An item can need Ashlar's
+components by name and its own registry's items by name. A file that would land outside
+the components or blocks folder is refused.
+
+## Licence
+
+MIT.
