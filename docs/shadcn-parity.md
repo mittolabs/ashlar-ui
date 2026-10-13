@@ -22,7 +22,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 1 |
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
 | CLI commands | 15: init, add, apply, build, diff, docs, eject, info, mcp, migrate, preset, search, view, registry, dry run | 3: init, add, list |
-| Right-to-left | yes, CLI converts to logical sides | not checked; several components use left and right |
+| Right-to-left | yes, CLI converts to logical sides | yes, logical sides; tested in both directions |
 | Forms | guides and examples for 3 form libraries (34 examples) | none |
 
 ## Components they have that we do not
@@ -139,6 +139,14 @@ upright with a controller and autoplay.
 
 Left from step 1, smaller: Navigation Menu's shared animated viewport between panels. Not
 applicable to Flutter: Native Select, a file Input, Aspect Ratio (Flutter has it).
+
+**Step 2, right-to-left: done** (13 October 2026, c323e30). Padding, alignment, borders
+and corners are logical (start and end); arrow keys and pointing icons follow the reading
+direction in Tabs, Menubar, Toggle Group, Calendar, Carousel, submenus, Pagination,
+Breadcrumb, Sidebar, Slider and Resizable; submenus open towards the end of the line;
+popovers align to the start edge. `gallery/test/rtl_test.dart` runs each check in both
+directions. Physical on purpose: Drawer, Sheet and Toast name screen edges and corners, and
+charts keep time running left to right, as their plots are drawn.
 
 ## Plan
 
