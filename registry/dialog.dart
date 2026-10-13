@@ -37,7 +37,7 @@ Future<T?> showAshlarDialog<T>({
       // The route is above the app's AshlarTheme, so it carries the theme across.
       pageBuilder: (context, animation, secondary) => AshlarTheme(
         data: theme,
-        child: Builder(builder: builder),
+        child: AboveKeyboard(child: Builder(builder: builder)),
       ),
       transitionBuilder: (context, animation, secondary, child) {
         final curved = CurvedAnimation(

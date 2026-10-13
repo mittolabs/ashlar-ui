@@ -40,7 +40,7 @@ Future<T?> showSheet<T>({
         data: theme,
         child: _SheetSide(
           side: side,
-          child: Builder(builder: builder),
+          child: AboveKeyboard(child: Builder(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {

@@ -550,3 +550,24 @@ class AshlarTheme extends InheritedWidget {
 /// the line, which turn round with it.
 bool isRtl(BuildContext context) =>
     Directionality.maybeOf(context) == TextDirection.rtl;
+
+/// Keeps [child] above the on-screen keyboard, moving up as it opens: for dialogs, sheets
+/// and drawers that hold fields, so what is typed into is never under the keys.
+class AboveKeyboard extends StatelessWidget {
+  const AboveKeyboard({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedPadding(
+    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+    duration: const Duration(milliseconds: 120),
+    curve: Curves.easeOut,
+    // Below this, the keyboard has been made room for.
+    child: MediaQuery.removeViewInsets(
+      context: context,
+      removeBottom: true,
+      child: child,
+    ),
+  );
+}

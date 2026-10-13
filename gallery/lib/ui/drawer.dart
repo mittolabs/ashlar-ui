@@ -38,7 +38,7 @@ Future<T?> showDrawer<T>({
         data: theme,
         child: _DrawerSide(
           side: side,
-          child: Builder(builder: builder),
+          child: AboveKeyboard(child: Builder(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {

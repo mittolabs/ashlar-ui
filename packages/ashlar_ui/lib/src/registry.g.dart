@@ -563,6 +563,27 @@ class AshlarTheme extends InheritedWidget {
 /// the line, which turn round with it.
 bool isRtl(BuildContext context) =>
     Directionality.maybeOf(context) == TextDirection.rtl;
+
+/// Keeps [child] above the on-screen keyboard, moving up as it opens: for dialogs, sheets
+/// and drawers that hold fields, so what is typed into is never under the keys.
+class AboveKeyboard extends StatelessWidget {
+  const AboveKeyboard({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedPadding(
+    padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+    duration: const Duration(milliseconds: 120),
+    curve: Curves.easeOut,
+    // Below this, the keyboard has been made room for.
+    child: MediaQuery.removeViewInsets(
+      context: context,
+      removeBottom: true,
+      child: child,
+    ),
+  );
+}
 ''',
       'palette.dart': r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
 //
@@ -3134,7 +3155,7 @@ Future<T?> showAshlarDialog<T>({
       // The route is above the app's AshlarTheme, so it carries the theme across.
       pageBuilder: (context, animation, secondary) => AshlarTheme(
         data: theme,
-        child: Builder(builder: builder),
+        child: AboveKeyboard(child: Builder(builder: builder)),
       ),
       transitionBuilder: (context, animation, secondary, child) {
         final curved = CurvedAnimation(
@@ -10624,7 +10645,7 @@ Future<T?> showSheet<T>({
         data: theme,
         child: _SheetSide(
           side: side,
-          child: Builder(builder: builder),
+          child: AboveKeyboard(child: Builder(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {
@@ -10872,7 +10893,7 @@ Future<T?> showDrawer<T>({
         data: theme,
         child: _DrawerSide(
           side: side,
-          child: Builder(builder: builder),
+          child: AboveKeyboard(child: Builder(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {
