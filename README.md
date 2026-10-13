@@ -27,11 +27,11 @@ Button(onPressed: save, child: Text('Save'))
 ## Components
 
 - **Foundation:** theme, app, pressable, group.
-- **Actions:** button, button-group, toggle, toggle-group, dropdown-menu, context-menu.
-- **Forms:** label, field, input, textarea, select, checkbox, radio, switch, slider.
-- **Overlays:** dialog, alert-dialog, popover, hover-card, tooltip, toast.
-- **Layout:** card, tabs, accordion, collapsible, item, separator, scroll-area.
-- **Data and navigation:** data-table, pagination, breadcrumb.
+- **Actions:** button, button-group, toggle, toggle-group, dropdown-menu, context-menu, menubar, command.
+- **Forms:** label, field, input, textarea, select, combobox, input-group, input-otp, checkbox, radio, switch, slider.
+- **Overlays:** dialog, alert-dialog, sheet, drawer, popover, hover-card, tooltip, toast.
+- **Layout:** card, tabs, accordion, collapsible, item, separator, scroll-area, resizable, carousel.
+- **Data and navigation:** data-table, navigation-menu, pagination, breadcrumb.
 - **Feedback:** alert, progress, spinner, skeleton, empty.
 - **Display:** typography, badge, avatar, kbd.
 
