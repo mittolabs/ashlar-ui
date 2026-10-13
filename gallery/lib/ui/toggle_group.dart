@@ -46,6 +46,8 @@ class ToggleGroup<T> extends StatelessWidget {
     this.variant = ToggleVariant.outline,
     this.size = ToggleSize.md,
     this.semanticLabel,
+    this.spacing = 0,
+    this.axis = Axis.horizontal,
   });
 
   /// The pressed ones.
@@ -60,6 +62,36 @@ class ToggleGroup<T> extends StatelessWidget {
 
   /// What the group sets, read before it: 'Text alignment'.
   final String? semanticLabel;
+
+  /// The gap between toggles. None joins them into one piece; any sets them apart, each
+  /// with all its corners round.
+  final double spacing;
+
+  /// Vertical stacks them, the up and down arrows moving between them.
+  final Axis axis;
+
+  Widget _layout(List<Widget> toggles) {
+    if (spacing == 0) {
+      final joined = JoinedGroup(axis: axis, children: toggles);
+      return axis == Axis.horizontal
+          ? IntrinsicHeight(child: joined)
+          : IntrinsicWidth(child: joined);
+    }
+    return Flex(
+      direction: axis,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (i, toggle) in toggles.indexed) ...[
+          if (i > 0)
+            SizedBox(
+              width: axis == Axis.horizontal ? spacing : 0,
+              height: axis == Axis.vertical ? spacing : 0,
+            ),
+          toggle,
+        ],
+      ],
+    );
+  }
 
   void _press(T value, bool on) {
     final next = multiple ? {...values} : <T>{};
@@ -83,23 +115,19 @@ class ToggleGroup<T> extends StatelessWidget {
         SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
       },
       child: FocusTraversalGroup(
-        child: IntrinsicHeight(
-          child: JoinedGroup(
-            children: [
-              for (final item in items)
-                Toggle(
-                  pressed: values.contains(item.value),
-                  onChanged: onChanged == null || !item.enabled
-                      ? null
-                      : (on) => _press(item.value, on),
-                  variant: variant,
-                  size: size,
-                  semanticLabel: item.semanticLabel,
-                  child: item.child,
-                ),
-            ],
-          ),
-        ),
+        child: _layout([
+          for (final item in items)
+            Toggle(
+              pressed: values.contains(item.value),
+              onChanged: onChanged == null || !item.enabled
+                  ? null
+                  : (on) => _press(item.value, on),
+              variant: variant,
+              size: size,
+              semanticLabel: item.semanticLabel,
+              child: item.child,
+            ),
+        ]),
       ),
     ),
   );

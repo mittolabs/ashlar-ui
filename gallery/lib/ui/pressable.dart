@@ -42,6 +42,7 @@ class Pressable extends StatefulWidget {
     this.button = true,
     this.toggled,
     this.checked,
+    this.mixed = false,
     this.selected,
     this.expanded,
     this.link = false,
@@ -68,6 +69,9 @@ class Pressable extends StatefulWidget {
 
   /// Announced as a checkbox that is checked or not.
   final bool? checked;
+
+  /// Announced as partly checked: a checkbox over a list where some are checked.
+  final bool mixed;
 
   /// Announced as the chosen one of several: a tab, an option.
   final bool? selected;
@@ -111,7 +115,8 @@ class _PressableState extends State<Pressable> {
         role: widget.role,
         selected: widget.selected,
         toggled: widget.toggled,
-        checked: widget.checked,
+        checked: widget.mixed ? null : widget.checked,
+        mixed: widget.mixed ? true : null,
         enabled: _enabled,
         label: widget.semanticLabel,
         value: widget.semanticValue,

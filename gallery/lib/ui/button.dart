@@ -38,6 +38,14 @@ enum ButtonSize {
 
   /// A 36 square for one icon: give it a semanticLabel.
   icon,
+
+  /// 24 tall, for dense rows.
+  xs,
+
+  /// Squares for one icon: 24, 32 and 40.
+  iconXs,
+  iconSm,
+  iconLg,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -60,6 +68,7 @@ class Button extends StatelessWidget {
     this.autofocus = false,
     this.semanticLabel,
     this.expand = false,
+    this.error = false,
   });
 
   /// Null disables the button.
@@ -75,6 +84,15 @@ class Button extends StatelessWidget {
 
   /// Fills the width it is given.
   final bool expand;
+
+  /// Draws it as invalid: a destructive border and ring, as on a field.
+  final bool error;
+
+  bool get _square =>
+      size == ButtonSize.icon ||
+      size == ButtonSize.iconXs ||
+      size == ButtonSize.iconSm ||
+      size == ButtonSize.iconLg;
 
   @override
   Widget build(BuildContext context) {
@@ -119,9 +137,13 @@ class Button extends StatelessWidget {
           ButtonSize.md => (36.0, 16.0, 8.0),
           ButtonSize.lg => (40.0, 24.0, 8.0),
           ButtonSize.icon => (36.0, 0.0, 0.0),
+          ButtonSize.xs => (24.0, 8.0, 4.0),
+          ButtonSize.iconXs => (24.0, 0.0, 0.0),
+          ButtonSize.iconSm => (32.0, 0.0, 0.0),
+          ButtonSize.iconLg => (40.0, 0.0, 0.0),
         };
         final label = DefaultTextStyle.merge(
-          style: t.text.sm.copyWith(
+          style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
             decoration: variant == ButtonVariant.link && state.hovered
@@ -136,7 +158,7 @@ class Button extends StatelessWidget {
             // The row sets the height and centres in it; the button hugs it unless [expand].
             child: SizedBox(
               height: height,
-              width: size == ButtonSize.icon ? height : null,
+              width: _square ? height : null,
               child: Row(
                 mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -157,11 +179,19 @@ class Button extends StatelessWidget {
             decoration: BoxDecoration(
               color: bg,
               borderRadius: joinedRadius(context, t.radiusMd),
-              border: border == null
+              border: error
+                  ? joinedBorder(context, c.destructive)
+                  : border == null
                   ? null
                   : joinedBorder(context, state.focused ? c.ring : border),
               boxShadow: [
-                if (state.focused) ...t.focusRing,
+                if (state.focused)
+                  error
+                      ? BoxShadow(
+                          color: c.destructive.withValues(alpha: .2),
+                          spreadRadius: 3,
+                        )
+                      : t.focusRing.first,
                 if (variant == ButtonVariant.outline ||
                     variant == ButtonVariant.primary ||
                     variant == ButtonVariant.secondary ||

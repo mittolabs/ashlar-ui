@@ -4,7 +4,18 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
-enum BadgeVariant { primary, secondary, destructive, outline }
+enum BadgeVariant {
+  primary,
+  secondary,
+  destructive,
+  outline,
+
+  /// No fill or border: a quiet label beside other text.
+  ghost,
+
+  /// Text in the primary colour, underlined: a label that leads somewhere.
+  link,
+}
 
 /// A small label: a status, a count, a tag. [leading] is usually a 12px icon.
 ///
@@ -37,6 +48,8 @@ class Badge extends StatelessWidget {
         null,
       ),
       BadgeVariant.outline => (const Color(0x00000000), c.foreground, c.border),
+      BadgeVariant.ghost => (const Color(0x00000000), c.foreground, null),
+      BadgeVariant.link => (const Color(0x00000000), c.primary, null),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -46,7 +59,14 @@ class Badge extends StatelessWidget {
         border: Border.all(color: border ?? const Color(0x00000000)),
       ),
       child: DefaultTextStyle.merge(
-        style: t.text.xs.copyWith(color: fg, fontWeight: FontWeight.w500),
+        style: t.text.xs.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w500,
+          decoration: variant == BadgeVariant.link
+              ? TextDecoration.underline
+              : null,
+          decorationColor: fg,
+        ),
         maxLines: 1,
         child: IconTheme.merge(
           data: IconThemeData(color: fg, size: 12),

@@ -26,6 +26,10 @@ class TabItem {
   final bool enabled;
 }
 
+/// How the tabs look: on a muted bar with the chosen one raised, or as a line of words
+/// with the chosen one underlined.
+enum TabsVariant { pill, line }
+
 /// Views of one thing, one at a time, chosen from a row of tabs. Tab moves into the row
 /// and out again; the arrow keys move along it, choosing as they go.
 ///
@@ -46,6 +50,8 @@ class Tabs extends StatefulWidget {
     this.onChanged,
     this.initialIndex = 0,
     this.expand = false,
+    this.variant = TabsVariant.pill,
+    this.axis = Axis.horizontal,
   });
 
   final List<TabItem> tabs;
@@ -55,6 +61,11 @@ class Tabs extends StatefulWidget {
 
   /// Stretches the row of tabs across the width it is given.
   final bool expand;
+
+  final TabsVariant variant;
+
+  /// Vertical sets the tabs in a column beside the panel; the up and down arrows move.
+  final Axis axis;
 
   @override
   State<Tabs> createState() => _TabsState();
@@ -111,14 +122,64 @@ class _TabsState extends State<Tabs> {
           selected: i == _index,
           builder: (context, state) {
             final active = i == _index;
-            final fg = active || !dark ? c.foreground : c.mutedForeground;
+            final line = widget.variant == TabsVariant.line;
+            final across = widget.axis == Axis.horizontal;
+            final fg = active || (!dark && !line)
+                ? c.foreground
+                : c.mutedForeground;
+            if (line) {
+              // A word, underlined when chosen: along the bottom, or down the start side.
+              final mark = BorderSide(
+                color: active ? c.foreground : const Color(0x00000000),
+                width: 2,
+              );
+              return Opacity(
+                opacity: state.enabled ? 1 : .5,
+                child: AnimatedContainer(
+                  duration: t.duration,
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  alignment: across
+                      ? Alignment.center
+                      : AlignmentDirectional.centerStart,
+                  decoration: BoxDecoration(
+                    border: across
+                        ? Border(bottom: mark)
+                        : BorderDirectional(start: mark),
+                    boxShadow: [if (state.focused) ...t.focusRing],
+                  ),
+                  child: DefaultTextStyle.merge(
+                    style: t.text.sm.copyWith(
+                      color: state.hovered && !active ? c.foreground : fg,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    child: IconTheme.merge(
+                      data: IconThemeData(color: fg, size: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (tab.icon != null) ...[
+                            tab.icon!,
+                            const SizedBox(width: 6),
+                          ],
+                          Flexible(child: tab.label),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
             return Opacity(
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
                 height: 29,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                alignment: Alignment.center,
+                alignment: across
+                    ? Alignment.center
+                    : AlignmentDirectional.centerStart,
                 decoration: BoxDecoration(
                   color: active
                       ? (dark
@@ -159,12 +220,19 @@ class _TabsState extends State<Tabs> {
           },
         ),
     ];
+    final across = widget.axis == Axis.horizontal,
+        line = widget.variant == TabsVariant.line;
     final list = Shortcuts(
       includeSemantics: false,
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.arrowRight): _MoveIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveIntent(-1),
-      },
+      shortcuts: widget.axis == Axis.horizontal
+          ? const {
+              SingleActivator(LogicalKeyboardKey.arrowRight): _MoveIntent(1),
+              SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveIntent(-1),
+            }
+          : const {
+              SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
+              SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
+            },
       child: Actions(
         actions: {
           _MoveIntent: CallbackAction<_MoveIntent>(
@@ -172,44 +240,72 @@ class _TabsState extends State<Tabs> {
           ),
         },
         child: Container(
-          height: 36,
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            color: c.muted,
-            borderRadius: BorderRadius.circular(t.radiusLg),
-          ),
+          height: across ? 36 : null,
+          padding: line ? EdgeInsets.zero : const EdgeInsets.all(3),
+          decoration: line
+              ? BoxDecoration(
+                  border: across
+                      ? Border(bottom: BorderSide(color: c.border))
+                      : BorderDirectional(start: BorderSide(color: c.border)),
+                )
+              : BoxDecoration(
+                  color: c.muted,
+                  borderRadius: BorderRadius.circular(t.radiusLg),
+                ),
           child: Semantics(
             role: SemanticsRole.tabBar,
             container: true,
             explicitChildNodes: true,
-            child: Row(
-              mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
-              children: [
-                for (final trigger in triggers)
-                  widget.expand ? Expanded(child: trigger) : trigger,
-              ],
-            ),
+            child: across
+                ? Row(
+                    mainAxisSize: widget.expand
+                        ? MainAxisSize.max
+                        : MainAxisSize.min,
+                    children: [
+                      for (final trigger in triggers)
+                        widget.expand ? Expanded(child: trigger) : trigger,
+                    ],
+                  )
+                : IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, trigger) in triggers.indexed) ...[
+                          if (i > 0 && !line) const SizedBox(height: 2),
+                          trigger,
+                        ],
+                      ],
+                    ),
+                  ),
           ),
         ),
       ),
     );
+    final panel = Semantics(
+      role: SemanticsRole.tabPanel,
+      container: true,
+      child: KeyedSubtree(
+        key: ValueKey(_index),
+        child: widget.tabs[_index].content,
+      ),
+    );
+    if (!across) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          list,
+          const SizedBox(width: 16),
+          Expanded(child: panel),
+        ],
+      );
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: widget.expand
           ? CrossAxisAlignment.stretch
           : CrossAxisAlignment.start,
-      children: [
-        list,
-        const SizedBox(height: 8),
-        Semantics(
-          role: SemanticsRole.tabPanel,
-          container: true,
-          child: KeyedSubtree(
-            key: ValueKey(_index),
-            child: widget.tabs[_index].content,
-          ),
-        ),
-      ],
+      children: [list, const SizedBox(height: 8), panel],
     );
   }
 }

@@ -17,6 +17,8 @@ class Checkbox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.semanticLabel,
+    this.indeterminate = false,
+    this.error = false,
     this.focusNode,
     this.autofocus = false,
   });
@@ -26,6 +28,12 @@ class Checkbox extends StatelessWidget {
   /// Null disables the checkbox.
   final ValueChanged<bool>? onChanged;
   final String? semanticLabel;
+
+  /// Neither ticked nor not, as over a list where some are: a dash. A tap ticks it.
+  final bool indeterminate;
+
+  /// Draws it as invalid.
+  final bool error;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -34,8 +42,11 @@ class Checkbox extends StatelessWidget {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     return Pressable(
-      onPressed: onChanged == null ? null : () => onChanged!(!value),
+      onPressed: onChanged == null
+          ? null
+          : () => onChanged!(indeterminate || !value),
       checked: value,
+      mixed: indeterminate,
       semanticLabel: semanticLabel,
       focusNode: focusNode,
       autofocus: autofocus,
@@ -47,14 +58,33 @@ class Checkbox extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             // Opaque, so the shadow beneath does not show through.
-            color: value ? c.primary : c.background,
+            color: value || indeterminate ? c.primary : c.background,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: value ? c.primary : (state.focused ? c.ring : c.input),
+              color: error
+                  ? c.destructive
+                  : (value || indeterminate
+                        ? c.primary
+                        : (state.focused ? c.ring : c.input)),
             ),
-            boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
+            boxShadow: [
+              if (state.focused)
+                error
+                    ? BoxShadow(
+                        color: c.destructive.withValues(alpha: .2),
+                        spreadRadius: 3,
+                      )
+                    : t.focusRing.first,
+              ...t.shadowXs,
+            ],
           ),
-          child: value
+          child: indeterminate
+              ? AshlarIcon(
+                  AshlarIconsRoundedStroke.minus,
+                  size: 14,
+                  color: c.primaryForeground,
+                )
+              : value
               ? AshlarIcon(
                   AshlarIconsRoundedStroke.check,
                   size: 14,

@@ -11,12 +11,21 @@ import 'theme.dart';
 /// ```dart
 /// Switch(value: notify, onChanged: (v) => setState(() => notify = v), semanticLabel: 'Notifications')
 /// ```
+enum SwitchSize {
+  /// 24 by 14.
+  sm,
+
+  /// 32 by 18.
+  md,
+}
+
 class Switch extends StatelessWidget {
   const Switch({
     super.key,
     required this.value,
     required this.onChanged,
     this.semanticLabel,
+    this.size = SwitchSize.md,
     this.focusNode,
     this.autofocus = false,
   });
@@ -26,6 +35,7 @@ class Switch extends StatelessWidget {
   /// Null disables the switch.
   final ValueChanged<bool>? onChanged;
   final String? semanticLabel;
+  final SwitchSize size;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -43,8 +53,8 @@ class Switch extends StatelessWidget {
         opacity: state.enabled ? 1 : .5,
         child: AnimatedContainer(
           duration: t.duration,
-          width: 32,
-          height: 18,
+          width: size == SwitchSize.sm ? 24 : 32,
+          height: size == SwitchSize.sm ? 14 : 18,
           padding: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             color: value ? c.primary : c.input,
@@ -56,8 +66,8 @@ class Switch extends StatelessWidget {
             curve: Curves.easeOutCubic,
             alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
-              width: 16,
-              height: 16,
+              width: size == SwitchSize.sm ? 12 : 16,
+              height: size == SwitchSize.sm ? 12 : 16,
               decoration: BoxDecoration(
                 color: t.brightness == Brightness.dark && !value
                     ? c.foreground

@@ -242,7 +242,7 @@ void main() {
       (tester) async {
         final semantics = tester.ensureSemantics();
         final seen = await slider(tester, step: .1);
-        final node = tester.getSemantics(find.byType(Slider));
+        final node = tester.getSemantics(find.bySemanticsLabel('Volume'));
         final data = node.getSemanticsData();
         expect(data.flagsCollection.isSlider, isTrue);
         expect(data.label, 'Volume');

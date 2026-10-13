@@ -641,6 +641,7 @@ class Pressable extends StatefulWidget {
     this.button = true,
     this.toggled,
     this.checked,
+    this.mixed = false,
     this.selected,
     this.expanded,
     this.link = false,
@@ -667,6 +668,9 @@ class Pressable extends StatefulWidget {
 
   /// Announced as a checkbox that is checked or not.
   final bool? checked;
+
+  /// Announced as partly checked: a checkbox over a list where some are checked.
+  final bool mixed;
 
   /// Announced as the chosen one of several: a tab, an option.
   final bool? selected;
@@ -710,7 +714,8 @@ class _PressableState extends State<Pressable> {
         role: widget.role,
         selected: widget.selected,
         toggled: widget.toggled,
-        checked: widget.checked,
+        checked: widget.mixed ? null : widget.checked,
+        mixed: widget.mixed ? true : null,
         enabled: _enabled,
         label: widget.semanticLabel,
         value: widget.semanticValue,
@@ -819,6 +824,14 @@ enum ButtonSize {
 
   /// A 36 square for one icon: give it a semanticLabel.
   icon,
+
+  /// 24 tall, for dense rows.
+  xs,
+
+  /// Squares for one icon: 24, 32 and 40.
+  iconXs,
+  iconSm,
+  iconLg,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -841,6 +854,7 @@ class Button extends StatelessWidget {
     this.autofocus = false,
     this.semanticLabel,
     this.expand = false,
+    this.error = false,
   });
 
   /// Null disables the button.
@@ -856,6 +870,15 @@ class Button extends StatelessWidget {
 
   /// Fills the width it is given.
   final bool expand;
+
+  /// Draws it as invalid: a destructive border and ring, as on a field.
+  final bool error;
+
+  bool get _square =>
+      size == ButtonSize.icon ||
+      size == ButtonSize.iconXs ||
+      size == ButtonSize.iconSm ||
+      size == ButtonSize.iconLg;
 
   @override
   Widget build(BuildContext context) {
@@ -900,9 +923,13 @@ class Button extends StatelessWidget {
           ButtonSize.md => (36.0, 16.0, 8.0),
           ButtonSize.lg => (40.0, 24.0, 8.0),
           ButtonSize.icon => (36.0, 0.0, 0.0),
+          ButtonSize.xs => (24.0, 8.0, 4.0),
+          ButtonSize.iconXs => (24.0, 0.0, 0.0),
+          ButtonSize.iconSm => (32.0, 0.0, 0.0),
+          ButtonSize.iconLg => (40.0, 0.0, 0.0),
         };
         final label = DefaultTextStyle.merge(
-          style: t.text.sm.copyWith(
+          style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
             decoration: variant == ButtonVariant.link && state.hovered
@@ -917,7 +944,7 @@ class Button extends StatelessWidget {
             // The row sets the height and centres in it; the button hugs it unless [expand].
             child: SizedBox(
               height: height,
-              width: size == ButtonSize.icon ? height : null,
+              width: _square ? height : null,
               child: Row(
                 mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -938,11 +965,19 @@ class Button extends StatelessWidget {
             decoration: BoxDecoration(
               color: bg,
               borderRadius: joinedRadius(context, t.radiusMd),
-              border: border == null
+              border: error
+                  ? joinedBorder(context, c.destructive)
+                  : border == null
                   ? null
                   : joinedBorder(context, state.focused ? c.ring : border),
               boxShadow: [
-                if (state.focused) ...t.focusRing,
+                if (state.focused)
+                  error
+                      ? BoxShadow(
+                          color: c.destructive.withValues(alpha: .2),
+                          spreadRadius: 3,
+                        )
+                      : t.focusRing.first,
                 if (variant == ButtonVariant.outline ||
                     variant == ButtonVariant.primary ||
                     variant == ButtonVariant.secondary ||
@@ -971,7 +1006,18 @@ import 'package:flutter/widgets.dart';
 
 import 'theme.dart';
 
-enum BadgeVariant { primary, secondary, destructive, outline }
+enum BadgeVariant {
+  primary,
+  secondary,
+  destructive,
+  outline,
+
+  /// No fill or border: a quiet label beside other text.
+  ghost,
+
+  /// Text in the primary colour, underlined: a label that leads somewhere.
+  link,
+}
 
 /// A small label: a status, a count, a tag. [leading] is usually a 12px icon.
 ///
@@ -1004,6 +1050,8 @@ class Badge extends StatelessWidget {
         null,
       ),
       BadgeVariant.outline => (const Color(0x00000000), c.foreground, c.border),
+      BadgeVariant.ghost => (const Color(0x00000000), c.foreground, null),
+      BadgeVariant.link => (const Color(0x00000000), c.primary, null),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1013,7 +1061,14 @@ class Badge extends StatelessWidget {
         border: Border.all(color: border ?? const Color(0x00000000)),
       ),
       child: DefaultTextStyle.merge(
-        style: t.text.xs.copyWith(color: fg, fontWeight: FontWeight.w500),
+        style: t.text.xs.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w500,
+          decoration: variant == BadgeVariant.link
+              ? TextDecoration.underline
+              : null,
+          decorationColor: fg,
+        ),
         maxLines: 1,
         child: IconTheme.merge(
           data: IconThemeData(color: fg, size: 12),
@@ -1512,6 +1567,8 @@ class Checkbox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.semanticLabel,
+    this.indeterminate = false,
+    this.error = false,
     this.focusNode,
     this.autofocus = false,
   });
@@ -1521,6 +1578,12 @@ class Checkbox extends StatelessWidget {
   /// Null disables the checkbox.
   final ValueChanged<bool>? onChanged;
   final String? semanticLabel;
+
+  /// Neither ticked nor not, as over a list where some are: a dash. A tap ticks it.
+  final bool indeterminate;
+
+  /// Draws it as invalid.
+  final bool error;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -1529,8 +1592,11 @@ class Checkbox extends StatelessWidget {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     return Pressable(
-      onPressed: onChanged == null ? null : () => onChanged!(!value),
+      onPressed: onChanged == null
+          ? null
+          : () => onChanged!(indeterminate || !value),
       checked: value,
+      mixed: indeterminate,
       semanticLabel: semanticLabel,
       focusNode: focusNode,
       autofocus: autofocus,
@@ -1542,14 +1608,33 @@ class Checkbox extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             // Opaque, so the shadow beneath does not show through.
-            color: value ? c.primary : c.background,
+            color: value || indeterminate ? c.primary : c.background,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: value ? c.primary : (state.focused ? c.ring : c.input),
+              color: error
+                  ? c.destructive
+                  : (value || indeterminate
+                        ? c.primary
+                        : (state.focused ? c.ring : c.input)),
             ),
-            boxShadow: [if (state.focused) ...t.focusRing, ...t.shadowXs],
+            boxShadow: [
+              if (state.focused)
+                error
+                    ? BoxShadow(
+                        color: c.destructive.withValues(alpha: .2),
+                        spreadRadius: 3,
+                      )
+                    : t.focusRing.first,
+              ...t.shadowXs,
+            ],
           ),
-          child: value
+          child: indeterminate
+              ? AshlarIcon(
+                  AshlarIconsRoundedStroke.minus,
+                  size: 14,
+                  color: c.primaryForeground,
+                )
+              : value
               ? AshlarIcon(
                   AshlarIconsRoundedStroke.check,
                   size: 14,
@@ -1582,12 +1667,21 @@ import 'theme.dart';
 /// ```dart
 /// Switch(value: notify, onChanged: (v) => setState(() => notify = v), semanticLabel: 'Notifications')
 /// ```
+enum SwitchSize {
+  /// 24 by 14.
+  sm,
+
+  /// 32 by 18.
+  md,
+}
+
 class Switch extends StatelessWidget {
   const Switch({
     super.key,
     required this.value,
     required this.onChanged,
     this.semanticLabel,
+    this.size = SwitchSize.md,
     this.focusNode,
     this.autofocus = false,
   });
@@ -1597,6 +1691,7 @@ class Switch extends StatelessWidget {
   /// Null disables the switch.
   final ValueChanged<bool>? onChanged;
   final String? semanticLabel;
+  final SwitchSize size;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -1614,8 +1709,8 @@ class Switch extends StatelessWidget {
         opacity: state.enabled ? 1 : .5,
         child: AnimatedContainer(
           duration: t.duration,
-          width: 32,
-          height: 18,
+          width: size == SwitchSize.sm ? 24 : 32,
+          height: size == SwitchSize.sm ? 14 : 18,
           padding: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             color: value ? c.primary : c.input,
@@ -1627,8 +1722,8 @@ class Switch extends StatelessWidget {
             curve: Curves.easeOutCubic,
             alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
-              width: 16,
-              height: 16,
+              width: size == SwitchSize.sm ? 12 : 16,
+              height: size == SwitchSize.sm ? 12 : 16,
               decoration: BoxDecoration(
                 color: t.brightness == Brightness.dark && !value
                     ? c.foreground
@@ -2156,7 +2251,11 @@ class Avatar extends StatelessWidget {
     required this.fallback,
     this.size = 32,
     this.semanticLabel,
+    this.badge,
   });
+
+  /// A small mark at the bottom right: a dot for online, or a 12px icon in a circle.
+  final Widget? badge;
 
   final ImageProvider? image;
 
@@ -2199,13 +2298,155 @@ class Avatar extends StatelessWidget {
               ),
       ),
     );
+    final marked = badge == null
+        ? body
+        : Stack(
+            clipBehavior: Clip.none,
+            children: [
+              body,
+              PositionedDirectional(
+                end: 0,
+                bottom: 0,
+                child: Container(
+                  // A ring of the page round the badge sets it off the picture.
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: t.colors.background,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      color: t.colors.primaryForeground,
+                      size: size * .25,
+                    ),
+                    child: badge!,
+                  ),
+                ),
+              ),
+            ],
+          );
     return semanticLabel == null
-        ? ExcludeSemantics(child: body)
+        ? ExcludeSemantics(child: marked)
         : Semantics(
             label: semanticLabel,
             image: true,
-            child: ExcludeSemantics(child: body),
+            child: ExcludeSemantics(child: marked),
           );
+  }
+}
+
+/// A dot for an [Avatar]'s badge: green for online, or any colour.
+class AvatarDot extends StatelessWidget {
+  const AvatarDot({
+    super.key,
+    this.color = const Color(0xFF16A34A),
+    this.size = 8,
+  });
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
+}
+
+/// Avatars overlapping in a row, each ringed in the page colour; past [max], a count of
+/// the rest.
+///
+/// ```dart
+/// AvatarGroup(max: 3, children: [for (final p in team) Avatar(fallback: p.initials, semanticLabel: p.name)])
+/// ```
+class AvatarGroup extends StatelessWidget {
+  const AvatarGroup({
+    super.key,
+    required this.children,
+    this.max,
+    this.size = 32,
+    this.semanticLabel,
+  });
+
+  final List<Avatar> children;
+
+  /// How many to show before "+n".
+  final int? max;
+  final double size;
+
+  /// Who they are, together: 'Design team, 5 people'.
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final shown = max == null || children.length <= max!
+        ? children
+        : children.take(max!).toList();
+    final rest = children.length - shown.length;
+    Widget ringed(Widget child) => Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: t.colors.background,
+        shape: BoxShape.circle,
+      ),
+      child: child,
+    );
+    final overlap = size * .25;
+    final items = [
+      for (final a in shown)
+        ringed(
+          Avatar(
+            image: a.image,
+            fallback: a.fallback,
+            size: size,
+            badge: a.badge,
+          ),
+        ),
+      if (rest > 0)
+        ringed(
+          Container(
+            width: size,
+            height: size,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: t.colors.muted,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '+$rest',
+              style: t.text.xs.copyWith(
+                color: t.colors.mutedForeground,
+                fontSize: size * .34,
+              ),
+            ),
+          ),
+        ),
+    ];
+    return Semantics(
+      container: true,
+      label:
+          semanticLabel ??
+          [for (final a in children) a.semanticLabel]
+              .whereType<String>()
+              .join(', '),
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: size + 4,
+          width: items.length * (size + 4) - (items.length - 1) * overlap,
+          child: Stack(
+            children: [
+              for (final (i, item) in items.indexed)
+                PositionedDirectional(
+                  start: i * (size + 4 - overlap),
+                  child: item,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 ''',
@@ -2702,6 +2943,10 @@ class TabItem {
   final bool enabled;
 }
 
+/// How the tabs look: on a muted bar with the chosen one raised, or as a line of words
+/// with the chosen one underlined.
+enum TabsVariant { pill, line }
+
 /// Views of one thing, one at a time, chosen from a row of tabs. Tab moves into the row
 /// and out again; the arrow keys move along it, choosing as they go.
 ///
@@ -2722,6 +2967,8 @@ class Tabs extends StatefulWidget {
     this.onChanged,
     this.initialIndex = 0,
     this.expand = false,
+    this.variant = TabsVariant.pill,
+    this.axis = Axis.horizontal,
   });
 
   final List<TabItem> tabs;
@@ -2731,6 +2978,11 @@ class Tabs extends StatefulWidget {
 
   /// Stretches the row of tabs across the width it is given.
   final bool expand;
+
+  final TabsVariant variant;
+
+  /// Vertical sets the tabs in a column beside the panel; the up and down arrows move.
+  final Axis axis;
 
   @override
   State<Tabs> createState() => _TabsState();
@@ -2787,14 +3039,64 @@ class _TabsState extends State<Tabs> {
           selected: i == _index,
           builder: (context, state) {
             final active = i == _index;
-            final fg = active || !dark ? c.foreground : c.mutedForeground;
+            final line = widget.variant == TabsVariant.line;
+            final across = widget.axis == Axis.horizontal;
+            final fg = active || (!dark && !line)
+                ? c.foreground
+                : c.mutedForeground;
+            if (line) {
+              // A word, underlined when chosen: along the bottom, or down the start side.
+              final mark = BorderSide(
+                color: active ? c.foreground : const Color(0x00000000),
+                width: 2,
+              );
+              return Opacity(
+                opacity: state.enabled ? 1 : .5,
+                child: AnimatedContainer(
+                  duration: t.duration,
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  alignment: across
+                      ? Alignment.center
+                      : AlignmentDirectional.centerStart,
+                  decoration: BoxDecoration(
+                    border: across
+                        ? Border(bottom: mark)
+                        : BorderDirectional(start: mark),
+                    boxShadow: [if (state.focused) ...t.focusRing],
+                  ),
+                  child: DefaultTextStyle.merge(
+                    style: t.text.sm.copyWith(
+                      color: state.hovered && !active ? c.foreground : fg,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    child: IconTheme.merge(
+                      data: IconThemeData(color: fg, size: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (tab.icon != null) ...[
+                            tab.icon!,
+                            const SizedBox(width: 6),
+                          ],
+                          Flexible(child: tab.label),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
             return Opacity(
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
                 height: 29,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                alignment: Alignment.center,
+                alignment: across
+                    ? Alignment.center
+                    : AlignmentDirectional.centerStart,
                 decoration: BoxDecoration(
                   color: active
                       ? (dark
@@ -2835,12 +3137,19 @@ class _TabsState extends State<Tabs> {
           },
         ),
     ];
+    final across = widget.axis == Axis.horizontal,
+        line = widget.variant == TabsVariant.line;
     final list = Shortcuts(
       includeSemantics: false,
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.arrowRight): _MoveIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveIntent(-1),
-      },
+      shortcuts: widget.axis == Axis.horizontal
+          ? const {
+              SingleActivator(LogicalKeyboardKey.arrowRight): _MoveIntent(1),
+              SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveIntent(-1),
+            }
+          : const {
+              SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
+              SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
+            },
       child: Actions(
         actions: {
           _MoveIntent: CallbackAction<_MoveIntent>(
@@ -2848,44 +3157,72 @@ class _TabsState extends State<Tabs> {
           ),
         },
         child: Container(
-          height: 36,
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            color: c.muted,
-            borderRadius: BorderRadius.circular(t.radiusLg),
-          ),
+          height: across ? 36 : null,
+          padding: line ? EdgeInsets.zero : const EdgeInsets.all(3),
+          decoration: line
+              ? BoxDecoration(
+                  border: across
+                      ? Border(bottom: BorderSide(color: c.border))
+                      : BorderDirectional(start: BorderSide(color: c.border)),
+                )
+              : BoxDecoration(
+                  color: c.muted,
+                  borderRadius: BorderRadius.circular(t.radiusLg),
+                ),
           child: Semantics(
             role: SemanticsRole.tabBar,
             container: true,
             explicitChildNodes: true,
-            child: Row(
-              mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
-              children: [
-                for (final trigger in triggers)
-                  widget.expand ? Expanded(child: trigger) : trigger,
-              ],
-            ),
+            child: across
+                ? Row(
+                    mainAxisSize: widget.expand
+                        ? MainAxisSize.max
+                        : MainAxisSize.min,
+                    children: [
+                      for (final trigger in triggers)
+                        widget.expand ? Expanded(child: trigger) : trigger,
+                    ],
+                  )
+                : IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, trigger) in triggers.indexed) ...[
+                          if (i > 0 && !line) const SizedBox(height: 2),
+                          trigger,
+                        ],
+                      ],
+                    ),
+                  ),
           ),
         ),
       ),
     );
+    final panel = Semantics(
+      role: SemanticsRole.tabPanel,
+      container: true,
+      child: KeyedSubtree(
+        key: ValueKey(_index),
+        child: widget.tabs[_index].content,
+      ),
+    );
+    if (!across) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          list,
+          const SizedBox(width: 16),
+          Expanded(child: panel),
+        ],
+      );
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: widget.expand
           ? CrossAxisAlignment.stretch
           : CrossAxisAlignment.start,
-      children: [
-        list,
-        const SizedBox(height: 8),
-        Semantics(
-          role: SemanticsRole.tabPanel,
-          container: true,
-          child: KeyedSubtree(
-            key: ValueKey(_index),
-            child: widget.tabs[_index].content,
-          ),
-        ),
-      ],
+      children: [list, const SizedBox(height: 8), panel],
     );
   }
 }
@@ -6070,6 +6407,8 @@ class ToggleGroup<T> extends StatelessWidget {
     this.variant = ToggleVariant.outline,
     this.size = ToggleSize.md,
     this.semanticLabel,
+    this.spacing = 0,
+    this.axis = Axis.horizontal,
   });
 
   /// The pressed ones.
@@ -6084,6 +6423,36 @@ class ToggleGroup<T> extends StatelessWidget {
 
   /// What the group sets, read before it: 'Text alignment'.
   final String? semanticLabel;
+
+  /// The gap between toggles. None joins them into one piece; any sets them apart, each
+  /// with all its corners round.
+  final double spacing;
+
+  /// Vertical stacks them, the up and down arrows moving between them.
+  final Axis axis;
+
+  Widget _layout(List<Widget> toggles) {
+    if (spacing == 0) {
+      final joined = JoinedGroup(axis: axis, children: toggles);
+      return axis == Axis.horizontal
+          ? IntrinsicHeight(child: joined)
+          : IntrinsicWidth(child: joined);
+    }
+    return Flex(
+      direction: axis,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (i, toggle) in toggles.indexed) ...[
+          if (i > 0)
+            SizedBox(
+              width: axis == Axis.horizontal ? spacing : 0,
+              height: axis == Axis.vertical ? spacing : 0,
+            ),
+          toggle,
+        ],
+      ],
+    );
+  }
 
   void _press(T value, bool on) {
     final next = multiple ? {...values} : <T>{};
@@ -6107,23 +6476,19 @@ class ToggleGroup<T> extends StatelessWidget {
         SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
       },
       child: FocusTraversalGroup(
-        child: IntrinsicHeight(
-          child: JoinedGroup(
-            children: [
-              for (final item in items)
-                Toggle(
-                  pressed: values.contains(item.value),
-                  onChanged: onChanged == null || !item.enabled
-                      ? null
-                      : (on) => _press(item.value, on),
-                  variant: variant,
-                  size: size,
-                  semanticLabel: item.semanticLabel,
-                  child: item.child,
-                ),
-            ],
-          ),
-        ),
+        child: _layout([
+          for (final item in items)
+            Toggle(
+              pressed: values.contains(item.value),
+              onChanged: onChanged == null || !item.enabled
+                  ? null
+                  : (on) => _press(item.value, on),
+              variant: variant,
+              size: size,
+              semanticLabel: item.semanticLabel,
+              child: item.child,
+            ),
+        ]),
       ),
     ),
   );
@@ -6145,15 +6510,17 @@ import 'theme.dart';
 
 /// A value between [min] and [max], picked by dragging or tapping along a track, or with
 /// the arrow keys (Page Up and Page Down move ten steps, Home and End to the ends).
+/// [Slider.range] has a thumb at each end of a span, and [Slider.multiple] any number; a
+/// thumb never passes the ones beside it. [axis] lays it upright, the lowest at the bottom.
 ///
 /// ```dart
 /// Slider(value: volume, onChanged: (v) => setState(() => volume = v), semanticLabel: 'Volume')
-/// Slider(value: price, min: 0, max: 10000, step: 500, onChanged: setPrice, semanticLabel: 'Price')
+/// Slider.range(values: (200, 800), min: 0, max: 1000, step: 50, onRangeChanged: (r) => setState(() => price = r))
 /// ```
 class Slider extends StatefulWidget {
   const Slider({
     super.key,
-    required this.value,
+    required double this.value,
     required this.onChanged,
     this.min = 0,
     this.max = 1,
@@ -6161,13 +6528,56 @@ class Slider extends StatefulWidget {
     this.onChangeEnd,
     this.semanticLabel,
     this.semanticFormat,
-    this.focusNode,
-  });
+    this.axis = Axis.horizontal,
+    this.length = 200,
+  }) : values = null,
+       range = null,
+       onRangeChanged = null,
+       onValuesChanged = null;
 
-  final double value;
+  const Slider.range({
+    super.key,
+    required (double, double) values,
+    required this.onRangeChanged,
+    this.min = 0,
+    this.max = 1,
+    this.step,
+    this.semanticLabel,
+    this.semanticFormat,
+    this.axis = Axis.horizontal,
+    this.length = 200,
+  }) : range = values,
+       value = null,
+       values = null,
+       onChanged = null,
+       onChangeEnd = null,
+       onValuesChanged = null;
+
+  const Slider.multiple({
+    super.key,
+    required List<double> this.values,
+    required this.onValuesChanged,
+    this.min = 0,
+    this.max = 1,
+    this.step,
+    this.semanticLabel,
+    this.semanticFormat,
+    this.axis = Axis.horizontal,
+    this.length = 200,
+  }) : value = null,
+       range = null,
+       onChanged = null,
+       onChangeEnd = null,
+       onRangeChanged = null;
+
+  final double? value;
+  final (double, double)? range;
+  final List<double>? values;
 
   /// Null disables it.
   final ValueChanged<double>? onChanged;
+  final ValueChanged<(double, double)>? onRangeChanged;
+  final ValueChanged<List<double>>? onValuesChanged;
   final ValueChanged<double>? onChangeEnd;
   final double min, max;
 
@@ -6177,19 +6587,30 @@ class Slider extends StatefulWidget {
 
   /// How a screen reader reads a value. Defaults to a percentage of the way along.
   final String Function(double value)? semanticFormat;
-  final FocusNode? focusNode;
+  final Axis axis;
+
+  /// Upright, how tall it is; across, it fills the width it is given.
+  final double length;
 
   @override
   State<Slider> createState() => _SliderState();
 }
 
 class _SliderState extends State<Slider> {
-  bool _hovered = false, _focused = false, _dragging = false;
+  int? _dragging;
 
-  bool get _enabled => widget.onChanged != null;
+  List<double> get _values =>
+      widget.values ??
+      (widget.range != null
+          ? [widget.range!.$1, widget.range!.$2]
+          : [widget.value!]);
+  bool get _enabled =>
+      widget.onChanged != null ||
+      widget.onRangeChanged != null ||
+      widget.onValuesChanged != null;
   double get _keyStep => widget.step ?? (widget.max - widget.min) / 100;
-  double get _fraction =>
-      ((widget.value - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
+  double _fraction(double v) =>
+      ((v - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
 
   double _snap(double v) {
     v = v.clamp(widget.min, widget.max);
@@ -6202,40 +6623,218 @@ class _SliderState extends State<Slider> {
           );
   }
 
-  void _set(double v) {
-    v = _snap(v);
-    if (v != widget.value) widget.onChanged?.call(v);
+  /// Moves thumb [i] to [v], kept between the thumbs either side of it.
+  void _set(int i, double v) {
+    final values = [..._values];
+    final low = i > 0 ? values[i - 1] : widget.min,
+        high = i < values.length - 1 ? values[i + 1] : widget.max;
+    v = _snap(v).clamp(low, high);
+    if (v == values[i]) return;
+    values[i] = v;
+    if (widget.onChanged != null) {
+      widget.onChanged!(v);
+    } else if (widget.onRangeChanged != null) {
+      widget.onRangeChanged!((values[0], values[1]));
+    } else {
+      widget.onValuesChanged?.call(values);
+    }
   }
-
-  void _setFromX(double x, double width) => _set(
-    widget.min + (x / width).clamp(0.0, 1.0) * (widget.max - widget.min),
-  );
 
   String _read(double v) =>
       widget.semanticFormat?.call(v) ??
       '${((v - widget.min) / (widget.max - widget.min) * 100).round()}%';
+
+  String? _labelFor(int i, int n) {
+    if (n == 1) return widget.semanticLabel;
+    final which = n == 2 ? (i == 0 ? 'lowest' : 'highest') : 'thumb ${i + 1}';
+    return widget.semanticLabel == null
+        ? which
+        : '${widget.semanticLabel}, $which';
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     const thumb = 16.0;
+    final across = widget.axis == Axis.horizontal;
+    final values = _values;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final length = across
+            ? (box.maxWidth.isFinite ? box.maxWidth : 200.0)
+            : widget.length;
+        final usable = length - thumb;
+        // Along the track from its start; upright, the start is the bottom.
+        double at(double v) => _fraction(v) * usable;
+        double valueAt(Offset p) {
+          final d = across ? p.dx - thumb / 2 : (length - thumb / 2) - p.dy;
+          return widget.min +
+              (d / usable).clamp(0.0, 1.0) * (widget.max - widget.min);
+        }
+
+        int nearest(double v) {
+          var best = 0;
+          for (var i = 1; i < values.length; i++) {
+            if ((values[i] - v).abs() < (values[best] - v).abs() ||
+                (values[i] == values[best] && v > values[i])) {
+              best = i;
+            }
+          }
+          return best;
+        }
+
+        final from = values.length == 1 ? 0.0 : at(values.first),
+            to = at(values.last);
+        Positioned along(double start, double extent, Widget child) => across
+            ? Positioned(
+                left: start,
+                width: extent,
+                top: 0,
+                bottom: 0,
+                child: child,
+              )
+            : Positioned(
+                bottom: start,
+                height: extent,
+                left: 0,
+                right: 0,
+                child: child,
+              );
+
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: _enabled
+              ? (d) {
+                  final v = valueAt(d.localPosition);
+                  _set(nearest(v), v);
+                }
+              : null,
+          onPanStart: _enabled
+              ? (d) => setState(
+                  () => _dragging = nearest(valueAt(d.localPosition)),
+                )
+              : null,
+          onPanUpdate: _enabled && _dragging != null
+              ? (d) => _set(_dragging!, valueAt(d.localPosition))
+              : null,
+          onPanEnd: _enabled
+              ? (_) {
+                  final i = _dragging;
+                  setState(() => _dragging = null);
+                  if (i != null) widget.onChangeEnd?.call(_values[i]);
+                }
+              : null,
+          child: Opacity(
+            opacity: _enabled ? 1 : .5,
+            child: SizedBox(
+              width: across ? length : 20,
+              height: across ? 20 : length,
+              child: Stack(
+                children: [
+                  // The track, and the part of it chosen.
+                  along(
+                    thumb / 2,
+                    usable,
+                    Center(
+                      child: Container(
+                        width: across ? double.infinity : 6,
+                        height: across ? 6 : double.infinity,
+                        decoration: BoxDecoration(
+                          color: c.muted,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ),
+                  ),
+                  along(
+                    thumb / 2 + from,
+                    to - from,
+                    Center(
+                      child: Container(
+                        width: across ? double.infinity : 6,
+                        height: across ? 6 : double.infinity,
+                        decoration: BoxDecoration(
+                          color: c.primary,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ),
+                  ),
+                  for (final (i, v) in values.indexed)
+                    along(
+                      at(v),
+                      thumb,
+                      Center(
+                        child: _Thumb(
+                          enabled: _enabled,
+                          dragging: _dragging == i,
+                          label: _labelFor(i, values.length),
+                          value: _read(v),
+                          increased: _read(_snap(v + _keyStep)),
+                          decreased: _read(_snap(v - _keyStep)),
+                          onStep: (steps) => _set(i, v + steps * _keyStep),
+                          onEnd: (top) =>
+                              _set(i, top ? widget.max : widget.min),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A thumb: its own focus, keys and what a screen reader hears.
+class _Thumb extends StatefulWidget {
+  const _Thumb({
+    required this.enabled,
+    required this.dragging,
+    required this.label,
+    required this.value,
+    required this.increased,
+    required this.decreased,
+    required this.onStep,
+    required this.onEnd,
+  });
+
+  final bool enabled, dragging;
+  final String? label;
+  final String value, increased, decreased;
+  final ValueChanged<int> onStep;
+  final ValueChanged<bool> onEnd;
+
+  @override
+  State<_Thumb> createState() => _ThumbState();
+}
+
+class _ThumbState extends State<_Thumb> {
+  bool _hovered = false, _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
     return Semantics(
       slider: true,
-      label: widget.semanticLabel,
-      enabled: _enabled,
-      value: _read(widget.value),
-      increasedValue: _read(_snap(widget.value + _keyStep)),
-      decreasedValue: _read(_snap(widget.value - _keyStep)),
-      onIncrease: _enabled ? () => _set(widget.value + _keyStep) : null,
-      onDecrease: _enabled ? () => _set(widget.value - _keyStep) : null,
+      label: widget.label,
+      enabled: widget.enabled,
+      value: widget.value,
+      increasedValue: widget.increased,
+      decreasedValue: widget.decreased,
+      onIncrease: widget.enabled ? () => widget.onStep(1) : null,
+      onDecrease: widget.enabled ? () => widget.onStep(-1) : null,
       child: FocusableActionDetector(
-        focusNode: widget.focusNode,
-        enabled: _enabled,
-        mouseCursor: _enabled
+        enabled: widget.enabled,
+        mouseCursor: widget.enabled
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
         onShowFocusHighlight: (v) => setState(() => _focused = v),
+        onShowHoverHighlight: (v) => setState(() => _hovered = v),
         shortcuts: const {
           SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(1),
           SingleActivator(LogicalKeyboardKey.arrowUp): _StepIntent(1),
@@ -6243,106 +6842,30 @@ class _SliderState extends State<Slider> {
           SingleActivator(LogicalKeyboardKey.arrowDown): _StepIntent(-1),
           SingleActivator(LogicalKeyboardKey.pageUp): _StepIntent(10),
           SingleActivator(LogicalKeyboardKey.pageDown): _StepIntent(-10),
-          SingleActivator(LogicalKeyboardKey.home): _StepIntent.toMin(),
-          SingleActivator(LogicalKeyboardKey.end): _StepIntent.toMax(),
+          SingleActivator(LogicalKeyboardKey.home): _EndIntent(false),
+          SingleActivator(LogicalKeyboardKey.end): _EndIntent(true),
         },
         actions: {
           _StepIntent: CallbackAction<_StepIntent>(
-            onInvoke: (i) {
-              final v = i.toEnd == null
-                  ? widget.value + i.steps * _keyStep
-                  : (i.toEnd! ? widget.max : widget.min);
-              _set(v);
-              widget.onChangeEnd?.call(_snap(v));
-              return null;
-            },
+            onInvoke: (i) => widget.onStep(i.steps),
+          ),
+          _EndIntent: CallbackAction<_EndIntent>(
+            onInvoke: (i) => widget.onEnd(i.top),
           ),
         },
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _hovered = true),
-          onExit: (_) => setState(() => _hovered = false),
-          child: LayoutBuilder(
-            builder: (context, box) {
-              final width = box.maxWidth.isFinite ? box.maxWidth : 200.0;
-              // The thumb's centre runs from one end of the track to the other.
-              final usable = width - thumb;
-              void at(Offset p) => _setFromX(p.dx - thumb / 2, usable);
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTapDown: _enabled ? (d) => at(d.localPosition) : null,
-                onTapUp: _enabled
-                    ? (_) => widget.onChangeEnd?.call(widget.value)
-                    : null,
-                onHorizontalDragStart: _enabled
-                    ? (d) => setState(() => _dragging = true)
-                    : null,
-                onHorizontalDragUpdate: _enabled
-                    ? (d) => at(d.localPosition)
-                    : null,
-                onHorizontalDragEnd: _enabled
-                    ? (_) {
-                        setState(() => _dragging = false);
-                        widget.onChangeEnd?.call(widget.value);
-                      }
-                    : null,
-                child: Opacity(
-                  opacity: _enabled ? 1 : .5,
-                  child: SizedBox(
-                    width: width,
-                    height: 20,
-                    child: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        Positioned(
-                          left: thumb / 2,
-                          right: thumb / 2,
-                          child: Container(
-                            height: 6,
-                            alignment: Alignment.centerLeft,
-                            decoration: BoxDecoration(
-                              color: c.muted,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            child: FractionallySizedBox(
-                              widthFactor: _fraction,
-                              child: Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: c.primary,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: _fraction * usable,
-                          child: AnimatedContainer(
-                            duration: t.duration,
-                            width: thumb,
-                            height: thumb,
-                            decoration: BoxDecoration(
-                              color: c.background,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: c.primary),
-                              boxShadow: [
-                                if (_focused ||
-                                    ((_hovered || _dragging) && _enabled))
-                                  BoxShadow(
-                                    color: c.ring.withValues(alpha: .5),
-                                    spreadRadius: 4,
-                                  ),
-                                ...t.shadowSm,
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+        child: AnimatedContainer(
+          duration: t.duration,
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: c.background,
+            shape: BoxShape.circle,
+            border: Border.all(color: c.primary),
+            boxShadow: [
+              if (_focused || ((_hovered || widget.dragging) && widget.enabled))
+                BoxShadow(color: c.ring.withValues(alpha: .5), spreadRadius: 4),
+              ...t.shadowSm,
+            ],
           ),
         ),
       ),
@@ -6351,14 +6874,15 @@ class _SliderState extends State<Slider> {
 }
 
 class _StepIntent extends Intent {
-  const _StepIntent(this.steps) : toEnd = null;
-  const _StepIntent.toMin() : steps = 0, toEnd = false;
-  const _StepIntent.toMax() : steps = 0, toEnd = true;
+  const _StepIntent(this.steps);
 
   final int steps;
+}
 
-  /// True to the maximum, false to the minimum, null to move by [steps].
-  final bool? toEnd;
+class _EndIntent extends Intent {
+  const _EndIntent(this.top);
+
+  final bool top;
 }
 ''',
     },
