@@ -23,7 +23,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
 | CLI commands | 15: init, add, apply, build, diff, docs, eject, info, mcp, migrate, preset, search, view, registry, dry run | 3: init, add, list |
 | Right-to-left | yes, CLI converts to logical sides | yes, logical sides; tested in both directions |
-| Forms | guides and examples for 3 form libraries (34 examples) | none |
+| Forms | guides and examples for 3 form libraries (34 examples) | Form on Flutter's `Form`: any control, checks, focus on the first error |
 
 ## Components they have that we do not
 
@@ -147,6 +147,13 @@ Breadcrumb, Sidebar, Slider and Resizable; submenus open towards the end of the 
 popovers align to the start edge. `gallery/test/rtl_test.dart` runs each check in both
 directions. Physical on purpose: Drawer, Sheet and Toast name screen edges and corners, and
 charts keep time running left to right, as their plots are drawn.
+
+**Step 3, forms: done** (13 October 2026, 82b3c24). `ashlar add form`: `FormItem` draws
+any control of a Flutter `Form` as a Field with its error; `FormText` keeps an Input in step
+with the form; `Validate` has required, lengths, email, pattern, min, max and all;
+`submit()` shows every error, focuses the first wrong field on screen (where a screen reader
+hears its error) and saves when all are right. Errors appear on sending and clear as each
+is put right, as shadcn's react-hook-form examples behave. The site has a Form page.
 
 ## Plan
 
