@@ -2915,7 +2915,7 @@ import 'package:flutter/widgets.dart';
 import 'theme.dart';
 
 /// Which side of its trigger a panel opens on. It flips when there is no room.
-enum PopoverSide { top, bottom }
+enum PopoverSide { top, bottom, left, right }
 
 /// How a panel lines up with its trigger.
 enum PopoverAlign { start, center, end }
@@ -2994,6 +2994,7 @@ class PopoverPanel extends StatelessWidget {
     this.width,
     this.minWidth = 128,
     this.matchWidth = false,
+    this.gap = 4,
   });
 
   final RawMenuOverlayInfo info;
@@ -3007,6 +3008,10 @@ class PopoverPanel extends StatelessWidget {
 
   /// At least as wide as the trigger.
   final bool matchWidth;
+
+  /// The space between the trigger and the panel; a submenu overlaps its row with a
+  /// little less than none.
+  final double gap;
 
   @override
   Widget build(BuildContext context) {
@@ -3026,6 +3031,7 @@ class PopoverPanel extends StatelessWidget {
               ),
         side,
         align,
+        gap,
       ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
@@ -3038,7 +3044,7 @@ class PopoverPanel extends StatelessWidget {
             SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
           },
           child: _Entrance(
-            fromTop: side == PopoverSide.bottom,
+            side: side,
             duration: t.duration,
             child: Container(
               width: width == null ? null : (width! < min ? min : width),
@@ -3065,21 +3071,35 @@ class PopoverPanel extends StatelessWidget {
 }
 
 class _Place extends SingleChildLayoutDelegate {
-  _Place(this.anchor, this.side, this.align);
+  _Place(this.anchor, this.side, this.align, this.gap);
 
   final Rect anchor;
   final PopoverSide side;
   final PopoverAlign align;
-  static const gap = 4.0, margin = 8.0;
+  final double gap;
+  static const margin = 8.0;
+
+  bool get _across => side == PopoverSide.left || side == PopoverSide.right;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
     final room = constraints.biggest;
+    if (_across) {
+      // Beside the trigger: the whole height, and the wider side's width.
+      final right = room.width - anchor.right - gap - margin,
+          left = anchor.left - gap - margin;
+      final width = side == PopoverSide.right
+          ? (right >= 200 || right >= left ? right : left)
+          : (left >= 200 || left >= right ? left : right);
+      return BoxConstraints.loose(
+        Size(width.clamp(0, room.width), room.height - margin * 2),
+      );
+    }
     final below = room.height - anchor.bottom - gap - margin,
         above = anchor.top - gap - margin;
-    final height = (side == PopoverSide.bottom
+    final height = side == PopoverSide.bottom
         ? (below >= 200 || below >= above ? below : above)
-        : (above >= 200 || above >= below ? above : below));
+        : (above >= 200 || above >= below ? above : below);
     return BoxConstraints.loose(
       Size(room.width - margin * 2, height.clamp(0, room.height)),
     );
@@ -3087,14 +3107,49 @@ class _Place extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size child) {
-    var x = switch (align) {
-      PopoverAlign.start => anchor.left,
-      PopoverAlign.center => anchor.center.dx - child.width / 2,
-      PopoverAlign.end => anchor.right - child.width,
-    };
-    x = x.clamp(
-      margin,
-      (size.width - child.width - margin).clamp(margin, double.infinity),
+    double along(
+      double start,
+      double centre,
+      double end,
+      double length,
+      double room,
+    ) {
+      final v = switch (align) {
+        PopoverAlign.start => start,
+        PopoverAlign.center => centre - length / 2,
+        PopoverAlign.end => end - length,
+      };
+      return v.clamp(
+        margin,
+        (room - length - margin).clamp(margin, double.infinity),
+      );
+    }
+
+    if (_across) {
+      final y = along(
+        anchor.top,
+        anchor.center.dy,
+        anchor.bottom,
+        child.height,
+        size.height,
+      );
+      final fitsRight = anchor.right + gap + child.width <= size.width - margin;
+      final fitsLeft = anchor.left - gap - child.width >= margin;
+      // The side asked for, unless it does not fit and the other does.
+      final right = side == PopoverSide.right
+          ? (fitsRight || !fitsLeft)
+          : !(fitsLeft || !fitsRight);
+      return Offset(
+        right ? anchor.right + gap : anchor.left - gap - child.width,
+        y,
+      );
+    }
+    final x = along(
+      anchor.left,
+      anchor.center.dx,
+      anchor.right,
+      child.width,
+      size.width,
     );
     final fitsBelow =
         anchor.bottom + gap + child.height <= size.height - margin;
@@ -3102,30 +3157,42 @@ class _Place extends SingleChildLayoutDelegate {
     final down = side == PopoverSide.bottom
         ? (fitsBelow || !fitsAbove)
         : !(fitsAbove || !fitsBelow);
-    final y = down ? anchor.bottom + gap : anchor.top - gap - child.height;
-    return Offset(x, y);
+    return Offset(
+      x,
+      down ? anchor.bottom + gap : anchor.top - gap - child.height,
+    );
   }
 
   @override
   bool shouldRelayout(_Place old) =>
-      old.anchor != anchor || old.side != side || old.align != align;
+      old.anchor != anchor ||
+      old.side != side ||
+      old.align != align ||
+      old.gap != gap;
 }
 
 /// Fades the panel in, grown from 95%, sliding a little from the trigger's side.
 class _Entrance extends StatelessWidget {
   const _Entrance({
     required this.child,
-    required this.fromTop,
+    required this.side,
     required this.duration,
   });
 
   final Widget child;
-  final bool fromTop;
+  final PopoverSide side;
   final Duration duration;
 
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+    // It comes a little way out of the trigger, growing from the edge nearest it.
+    final (Offset from, Alignment origin) = switch (side) {
+      PopoverSide.bottom => (const Offset(0, -8), Alignment.topCenter),
+      PopoverSide.top => (const Offset(0, 8), Alignment.bottomCenter),
+      PopoverSide.right => (const Offset(-8, 0), Alignment.centerLeft),
+      PopoverSide.left => (const Offset(8, 0), Alignment.centerRight),
+    };
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: duration,
@@ -3134,10 +3201,10 @@ class _Entrance extends StatelessWidget {
       builder: (context, v, child) => Opacity(
         opacity: v,
         child: Transform.translate(
-          offset: Offset(0, (1 - v) * (fromTop ? -8 : 8)),
+          offset: from * (1 - v),
           child: Transform.scale(
             scale: .95 + .05 * v,
-            alignment: fromTop ? Alignment.topCenter : Alignment.bottomCenter,
+            alignment: origin,
             child: child,
           ),
         ),
@@ -3149,15 +3216,17 @@ class _Entrance extends StatelessWidget {
     },
   ),
   'dropdown-menu': Component(
-    description: "A list of actions that opens from a trigger.",
+    description: "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
     requires: ["theme","pressable","popover"],
-    packages: [],
+    packages: ["ashlar_icons"],
     files: {
       'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
 
+import 'dart:async';
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -3226,13 +3295,51 @@ class _DropdownMenuState extends State<DropdownMenu> {
 
 /// The items of an open menu, in a scrolling column: focus starts on the list, and the
 /// arrow keys, Home and End move through the items. A Select uses it too.
-class MenuList extends StatelessWidget {
-  const MenuList({super.key, required this.children});
+class MenuList extends StatefulWidget {
+  const MenuList({super.key, required this.children, this.focusFirst = false});
 
   final List<Widget> children;
 
+  /// Puts focus on the first item as it opens, as a submenu does.
+  final bool focusFirst;
+
   @override
-  Widget build(BuildContext context) => Semantics(
+  State<MenuList> createState() => _MenuListState();
+}
+
+class _MenuListState extends State<MenuList> {
+  final _scope = FocusScopeNode(debugLabel: 'Menu');
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusFirst) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final first = _scope.traversalDescendants
+            .where((n) => n.canRequestFocus && !n.skipTraversal)
+            .firstOrNull;
+        first?.requestFocus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scope.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final list = _list(context);
+    // The first menu opened is the root; a submenu's list sits inside it.
+    if (context.dependOnInheritedWidgetOfExactType<_MenuRoot>() != null) {
+      return list;
+    }
+    return _MenuRoot(controller: MenuController.maybeOf(context), child: list);
+  }
+
+  Widget _list(BuildContext context) => Semantics(
     role: SemanticsRole.menu,
     container: true,
     explicitChildNodes: true,
@@ -3244,6 +3351,7 @@ class MenuList extends StatelessWidget {
         SingleActivator(LogicalKeyboardKey.end): _EdgeIntent(first: false),
       },
       child: FocusScope(
+        node: _scope,
         autofocus: true,
         child: Builder(
           builder: (context) => Actions(
@@ -3263,7 +3371,7 @@ class MenuList extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
+                  children: widget.children,
                 ),
               ),
             ),
@@ -3274,6 +3382,19 @@ class MenuList extends StatelessWidget {
   );
 }
 
+/// The outermost menu, so picking an item in a submenu closes all of them.
+class _MenuRoot extends InheritedWidget {
+  const _MenuRoot({required this.controller, required super.child});
+
+  final MenuController? controller;
+
+  static MenuController? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_MenuRoot>()?.controller;
+
+  @override
+  bool updateShouldNotify(_MenuRoot old) => old.controller != controller;
+}
+
 class _EdgeIntent extends Intent {
   const _EdgeIntent({required this.first});
 
@@ -3281,7 +3402,7 @@ class _EdgeIntent extends Intent {
 }
 
 /// An action in a menu. Picking it closes the menu, then calls [onPressed].
-class MenuItem extends StatefulWidget {
+class MenuItem extends StatelessWidget {
   const MenuItem({
     super.key,
     required this.child,
@@ -3291,6 +3412,7 @@ class MenuItem extends StatefulWidget {
     this.shortcut,
     this.destructive = false,
     this.selected,
+    this.inset = false,
     this.autofocus = false,
   });
 
@@ -3313,18 +3435,300 @@ class MenuItem extends StatefulWidget {
 
   /// For a menu of choices: announced as chosen.
   final bool? selected;
+
+  /// Set in, to line up with checkbox and radio items beside it.
+  final bool inset;
   final bool autofocus;
 
   @override
-  State<MenuItem> createState() => _MenuItemState();
+  Widget build(BuildContext context) => _MenuRow(
+    onPressed: onPressed,
+    leading: leading,
+    trailing: trailing,
+    shortcut: shortcut,
+    destructive: destructive,
+    selected: selected,
+    inset: inset,
+    autofocus: autofocus,
+    role: SemanticsRole.menuItem,
+    child: child,
+  );
 }
 
-class _MenuItemState extends State<MenuItem> {
+/// An item that is on or off: a setting shown in the menu. Picking it flips it and closes
+/// the menu.
+///
+/// ```dart
+/// MenuCheckboxItem(checked: showStatusBar, onChanged: (v) => setState(() => showStatusBar = v), child: Text('Status bar'))
+/// ```
+class MenuCheckboxItem extends StatelessWidget {
+  const MenuCheckboxItem({
+    super.key,
+    required this.checked,
+    required this.onChanged,
+    required this.child,
+    this.shortcut,
+    this.closeOnPress = true,
+  });
+
+  final bool checked;
+
+  /// Null disables the item.
+  final ValueChanged<bool>? onChanged;
+  final Widget child;
+  final Widget? shortcut;
+
+  /// False keeps the menu open, for setting several in a row.
+  final bool closeOnPress;
+
+  @override
+  Widget build(BuildContext context) => _MenuRow(
+    onPressed: onChanged == null ? null : () => onChanged!(!checked),
+    checked: checked,
+    closeOnPress: closeOnPress,
+    shortcut: shortcut,
+    role: SemanticsRole.menuItemCheckbox,
+    indicator: checked
+        ? const AshlarIcon(AshlarIconsRoundedStroke.check)
+        : null,
+    inset: true,
+    child: child,
+  );
+}
+
+/// The items of a menu of which one is chosen, by [value]. Put [MenuRadioItem]s in it.
+///
+/// ```dart
+/// MenuRadioGroup<String>(value: position, onChanged: (v) => setState(() => position = v), children: [
+///   MenuRadioItem(value: 'top', child: Text('Top')),
+///   MenuRadioItem(value: 'bottom', child: Text('Bottom')),
+/// ])
+/// ```
+class MenuRadioGroup<T> extends StatelessWidget {
+  const MenuRadioGroup({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    required this.children,
+  });
+
+  final T? value;
+  final ValueChanged<T>? onChanged;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => _RadioScope<T>(
+    value: value,
+    onChanged: onChanged,
+    child: MenuGroup(children: children),
+  );
+}
+
+class _RadioScope<T> extends InheritedWidget {
+  const _RadioScope({
+    required this.value,
+    required this.onChanged,
+    required super.child,
+  });
+
+  final T? value;
+  final ValueChanged<T>? onChanged;
+
+  @override
+  bool updateShouldNotify(_RadioScope<T> old) =>
+      old.value != value || old.onChanged != onChanged;
+}
+
+/// One choice in a [MenuRadioGroup], marked with a dot when it is the one chosen.
+class MenuRadioItem<T> extends StatelessWidget {
+  const MenuRadioItem({
+    super.key,
+    required this.value,
+    required this.child,
+    this.enabled = true,
+  });
+
+  final T value;
+  final Widget child;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final group = context.dependOnInheritedWidgetOfExactType<_RadioScope<T>>();
+    final chosen = group?.value == value;
+    return _MenuRow(
+      onPressed: !enabled || group?.onChanged == null
+          ? null
+          : () => group!.onChanged!(value),
+      checked: chosen,
+      role: SemanticsRole.menuItemRadio,
+      indicator: chosen
+          ? Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: AshlarTheme.of(context).colors.popoverForeground,
+                shape: BoxShape.circle,
+              ),
+            )
+          : null,
+      inset: true,
+      child: child,
+    );
+  }
+}
+
+/// Items that belong together, read out as a group.
+class MenuGroup extends StatelessWidget {
+  const MenuGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    explicitChildNodes: true,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    ),
+  );
+}
+
+/// A row that opens a further menu beside it: on hover, a click, Enter or the right arrow.
+/// The left arrow and Escape close it again.
+///
+/// ```dart
+/// MenuSub(child: Text('Share'), items: [MenuItem(onPressed: email, child: Text('Email')), ...])
+/// ```
+class MenuSub extends StatefulWidget {
+  const MenuSub({
+    super.key,
+    required this.child,
+    required this.items,
+    this.leading,
+    this.inset = false,
+    this.enabled = true,
+  });
+
+  final Widget child;
+  final List<Widget> items;
+  final Widget? leading;
+  final bool inset;
+  final bool enabled;
+
+  @override
+  State<MenuSub> createState() => _MenuSubState();
+}
+
+class _MenuSubState extends State<MenuSub> {
+  final _menu = MenuController();
   final _focus = FocusNode();
+  Timer? _hover;
+  bool _open = false;
 
   @override
   void dispose() {
+    _hover?.cancel();
     _focus.dispose();
+    super.dispose();
+  }
+
+  void _show() {
+    _hover?.cancel();
+    if (!_menu.isOpen) _menu.open();
+  }
+
+  void _back() {
+    _menu.close();
+    _focus.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) => RawMenuAnchor(
+    controller: _menu,
+    childFocusNode: _focus,
+    onOpen: () => setState(() => _open = true),
+    onClose: () => setState(() => _open = false),
+    overlayBuilder: (context, info) => PopoverPanel(
+      info: info,
+      side: PopoverSide.right,
+      align: PopoverAlign.start,
+      gap: -4,
+      child: CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.arrowLeft): _back},
+        child: MenuList(focusFirst: true, children: widget.items),
+      ),
+    ),
+    child: _MenuRow(
+      focusNode: _focus,
+      onPressed: widget.enabled ? _show : null,
+      closeOnPress: false,
+      lit: _open,
+      expanded: _open,
+      leading: widget.leading,
+      inset: widget.inset,
+      role: SemanticsRole.menuItem,
+      onHover: () {
+        // A moment's rest opens it, so passing over on the way down does not.
+        _hover?.cancel();
+        _hover = Timer(
+          const Duration(milliseconds: 120),
+          () => mounted ? _show() : null,
+        );
+      },
+      keys: {const SingleActivator(LogicalKeyboardKey.arrowRight): _show},
+      trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+      child: widget.child,
+    ),
+  );
+}
+
+/// The row every kind of menu item draws: an indicator slot for checks and dots, an icon,
+/// the label, a shortcut and a trailing icon; lit under the pointer or the keyboard.
+class _MenuRow extends StatefulWidget {
+  const _MenuRow({
+    required this.child,
+    required this.onPressed,
+    required this.role,
+    this.leading,
+    this.trailing,
+    this.shortcut,
+    this.destructive = false,
+    this.selected,
+    this.checked,
+    this.expanded,
+    this.indicator,
+    this.inset = false,
+    this.autofocus = false,
+    this.closeOnPress = true,
+    this.lit = false,
+    this.focusNode,
+    this.onHover,
+    this.keys = const {},
+  });
+
+  final Widget child;
+  final VoidCallback? onPressed;
+  final SemanticsRole role;
+  final Widget? leading, trailing, shortcut, indicator;
+  final bool destructive, inset, autofocus, closeOnPress, lit;
+  final bool? selected, checked, expanded;
+  final FocusNode? focusNode;
+  final VoidCallback? onHover;
+  final Map<ShortcutActivator, VoidCallback> keys;
+
+  @override
+  State<_MenuRow> createState() => _MenuRowState();
+}
+
+class _MenuRowState extends State<_MenuRow> {
+  FocusNode? _own;
+  FocusNode get _focus => widget.focusNode ?? (_own ??= FocusNode());
+
+  @override
+  void dispose() {
+    _own?.dispose();
     super.dispose();
   }
 
@@ -3332,81 +3736,125 @@ class _MenuItemState extends State<MenuItem> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
+    final menu = MenuController.maybeOf(context);
     return MouseRegion(
-      // The pointer and the keyboard share one highlight, as in a native menu.
-      onEnter: (_) => widget.onPressed == null ? null : _focus.requestFocus(),
+      // The pointer and the keyboard share one highlight, as in a native menu; moving to
+      // another row closes a submenu left open beside this menu.
+      onEnter: (_) {
+        if (widget.onPressed == null) return;
+        _focus.requestFocus();
+        if (widget.onHover != null) {
+          widget.onHover!();
+        } else {
+          menu?.closeChildren();
+        }
+      },
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
         onFocusChange: (_) => setState(() {}),
-        child: Pressable(
-          focusNode: _focus,
-          autofocus: widget.autofocus,
-          role: SemanticsRole.menuItem,
-          selected: widget.selected,
-          onPressed: widget.onPressed == null
-              ? null
-              : () {
-                  MenuController.maybeOf(context)?.close();
-                  widget.onPressed!();
-                },
-          builder: (context, state) {
-            final lit = state.enabled && (state.hovered || _focus.hasFocus);
-            final fg = widget.destructive
-                ? c.destructive
-                : (lit ? c.accentForeground : c.popoverForeground);
-            final bg = lit
-                ? (widget.destructive
-                      ? c.destructive.withValues(alpha: .1)
-                      : c.accent)
-                : const Color(0x00000000);
-            return Opacity(
-              opacity: state.enabled ? 1 : .5,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(t.radiusSm),
-                ),
-                child: DefaultTextStyle.merge(
-                  style: t.text.sm.copyWith(color: fg),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  child: IconTheme.merge(
-                    data: IconThemeData(
-                      color: widget.destructive
-                          ? c.destructive
-                          : c.mutedForeground,
-                      size: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        if (widget.leading != null) ...[
-                          widget.leading!,
-                          const SizedBox(width: 8),
-                        ],
-                        Expanded(child: widget.child),
-                        if (widget.shortcut != null) ...[
-                          const SizedBox(width: 16),
-                          DefaultTextStyle.merge(
-                            style: t.text.xs.copyWith(
-                              color: c.mutedForeground,
-                              letterSpacing: 1.2,
+        child: CallbackShortcuts(
+          bindings: widget.keys,
+          child: Pressable(
+            focusNode: _focus,
+            autofocus: widget.autofocus,
+            role: widget.role,
+            selected: widget.selected,
+            checked: widget.checked,
+            expanded: widget.expanded,
+            onPressed: widget.onPressed == null
+                ? null
+                : () {
+                    if (widget.closeOnPress) {
+                      (_MenuRoot.of(context) ?? menu)?.close();
+                    }
+                    widget.onPressed!();
+                  },
+            builder: (context, state) {
+              final lit =
+                  state.enabled &&
+                  (widget.lit || state.hovered || _focus.hasFocus);
+              final fg = widget.destructive
+                  ? c.destructive
+                  : (lit ? c.accentForeground : c.popoverForeground);
+              final bg = lit
+                  ? (widget.destructive
+                        ? c.destructive.withValues(alpha: .1)
+                        : c.accent)
+                  : const Color(0x00000000);
+              return Opacity(
+                opacity: state.enabled ? 1 : .5,
+                child: Container(
+                  padding: EdgeInsetsDirectional.only(
+                    start: widget.inset ? 32 : 8,
+                    end: 8,
+                    top: 6,
+                    bottom: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(t.radiusSm),
+                  ),
+                  child: DefaultTextStyle.merge(
+                    style: t.text.sm.copyWith(color: fg),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: IconTheme.merge(
+                      data: IconThemeData(
+                        color: widget.destructive
+                            ? c.destructive
+                            : c.mutedForeground,
+                        size: 16,
+                      ),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: AlignmentDirectional.centerStart,
+                        children: [
+                          // Checks and dots sit in the inset, in the item's own colour.
+                          if (widget.indicator != null)
+                            PositionedDirectional(
+                              start: -24,
+                              child: SizedBox(
+                                width: 16,
+                                child: Center(
+                                  child: IconTheme.merge(
+                                    data: IconThemeData(color: fg),
+                                    child: widget.indicator!,
+                                  ),
+                                ),
+                              ),
                             ),
-                            child: widget.shortcut!,
+                          Row(
+                            children: [
+                              if (widget.leading != null) ...[
+                                widget.leading!,
+                                const SizedBox(width: 8),
+                              ],
+                              Expanded(child: widget.child),
+                              if (widget.shortcut != null) ...[
+                                const SizedBox(width: 16),
+                                DefaultTextStyle.merge(
+                                  style: t.text.xs.copyWith(
+                                    color: c.mutedForeground,
+                                    letterSpacing: 1.2,
+                                  ),
+                                  child: widget.shortcut!,
+                                ),
+                              ],
+                              if (widget.trailing != null) ...[
+                                const SizedBox(width: 8),
+                                widget.trailing!,
+                              ],
+                            ],
                           ),
                         ],
-                        if (widget.trailing != null) ...[
-                          const SizedBox(width: 8),
-                          widget.trailing!,
-                        ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -3415,15 +3863,23 @@ class _MenuItemState extends State<MenuItem> {
 
 /// A heading over a group of items.
 class MenuLabel extends StatelessWidget {
-  const MenuLabel({super.key, required this.child});
+  const MenuLabel({super.key, required this.child, this.inset = false});
 
   final Widget child;
+
+  /// Set in, to line up with checkbox and radio items under it.
+  final bool inset;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: EdgeInsetsDirectional.only(
+        start: inset ? 32 : 8,
+        end: 8,
+        top: 6,
+        bottom: 6,
+      ),
       child: DefaultTextStyle.merge(
         style: t.text.sm.copyWith(
           color: t.colors.popoverForeground,
@@ -3662,19 +4118,27 @@ import 'theme.dart';
 /// ```dart
 /// Tooltip(message: 'Add to library', child: Button(size: ButtonSize.icon, semanticLabel: 'Add', onPressed: add, child: AshlarIcon(AshlarIconsRoundedStroke.plus)))
 /// ```
+/// The side of its child a [Tooltip] shows on.
+enum TooltipSide { top, bottom, left, right }
+
 class Tooltip extends StatefulWidget {
   const Tooltip({
     super.key,
     required this.message,
     required this.child,
-    this.below = false,
+    this.side = TooltipSide.top,
+    this.content,
   });
 
+  /// What it says, and what a screen reader hears.
   final String message;
   final Widget child;
 
-  /// Under the child instead of over it. It flips when there is no room.
-  final bool below;
+  /// Which side of the child it shows on. It flips when there is no room.
+  final TooltipSide side;
+
+  /// Shown in place of [message] when there is more to show: a shortcut in Kbd keys.
+  final Widget? content;
 
   @override
   State<Tooltip> createState() => _TooltipState();
@@ -3706,26 +4170,44 @@ class _TooltipState extends State<Tooltip> {
         hoverDelay: Duration.zero,
         positionDelegate: (p) {
           const gap = 4.0, margin = 8.0;
-          final above =
-              p.target.dy -
-              p.targetSize.height / 2 -
-              gap -
-              p.tooltipSize.height;
-          final under = p.target.dy + p.targetSize.height / 2 + gap;
-          final fitsAbove = above >= margin,
-              fitsUnder =
-                  under + p.tooltipSize.height <= p.overlaySize.height - margin;
-          final down = widget.below
-              ? (fitsUnder || !fitsAbove)
-              : !(fitsAbove || !fitsUnder);
-          final x = (p.target.dx - p.tooltipSize.width / 2).clamp(
+          final t = p.target,
+              ts = p.targetSize,
+              size = p.tooltipSize,
+              room = p.overlaySize;
+          double clampX(double x) => x.clamp(
             margin,
-            (p.overlaySize.width - p.tooltipSize.width - margin).clamp(
-              margin,
-              double.infinity,
-            ),
+            (room.width - size.width - margin).clamp(margin, double.infinity),
           );
-          return Offset(x, down ? under : above);
+          double clampY(double y) => y.clamp(
+            margin,
+            (room.height - size.height - margin).clamp(margin, double.infinity),
+          );
+          final above = t.dy - ts.height / 2 - gap - size.height,
+              under = t.dy + ts.height / 2 + gap;
+          final before = t.dx - ts.width / 2 - gap - size.width,
+              after = t.dx + ts.width / 2 + gap;
+          final fitsAbove = above >= margin,
+              fitsUnder = under + size.height <= room.height - margin;
+          final fitsBefore = before >= margin,
+              fitsAfter = after + size.width <= room.width - margin;
+          switch (widget.side) {
+            case TooltipSide.top || TooltipSide.bottom:
+              final down = widget.side == TooltipSide.bottom
+                  ? (fitsUnder || !fitsAbove)
+                  : !(fitsAbove || !fitsUnder);
+              return Offset(
+                clampX(t.dx - size.width / 2),
+                down ? under : above,
+              );
+            case TooltipSide.left || TooltipSide.right:
+              final right = widget.side == TooltipSide.right
+                  ? (fitsAfter || !fitsBefore)
+                  : !(fitsBefore || !fitsAfter);
+              return Offset(
+                right ? after : before,
+                clampY(t.dy - size.height / 2),
+              );
+          }
         },
         tooltipBuilder: (context, animation) => FadeTransition(
           opacity: animation,
@@ -3738,9 +4220,12 @@ class _TooltipState extends State<Tooltip> {
                 color: c.primary,
                 borderRadius: BorderRadius.circular(t.radiusMd),
               ),
-              child: Text(
-                widget.message,
+              child: DefaultTextStyle.merge(
                 style: t.text.xs.copyWith(color: c.primaryForeground),
+                child: IconTheme.merge(
+                  data: IconThemeData(color: c.primaryForeground, size: 12),
+                  child: widget.content ?? Text(widget.message),
+                ),
               ),
             ),
           ),

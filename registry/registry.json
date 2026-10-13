@@ -21,7 +21,7 @@
   "radio": { "description": "A choice of one, in Flutter's RadioGroup, with labels.", "files": ["radio.dart"], "requires": ["theme"] },
   "tabs": { "description": "Views of one thing, one at a time, chosen from a row of tabs.", "files": ["tabs.dart"], "requires": ["theme", "pressable"] },
   "popover": { "description": "A panel that opens from a trigger and floats over the page.", "files": ["popover.dart"], "requires": ["theme"] },
-  "dropdown-menu": { "description": "A list of actions that opens from a trigger.", "files": ["dropdown_menu.dart"], "requires": ["theme", "pressable", "popover"] },
+  "dropdown-menu": { "description": "A menu of actions from a trigger: checkbox and radio items, groups and submenus.", "files": ["dropdown_menu.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
   "select": { "description": "Picks one value from a list that opens under it.", "files": ["select.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"], "packages": ["ashlar_icons"] },
   "tooltip": { "description": "A short label over a control on hover, focus or long press.", "files": ["tooltip.dart"], "requires": ["theme"] },
   "toast": { "description": "A short message at the bottom of the screen that goes by itself.", "files": ["toast.dart"], "requires": ["theme"] },

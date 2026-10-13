@@ -13,19 +13,27 @@ import 'theme.dart';
 /// ```dart
 /// Tooltip(message: 'Add to library', child: Button(size: ButtonSize.icon, semanticLabel: 'Add', onPressed: add, child: AshlarIcon(AshlarIconsRoundedStroke.plus)))
 /// ```
+/// The side of its child a [Tooltip] shows on.
+enum TooltipSide { top, bottom, left, right }
+
 class Tooltip extends StatefulWidget {
   const Tooltip({
     super.key,
     required this.message,
     required this.child,
-    this.below = false,
+    this.side = TooltipSide.top,
+    this.content,
   });
 
+  /// What it says, and what a screen reader hears.
   final String message;
   final Widget child;
 
-  /// Under the child instead of over it. It flips when there is no room.
-  final bool below;
+  /// Which side of the child it shows on. It flips when there is no room.
+  final TooltipSide side;
+
+  /// Shown in place of [message] when there is more to show: a shortcut in Kbd keys.
+  final Widget? content;
 
   @override
   State<Tooltip> createState() => _TooltipState();
@@ -57,26 +65,44 @@ class _TooltipState extends State<Tooltip> {
         hoverDelay: Duration.zero,
         positionDelegate: (p) {
           const gap = 4.0, margin = 8.0;
-          final above =
-              p.target.dy -
-              p.targetSize.height / 2 -
-              gap -
-              p.tooltipSize.height;
-          final under = p.target.dy + p.targetSize.height / 2 + gap;
-          final fitsAbove = above >= margin,
-              fitsUnder =
-                  under + p.tooltipSize.height <= p.overlaySize.height - margin;
-          final down = widget.below
-              ? (fitsUnder || !fitsAbove)
-              : !(fitsAbove || !fitsUnder);
-          final x = (p.target.dx - p.tooltipSize.width / 2).clamp(
+          final t = p.target,
+              ts = p.targetSize,
+              size = p.tooltipSize,
+              room = p.overlaySize;
+          double clampX(double x) => x.clamp(
             margin,
-            (p.overlaySize.width - p.tooltipSize.width - margin).clamp(
-              margin,
-              double.infinity,
-            ),
+            (room.width - size.width - margin).clamp(margin, double.infinity),
           );
-          return Offset(x, down ? under : above);
+          double clampY(double y) => y.clamp(
+            margin,
+            (room.height - size.height - margin).clamp(margin, double.infinity),
+          );
+          final above = t.dy - ts.height / 2 - gap - size.height,
+              under = t.dy + ts.height / 2 + gap;
+          final before = t.dx - ts.width / 2 - gap - size.width,
+              after = t.dx + ts.width / 2 + gap;
+          final fitsAbove = above >= margin,
+              fitsUnder = under + size.height <= room.height - margin;
+          final fitsBefore = before >= margin,
+              fitsAfter = after + size.width <= room.width - margin;
+          switch (widget.side) {
+            case TooltipSide.top || TooltipSide.bottom:
+              final down = widget.side == TooltipSide.bottom
+                  ? (fitsUnder || !fitsAbove)
+                  : !(fitsAbove || !fitsUnder);
+              return Offset(
+                clampX(t.dx - size.width / 2),
+                down ? under : above,
+              );
+            case TooltipSide.left || TooltipSide.right:
+              final right = widget.side == TooltipSide.right
+                  ? (fitsAfter || !fitsBefore)
+                  : !(fitsBefore || !fitsAfter);
+              return Offset(
+                right ? after : before,
+                clampY(t.dy - size.height / 2),
+              );
+          }
         },
         tooltipBuilder: (context, animation) => FadeTransition(
           opacity: animation,
@@ -89,9 +115,12 @@ class _TooltipState extends State<Tooltip> {
                 color: c.primary,
                 borderRadius: BorderRadius.circular(t.radiusMd),
               ),
-              child: Text(
-                widget.message,
+              child: DefaultTextStyle.merge(
                 style: t.text.xs.copyWith(color: c.primaryForeground),
+                child: IconTheme.merge(
+                  data: IconThemeData(color: c.primaryForeground, size: 12),
+                  child: widget.content ?? Text(widget.message),
+                ),
               ),
             ),
           ),

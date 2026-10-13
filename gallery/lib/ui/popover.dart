@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'theme.dart';
 
 /// Which side of its trigger a panel opens on. It flips when there is no room.
-enum PopoverSide { top, bottom }
+enum PopoverSide { top, bottom, left, right }
 
 /// How a panel lines up with its trigger.
 enum PopoverAlign { start, center, end }
@@ -89,6 +89,7 @@ class PopoverPanel extends StatelessWidget {
     this.width,
     this.minWidth = 128,
     this.matchWidth = false,
+    this.gap = 4,
   });
 
   final RawMenuOverlayInfo info;
@@ -102,6 +103,10 @@ class PopoverPanel extends StatelessWidget {
 
   /// At least as wide as the trigger.
   final bool matchWidth;
+
+  /// The space between the trigger and the panel; a submenu overlaps its row with a
+  /// little less than none.
+  final double gap;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +126,7 @@ class PopoverPanel extends StatelessWidget {
               ),
         side,
         align,
+        gap,
       ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
@@ -133,7 +139,7 @@ class PopoverPanel extends StatelessWidget {
             SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
           },
           child: _Entrance(
-            fromTop: side == PopoverSide.bottom,
+            side: side,
             duration: t.duration,
             child: Container(
               width: width == null ? null : (width! < min ? min : width),
@@ -160,21 +166,35 @@ class PopoverPanel extends StatelessWidget {
 }
 
 class _Place extends SingleChildLayoutDelegate {
-  _Place(this.anchor, this.side, this.align);
+  _Place(this.anchor, this.side, this.align, this.gap);
 
   final Rect anchor;
   final PopoverSide side;
   final PopoverAlign align;
-  static const gap = 4.0, margin = 8.0;
+  final double gap;
+  static const margin = 8.0;
+
+  bool get _across => side == PopoverSide.left || side == PopoverSide.right;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
     final room = constraints.biggest;
+    if (_across) {
+      // Beside the trigger: the whole height, and the wider side's width.
+      final right = room.width - anchor.right - gap - margin,
+          left = anchor.left - gap - margin;
+      final width = side == PopoverSide.right
+          ? (right >= 200 || right >= left ? right : left)
+          : (left >= 200 || left >= right ? left : right);
+      return BoxConstraints.loose(
+        Size(width.clamp(0, room.width), room.height - margin * 2),
+      );
+    }
     final below = room.height - anchor.bottom - gap - margin,
         above = anchor.top - gap - margin;
-    final height = (side == PopoverSide.bottom
+    final height = side == PopoverSide.bottom
         ? (below >= 200 || below >= above ? below : above)
-        : (above >= 200 || above >= below ? above : below));
+        : (above >= 200 || above >= below ? above : below);
     return BoxConstraints.loose(
       Size(room.width - margin * 2, height.clamp(0, room.height)),
     );
@@ -182,14 +202,49 @@ class _Place extends SingleChildLayoutDelegate {
 
   @override
   Offset getPositionForChild(Size size, Size child) {
-    var x = switch (align) {
-      PopoverAlign.start => anchor.left,
-      PopoverAlign.center => anchor.center.dx - child.width / 2,
-      PopoverAlign.end => anchor.right - child.width,
-    };
-    x = x.clamp(
-      margin,
-      (size.width - child.width - margin).clamp(margin, double.infinity),
+    double along(
+      double start,
+      double centre,
+      double end,
+      double length,
+      double room,
+    ) {
+      final v = switch (align) {
+        PopoverAlign.start => start,
+        PopoverAlign.center => centre - length / 2,
+        PopoverAlign.end => end - length,
+      };
+      return v.clamp(
+        margin,
+        (room - length - margin).clamp(margin, double.infinity),
+      );
+    }
+
+    if (_across) {
+      final y = along(
+        anchor.top,
+        anchor.center.dy,
+        anchor.bottom,
+        child.height,
+        size.height,
+      );
+      final fitsRight = anchor.right + gap + child.width <= size.width - margin;
+      final fitsLeft = anchor.left - gap - child.width >= margin;
+      // The side asked for, unless it does not fit and the other does.
+      final right = side == PopoverSide.right
+          ? (fitsRight || !fitsLeft)
+          : !(fitsLeft || !fitsRight);
+      return Offset(
+        right ? anchor.right + gap : anchor.left - gap - child.width,
+        y,
+      );
+    }
+    final x = along(
+      anchor.left,
+      anchor.center.dx,
+      anchor.right,
+      child.width,
+      size.width,
     );
     final fitsBelow =
         anchor.bottom + gap + child.height <= size.height - margin;
@@ -197,30 +252,42 @@ class _Place extends SingleChildLayoutDelegate {
     final down = side == PopoverSide.bottom
         ? (fitsBelow || !fitsAbove)
         : !(fitsAbove || !fitsBelow);
-    final y = down ? anchor.bottom + gap : anchor.top - gap - child.height;
-    return Offset(x, y);
+    return Offset(
+      x,
+      down ? anchor.bottom + gap : anchor.top - gap - child.height,
+    );
   }
 
   @override
   bool shouldRelayout(_Place old) =>
-      old.anchor != anchor || old.side != side || old.align != align;
+      old.anchor != anchor ||
+      old.side != side ||
+      old.align != align ||
+      old.gap != gap;
 }
 
 /// Fades the panel in, grown from 95%, sliding a little from the trigger's side.
 class _Entrance extends StatelessWidget {
   const _Entrance({
     required this.child,
-    required this.fromTop,
+    required this.side,
     required this.duration,
   });
 
   final Widget child;
-  final bool fromTop;
+  final PopoverSide side;
   final Duration duration;
 
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+    // It comes a little way out of the trigger, growing from the edge nearest it.
+    final (Offset from, Alignment origin) = switch (side) {
+      PopoverSide.bottom => (const Offset(0, -8), Alignment.topCenter),
+      PopoverSide.top => (const Offset(0, 8), Alignment.bottomCenter),
+      PopoverSide.right => (const Offset(-8, 0), Alignment.centerLeft),
+      PopoverSide.left => (const Offset(8, 0), Alignment.centerRight),
+    };
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: duration,
@@ -229,10 +296,10 @@ class _Entrance extends StatelessWidget {
       builder: (context, v, child) => Opacity(
         opacity: v,
         child: Transform.translate(
-          offset: Offset(0, (1 - v) * (fromTop ? -8 : 8)),
+          offset: from * (1 - v),
           child: Transform.scale(
             scale: .95 + .05 * v,
-            alignment: fromTop ? Alignment.topCenter : Alignment.bottomCenter,
+            alignment: origin,
             child: child,
           ),
         ),
