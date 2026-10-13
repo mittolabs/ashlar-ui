@@ -17,7 +17,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Components | 62 | 55 |
 | Showcase situations across components | about 480 | 55 (one demo each) |
 | Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 27: the same set |
-| Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 4 kinds, no radar or radial |
+| Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 58, across the same seven |
 | Themes | 7 base colours and 17 accent colours | the same 7 and 17, with contrast floors |
 | Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 6: standard, compact, rounded, sharp, dense, soft |
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
@@ -190,6 +190,16 @@ chosen again), `build` (a registry of your own to host), and `@name/item` from a
 address or a folder named in `ashlar.json`, with paths that would leave the project
 refused. Not carried over: `mcp`, `migrate`, `eject` and preset codes; `docs` and `info`
 are covered by `view` and `list`.
+
+**Step 8, charts: done** (13 October 2026, 0c02b25, 7bde02d). RadarChart (polygon, circle or
+no grid, filled bands, outlines, dots, spokes) and RadialChart (rings or stacked, whole or
+half circle, track, centre figure). Lines and areas step or run straight, with dots and
+values; areas and bars stack to 100%; bars lie along, go below zero, take a colour each
+and stand out one at a time; a value axis; pies write names or values, draw a slice out,
+drop separators and take an inner ring. Tooltips: dot, line, dashed or no marks, titles
+your way, icons, a total. Legends hide and show series by pointer or keyboard. The site's
+Charts page shows 58 variants (shadcn has 71; theirs include several near-identical label
+and colour versions), each live and with its code.
 
 ## Plan
 
