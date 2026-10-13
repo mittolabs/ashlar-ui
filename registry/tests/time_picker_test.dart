@@ -98,6 +98,13 @@ void main() {
     testWidgets(
       'opened by a click no column is outlined; once a key is used, the focused one is',
       (tester) async {
+        // As on a desktop, where a click counts as keyboard-style input.
+        FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.alwaysTraditional;
+        addTearDown(
+          () => FocusManager.instance.highlightStrategy =
+              FocusHighlightStrategy.automatic,
+        );
         await pump(tester, start: const ClockTime(9, 30));
         await tester.tap(find.text('09:30'));
         await tester.pumpAndSettle();
