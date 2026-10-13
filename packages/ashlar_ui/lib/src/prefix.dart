@@ -1,5 +1,5 @@
 // A project's own prefix on the components' names, as a design system marks its parts:
-// SLButton, SLTheme, slShowToast. Chosen at ashlar init and applied to every file ashlar
+// SLButton, SLTheme, showSLToast. Chosen at ashlar init and applied to every file ashlar
 // writes, so the components read as the project's own and never clash with Material's.
 
 import 'check.dart' show codeOnly;
@@ -49,8 +49,17 @@ Map<String, String> prefixedNames(String prefix) {
           ? n.replaceFirst('Ashlar', prefix)
           : n[0] == n[0].toUpperCase()
           ? '$prefix$n'
-          : '$lower${n[0].toUpperCase()}${n.substring(1)}',
+          : _afterFirstWord(n, prefix),
   };
+}
+
+/// A function's name with [prefix] after its first word, as Flutter names its own:
+/// showToast becomes showSLToast, as showDialog would. A name of one word takes it last.
+String _afterFirstWord(String name, String prefix) {
+  final at = name.indexOf(RegExp('[A-Z]'));
+  return at < 0
+      ? '$name$prefix'
+      : '${name.substring(0, at)}$prefix${name.substring(at)}';
 }
 
 /// [source] with each of [names] renamed: in its code, and in its comments where a name is

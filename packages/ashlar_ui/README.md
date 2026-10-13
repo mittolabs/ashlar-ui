@@ -34,7 +34,7 @@ Run it in the root of a Flutter project.
 A design system marks its parts as its own: `SLButton` at one company, `MzButton` at
 another. `ashlar init --prefix SL` does that for every name the components declare:
 `Button` becomes `SLButton`, `AshlarTheme` becomes `SLTheme`, `showToast` becomes
-`slShowToast`. Names then never clash with Material's `Card`, `Checkbox` or `Dialog` in
+`showSLToast`. Names then never clash with Material's `Card`, `Checkbox` or `Dialog` in
 a file that imports both. Text and prose are left alone; code, `[names]` in doc comments
 and their examples are renamed. The blocks, whole screens of your app, keep their own names.
 

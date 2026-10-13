@@ -1,4 +1,4 @@
-// A project's own prefix on the components' names: SLButton, SLTheme, slShowToast.
+// A project's own prefix on the components' names: SLButton, SLTheme, showSLToast.
 import 'dart:io';
 
 import 'package:ashlar_ui/ashlar_ui.dart';
@@ -33,8 +33,10 @@ void main() {
       expect(names['ClockTime'], 'SLClockTime');
     });
 
-    test('functions take it in lower case', () {
-      expect(names['showToast'], 'slShowToast');
+    test('functions take it after their first word, as showDialog would', () {
+      expect(names['showToast'], 'showSLToast');
+      expect(names['showAlertDialog'], 'showSLAlertDialog');
+      expect(names['isRtl'], 'isSLRtl');
       expect(names['ashlarColors'], 'slColors');
       expect(names['showAshlarDialog'], 'showSLDialog');
     });
