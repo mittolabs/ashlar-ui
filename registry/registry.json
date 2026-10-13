@@ -24,7 +24,7 @@
   "dropdown-menu": { "description": "A menu of actions from a trigger: checkbox and radio items, groups and submenus.", "files": ["dropdown_menu.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
   "select": { "description": "Picks one value from a list: groups, icons, type to find, and long lists.", "files": ["select.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
   "tooltip": { "description": "A short label over a control on hover, focus or long press.", "files": ["tooltip.dart"], "requires": ["theme"] },
-  "toast": { "description": "A short message at the bottom of the screen that goes by itself.", "files": ["toast.dart"], "requires": ["theme"] },
+  "toast": { "description": "Short messages that go by themselves: types, promises and a stack.", "files": ["toast.dart"], "requires": ["theme"], "packages": ["ashlar_icons"] },
   "group": { "description": "Joins controls into one piece: Button Group and Toggle Group use it.", "files": ["group.dart"] },
   "button-group": { "description": "Buttons joined into one piece, for actions that belong together.", "files": ["button_group.dart"], "requires": ["group"] },
   "typography": { "description": "Headings, paragraphs, quotes and lists in the theme's type.", "files": ["typography.dart"], "requires": ["theme"] },
