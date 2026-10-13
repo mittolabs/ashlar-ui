@@ -26,6 +26,7 @@ Run it in the root of a Flutter project.
 | `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
 | `ashlar update [item...]` | Takes what is newer in this version and keeps your changes: a file you have not changed is replaced; one you have is merged, line by line, from the copy ashlar wrote. Where you and this version changed the same lines, both are kept between `<<<<<<< yours` and `>>>>>>> ashlar` for you to choose. `--dry-run` says what it would do. |
 | `ashlar check` | Reports what can be proved about your app's accessibility: your theme's contrast, measured, and in your source icon-only buttons without a label, left and right where start and end belong, and touch targets turned off. Exits 1 when it finds something, for CI. `--no-contrast` skips the measuring. |
+| `ashlar mcp` | These commands for a coding agent, over the Model Context Protocol on standard input and output. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
 
 ## Tests that come with each component
@@ -62,6 +63,23 @@ with its reason.
 
 The field borders Ashlar and shadcn draw are 1.2 to 1.5:1, a choice of look that
 `ashlar check` reports.
+
+## For coding agents
+
+`ashlar mcp` serves the commands to a coding agent over MCP: `search_components`,
+`view_component` (the source, whose doc comments are the API), `add_components`,
+`update_components` and `check_app`. Each runs the command a person would, in the folder
+the agent starts it in. In Claude Code:
+
+```sh
+claude mcp add ashlar -- ashlar mcp
+```
+
+Other agents take the same command in their MCP settings:
+
+```json
+{ "mcpServers": { "ashlar": { "command": "ashlar", "args": ["mcp"] } } }
+```
 
 ## Keeping your changes through updates
 

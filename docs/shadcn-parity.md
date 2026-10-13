@@ -265,5 +265,5 @@ Three bets for being better than shadcn rather than a copy of it, in order:
    - Open: field borders are 1.2 to 1.5:1 in every theme, as shadcn's are, under the 3:1
      WCAG 1.4.11 asks of a field's outline. Darker borders change the look; undecided.
 
-Later: an MCP server, so coding agents can search, view and add components with the same
-API reference the site shows.
+Then, done: `ashlar mcp`, the commands for coding agents over MCP (search, view, add,
+update, check), each running what a person would run. Checked with the MCP Inspector.

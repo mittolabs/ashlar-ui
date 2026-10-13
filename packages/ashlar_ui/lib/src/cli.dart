@@ -4,6 +4,7 @@ import 'dart:io';
 import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
+import 'mcp.dart';
 import 'merge.dart';
 import 'registry.g.dart';
 import 'remote.dart';
@@ -56,6 +57,8 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar update [item...] [--dry-run]   take what is newer, keeping your changes
   ashlar check [--no-contrast]          what can be proved about your app's accessibility:
                                         theme contrast, labels, right to left, touch targets
+  ashlar mcp                            these commands for a coding agent, over MCP on
+                                        standard input and output
   ashlar build [registry.json]          make your own registry's files to host
              [--out public/r]
 
@@ -96,7 +99,13 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
               options.contains(rest[i - 1].substring(2))))
         rest[i],
   ];
-  final needsFlutter = !{'list', 'search', 'view', 'build'}.contains(command);
+  final needsFlutter = ![
+    'list',
+    'search',
+    'view',
+    'build',
+    'mcp',
+  ].contains(command);
   final pubspec = File('${root.path}/pubspec.yaml');
   if (needsFlutter &&
       (!pubspec.existsSync() ||
@@ -255,6 +264,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       }
       if (found == 0) o.writeln('Nothing matches "$query".');
       return 0;
+    case 'mcp':
+      return serveStdio(root);
     case 'check':
       return project.check(contrast: !rest.contains('--no-contrast'), out: o);
     case 'diff':
