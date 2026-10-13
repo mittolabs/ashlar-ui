@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
+import 'book.dart';
 import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
@@ -65,6 +66,8 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
              [--preview]                draw what it would change, before and after
   ashlar check [--no-contrast]          what can be proved about your app's accessibility:
                                         theme contrast, labels, right to left, touch targets
+  ashlar book                           a catalog of your components, in your theme,
+                                        to run as an app of its own
   ashlar mcp                            these commands for a coding agent, over MCP on
                                         standard input and output
   ashlar build [registry.json]          make your own registry's files to host
@@ -292,6 +295,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       }
       if (found == 0) o.writeln('Nothing matches "$query".');
       return 0;
+    case 'book':
+      return project.book(o);
     case 'mcp':
       return serveStdio(root);
     case 'check':
@@ -991,6 +996,34 @@ class Project {
     return conflicts > 0 ? 1 : 0;
   }
 
+  /// Writes a catalog of the components the app has, in its theme, to run as an app.
+  int book(StringSink out) {
+    final items = <ReviewItem>[
+      for (final MapEntry(key: name, value: c) in registry.entries)
+        if (!c.block && c.preview != null && has(c))
+          (name: name, widget: named(c.previewWidget!), preview: c.preview!),
+    ];
+    final r = writeBook(
+      root: root,
+      package: _package ?? '',
+      path: path,
+      items: items,
+      named: named,
+      rename: (s) => withPrefix(s, _names),
+    );
+    if (r.main == null) {
+      out.writeln('No catalog: ${r.why}.');
+      return 64;
+    }
+    final fvm = File('${root.path}/.fvmrc').existsSync();
+    out
+      ..writeln(
+        'Your catalog of ${items.length} component${items.length == 1 ? '' : 's'}: ${r.main}',
+      )
+      ..writeln('Run it: ${fvm ? 'fvm ' : ''}flutter run -t ${r.main}');
+    return 0;
+  }
+
   /// Draws each of [chosen] that [would] changes, before and after; one with places to
   /// choose ([unsure]) is not drawn, since it does not build until they are chosen.
   Future<void> _review(
@@ -1028,6 +1061,7 @@ class Project {
     );
     final r = await drawReview(
       root: root,
+      package: _package ?? '',
       path: path,
       after: would,
       items: items,

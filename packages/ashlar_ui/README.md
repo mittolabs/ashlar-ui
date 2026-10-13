@@ -26,6 +26,7 @@ Run it in the root of a Flutter project.
 | `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
 | `ashlar update [item...]` | Takes what is newer in this version and keeps your changes: a file you have not changed is replaced; one you have is merged, line by line, from the copy ashlar wrote. Where you and this version changed the same lines, both are kept between `<<<<<<< yours` and `>>>>>>> ashlar` for you to choose. `--dry-run` says what it would do. `--preview` draws each component the update would change, in your theme, as it is and as it would be, side by side on a page in `.ashlar/review`, changing nothing. |
 | `ashlar check` | Reports what can be proved about your app's accessibility: your theme's contrast, measured, and in your source icon-only buttons without a label, left and right where start and end belong, and touch targets turned off. Exits 1 when it finds something, for CI. `--no-contrast` skips the measuring. |
+| `ashlar book` | Writes a catalog of the components you have, in your theme, to `.ashlar/book`: an app of its own with a page for each, and switches for dark, text at 200% and right to left. `flutter run -t .ashlar/book/main.dart` runs it on any device. |
 | `ashlar mcp` | These commands for a coding agent, over the Model Context Protocol on standard input and output. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
 

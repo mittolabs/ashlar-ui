@@ -14,6 +14,7 @@ typedef ReviewItem = ({String name, String widget, String preview});
 /// does the same to a source. Returns the page's path, or why it could not be drawn.
 Future<({String? page, String? why})> drawReview({
   required Directory root,
+  required String package,
   required String path,
   required Map<String, String> after,
   required List<ReviewItem> items,
@@ -43,15 +44,16 @@ Future<({String? page, String? why})> drawReview({
       ..writeAsStringSync(after['$path/$rel'] ?? f.readAsStringSync());
   }
   // Each preview twice: importing the components as they are, and as they would be.
-  final up = '../../../$path';
+  // The app's own components, as any file in the app imports them.
+  final up = 'package:$package/${path.substring(4)}';
   for (final i in items) {
     final source = rename(i.preview);
-    File('${dir.path}/before/${i.name}.dart')
+    File('${dir.path}/before/${i.name.replaceAll('-', '_')}.dart')
       ..createSync(recursive: true)
       ..writeAsStringSync(
         source.replaceAll('package:ashlar_ui_gallery/ui/', '$up/'),
       );
-    File('${dir.path}/after/previews/${i.name}.dart')
+    File('${dir.path}/after/previews/${i.name.replaceAll('-', '_')}.dart')
       ..createSync(recursive: true)
       ..writeAsStringSync(
         source.replaceAll('package:ashlar_ui_gallery/ui/', '../ui/'),
@@ -78,12 +80,14 @@ ${hasTheme ? "import '$ui/app_theme.dart' as ${as}Chosen;" : ''}''';
     ..writeln("import 'package:flutter/services.dart';")
     ..writeln("import 'package:flutter/widgets.dart';")
     ..writeln("import 'package:flutter_test/flutter_test.dart';")
-    ..writeln(sideImports('before', '../../$path'))
+    ..writeln(sideImports('before', up))
     ..writeln(sideImports('after', 'after/ui'));
   for (final (n, i) in items.indexed) {
     harness
-      ..writeln("import 'before/${i.name}.dart' as b$n;")
-      ..writeln("import 'after/previews/${i.name}.dart' as a$n;");
+      ..writeln("import 'before/${i.name.replaceAll('-', '_')}.dart' as b$n;")
+      ..writeln(
+        "import 'after/previews/${i.name.replaceAll('-', '_')}.dart' as a$n;",
+      );
   }
   String theme(String as) {
     final chosen = hasTheme
