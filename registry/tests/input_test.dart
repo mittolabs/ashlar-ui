@@ -1,0 +1,121 @@
+// Tests for Input. Copied into your app by `ashlar add input` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// The decoration of the first box a control draws.
+BoxDecoration box(WidgetTester tester, Finder of) =>
+    tester
+            .widget<AnimatedContainer>(
+              find
+                  .descendant(of: of, matching: find.byType(AnimatedContainer))
+                  .first,
+            )
+            .decoration!
+        as BoxDecoration;
+
+void main() {
+  group('Input', () {
+    testWidgets(
+      'typing fills it, hides the placeholder and reports each change',
+      (tester) async {
+        final seen = <String>[];
+        await tester.pumpWidget(
+          app(
+            SizedBox(
+              width: 300,
+              child: Input(placeholder: 'Email', onChanged: seen.add),
+            ),
+          ),
+        );
+        expect(find.text('Email'), findsOneWidget);
+        await tester.tap(find.byType(Input));
+        await tester.enterText(find.byType(EditableText), 'a@solutech.co.ke');
+        await tester.pump();
+        expect(find.text('Email'), findsNothing);
+        expect(seen.last, 'a@solutech.co.ke');
+      },
+    );
+
+    testWidgets('focus draws the ring; an error draws it red', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 300,
+            child: Column(
+              children: [
+                Input(placeholder: 'A'),
+                Input(placeholder: 'B', error: true),
+              ],
+            ),
+          ),
+        ),
+      );
+      final first = find.byType(Input).first, second = find.byType(Input).last;
+      expect(
+        box(tester, first).boxShadow!.any((s) => s.spreadRadius == 3),
+        isFalse,
+      );
+      await tester.tap(first);
+      await tester.pumpAndSettle();
+      expect(
+        box(tester, first).boxShadow!.any((s) => s.spreadRadius == 3),
+        isTrue,
+      );
+      expect(
+        (box(tester, second).border! as Border).top.color,
+        AshlarColors.light.destructive,
+      );
+    });
+
+    testWidgets('a screen reader hears a text field named by its placeholder', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const SizedBox(width: 300, child: Input(placeholder: 'Email'))),
+      );
+      final node = tester.getSemantics(find.byType(EditableText));
+      expect(node.label, 'Email');
+      expect(node.flagsCollection.isTextField, isTrue);
+      expect(node.flagsCollection.isFocused != Tristate.none, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('disabled, it does not take focus', (tester) async {
+      final focus = FocusNode();
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 300,
+            child: Input(
+              placeholder: 'Email',
+              enabled: false,
+              focusNode: focus,
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Input));
+      await tester.pump();
+      await tester.enterText(find.byType(EditableText), 'x');
+      expect(find.text('x'), findsNothing);
+      focus.dispose();
+    });
+  });
+}

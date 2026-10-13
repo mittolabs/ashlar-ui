@@ -6,12 +6,14 @@ import 'component.dart';
 /// Every component the ashlar command can add, by name.
 const registry = <String, Component>{
   'theme': Component(
-    description: "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
+    description:
+        "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'theme.dart': r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
+      'theme.dart':
+          r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
 
 import 'package:flutter/foundation.dart'
@@ -585,7 +587,8 @@ class AboveKeyboard extends StatelessWidget {
   );
 }
 ''',
-      'palette.dart': r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
+      'palette.dart':
+          r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
 //
 // GENERATED from shadcn/ui's themes (registry/themes.ts, oklch converted to sRGB) by the
 // palette tool. Edit the tool, not this file, to change every colour at once.
@@ -1512,12 +1515,14 @@ const _accents = <AshlarAccent, (_Accent, _Accent)>{
     },
   ),
   'app': Component(
-    description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
-    requires: ["theme","selection"],
+    description:
+        "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
+    requires: ["theme", "selection"],
     packages: [],
     block: false,
     files: {
-      'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
+      'app.dart':
+          r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
 
 import 'package:flutter/foundation.dart';
@@ -1734,12 +1739,14 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     },
   ),
   'pressable': Component(
-    description: "Hover, press, keyboard focus and activation, and a press area big enough for a finger, for every control.",
-    requires: ["theme","group"],
+    description:
+        "Hover, press, keyboard focus and activation, and a press area big enough for a finger, for every control.",
+    requires: ["theme", "group"],
     packages: [],
     block: false,
     files: {
-      'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
+      'pressable.dart':
+          r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
@@ -1955,12 +1962,14 @@ class _PressableState extends State<Pressable> {
     },
   ),
   'button': Component(
-    description: "Six variants and four sizes, with leading and trailing icons.",
-    requires: ["theme","pressable","group"],
+    description:
+        "Six variants and four sizes, with leading and trailing icons.",
+    requires: ["theme", "pressable", "group"],
     packages: [],
     block: false,
     files: {
-      'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
+      'button.dart':
+          r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2191,6 +2200,217 @@ class Button extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "theme"],
+    tests: {
+      'button_test.dart':
+          r'''// Tests for Button. Copied into your app by `ashlar add button` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// The decoration of the first box a control draws.
+BoxDecoration box(WidgetTester tester, Finder of) =>
+    tester
+            .widget<AnimatedContainer>(
+              find
+                  .descendant(of: of, matching: find.byType(AnimatedContainer))
+                  .first,
+            )
+            .decoration!
+        as BoxDecoration;
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Button', () {
+    testWidgets('a tap, Enter and Space all press it', (tester) async {
+      var presses = 0;
+      await tester.pumpWidget(
+        app(Button(onPressed: () => presses++, child: const Text('Save'))),
+      );
+      await tester.tap(find.text('Save'));
+      expect(presses, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(presses, 3);
+    });
+
+    testWidgets('disabled, it ignores taps and is announced as disabled', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const Button(onPressed: null, child: Text('Save'))),
+      );
+      await tester.tap(find.text('Save'), warnIfMissed: false);
+      expect(
+        tester.getSemantics(find.text('Save')),
+        matchesSemantics(
+          label: 'Save',
+          isButton: true,
+          hasEnabledState: true,
+          isFocusable: false,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('a screen reader hears its text as a button', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(Button(onPressed: () {}, child: const Text('Save'))),
+      );
+      expect(
+        tester.getSemantics(find.text('Save')),
+        matchesSemantics(
+          label: 'Save',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          hasTapAction: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('the focus ring shows for keyboard focus, not for a tap', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(Button(onPressed: () {}, child: const Text('Save'))),
+      );
+      final button = find.byType(Button);
+      bool ring() =>
+          box(tester, button).boxShadow!.any((s) => s.spreadRadius == 3);
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(ring(), isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(ring(), isTrue);
+    });
+
+    testWidgets('hovering changes its fill', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Button(
+            variant: ButtonVariant.outline,
+            onPressed: () {},
+            child: const Text('Save'),
+          ),
+        ),
+      );
+      final before = box(tester, find.byType(Button)).color;
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.text('Save')));
+      await tester.pumpAndSettle();
+      expect(box(tester, find.byType(Button)).color, isNot(before));
+      expect(box(tester, find.byType(Button)).color, AshlarColors.light.accent);
+    });
+
+    testWidgets('every variant and size lays out without overflow', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          Wrap(
+            children: [
+              for (final v in ButtonVariant.values)
+                for (final s in ButtonSize.values)
+                  Button(
+                    variant: v,
+                    size: s,
+                    onPressed: () {},
+                    semanticLabel: 'x',
+                    child: const Text('Go'),
+                  ),
+            ],
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final heights = [
+        for (final e in find.byType(Button).evaluate()) e.size!.height,
+      ];
+      expect(heights.take(4), [32, 36, 40, 36]);
+    });
+  });
+
+  testWidgets(
+    'button sizes, and an invalid button draws a destructive border',
+    (tester) async {
+      await tester.pumpWidget(
+        app2(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final s in [
+                ButtonSize.xs,
+                ButtonSize.iconXs,
+                ButtonSize.iconSm,
+                ButtonSize.iconLg,
+              ])
+                Button(
+                  size: s,
+                  semanticLabel: '$s',
+                  onPressed: () {},
+                  child: const Text('A'),
+                ),
+              Button(
+                variant: ButtonVariant.outline,
+                error: true,
+                onPressed: () {},
+                child: const Text('Bad'),
+              ),
+            ],
+          ),
+        ),
+      );
+      final sizes = [
+        for (final e in find.byType(Button).evaluate().take(4)) e.size!,
+      ];
+      expect(sizes.map((s) => s.height), [24, 24, 32, 40]);
+      expect(sizes.skip(1).map((s) => s.width), [24, 32, 40]);
+      final bad = tester.widget<AnimatedContainer>(
+        find.descendant(
+          of: find.byType(Button).last,
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      expect(
+        ((bad.decoration! as BoxDecoration).border! as Border).top.color,
+        AshlarColors.light.destructive,
+      );
+    },
+  );
+}
+''',
+    },
   ),
   'badge': Component(
     description: "A small label: a status, a count, a tag.",
@@ -2198,7 +2418,8 @@ class Button extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'badge.dart': r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
+      'badge.dart':
+          r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2296,7 +2517,8 @@ class Badge extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'card.dart': r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
+      'card.dart':
+          r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2524,6 +2746,99 @@ class CardFooter extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "badge", "button", "separator", "theme"],
+    tests: {
+      'card_test.dart':
+          r'''// Tests for Card. Copied into your app by `ashlar add card` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/badge.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/card.dart';
+import 'package:ashlar_ui_gallery/ui/separator.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Card, Badge and Separator', () {
+    testWidgets('lay out in light and dark without overflow', (tester) async {
+      for (final mode in [AshlarThemeMode.light, AshlarThemeMode.dark]) {
+        await tester.pumpWidget(
+          app(
+            SizedBox(
+              width: 360,
+              child: Card(
+                children: [
+                  const CardHeader(
+                    title: Text('Title'),
+                    description: Text('Description'),
+                    action: Badge(child: Text('New')),
+                  ),
+                  const CardContent(child: Separator()),
+                  CardFooter(
+                    children: [
+                      Button(onPressed: () {}, child: const Text('OK')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            mode: mode,
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.text('New'), findsOneWidget);
+      }
+    });
+  });
+
+  testWidgets(
+    'a small card pads by 16; an image runs to its edges; a header can be lined',
+    (tester) async {
+      await tester.pumpWidget(
+        app2(
+          SizedBox(
+            width: 300,
+            child: Card(
+              size: CardSize.sm,
+              children: [
+                const CardImage(
+                  height: 100,
+                  child: ColoredBox(color: Color(0xFF888888)),
+                ),
+                const CardHeader(title: Text('Title'), border: true),
+                CardFooter(
+                  children: [Button(onPressed: () {}, child: const Text('Go'))],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final card = tester.getRect(find.byType(Card)),
+          image = tester.getRect(find.byType(CardImage));
+      expect(image.top, card.top + 1);
+      expect(image.width, card.width - 2);
+      expect(tester.getRect(find.text('Title')).left, card.left + 1 + 16);
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+''',
+    },
   ),
   'separator': Component(
     description: "A one-pixel line, across or down.",
@@ -2531,7 +2846,8 @@ class CardFooter extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'separator.dart': r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
+      'separator.dart':
+          r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2564,12 +2880,14 @@ class Separator extends StatelessWidget {
     },
   ),
   'input': Component(
-    description: "A text field with selection handles and a cut, copy and paste menu.",
-    requires: ["theme","selection"],
+    description:
+        "A text field with selection handles and a cut, copy and paste menu.",
+    requires: ["theme", "selection"],
     packages: [],
     block: false,
     files: {
-      'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
+      'input.dart':
+          r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
 // The widgets layer gives EditableText and no field around it: no selection handles, no
 // cut and paste menu, no tap to place the cursor. This file and selection.dart supply them.
@@ -2870,14 +3188,141 @@ class _InputState extends State<Input>
 }
 ''',
     },
+    testNeeds: ["app", "theme"],
+    tests: {
+      'input_test.dart':
+          r'''// Tests for Input. Copied into your app by `ashlar add input` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// The decoration of the first box a control draws.
+BoxDecoration box(WidgetTester tester, Finder of) =>
+    tester
+            .widget<AnimatedContainer>(
+              find
+                  .descendant(of: of, matching: find.byType(AnimatedContainer))
+                  .first,
+            )
+            .decoration!
+        as BoxDecoration;
+
+void main() {
+  group('Input', () {
+    testWidgets(
+      'typing fills it, hides the placeholder and reports each change',
+      (tester) async {
+        final seen = <String>[];
+        await tester.pumpWidget(
+          app(
+            SizedBox(
+              width: 300,
+              child: Input(placeholder: 'Email', onChanged: seen.add),
+            ),
+          ),
+        );
+        expect(find.text('Email'), findsOneWidget);
+        await tester.tap(find.byType(Input));
+        await tester.enterText(find.byType(EditableText), 'a@solutech.co.ke');
+        await tester.pump();
+        expect(find.text('Email'), findsNothing);
+        expect(seen.last, 'a@solutech.co.ke');
+      },
+    );
+
+    testWidgets('focus draws the ring; an error draws it red', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 300,
+            child: Column(
+              children: [
+                Input(placeholder: 'A'),
+                Input(placeholder: 'B', error: true),
+              ],
+            ),
+          ),
+        ),
+      );
+      final first = find.byType(Input).first, second = find.byType(Input).last;
+      expect(
+        box(tester, first).boxShadow!.any((s) => s.spreadRadius == 3),
+        isFalse,
+      );
+      await tester.tap(first);
+      await tester.pumpAndSettle();
+      expect(
+        box(tester, first).boxShadow!.any((s) => s.spreadRadius == 3),
+        isTrue,
+      );
+      expect(
+        (box(tester, second).border! as Border).top.color,
+        AshlarColors.light.destructive,
+      );
+    });
+
+    testWidgets('a screen reader hears a text field named by its placeholder', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const SizedBox(width: 300, child: Input(placeholder: 'Email'))),
+      );
+      final node = tester.getSemantics(find.byType(EditableText));
+      expect(node.label, 'Email');
+      expect(node.flagsCollection.isTextField, isTrue);
+      expect(node.flagsCollection.isFocused != Tristate.none, isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('disabled, it does not take focus', (tester) async {
+      final focus = FocusNode();
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 300,
+            child: Input(
+              placeholder: 'Email',
+              enabled: false,
+              focusNode: focus,
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Input));
+      await tester.pump();
+      await tester.enterText(find.byType(EditableText), 'x');
+      expect(find.text('x'), findsNothing);
+      focus.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'checkbox': Component(
     description: "A box that is ticked or not.",
-    requires: ["theme","pressable"],
+    requires: ["theme", "pressable"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'checkbox.dart': r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
+      'checkbox.dart':
+          r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -2995,14 +3440,183 @@ class Checkbox extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "switch", "theme"],
+    tests: {
+      'checkbox_test.dart':
+          r'''// Tests for Checkbox. Copied into your app by `ashlar add checkbox` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show CheckedState;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/checkbox.dart';
+import 'package:ashlar_ui_gallery/ui/switch.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Checkbox and Switch', () {
+    testWidgets(
+      'a checkbox toggles by tap and by Space, and says whether it is checked',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var value = false;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Checkbox(
+                value: value,
+                onChanged: (v) => set(() => value = v),
+                semanticLabel: 'Terms',
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.byType(Checkbox));
+        await tester.pump();
+        expect(value, isTrue);
+        expect(
+          tester.getSemantics(
+            find
+                .descendant(
+                  of: find.byType(Checkbox),
+                  matching: find.byType(MergeSemantics),
+                )
+                .first,
+          ),
+          matchesSemantics(
+            label: 'Terms',
+            hasCheckedState: true,
+            isChecked: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+            isFocusable: true,
+            hasFocusAction: true,
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pump();
+        expect(value, isFalse);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('a switch toggles and says whether it is on', (tester) async {
+      final semantics = tester.ensureSemantics();
+      var value = false;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Switch(
+              value: value,
+              onChanged: (v) => set(() => value = v),
+              semanticLabel: 'Wi-Fi',
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(value, isTrue);
+      expect(
+        tester.getSemantics(
+          find
+              .descendant(
+                of: find.byType(Switch),
+                matching: find.byType(MergeSemantics),
+              )
+              .first,
+        ),
+        matchesSemantics(
+          label: 'Wi-Fi',
+          hasToggledState: true,
+          isToggled: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          hasTapAction: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('disabled, neither changes', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const Column(
+            children: [
+              Checkbox(value: false, onChanged: null),
+              Switch(value: false, onChanged: null),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Checkbox), warnIfMissed: false);
+      await tester.tap(find.byType(Switch), warnIfMissed: false);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  testWidgets('an indeterminate checkbox reads as mixed and ticks on a tap', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    bool? value;
+    await tester.pumpWidget(
+      app2(
+        Checkbox(
+          value: false,
+          indeterminate: true,
+          semanticLabel: 'All',
+          onChanged: (v) => value = v,
+        ),
+      ),
+    );
+    expect(
+      tester
+          .getSemantics(find.bySemanticsLabel('All'))
+          .getSemanticsData()
+          .flagsCollection
+          .isChecked,
+      CheckedState.mixed,
+    );
+    await tester.tap(find.byType(Checkbox));
+    expect(value, isTrue);
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'switch': Component(
     description: "An on and off switch.",
-    requires: ["theme","pressable"],
+    requires: ["theme", "pressable"],
     packages: [],
     block: false,
     files: {
-      'switch.dart': r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
+      'switch.dart':
+          r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3111,12 +3725,14 @@ class Switch extends StatelessWidget {
     },
   ),
   'dialog': Component(
-    description: "A modal panel over a dimmed page, with title, content and actions.",
-    requires: ["theme","button"],
+    description:
+        "A modal panel over a dimmed page, with title, content and actions.",
+    requires: ["theme", "button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dialog.dart': r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
+      'dialog.dart':
+          r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -3347,6 +3963,160 @@ class Dialog extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button", "input", "theme"],
+    tests: {
+      'dialog_test.dart':
+          r'''// Tests for Dialog. Copied into your app by `ashlar add dialog` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/dialog.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Future<void> open(WidgetTester tester, void Function(BuildContext) show) async {
+  tester.view.physicalSize = const Size(400, 800);
+  tester.view.devicePixelRatio = 1;
+  // A keyboard 300 tall.
+  tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    AshlarApp(
+      home: Builder(
+        builder: (context) => Center(
+          child: Button(
+            onPressed: () => show(context),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.tap(find.text('Open'));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  group('Dialog', () {
+    Future<List<Object?>> open(WidgetTester tester) async {
+      final results = <Object?>[];
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () async => results.add(
+                await showAshlarDialog<String>(
+                  context: context,
+                  builder: (context) => Dialog(
+                    title: const Text('Delete?'),
+                    description: const Text('This cannot be undone.'),
+                    actions: [
+                      Button(
+                        onPressed: () => Navigator.pop(context, 'delete'),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsOneWidget);
+      return results;
+    }
+
+    testWidgets('an action closes it with its value', (tester) async {
+      final results = await open(tester);
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsNothing);
+      expect(results, ['delete']);
+    });
+
+    testWidgets('Escape closes it', (tester) async {
+      final results = await open(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsNothing);
+      expect(results, [null]);
+    });
+
+    testWidgets('the close button and a tap outside close it', (tester) async {
+      await open(tester);
+      await tester.tap(find.bySemanticsLabel('Close').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsNothing);
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsNothing);
+    });
+
+    testWidgets('it carries the dark theme', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showAshlarDialog(
+                context: context,
+                builder: (_) => const Dialog(title: Text('Hi')),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+          mode: AshlarThemeMode.dark,
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final panel = tester.widget<Container>(
+        find
+            .ancestor(of: find.text('Hi'), matching: find.byType(Container))
+            .first,
+      );
+      expect(
+        (panel.decoration! as BoxDecoration).color,
+        AshlarColors.dark.background,
+      );
+    });
+  });
+
+  testWidgets('a dialog with a field sits above the keyboard', (tester) async {
+    await open(
+      tester,
+      (context) => showAshlarDialog<void>(
+        context: context,
+        builder: (_) => const Dialog(
+          title: Text('Rename'),
+          content: Input(placeholder: 'Name'),
+        ),
+      ),
+    );
+    expect(tester.getRect(find.byType(Dialog)).bottom, lessThanOrEqualTo(500));
+    expect(tester.getRect(find.byType(Input)).bottom, lessThanOrEqualTo(500));
+  });
+}
+''',
+    },
   ),
   'label': Component(
     description: "The name of a control, above it or beside it.",
@@ -3354,7 +4124,8 @@ class Dialog extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
+      'label.dart':
+          r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3396,12 +4167,14 @@ class Label extends StatelessWidget {
     },
   ),
   'field': Component(
-    description: "A control with its label, description and error, read out together.",
-    requires: ["theme","label"],
+    description:
+        "A control with its label, description and error, read out together.",
+    requires: ["theme", "label"],
     packages: [],
     block: false,
     files: {
-      'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
+      'field.dart':
+          r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3672,14 +4445,163 @@ class FieldSeparator extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "checkbox", "input"],
+    tests: {
+      'field_test.dart':
+          r'''// Tests for Field. Copied into your app by `ashlar add field` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/checkbox.dart';
+import 'package:ashlar_ui_gallery/ui/field.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Field', () {
+    testWidgets('a screen reader hears the label with the checkbox', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 300,
+            child: Field(
+              axis: Axis.horizontal,
+              label: const Text('Accept the terms'),
+              description: const Text('You can leave at any time.'),
+              child: Checkbox(value: false, onChanged: (_) {}),
+            ),
+          ),
+        ),
+      );
+      final node = tester
+          .getSemantics(find.byType(Checkbox))
+          .getSemanticsData();
+      expect(node.label, contains('Accept the terms'));
+      expect(node.label, contains('You can leave at any time.'));
+      semantics.dispose();
+    });
+
+    testWidgets('an input in a field is named by its label', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 300,
+            child: Field(
+              label: Text('Email'),
+              error: Text('Enter an email'),
+              child: Input(placeholder: 'you@solutech.co.ke'),
+            ),
+          ),
+        ),
+      );
+      // What a screen reader gets: the field with everything merged into it.
+      final node = tester
+          .getSemantics(find.byType(EditableText))
+          .getSemanticsData();
+      expect(node.label, contains('Email'));
+      expect(node.label, contains('Enter an email'));
+      expect(node.flagsCollection.isTextField, isTrue);
+      semantics.dispose();
+    });
+  });
+
+  group('Field', () {
+    testWidgets(
+      'a field set reads its legend; a choice card picks on a tap anywhere',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var picked = false;
+        await tester.pumpWidget(
+          app2(
+            SizedBox(
+              width: 360,
+              child: StatefulBuilder(
+                builder: (context, set) => FieldSet(
+                  legend: const Text('Plan'),
+                  children: [
+                    Field(
+                      card: true,
+                      selected: picked,
+                      axis: Axis.horizontal,
+                      onPressed: () => set(() => picked = !picked),
+                      label: const Text('Pro'),
+                      description: const Text('For teams.'),
+                      child: Checkbox(
+                        value: picked,
+                        onChanged: (v) => set(() => picked = v),
+                      ),
+                    ),
+                    const FieldSeparator(child: Text('or')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(
+          tester
+              .getSemantics(find.text('Plan'))
+              .getSemanticsData()
+              .flagsCollection
+              .isHeader,
+          isTrue,
+        );
+        await tester.tap(find.text('For teams.'));
+        await tester.pump();
+        expect(picked, isTrue);
+        expect(find.text('or'), findsOneWidget);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets(
+      'responsive: the label beside the field when wide, above it when narrow',
+      (tester) async {
+        for (final (width, beside) in [(600.0, true), (320.0, false)]) {
+          await tester.pumpWidget(
+            app2(
+              SizedBox(
+                width: width,
+                child: const Field(
+                  responsive: true,
+                  label: Text('Name'),
+                  child: Input(placeholder: 'Wanjiru'),
+                ),
+              ),
+            ),
+          );
+          final label = tester.getRect(find.text('Name')),
+              input = tester.getRect(find.byType(Input));
+          expect(input.left > label.right, beside, reason: '$width');
+        }
+      },
+    );
+  });
+}
+''',
+    },
   ),
   'textarea': Component(
-    description: "A text field for several lines that grows with its text and drags taller.",
-    requires: ["input","theme"],
+    description:
+        "A text field for several lines that grows with its text and drags taller.",
+    requires: ["input", "theme"],
     packages: [],
     block: false,
     files: {
-      'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
+      'textarea.dart':
+          r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -3859,14 +4781,115 @@ class _Grip extends CustomPainter {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'textarea_test.dart':
+          r'''// Tests for Textarea. Copied into your app by `ashlar add textarea` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/textarea.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets('a textarea starts three lines tall and grows with its text', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(const SizedBox(width: 300, child: Textarea(placeholder: 'Note'))),
+    );
+    final start = tester.getSize(find.byType(Textarea)).height;
+    await tester.enterText(
+      find.byType(EditableText),
+      List.filled(6, 'line').join('\n'),
+    );
+    await tester.pump();
+    expect(tester.getSize(find.byType(Textarea)).height, greaterThan(start));
+    await tester.enterText(
+      find.byType(EditableText),
+      List.filled(20, 'line').join('\n'),
+    );
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
+  group('Textarea', () {
+    Finder grip() => find
+        .descendant(
+          of: find.byType(Textarea),
+          matching: find.byType(CustomPaint),
+        )
+        .last;
+
+    testWidgets(
+      'the grip drags it taller a line at a time, and no shorter than two lines',
+      (tester) async {
+        await tester.pumpWidget(
+          app2(
+            const SizedBox(width: 320, child: Textarea(placeholder: 'Note')),
+          ),
+        );
+        final start = tester.getSize(find.byType(Textarea)).height;
+        await tester.drag(grip(), const Offset(0, 60));
+        await tester.pump();
+        expect(
+          tester.getSize(find.byType(Textarea)).height,
+          closeTo(start + 60, 1),
+        );
+        await tester.drag(grip(), const Offset(0, -400));
+        await tester.pump();
+        expect(tester.getSize(find.byType(Textarea)).height, 64);
+        await tester.enterText(
+          find.byType(EditableText),
+          List.filled(10, 'line').join('\n'),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(find.byType(Textarea)).height, 64);
+      },
+    );
+
+    testWidgets('without resizable there is no grip', (tester) async {
+      await tester.pumpWidget(
+        app2(const SizedBox(width: 320, child: Textarea(resizable: false))),
+      );
+      expect(
+        find
+            .descendant(
+              of: find.byType(Textarea),
+              matching: find.byType(MouseRegion),
+            )
+            .evaluate()
+            .where(
+              (e) =>
+                  (e.widget as MouseRegion).cursor ==
+                  SystemMouseCursors.resizeUpDown,
+            ),
+        isEmpty,
+      );
+    });
+  });
+}
+''',
+    },
   ),
   'avatar': Component(
-    description: "A picture in a circle, with initials while it loads or when it fails.",
+    description:
+        "A picture in a circle, with initials while it loads or when it fails.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
+      'avatar.dart':
+          r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4094,6 +5117,57 @@ class AvatarGroup extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "theme"],
+    tests: {
+      'avatar_test.dart':
+          r'''// Tests for Avatar. Copied into your app by `ashlar add avatar` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/avatar.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  testWidgets('an avatar group overlaps, counts the rest, and is read as one', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        const AvatarGroup(
+          max: 2,
+          children: [
+            Avatar(fallback: 'WM', semanticLabel: 'Wanjiru'),
+            Avatar(fallback: 'OK', semanticLabel: 'Otieno'),
+            Avatar(fallback: 'AN', semanticLabel: 'Achieng'),
+            Avatar(fallback: 'KM', semanticLabel: 'Kamau', badge: AvatarDot()),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('+2'), findsOneWidget);
+    expect(find.text('AN'), findsNothing);
+    expect(
+      tester.getRect(find.text('OK')).left,
+      lessThan(tester.getRect(find.text('WM')).right + 4),
+    );
+    expect(
+      find.bySemanticsLabel('Wanjiru, Otieno, Achieng, Kamau'),
+      findsOneWidget,
+    );
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'skeleton': Component(
     description: "A pulsing placeholder in the shape of content still loading.",
@@ -4101,7 +5175,8 @@ class AvatarGroup extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
+      'skeleton.dart':
+          r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4181,7 +5256,8 @@ class _SkeletonState extends State<Skeleton>
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
+      'spinner.dart':
+          r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -4246,12 +5322,14 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     },
   ),
   'alert': Component(
-    description: "A notice, warning or error in the page, read out when it appears.",
+    description:
+        "A notice, warning or error in the page, read out when it appears.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
+      'alert.dart':
+          r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4366,7 +5444,8 @@ class Alert extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
+      'kbd.dart':
+          r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4435,7 +5514,8 @@ class Kbd extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
+      'radio.dart':
+          r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
 //
 // Flutter's widgets layer has the group: RadioGroup holds the chosen value, and moves the
 // choice with the arrow keys. This file draws the radios inside it.
@@ -4623,14 +5703,139 @@ class _RadioState<T> extends State<Radio<T>> {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'radio_test.dart':
+          r'''// Tests for Radio. Copied into your app by `ashlar add radio` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show CheckedState;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/radio.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Radio', () {
+    Widget group(String? value, ValueChanged<String?> onChanged) =>
+        RadioGroup<String>(
+          groupValue: value,
+          onChanged: onChanged,
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Radio(value: 'monthly', label: Text('Monthly')),
+              Radio(value: 'yearly', label: Text('Yearly')),
+              Radio(value: 'never', label: Text('Never'), enabled: false),
+            ],
+          ),
+        );
+
+    testWidgets(
+      'a tap on the label chooses it, and it is announced as checked',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        String? value;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) =>
+                  group(value, (v) => set(() => value = v)),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Yearly'));
+        await tester.pump();
+        expect(value, 'yearly');
+        final node = tester.getSemantics(find.text('Yearly'));
+        expect(node.label, 'Yearly');
+        expect(node.flagsCollection.isChecked, CheckedState.isTrue);
+        expect(node.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('the arrow keys move the choice', (tester) async {
+      String? value = 'monthly';
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) =>
+                group(value, (v) => set(() => value = v)),
+          ),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(value, 'yearly');
+    });
+
+    testWidgets('a disabled one cannot be chosen', (tester) async {
+      String? value;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) =>
+                group(value, (v) => set(() => value = v)),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Never'), warnIfMissed: false);
+      await tester.pump();
+      expect(value, isNull);
+    });
+  });
+
+  testWidgets('radio cards mark the chosen one', (tester) async {
+    String? plan = 'pro';
+    await tester.pumpWidget(
+      app2(
+        SizedBox(
+          width: 300,
+          child: StatefulBuilder(
+            builder: (context, set) => RadioGroup<String>(
+              groupValue: plan,
+              onChanged: (v) => set(() => plan = v),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Radio(value: 'free', card: true, label: Text('Free')),
+                  Radio(value: 'pro', card: true, label: Text('Pro')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Free'));
+    await tester.pumpAndSettle();
+    expect(plan, 'free');
+  });
+}
+''',
+    },
   ),
   'tabs': Component(
-    description: "Views of one thing, one at a time, chosen from a row of tabs.",
-    requires: ["theme","pressable"],
+    description:
+        "Views of one thing, one at a time, chosen from a row of tabs.",
+    requires: ["theme", "pressable"],
     packages: [],
     block: false,
     files: {
-      'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
+      'tabs.dart':
+          r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -4973,6 +6178,179 @@ class _MoveIntent extends Intent {
 }
 ''',
     },
+    testNeeds: ["app", "button", "theme"],
+    tests: {
+      'tabs_test.dart':
+          r'''// Tests for Tabs. Copied into your app by `ashlar add tabs` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show SemanticsRole, Tristate;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/tabs.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Tabs', () {
+    final tabs = [
+      const TabItem(label: Text('Account'), content: Text('Account form')),
+      const TabItem(label: Text('Password'), content: Text('Password form')),
+      const TabItem(
+        label: Text('Billing'),
+        content: Text('Billing form'),
+        enabled: false,
+      ),
+      const TabItem(label: Text('Team'), content: Text('Team form')),
+    ];
+
+    testWidgets('a tap shows its panel', (tester) async {
+      await tester.pumpWidget(app(Tabs(tabs: tabs)));
+      expect(find.text('Account form'), findsOneWidget);
+      await tester.tap(find.text('Password'));
+      await tester.pump();
+      expect(find.text('Password form'), findsOneWidget);
+      expect(find.text('Account form'), findsNothing);
+    });
+
+    testWidgets(
+      'the arrow keys move along, skipping a disabled tab and wrapping',
+      (tester) async {
+        final seen = <int>[];
+        await tester.pumpWidget(app(Tabs(tabs: tabs, onChanged: seen.add)));
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        for (var i = 0; i < 3; i++) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pump();
+        }
+        expect(seen, [1, 3, 0]);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+        expect(find.text('Team form'), findsOneWidget);
+      },
+    );
+
+    testWidgets('Tab reaches only the chosen tab, then leaves the row', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Tabs(tabs: tabs, initialIndex: 1),
+              Button(onPressed: () {}, child: const Text('After')),
+            ],
+          ),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final focused = FocusManager.instance.primaryFocus!.context!;
+      expect(
+        find
+                .ancestor(
+                  of: find.byElementPredicate((e) => e == focused),
+                  matching: find.byType(Button),
+                )
+                .evaluate()
+                .isNotEmpty ||
+            focused.findAncestorWidgetOfExactType<Button>() != null,
+        isTrue,
+      );
+    });
+
+    testWidgets('a screen reader hears tabs, and which is selected', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(app(Tabs(tabs: tabs)));
+      final node = tester.getSemantics(find.text('Account'));
+      expect(node.role, SemanticsRole.tab);
+      expect(node.flagsCollection.isSelected, Tristate.isTrue);
+      expect(
+        tester.getSemantics(find.text('Password')).flagsCollection.isSelected,
+        Tristate.isFalse,
+      );
+      semantics.dispose();
+    });
+  });
+
+  group('Tabs', () {
+    const tabs = [
+      TabItem(label: Text('One'), content: Text('First')),
+      TabItem(label: Text('Two'), content: Text('Second')),
+    ];
+
+    testWidgets('the line variant underlines the chosen tab', (tester) async {
+      await tester.pumpWidget(
+        app2(const Tabs(variant: TabsVariant.line, tabs: tabs)),
+      );
+      BoxDecoration deco(String label) =>
+          tester
+                  .widget<AnimatedContainer>(
+                    find
+                        .ancestor(
+                          of: find.text(label),
+                          matching: find.byType(AnimatedContainer),
+                        )
+                        .first,
+                  )
+                  .decoration!
+              as BoxDecoration;
+      expect((deco('One').border! as Border).bottom.width, 2);
+      expect(
+        (deco('Two').border! as Border).bottom.color,
+        const Color(0x00000000),
+      );
+    });
+
+    testWidgets(
+      'vertical tabs sit beside the panel and move with the up and down arrows',
+      (tester) async {
+        await tester.pumpWidget(
+          app2(
+            const SizedBox(
+              width: 400,
+              child: Tabs(axis: Axis.vertical, tabs: tabs),
+            ),
+          ),
+        );
+        expect(
+          tester.getTopLeft(find.text('Two')).dy,
+          greaterThan(tester.getTopLeft(find.text('One')).dy),
+        );
+        expect(
+          tester.getTopLeft(find.text('First')).dx,
+          greaterThan(tester.getTopRight(find.text('One')).dx),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(find.text('Second'), findsOneWidget);
+      },
+    );
+  });
+}
+''',
+    },
   ),
   'popover': Component(
     description: "A panel that opens from a trigger and floats over the page.",
@@ -4980,7 +6358,8 @@ class _MoveIntent extends Intent {
     packages: [],
     block: false,
     files: {
-      'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
+      'popover.dart':
+          r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
 //
 // Built on RawMenuAnchor from Flutter's widgets layer, which opens and closes the panel,
 // closes it on Escape, and closes it when the page scrolls. This
@@ -5359,14 +6738,132 @@ class PopoverHeader extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button", "input"],
+    tests: {
+      'popover_test.dart':
+          r'''// Tests for Popover. Copied into your app by `ashlar add popover` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/popover.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// The drawn panel of an open popover, menu or select (PopoverPanel itself fills the screen to place it).
+Finder panel() => find
+    .descendant(of: find.byType(PopoverPanel), matching: find.byType(TapRegion))
+    .first;
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Popover', () {
+    testWidgets('opens, takes focus, and Escape closes it', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Popover(
+            builder: (context, menu) =>
+                Button(onPressed: menu.open, child: const Text('Dimensions')),
+            content: (context) =>
+                const SizedBox(width: 200, child: Input(placeholder: 'Width')),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Dimensions'));
+      await tester.pumpAndSettle();
+      expect(find.text('Width'), findsOneWidget);
+      await tester.tap(find.byType(Input));
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Width'), findsNothing);
+    });
+
+    testWidgets('scrolls when its content is taller than the room', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Center(
+            child: Popover(
+              builder: (context, menu) =>
+                  Button(onPressed: menu.open, child: const Text('Open')),
+              content: (context) =>
+                  const SizedBox(height: 2000, child: Text('Tall')),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(tester.getRect(panel()).bottom, lessThanOrEqualTo(600));
+    });
+
+    testWidgets('flips above when there is no room below', (tester) async {
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Align(
+            alignment: Alignment.bottomCenter,
+            child: Popover(
+              builder: (context, menu) =>
+                  Button(onPressed: menu.open, child: const Text('Open')),
+              content: (context) =>
+                  const SizedBox(height: 200, child: Text('Panel')),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(panel()).bottom,
+        lessThanOrEqualTo(tester.getRect(find.byType(Button)).top),
+      );
+    });
+  });
+
+  testWidgets('a popover header', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app2(
+        const PopoverHeader(
+          title: Text('Dimensions'),
+          description: Text('Set the size.'),
+        ),
+      ),
+    );
+    expect(
+      tester
+          .getSemantics(find.text('Dimensions'))
+          .getSemanticsData()
+          .flagsCollection
+          .isHeader,
+      isTrue,
+    );
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'dropdown-menu': Component(
-    description: "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
-    requires: ["theme","pressable","popover"],
+    description:
+        "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
+    requires: ["theme", "pressable", "popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
+      'dropdown_menu.dart':
+          r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -6104,14 +7601,263 @@ class MenuSeparator extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'dropdown_menu_test.dart':
+          r'''// Tests for Dropdown Menu. Copied into your app by `ashlar add dropdown-menu` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show CheckedState, SemanticsRole;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Dropdown Menu', () {
+    Future<List<String>> open(WidgetTester tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(
+        app(
+          DropdownMenu(
+            builder: (context, menu) =>
+                Button(onPressed: menu.open, child: const Text('Open')),
+            items: [
+              const MenuLabel(child: Text('My account')),
+              MenuItem(
+                onPressed: () => picked.add('profile'),
+                child: const Text('Profile'),
+              ),
+              MenuItem(onPressed: null, child: const Text('Billing')),
+              const MenuSeparator(),
+              MenuItem(
+                destructive: true,
+                onPressed: () => picked.add('out'),
+                child: const Text('Sign out'),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Profile'), findsOneWidget);
+      return picked;
+    }
+
+    testWidgets('a tap on an item calls it and closes the menu', (
+      tester,
+    ) async {
+      final picked = await open(tester);
+      await tester.tap(find.text('Sign out'));
+      await tester.pumpAndSettle();
+      expect(picked, ['out']);
+      expect(find.text('Profile'), findsNothing);
+    });
+
+    testWidgets('the arrow keys skip a disabled item; Enter picks', (
+      tester,
+    ) async {
+      final picked = await open(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(picked, ['out']);
+    });
+
+    testWidgets('Escape and a tap outside close it', (tester) async {
+      await open(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Profile'), findsNothing);
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Profile'), findsNothing);
+    });
+
+    testWidgets('it opens under the trigger and stays on screen', (
+      tester,
+    ) async {
+      await open(tester);
+      final trigger = tester.getRect(find.byType(Button));
+      final menu = tester.getRect(find.byType(MenuList));
+      expect(menu.top, greaterThanOrEqualTo(trigger.bottom));
+      expect(menu.left, closeTo(trigger.left, 1));
+    });
+  });
+
+  group('Menu items', () {
+    Future<Map<String, Object?>> menu(WidgetTester tester) async {
+      final state = <String, Object?>{
+        'bar': true,
+        'pos': 'top',
+        'picked': null,
+      };
+      await tester.pumpWidget(
+        app2(
+          StatefulBuilder(
+            builder: (context, set) => DropdownMenu(
+              builder: (context, m) =>
+                  Button(onPressed: m.open, child: const Text('Open')),
+              items: [
+                const MenuLabel(inset: true, child: Text('View')),
+                MenuCheckboxItem(
+                  checked: state['bar']! as bool,
+                  onChanged: (v) => set(() => state['bar'] = v),
+                  child: const Text('Status bar'),
+                ),
+                const MenuSeparator(),
+                MenuRadioGroup<String>(
+                  value: state['pos'] as String?,
+                  onChanged: (v) => set(() => state['pos'] = v),
+                  children: const [
+                    MenuRadioItem(value: 'top', child: Text('Top')),
+                    MenuRadioItem(value: 'bottom', child: Text('Bottom')),
+                  ],
+                ),
+                MenuItem(
+                  inset: true,
+                  onPressed: () => set(() => state['picked'] = 'plain'),
+                  child: const Text('Plain'),
+                ),
+                MenuSub(
+                  items: [
+                    MenuItem(
+                      onPressed: () => set(() => state['picked'] = 'email'),
+                      child: const Text('Email'),
+                    ),
+                    MenuItem(
+                      onPressed: () => set(() => state['picked'] = 'link'),
+                      child: const Text('Copy link'),
+                    ),
+                  ],
+                  child: const Text('Share'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      return state;
+    }
+
+    testWidgets(
+      'a checkbox item flips, says whether it is checked, and closes the menu',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        final state = await menu(tester);
+        final node = tester
+            .getSemantics(find.text('Status bar'))
+            .getSemanticsData();
+        expect(node.flagsCollection.isChecked, CheckedState.isTrue);
+        expect(node.role, SemanticsRole.menuItemCheckbox);
+        await tester.tap(find.text('Status bar'));
+        await tester.pumpAndSettle();
+        expect(state['bar'], isFalse);
+        expect(find.text('Status bar'), findsNothing);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets(
+      'a radio item picks one, and the inset lines labels up with them',
+      (tester) async {
+        final state = await menu(tester);
+        expect(
+          tester.getTopLeft(find.text('View')).dx,
+          tester.getTopLeft(find.text('Top')).dx,
+        );
+        expect(
+          tester.getTopLeft(find.text('Plain')).dx,
+          tester.getTopLeft(find.text('Top')).dx,
+        );
+        await tester.tap(find.text('Bottom'));
+        await tester.pumpAndSettle();
+        expect(state['pos'], 'bottom');
+      },
+    );
+
+    testWidgets(
+      'a submenu opens on hover beside its row; picking in it closes everything',
+      (tester) async {
+        final state = await menu(tester);
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.text('Share')));
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.pumpAndSettle();
+        expect(find.text('Email'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.text('Email')).dx,
+          greaterThan(tester.getTopRight(find.text('Share')).dx),
+        );
+        // Moving to another row of the first menu closes it.
+        await mouse.moveTo(tester.getCenter(find.text('Plain')));
+        await tester.pumpAndSettle();
+        expect(find.text('Email'), findsNothing);
+        await mouse.moveTo(tester.getCenter(find.text('Share')));
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Copy link'));
+        await tester.pumpAndSettle();
+        expect(state['picked'], 'link');
+        expect(find.text('Share'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'from the keyboard: right opens the submenu on its first item, left comes back',
+      (tester) async {
+        final state = await menu(tester);
+        // Down to Share: the checkbox, two radios, Plain, Share.
+        for (var i = 0; i < 5; i++) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        }
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+        expect(find.text('Email'), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+        expect(find.text('Email'), findsNothing);
+        expect(find.text('Share'), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(state['picked'], 'email');
+      },
+    );
+  });
+}
+''',
+    },
   ),
   'select': Component(
-    description: "Picks one value from a list: groups, icons, type to find, and long lists.",
-    requires: ["theme","pressable","popover"],
+    description:
+        "Picks one value from a list: groups, icons, type to find, and long lists.",
+    requires: ["theme", "pressable", "popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
+      'select.dart':
+          r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
 
 import 'dart:async';
 
@@ -6672,6 +8418,260 @@ class _Option<T> extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "popover", "theme"],
+    tests: {
+      'select_test.dart':
+          r'''// Tests for Select. Copied into your app by `ashlar add select` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/popover.dart';
+import 'package:ashlar_ui_gallery/ui/select.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+/// The drawn panel of an open popover, menu or select (PopoverPanel itself fills the screen to place it).
+Finder panel() => find
+    .descendant(of: find.byType(PopoverPanel), matching: find.byType(TapRegion))
+    .first;
+
+/// Without the room a finger's press area takes on a phone: these measure looks.
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: SizedBox(width: 260, child: child)),
+);
+
+const fruit = [
+  SelectOption('apple', 'Apple', group: 'Fruit'),
+  SelectOption('banana', 'Banana', group: 'Fruit'),
+  SelectOption('blueberry', 'Blueberry', group: 'Fruit', enabled: false),
+  SelectOption('carrot', 'Carrot', group: 'Vegetables'),
+  SelectOption('cabbage', 'Cabbage', group: 'Vegetables'),
+];
+
+/// Without the room a finger's press area takes on a phone: these measure looks.
+Widget app3(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: SizedBox(width: 260, child: child)),
+);
+
+void main() {
+  group('Select', () {
+    Widget select(String? value, ValueChanged<String> onChanged) => SizedBox(
+      width: 200,
+      child: Select<String>(
+        value: value,
+        placeholder: 'Choose a county',
+        semanticLabel: 'County',
+        options: const [
+          SelectOption('nbo', 'Nairobi'),
+          SelectOption('msa', 'Mombasa'),
+          SelectOption('ksm', 'Kisumu'),
+        ],
+        onChanged: onChanged,
+      ),
+    );
+
+    testWidgets('shows the placeholder, then the chosen option', (
+      tester,
+    ) async {
+      String? value;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) =>
+                select(value, (v) => set(() => value = v)),
+          ),
+        ),
+      );
+      expect(find.text('Choose a county'), findsOneWidget);
+      await tester.tap(find.text('Choose a county'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mombasa'));
+      await tester.pumpAndSettle();
+      expect(value, 'msa');
+      expect(find.text('Mombasa'), findsOneWidget);
+      expect(find.text('Kisumu'), findsNothing);
+    });
+
+    testWidgets('the list is at least as wide as the trigger', (tester) async {
+      await tester.pumpWidget(app(select(null, (_) {})));
+      await tester.tap(find.byType(Select<String>));
+      await tester.pumpAndSettle();
+      expect(tester.getSize(panel()).width, greaterThanOrEqualTo(200));
+    });
+
+    testWidgets(
+      'by keyboard: down arrow opens on the chosen option, and focus comes back',
+      (tester) async {
+        String? value = 'nbo';
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) =>
+                  select(value, (v) => set(() => value = v)),
+            ),
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(find.text('Kisumu'), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(value, 'msa');
+        final focused = FocusManager.instance.primaryFocus!.context!;
+        expect(
+          focused.findAncestorWidgetOfExactType<Select<String>>(),
+          isNotNull,
+        );
+      },
+    );
+
+    testWidgets('a screen reader hears what it chooses and the choice', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(app(select('ksm', (_) {})));
+      final node = tester.getSemantics(find.text('Kisumu')).getSemanticsData();
+      expect(node.label, 'County');
+      expect(node.value, 'Kisumu');
+      semantics.dispose();
+    });
+  });
+
+  group('Select', () {
+    testWidgets(
+      'lists options under their groups, with the disabled one skipped by the keys',
+      (tester) async {
+        String? value = 'banana';
+        await tester.pumpWidget(
+          app2(
+            StatefulBuilder(
+              builder: (context, set) => Select<String>(
+                value: value,
+                options: fruit,
+                onChanged: (v) => set(() => value = v),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Banana'));
+        await tester.pumpAndSettle();
+        expect(find.text('Fruit'), findsOneWidget);
+        expect(find.text('Vegetables'), findsOneWidget);
+        // Down from Banana passes over Blueberry.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(value, 'carrot');
+      },
+    );
+
+    testWidgets('typing jumps to an option by its first letters', (
+      tester,
+    ) async {
+      String? value;
+      await tester.pumpWidget(
+        app2(
+          StatefulBuilder(
+            builder: (context, set) => Select<String>(
+              value: value,
+              placeholder: 'Pick',
+              options: fruit,
+              onChanged: (v) => set(() => value = v),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Pick'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyC);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyA);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(value, 'cabbage');
+    });
+
+    testWidgets(
+      'a list of 10,000 opens on the chosen one with a screenful built',
+      (tester) async {
+        String? value = 'v7000';
+        await tester.pumpWidget(
+          app2(
+            Select<String>(
+              value: value,
+              options: [
+                for (var i = 0; i < 10000; i++)
+                  SelectOption('v$i', 'Option $i'),
+              ],
+              onChanged: (v) => value = v,
+            ),
+          ),
+        );
+        await tester.tap(find.text('Option 7000'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Option ').evaluate().length, lessThan(25));
+        expect(find.text('Option 7000').hitTestable(), findsWidgets);
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(value, 'v9999');
+      },
+    );
+
+    testWidgets('the small size is 32 tall', (tester) async {
+      await tester.pumpWidget(
+        app2(
+          Select<String>(
+            value: null,
+            placeholder: 'Pick',
+            size: SelectSize.sm,
+            options: fruit,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(Select<String>)).height, 32);
+    });
+  });
+
+  testWidgets('a select\'s list is as wide as its field', (tester) async {
+    String? picked;
+    await tester.pumpWidget(
+      app3(
+        StatefulBuilder(
+          builder: (context, set) => Select<String>(
+            value: picked,
+            placeholder: 'Choose',
+            options: fruit,
+            onChanged: (v) => set(() => picked = v),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Choose'));
+    await tester.pumpAndSettle();
+    final list = tester.getRect(
+      find
+          .ancestor(of: find.text('Banana'), matching: find.byType(Container))
+          .last,
+    );
+    expect(list.width, closeTo(260, 1));
+  });
+}
+''',
+    },
   ),
   'tooltip': Component(
     description: "A short label over a control on hover, focus or long press.",
@@ -6679,7 +8679,8 @@ class _Option<T> extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
+      'tooltip.dart':
+          r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
 //
 // Built on RawTooltip from Flutter's widgets layer, which shows it on hover and on a long
 // press. This file also shows it on keyboard focus and gives screen readers the message.
@@ -6817,14 +8818,78 @@ class _TooltipState extends State<Tooltip> {
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'tooltip_test.dart':
+          r'''// Tests for Tooltip. Copied into your app by `ashlar add tooltip` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/tooltip.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+void main() {
+  group('Tooltip', () {
+    Widget tip() => Tooltip(
+      message: 'Add to library',
+      child: Button(
+        semanticLabel: 'Add',
+        onPressed: () {},
+        child: const Text('+'),
+      ),
+    );
+
+    testWidgets('shows on hover', (tester) async {
+      await tester.pumpWidget(app(tip()));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.text('+')));
+      await tester.pumpAndSettle();
+      expect(find.text('Add to library'), findsOneWidget);
+      await mouse.moveTo(Offset.zero);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      expect(find.text('Add to library'), findsNothing);
+    });
+
+    testWidgets('shows on keyboard focus', (tester) async {
+      await tester.pumpWidget(app(tip()));
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(find.text('Add to library'), findsOneWidget);
+    });
+
+    testWidgets('a screen reader hears the message', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(app(tip()));
+      final node = tester.getSemantics(find.text('+')).getSemanticsData();
+      expect(node.label, 'Add');
+      expect(node.tooltip, 'Add to library');
+      expect(node.flagsCollection.isButton, isTrue);
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'toast': Component(
-    description: "Short messages that go by themselves: types, promises and a stack.",
+    description:
+        "Short messages that go by themselves: types, promises and a stack.",
     requires: ["theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
+      'toast.dart':
+          r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
 
 import 'dart:async';
 
@@ -7365,14 +9430,266 @@ class _TurningState extends State<_Turning>
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'toast_test.dart':
+          r'''// Tests for Toast. Copied into your app by `ashlar add toast` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:async';
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/toast.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Future<BuildContext> page(WidgetTester tester) async {
+  late BuildContext ctx;
+  await tester.pumpWidget(
+    AshlarApp(
+      home: Builder(
+        builder: (c) {
+          ctx = c;
+          return const SizedBox.expand();
+        },
+      ),
+    ),
+  );
+  return ctx;
+}
+
+void main() {
+  group('Toast', () {
+    testWidgets('shows, then goes by itself', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showToast(
+                context,
+                title: 'Payment sent',
+                description: 'KES 2,400',
+              ),
+              child: const Text('Pay'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Pay'));
+      await tester.pumpAndSettle();
+      expect(find.text('Payment sent'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      expect(find.text('Payment sent'), findsNothing);
+    });
+
+    testWidgets('keeps the newest three', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) {
+              var n = 0;
+              return Button(
+                onPressed: () => showToast(context, title: 'Toast ${++n}'),
+                child: const Text('Go'),
+              );
+            },
+          ),
+        ),
+      );
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.text('Go'));
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pumpAndSettle();
+      expect(find.text('Toast 1'), findsNothing);
+      expect(find.text('Toast 4'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('a swipe sends it away', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showToast(
+                context,
+                title: 'Swipe me',
+                duration: const Duration(minutes: 1),
+              ),
+              child: const Text('Go'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Go'));
+      await tester.pumpAndSettle();
+      await tester.fling(find.text('Swipe me'), const Offset(400, 0), 2000);
+      await tester.pumpAndSettle();
+      expect(find.text('Swipe me'), findsNothing);
+    });
+  });
+
+  testWidgets('a promise toast loads, then says how it went', (tester) async {
+    final ctx = await page(tester);
+    final done = Completer<int>();
+    showToastPromise<int>(
+      ctx,
+      done.future,
+      loading: 'Saving…',
+      success: (n) => 'Saved $n items',
+      error: (e) => 'Could not save',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Saving…'), findsOneWidget);
+    // Loading waits however long it takes.
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.text('Saving…'), findsOneWidget);
+    done.complete(3);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Saved 3 items'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Saved 3 items'), findsNothing);
+  });
+
+  testWidgets('a failed promise says so', (tester) async {
+    final ctx = await page(tester);
+    showToastPromise<int>(
+      ctx,
+      Future.error('down'),
+      loading: 'Saving…',
+      success: (n) => 'Saved',
+      error: (e) => 'Could not save: $e',
+    ).ignore();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Could not save: down'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('the close button sends it away; a handle can too', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final ctx = await page(tester);
+    showToast(
+      ctx,
+      title: 'Closable',
+      closeButton: true,
+      duration: const Duration(minutes: 1),
+    );
+    await tester.pumpAndSettle();
+    // Its own button, apart from the toast, so the message is not read as a button.
+    expect(
+      tester
+          .getSemantics(find.text('Closable'))
+          .getSemanticsData()
+          .flagsCollection
+          .isButton,
+      isFalse,
+    );
+    await tester.tap(find.bySemanticsLabel('Close'));
+    await tester.pumpAndSettle();
+    expect(find.text('Closable'), findsNothing);
+    final h = showToast(
+      ctx,
+      title: 'Handled',
+      duration: const Duration(minutes: 1),
+    );
+    await tester.pumpAndSettle();
+    h.dismiss();
+    await tester.pumpAndSettle();
+    expect(find.text('Handled'), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets('toasts go where asked', (tester) async {
+    final ctx = await page(tester);
+    showToast(
+      ctx,
+      title: 'Top left',
+      position: ToastPosition.topLeft,
+      duration: const Duration(minutes: 1),
+    );
+    showToast(
+      ctx,
+      title: 'Bottom centre',
+      position: ToastPosition.bottomCenter,
+      duration: const Duration(minutes: 1),
+    );
+    await tester.pumpAndSettle();
+    final tl = tester.getRect(find.text('Top left')),
+        bc = tester.getRect(find.text('Bottom centre'));
+    expect(tl.top, lessThan(80));
+    expect(tl.left, lessThan(100));
+    expect(bc.bottom, greaterThan(500));
+    expect(bc.center.dx, closeTo(400, 180));
+  });
+
+  testWidgets(
+    'stacked, only the newest shows; the pointer fans them out and holds them',
+    (tester) async {
+      final ctx = await page(tester);
+      for (final n in ['One', 'Two', 'Three']) {
+        showToast(
+          ctx,
+          title: n,
+          type: ToastType.success,
+          action: Button(
+            size: ButtonSize.sm,
+            onPressed: () {},
+            child: Text('Undo $n'),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pumpAndSettle();
+      // Behind the front card, the others keep their content out of sight.
+      expect(find.text('Three'), findsOneWidget);
+      expect(find.text('Two'), findsNothing);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.text('Three')));
+      await tester.pumpAndSettle();
+      expect(find.text('Two'), findsOneWidget);
+      expect(find.text('One'), findsOneWidget);
+      expect(
+        tester.getRect(find.text('Two')).bottom,
+        lessThan(tester.getRect(find.text('Three')).top),
+      );
+      // Held past their time while the pointer is over them.
+      await tester.pump(const Duration(seconds: 6));
+      expect(find.text('One'), findsOneWidget);
+      await mouse.moveTo(Offset.zero);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Three'), findsNothing);
+    },
+  );
+}
+''',
+    },
   ),
   'group': Component(
-    description: "Joins controls into one piece: Button Group and Toggle Group use it.",
+    description:
+        "Joins controls into one piece: Button Group and Toggle Group use it.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
+      'group.dart':
+          r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
 // Group; it is yours to change.
 
 import 'package:flutter/widgets.dart';
@@ -7480,12 +9797,14 @@ Border joinedBorder(BuildContext context, Color color) =>
     },
   ),
   'button-group': Component(
-    description: "Buttons joined into one piece, for actions that belong together.",
+    description:
+        "Buttons joined into one piece, for actions that belong together.",
     requires: ["group"],
     packages: [],
     block: false,
     files: {
-      'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
+      'button_group.dart':
+          r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
 // to change.
 
 import 'package:flutter/widgets.dart';
@@ -7536,7 +9855,8 @@ class ButtonGroup extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
+      'typography.dart':
+          r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -7845,6 +10165,93 @@ class TypographyTable extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'typography_test.dart':
+          r'''// Tests for Typography. Copied into your app by `ashlar add typography` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/typography.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets('headings are announced as headings', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            H1('Title'),
+            H2('Section'),
+            H3('Part'),
+            H4('Small'),
+            P('Text'),
+            Lead('Lead'),
+            Large('Large'),
+            Small('Small note'),
+            Muted('Muted'),
+            Blockquote('Quote'),
+            InlineCode('code'),
+            BulletList(['One', 'Two']),
+          ],
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    for (final h in ['Title', 'Section', 'Part', 'Small']) {
+      expect(
+        tester.getSemantics(find.text(h)).flagsCollection.isHeader,
+        isTrue,
+        reason: h,
+      );
+    }
+    expect(
+      tester.getSemantics(find.text('Text')).flagsCollection.isHeader,
+      isFalse,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('a typography table', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app2(
+        const SizedBox(
+          width: 400,
+          child: TypographyTable(
+            headings: ['County', 'People'],
+            rows: [
+              ['Nairobi', '4.4m'],
+              ['Mombasa', '1.2m'],
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(
+      tester
+          .getSemantics(find.text('County'))
+          .getSemanticsData()
+          .flagsCollection
+          .isHeader,
+      isTrue,
+    );
+    expect(find.text('Mombasa'), findsOneWidget);
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'empty': Component(
     description: "What to show when there is nothing here yet.",
@@ -7852,7 +10259,8 @@ class TypographyTable extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
+      'empty.dart':
+          r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -7969,14 +10377,90 @@ class Empty extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button", "item"],
+    tests: {
+      'empty_test.dart':
+          r'''// Tests for Empty. Copied into your app by `ashlar add empty` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/empty.dart';
+import 'package:ashlar_ui_gallery/ui/item.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets('empty and item lay out in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Empty(
+                  title: const Text('No projects'),
+                  description: const Text('Create one.'),
+                  actions: [
+                    Button(onPressed: () {}, child: const Text('Create')),
+                  ],
+                ),
+                for (final v in ItemVariant.values)
+                  Item(
+                    variant: v,
+                    title: const Text('Title'),
+                    description: const Text('Description'),
+                  ),
+              ],
+            ),
+          ),
+          mode: mode,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('empty states on a muted ground and in a border', (tester) async {
+    await tester.pumpWidget(
+      app2(
+        const SizedBox(
+          width: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Empty(background: true, title: Text('A')),
+              Empty(border: true, title: Text('B')),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(tester.getSize(find.byType(Empty).first).width, 500);
+    expect(tester.takeException(), isNull);
+  });
+}
+''',
+    },
   ),
   'item': Component(
-    description: "A row in a list: media, a title and description, and actions.",
-    requires: ["theme","pressable"],
+    description:
+        "A row in a list: media, a title and description, and actions.",
+    requires: ["theme", "pressable"],
     packages: [],
     block: false,
     files: {
-      'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
+      'item.dart':
+          r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -8244,6 +10728,91 @@ class ItemSeparator extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'item_test.dart':
+          r'''// Tests for Item. Copied into your app by `ashlar add item` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/item.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets('an item with onPressed is a button, by tap and by keyboard', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    var n = 0;
+    await tester.pumpWidget(
+      app(
+        SizedBox(
+          width: 300,
+          child: Item(title: const Text('Open'), onPressed: () => n++),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(n, 2);
+    expect(
+      tester
+          .getSemantics(find.text('Open'))
+          .getSemanticsData()
+          .flagsCollection
+          .isButton,
+      isTrue,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('item sizes, media and a group with a line between items', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app2(
+        const SizedBox(
+          width: 360,
+          child: ItemGroup(
+            children: [
+              Item(
+                size: ItemSize.sm,
+                leading: ItemMedia.icon(
+                  AshlarIcon(AshlarIconsRoundedStroke.inbox),
+                ),
+                title: Text('Inbox'),
+              ),
+              Item(
+                size: ItemSize.xs,
+                title: Text('Sent'),
+                header: Text('Today'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(ItemSeparator), findsOneWidget);
+    expect(
+      tester.getSize(find.byType(Item).last).height,
+      lessThan(tester.getSize(find.byType(Item).first).height + 24),
+    );
+    expect(tester.takeException(), isNull);
+  });
+}
+''',
+    },
   ),
   'progress': Component(
     description: "How far along something is, as a bar.",
@@ -8251,7 +10820,8 @@ class ItemSeparator extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
+      'progress.dart':
+          r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -8363,14 +10933,86 @@ class _ProgressState extends State<Progress>
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'progress_test.dart':
+          r'''// Tests for Progress. Copied into your app by `ashlar add progress` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/progress.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+void main() {
+  group('Progress', () {
+    testWidgets('fills to its value and reads it as a percentage', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 200,
+            child: Progress(value: .4, semanticLabel: 'Upload'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final fill = tester.getSize(
+        find
+            .descendant(
+              of: find.byType(Progress),
+              matching: find.byType(DecoratedBox),
+            )
+            .last,
+      );
+      expect(fill.width, closeTo(80, .5));
+      final node = tester
+          .getSemantics(find.byType(Progress))
+          .getSemanticsData();
+      expect(node.label, 'Upload');
+      expect(node.value, '40%');
+      semantics.dispose();
+    });
+
+    testWidgets('unknown, it sweeps; with less motion asked for, it is still', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const SizedBox(width: 200, child: Progress())),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(tester.takeException(), isNull);
+      expect(tester.hasRunningAnimations, isTrue);
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: app(const SizedBox(width: 200, child: Progress())),
+        ),
+      );
+      await tester.pump();
+      expect(tester.hasRunningAnimations, isFalse);
+    });
+  });
+}
+''',
+    },
   ),
   'breadcrumb': Component(
-    description: "Where a page sits, as links to the pages above it, folding long trails.",
-    requires: ["theme","pressable","dropdown-menu"],
+    description:
+        "Where a page sits, as links to the pages above it, folding long trails.",
+    requires: ["theme", "pressable", "dropdown-menu"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
+      'breadcrumb.dart':
+          r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -8527,6 +11169,84 @@ class Breadcrumb extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'breadcrumb_test.dart':
+          r'''// Tests for Breadcrumb. Copied into your app by `ashlar add breadcrumb` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/breadcrumb.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: child),
+    );
+
+Widget app2(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Breadcrumb', () {
+    testWidgets('the steps above are links; the page itself is not', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final went = <String>[];
+      await tester.pumpWidget(
+        app(
+          Breadcrumb(
+            items: [
+              BreadcrumbItem('Home', onPressed: () => went.add('home')),
+              BreadcrumbItem('Docs', onPressed: () => went.add('docs')),
+              const BreadcrumbItem('Breadcrumb'),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.text('Docs'));
+      expect(went, ['docs']);
+      final docs = tester.getSemantics(find.text('Docs')).getSemanticsData();
+      expect(docs.flagsCollection.isLink, isTrue);
+      expect(docs.flagsCollection.isButton, isFalse);
+      final here = tester
+          .getSemantics(find.text('Breadcrumb'))
+          .getSemanticsData();
+      expect(here.flagsCollection.isLink, isFalse);
+      semantics.dispose();
+    });
+  });
+
+  testWidgets('a long breadcrumb folds its middle into a menu', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final went = <String>[];
+    await tester.pumpWidget(
+      app2(
+        Breadcrumb(
+          maxItems: 3,
+          separator: const Text('/'),
+          items: [
+            for (final n in ['Home', 'Docs', 'Components', 'Forms'])
+              BreadcrumbItem(n, onPressed: () => went.add(n)),
+            const BreadcrumbItem('Field'),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('Docs'), findsNothing);
+    expect(find.text('Forms'), findsOneWidget);
+    expect(find.text('/'), findsNWidgets(3));
+    await tester.tap(find.bySemanticsLabel('Show 2 more'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Components'));
+    await tester.pumpAndSettle();
+    expect(went, ['Components']);
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'collapsible': Component(
     description: "Content that opens and closes under a trigger.",
@@ -8534,7 +11254,8 @@ class Breadcrumb extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
+      'collapsible.dart':
+          r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -8658,14 +11379,69 @@ class _CollapsibleState extends State<Collapsible>
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'collapsible_test.dart':
+          r'''// Tests for Collapsible. Copied into your app by `ashlar add collapsible` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/collapsible.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets(
+    'a collapsible hides its content from sight, focus and screen readers until opened',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 300,
+            child: Collapsible(
+              builder: (context, open, toggle) => Button(
+                onPressed: toggle,
+                child: Text(open ? 'Hide' : 'Show'),
+              ),
+              child: Button(onPressed: () {}, child: const Text('Inside')),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Inside').hitTestable(), findsNothing);
+      expect(find.bySemanticsLabel('Inside'), findsNothing);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        FocusManager.instance.primaryFocus!.context!
+            .findAncestorWidgetOfExactType<Collapsible>(),
+        isNotNull,
+      );
+      expect(find.text('Show'), findsOneWidget);
+      await tester.tap(find.text('Show'));
+      await tester.pumpAndSettle();
+      expect(find.text('Inside').hitTestable(), findsOneWidget);
+      expect(find.text('Hide'), findsOneWidget);
+      semantics.dispose();
+    },
+  );
+}
+''',
+    },
   ),
   'accordion': Component(
     description: "Sections that open one at a time under their headings.",
-    requires: ["theme","pressable","collapsible"],
+    requires: ["theme", "pressable", "collapsible"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
+      'accordion.dart':
+          r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -8833,14 +11609,123 @@ class _AccordionState extends State<Accordion> {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'accordion_test.dart':
+          r'''// Tests for Accordion. Copied into your app by `ashlar add accordion` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_ui_gallery/ui/accordion.dart';
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Accordion', () {
+    const items = [
+      AccordionItem(title: Text('One'), content: Text('First body')),
+      AccordionItem(title: Text('Two'), content: Text('Second body')),
+    ];
+
+    testWidgets('one open at a time; the heading says expanded or collapsed', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const SizedBox(width: 300, child: Accordion(items: items))),
+      );
+      await tester.tap(find.text('One'));
+      await tester.pumpAndSettle();
+      expect(find.text('First body').hitTestable(), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.text('One'))
+            .getSemanticsData()
+            .flagsCollection
+            .isExpanded,
+        Tristate.isTrue,
+      );
+      expect(
+        tester
+            .getSemantics(find.text('Two'))
+            .getSemanticsData()
+            .flagsCollection
+            .isExpanded,
+        Tristate.isFalse,
+      );
+      await tester.tap(find.text('Two'));
+      await tester.pumpAndSettle();
+      expect(find.text('First body').hitTestable(), findsNothing);
+      expect(find.text('Second body').hitTestable(), findsOneWidget);
+      semantics.dispose();
+    });
+
+    testWidgets(
+      'with multiple, several stay open; Enter opens from the keyboard',
+      (tester) async {
+        await tester.pumpWidget(
+          app(
+            const SizedBox(
+              width: 300,
+              child: Accordion(items: items, multiple: true),
+            ),
+          ),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Two'));
+        await tester.pumpAndSettle();
+        expect(find.text('First body').hitTestable(), findsOneWidget);
+        expect(find.text('Second body').hitTestable(), findsOneWidget);
+      },
+    );
+  });
+
+  testWidgets('a bordered accordion with a disabled section that stays shut', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        const SizedBox(
+          width: 360,
+          child: Accordion(
+            bordered: true,
+            items: [
+              AccordionItem(title: Text('Open me'), content: Text('Opened')),
+              AccordionItem(
+                title: Text('Not me'),
+                content: Text('Never'),
+                enabled: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Not me'));
+    await tester.pumpAndSettle();
+    expect(find.text('Never').hitTestable(), findsNothing);
+    await tester.tap(find.text('Open me'));
+    await tester.pumpAndSettle();
+    expect(find.text('Opened').hitTestable(), findsOneWidget);
+  });
+}
+''',
+    },
   ),
   'toggle': Component(
     description: "A button that stays pressed: bold, italic, a filter.",
-    requires: ["theme","pressable","group"],
+    requires: ["theme", "pressable", "group"],
     packages: [],
     block: false,
     files: {
-      'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
+      'toggle.dart':
+          r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -8958,11 +11843,12 @@ class Toggle extends StatelessWidget {
   ),
   'toggle-group': Component(
     description: "Toggles joined into one piece, one or several pressed.",
-    requires: ["toggle","group"],
+    requires: ["toggle", "group"],
     packages: [],
     block: false,
     files: {
-      'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
+      'toggle_group.dart':
+          r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -9121,14 +12007,137 @@ class ToggleGroup<T> extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "theme", "toggle"],
+    tests: {
+      'toggle_group_test.dart':
+          r'''// Tests for Toggle Group. Copied into your app by `ashlar add toggle-group` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:ashlar_ui_gallery/ui/toggle.dart';
+import 'package:ashlar_ui_gallery/ui/toggle_group.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Toggle', () {
+    testWidgets('stays pressed and says so', (tester) async {
+      final semantics = tester.ensureSemantics();
+      var on = false;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Toggle(
+              pressed: on,
+              onChanged: (v) => set(() => on = v),
+              semanticLabel: 'Bold',
+              child: const Text('B'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Toggle));
+      await tester.pump();
+      expect(on, isTrue);
+      final node = tester.getSemantics(find.byType(Toggle)).getSemanticsData();
+      expect(node.label, 'Bold');
+      expect(node.flagsCollection.isToggled, Tristate.isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets(
+      'a group presses one at a time, or several; the arrows move between them',
+      (tester) async {
+        var values = <String>{};
+        var multiple = false;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => ToggleGroup<String>(
+                values: values,
+                multiple: multiple,
+                onChanged: (v) => set(() => values = v),
+                items: const [
+                  ToggleGroupItem('a', Text('A')),
+                  ToggleGroupItem('b', Text('B')),
+                  ToggleGroupItem('c', Text('C')),
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('A'));
+        await tester.pump();
+        await tester.tap(find.text('B'));
+        await tester.pump();
+        expect(values, {'b'});
+        await tester.tap(find.text('B'));
+        await tester.pump();
+        expect(values, isEmpty);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pump();
+        expect(values, {'c'});
+        multiple = true;
+        tester.element(find.byType(StatefulBuilder)).markNeedsBuild();
+        await tester.pump();
+        await tester.tap(find.text('A'));
+        await tester.pump();
+        expect(values, {'a', 'c'});
+      },
+    );
+  });
+
+  testWidgets(
+    'a spaced toggle group stands its toggles apart, and can stand upright',
+    (tester) async {
+      await tester.pumpWidget(
+        app2(
+          ToggleGroup<int>(
+            values: const {1},
+            spacing: 8,
+            axis: Axis.vertical,
+            onChanged: (_) {},
+            items: const [
+              ToggleGroupItem(1, Text('A')),
+              ToggleGroupItem(2, Text('B')),
+            ],
+          ),
+        ),
+      );
+      final a = tester.getRect(find.byType(Toggle).first),
+          b = tester.getRect(find.byType(Toggle).last);
+      expect(b.top - a.bottom, 8);
+      expect(a.left, b.left);
+    },
+  );
+}
+''',
+    },
   ),
   'slider': Component(
-    description: "A value picked by dragging along a track, or with the arrow keys.",
+    description:
+        "A value picked by dragging along a track, or with the arrow keys.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
+      'slider.dart':
+          r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -9549,14 +12558,169 @@ class _EndIntent extends Intent {
 }
 ''',
     },
+    testNeeds: ["app", "theme"],
+    tests: {
+      'slider_test.dart':
+          r'''// Tests for Slider. Copied into your app by `ashlar add slider` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/slider.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Slider', () {
+    Future<List<double>> slider(
+      WidgetTester tester, {
+      double value = .5,
+      double? step,
+    }) async {
+      final seen = <double>[];
+      var v = value;
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 216,
+            child: StatefulBuilder(
+              builder: (context, set) => Slider(
+                value: v,
+                step: step,
+                semanticLabel: 'Volume',
+                onChanged: (x) => set(() {
+                  v = x;
+                  seen.add(x);
+                }),
+              ),
+            ),
+          ),
+        ),
+      );
+      return seen;
+    }
+
+    testWidgets('a tap sets the value where it lands', (tester) async {
+      final seen = await slider(tester);
+      final box = tester.getRect(find.byType(Slider));
+      // The thumb's centre runs from 8 to 208 on a 216 wide track.
+      await tester.tapAt(Offset(box.left + 8 + 50, box.center.dy));
+      expect(seen.last, closeTo(.25, .01));
+    });
+
+    testWidgets('the keys step, page and jump to the ends', (tester) async {
+      final seen = await slider(tester, step: .1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(seen.last, closeTo(.6, 1e-9));
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      expect(seen.last, closeTo(.4, 1e-9));
+      await tester.sendKeyEvent(LogicalKeyboardKey.end);
+      expect(seen.last, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.home);
+      expect(seen.last, 0);
+    });
+
+    testWidgets(
+      'a screen reader hears a slider with its value, and can move it',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        final seen = await slider(tester, step: .1);
+        final node = tester.getSemantics(find.bySemanticsLabel('Volume'));
+        final data = node.getSemanticsData();
+        expect(data.flagsCollection.isSlider, isTrue);
+        expect(data.label, 'Volume');
+        expect(data.value, '50%');
+        expect(data.increasedValue, '60%');
+        node.owner!.performAction(node.id, SemanticsAction.increase);
+        expect(seen.last, closeTo(.6, 1e-9));
+        semantics.dispose();
+      },
+    );
+  });
+
+  group('Slider', () {
+    testWidgets(
+      'a range moves the thumb nearest the tap, and the thumbs never cross',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var range = (.2, .6);
+        await tester.pumpWidget(
+          app2(
+            SizedBox(
+              width: 216,
+              child: StatefulBuilder(
+                builder: (context, set) => Slider.range(
+                  values: range,
+                  step: .1,
+                  semanticLabel: 'Price',
+                  onRangeChanged: (r) => set(() => range = r),
+                ),
+              ),
+            ),
+          ),
+        );
+        final box = tester.getRect(find.byType(Slider));
+        await tester.tapAt(Offset(box.left + 8 + 180, box.center.dy));
+        await tester.pump();
+        expect(range.$1, closeTo(.2, 1e-9));
+        expect(range.$2, closeTo(.9, 1e-9));
+        expect(find.bySemanticsLabel('Price, lowest'), findsOneWidget);
+        expect(find.bySemanticsLabel('Price, highest'), findsOneWidget);
+        // The low thumb, pushed past the high one, stops at it.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        for (var i = 0; i < 12; i++) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pump();
+        }
+        expect(range.$1, closeTo(.9, 1e-9));
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('upright, the lowest value is at the bottom', (tester) async {
+      var v = 0.0;
+      await tester.pumpWidget(
+        app2(
+          StatefulBuilder(
+            builder: (context, set) => Slider(
+              value: v,
+              axis: Axis.vertical,
+              length: 216,
+              onChanged: (x) => set(() => v = x),
+            ),
+          ),
+        ),
+      );
+      final box = tester.getRect(find.byType(Slider));
+      expect(box.height, 216);
+      await tester.tapAt(Offset(box.center.dx, box.top + 8 + 50));
+      expect(v, closeTo(.75, .01));
+    });
+  });
+}
+''',
+    },
   ),
   'pagination': Component(
     description: "Previous, page numbers and Next, for a long list.",
-    requires: ["theme","button"],
+    requires: ["theme", "button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
+      'pagination.dart':
+          r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -9731,14 +12895,106 @@ class Pagination extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'pagination_test.dart':
+          r'''// Tests for Pagination. Copied into your app by `ashlar add pagination` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/pagination.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Pagination', () {
+    testWidgets('shows the first, the last and the pages near this one', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      var page = 5;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Pagination(
+              page: page,
+              pageCount: 12,
+              onChanged: (p) => set(() => page = p),
+            ),
+          ),
+        ),
+      );
+      for (final p in ['1', '4', '5', '6', '12']) {
+        expect(find.text(p), findsOneWidget, reason: p);
+      }
+      expect(find.text('2'), findsNothing);
+      expect(find.bySemanticsLabel('More pages'), findsNWidgets(2));
+      expect(find.bySemanticsLabel('Page 5, current page'), findsOneWidget);
+      await tester.tap(find.text('6'));
+      await tester.pump();
+      expect(page, 6);
+      await tester.tap(find.text('Previous'));
+      await tester.pump();
+      expect(page, 5);
+      semantics.dispose();
+    });
+
+    testWidgets('Previous is off on the first page, Next on the last', (
+      tester,
+    ) async {
+      var page = 1;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Pagination(
+              page: page,
+              pageCount: 3,
+              onChanged: (p) => set(() => page = p),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Previous'), warnIfMissed: false);
+      await tester.pump();
+      expect(page, 1);
+      expect(find.text('2'), findsOneWidget);
+    });
+  });
+
+  testWidgets('simple pagination says the page and moves', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var page = 2;
+    await tester.pumpWidget(
+      app(
+        StatefulBuilder(
+          builder: (context, set) => Pagination(
+            simple: true,
+            page: page,
+            pageCount: 10,
+            onChanged: (p) => set(() => page = p),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Page 2 of 10'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Next page'));
+    await tester.pump();
+    expect(find.text('Page 3 of 10'), findsOneWidget);
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'alert-dialog': Component(
     description: "A question that needs an answer before going on.",
-    requires: ["dialog","button"],
+    requires: ["dialog", "button"],
     packages: [],
     block: false,
     files: {
-      'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
+      'alert_dialog.dart':
+          r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -9850,14 +13106,118 @@ class AlertDialog extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'alert_dialog_test.dart':
+          r'''// Tests for Alert Dialog. Copied into your app by `ashlar add alert-dialog` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:ashlar_ui_gallery/ui/alert_dialog.dart';
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Alert Dialog', () {
+    Future<List<bool>> open(WidgetTester tester) async {
+      final answers = <bool>[];
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () async => answers.add(
+                await showAlertDialog(
+                  context,
+                  title: 'Delete?',
+                  action: 'Delete',
+                  destructive: true,
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      return answers;
+    }
+
+    testWidgets('a tap outside does nothing; Escape cancels', (tester) async {
+      final answers = await open(tester);
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsOneWidget);
+      expect(find.bySemanticsLabel('Close'), findsNothing);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Delete?'), findsNothing);
+      expect(answers, [false]);
+    });
+
+    testWidgets('the action answers true', (tester) async {
+      final answers = await open(tester);
+      await tester.tap(find.text('Delete').last);
+      await tester.pumpAndSettle();
+      expect(answers, [true]);
+    });
+  });
+
+  testWidgets(
+    'a small alert dialog is centred, its buttons sharing the width',
+    (tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showAlertDialog(
+                context,
+                title: 'Leave?',
+                small: true,
+                media: const AshlarIcon(AshlarIconsRoundedStroke.info),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final cancel = tester.getRect(find.text('Cancel').first),
+          go = tester.getRect(find.text('Continue'));
+      expect(tester.getCenter(find.text('Leave?')).dx, closeTo(400, 1));
+      expect(cancel.center.dy, go.center.dy);
+      expect(
+        tester
+            .getSize(
+              find
+                  .ancestor(
+                    of: find.text('Cancel'),
+                    matching: find.byType(Button),
+                  )
+                  .first,
+            )
+            .width,
+        greaterThan(100),
+      );
+    },
+  );
+}
+''',
+    },
   ),
   'hover-card': Component(
     description: "A card that appears when the pointer rests on something.",
-    requires: ["theme","popover"],
+    requires: ["theme", "popover"],
     packages: [],
     block: false,
     files: {
-      'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
+      'hover_card.dart':
+          r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
 // change.
 
 import 'dart:async';
@@ -9988,14 +13348,105 @@ class _HoverCardState extends State<HoverCard> {
 }
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'hover_card_test.dart':
+          r'''// Tests for Hover Card. Copied into your app by `ashlar add hover-card` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/hover_card.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Future<TestGesture> mouseAt(WidgetTester tester, Offset at) async {
+  final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: Offset.zero);
+  await mouse.moveTo(at);
+  return mouse;
+}
+
+void main() {
+  testWidgets(
+    'a hover card waits, appears, stays while the pointer is on it, then goes',
+    (tester) async {
+      await tester.pumpWidget(
+        app(
+          HoverCard(
+            content: (context) => const Text('Profile card'),
+            child: Button(
+              variant: ButtonVariant.link,
+              onPressed: () {},
+              child: const Text('@wanjiru'),
+            ),
+          ),
+        ),
+      );
+      final mouse = await mouseAt(
+        tester,
+        tester.getCenter(find.text('@wanjiru')),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Profile card'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(find.text('Profile card'), findsOneWidget);
+      // Across the gap and onto the card: it stays.
+      await mouse.moveTo(tester.getCenter(find.text('Profile card')));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Profile card'), findsOneWidget);
+      await mouse.moveTo(Offset.zero);
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpAndSettle();
+      expect(find.text('Profile card'), findsNothing);
+    },
+  );
+
+  testWidgets('a long press opens it; a tap is the link\'s', (tester) async {
+    var went = 0;
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Center(
+          child: HoverCard(
+            content: (context) => const Text('Joined in March 2024.'),
+            child: Button(
+              variant: ButtonVariant.link,
+              onPressed: () => went++,
+              child: const Text('@achieng'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('@achieng'));
+    await tester.pumpAndSettle();
+    expect(went, 1);
+    expect(find.text('Joined in March 2024.'), findsNothing);
+    await tester.longPress(find.text('@achieng'));
+    await tester.pumpAndSettle();
+    expect(find.text('Joined in March 2024.'), findsOneWidget);
+    expect(went, 1);
+    // A tap elsewhere closes it.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Joined in March 2024.'), findsNothing);
+  });
+}
+''',
+    },
   ),
   'context-menu': Component(
-    description: "A menu that opens where something is right-clicked or long-pressed.",
-    requires: ["popover","dropdown-menu"],
+    description:
+        "A menu that opens where something is right-clicked or long-pressed.",
+    requires: ["popover", "dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
+      'context_menu.dart':
+          r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
 // change.
 
 import 'package:flutter/foundation.dart';
@@ -10111,14 +13562,110 @@ class _OpenIntent extends Intent {
 }
 ''',
     },
+    testNeeds: ["app", "button", "dropdown-menu", "popover"],
+    tests: {
+      'context_menu_test.dart':
+          r'''// Tests for Context Menu. Copied into your app by `ashlar add context-menu` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/context_menu.dart';
+import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
+import 'package:ashlar_ui_gallery/ui/popover.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Context Menu', () {
+    Future<List<String>> menu(WidgetTester tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(
+        app(
+          ContextMenu(
+            items: [
+              MenuItem(
+                onPressed: () => picked.add('back'),
+                child: const Text('Back'),
+              ),
+              MenuItem(
+                onPressed: () => picked.add('reload'),
+                child: const Text('Reload'),
+              ),
+            ],
+            child: SizedBox(
+              width: 300,
+              height: 150,
+              child: Center(
+                child: Button(onPressed: () {}, child: const Text('Area')),
+              ),
+            ),
+          ),
+        ),
+      );
+      return picked;
+    }
+
+    testWidgets('a right-click opens it at the pointer; picking closes it', (
+      tester,
+    ) async {
+      final picked = await menu(tester);
+      final area = tester.getRect(find.byType(ContextMenu));
+      final at = area.topLeft + const Offset(40, 30);
+      await tester.tapAt(at, buttons: kSecondaryButton);
+      await tester.pumpAndSettle();
+      final panel = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(PopoverPanel),
+              matching: find.byType(TapRegion),
+            )
+            .first,
+      );
+      expect(panel.left, closeTo(at.dx, 1));
+      expect(panel.top, closeTo(at.dy + 4, 1));
+      await tester.tap(find.text('Reload'));
+      await tester.pumpAndSettle();
+      expect(picked, ['reload']);
+      expect(find.text('Back'), findsNothing);
+    });
+
+    testWidgets(
+      'a long press opens it, and so does Shift+F10 from the keyboard',
+      (tester) async {
+        await menu(tester);
+        await tester.longPress(find.byType(ContextMenu));
+        await tester.pumpAndSettle();
+        expect(find.text('Back'), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+        expect(find.text('Back'), findsNothing);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.f10);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pumpAndSettle();
+        expect(find.text('Back'), findsOneWidget);
+      },
+    );
+  });
+}
+''',
+    },
   ),
   'scroll-area': Component(
-    description: "Scrolling with a thin themed scrollbar; a builder for long lists.",
+    description:
+        "Scrolling with a thin themed scrollbar; a builder for long lists.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
+      'scroll_area.dart':
+          r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -10239,14 +13786,71 @@ class _ScrollAreaState extends State<ScrollArea> {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'scroll_area_test.dart':
+          r'''// Tests for Scroll Area. Copied into your app by `ashlar add scroll-area` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/scroll_area.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Future<TestGesture> mouseAt(WidgetTester tester, Offset at) async {
+  final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: Offset.zero);
+  await mouse.moveTo(at);
+  return mouse;
+}
+
+void main() {
+  testWidgets('a scroll area scrolls and shows its bar under the pointer', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: ScrollArea(
+            child: Column(
+              children: [for (var i = 0; i < 40; i++) Text('Tag $i')],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      tester.widget<RawScrollbar>(find.byType(RawScrollbar)).thumbVisibility,
+      isFalse,
+    );
+    await mouseAt(tester, tester.getCenter(find.byType(ScrollArea)));
+    await tester.pump();
+    expect(
+      tester.widget<RawScrollbar>(find.byType(RawScrollbar)).thumbVisibility,
+      isTrue,
+    );
+    await tester.drag(find.byType(ScrollArea), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('Tag 0').hitTestable(), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+}
+''',
+    },
   ),
   'data-table': Component(
-    description: "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
-    requires: ["theme","pressable","checkbox"],
+    description:
+        "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
+    requires: ["theme", "pressable", "checkbox"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
+      'data_table.dart':
+          r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
 // change. (Flutter's widgets layer has a Table for layout; this one is for data.)
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -10606,14 +14210,209 @@ class _RowState extends State<_Row> {
 }
 ''',
     },
+    testNeeds: ["app", "checkbox"],
+    tests: {
+      'data_table_test.dart':
+          r'''// Tests for Data Table. Copied into your app by `ashlar add data-table` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/checkbox.dart';
+import 'package:ashlar_ui_gallery/ui/data_table.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Widget app2(Widget child) => AshlarApp(
+  home: Center(child: SizedBox(width: 500, child: child)),
+);
+
+final invoices = [('INV001', 2500), ('INV002', 1500), ('INV003', 3500)];
+
+Widget app3(Widget child) => AshlarApp(
+  home: Center(child: SizedBox(width: 500, child: child)),
+);
+
+Widget app4(Widget child) => AshlarApp(
+  home: Center(child: SizedBox(width: 500, child: child)),
+);
+
+void main() {
+  group('Data Table', () {
+    Widget table({ValueChanged<int>? onRowPressed}) => SizedBox(
+      width: 480,
+      child: DataTable(
+        columns: const [
+          DataColumn(Text('Invoice')),
+          DataColumn(Text('Status')),
+          DataColumn(Text('Amount'), numeric: true),
+        ],
+        rows: const [
+          [Text('INV001'), Text('Paid'), Text('KES 2,500')],
+          [Text('INV002'), Text('Pending'), Text('KES 1,500')],
+        ],
+        footer: const [Text('Total'), SizedBox(), Text('KES 4,000')],
+        caption: const Text('Recent invoices.'),
+        onRowPressed: onRowPressed,
+      ),
+    );
+
+    testWidgets('headings are headings; numbers sit at the end', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(app(table()));
+      expect(tester.takeException(), isNull);
+      expect(
+        tester
+            .getSemantics(find.text('Invoice'))
+            .getSemanticsData()
+            .flagsCollection
+            .isHeader,
+        isTrue,
+      );
+      final amount = tester.getRect(find.text('KES 2,500')),
+          cell = tester.getRect(find.byType(DataTable));
+      expect(amount.right, closeTo(cell.right - 8, 1));
+      semantics.dispose();
+    });
+
+    testWidgets('with onRowPressed, each row is a button', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final pressed = <int>[];
+      await tester.pumpWidget(app(table(onRowPressed: pressed.add)));
+      await tester.tap(find.text('Pending'));
+      expect(pressed, [1]);
+      final row = tester.getSemantics(find.text('Pending')).getSemanticsData();
+      expect(row.flagsCollection.isButton, isTrue);
+      expect(row.label, contains('INV002'));
+      semantics.dispose();
+    });
+  });
+
+  testWidgets(
+    'a sortable heading asks for the sort, and shows which way it is sorted',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      var ascending = true;
+      await tester.pumpWidget(
+        app2(
+          StatefulBuilder(
+            builder: (context, set) {
+              final rows = [...invoices]
+                ..sort(
+                  (a, b) =>
+                      ascending ? a.$2.compareTo(b.$2) : b.$2.compareTo(a.$2),
+                );
+              return DataTable(
+                columns: const [
+                  DataColumn(Text('Invoice')),
+                  DataColumn(Text('Amount'), numeric: true, sortable: true),
+                ],
+                sortColumn: 1,
+                sortAscending: ascending,
+                onSort: (_) => set(() => ascending = !ascending),
+                rows: [
+                  for (final r in rows) [Text(r.$1), Text('${r.$2}')],
+                ],
+              );
+            },
+          ),
+        ),
+      );
+      double top(String s) => tester.getTopLeft(find.text(s)).dy;
+      expect(top('1500'), lessThan(top('3500')));
+      expect(
+        tester.getSemantics(find.text('Amount')).getSemanticsData().label,
+        contains('sorted ascending'),
+      );
+      await tester.tap(find.text('Amount'));
+      await tester.pump();
+      expect(top('3500'), lessThan(top('1500')));
+      expect(
+        tester.getSemantics(find.text('Amount')).getSemanticsData().label,
+        contains('sorted descending'),
+      );
+      // From the keyboard too.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(top('1500'), lessThan(top('3500')));
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('rows are picked one by one, or all from the heading', (
+    tester,
+  ) async {
+    var picked = <int>{};
+    await tester.pumpWidget(
+      app3(
+        StatefulBuilder(
+          builder: (context, set) => DataTable(
+            columns: const [
+              DataColumn(Text('Invoice')),
+              DataColumn(Text('Amount'), numeric: true),
+            ],
+            selected: picked,
+            onSelectChanged: (s) => set(() => picked = s),
+            rows: [
+              for (final r in invoices) [Text(r.$1), Text('${r.$2}')],
+            ],
+          ),
+        ),
+      ),
+    );
+    final boxes = find.byType(Checkbox);
+    expect(boxes, findsNWidgets(4));
+    await tester.tap(boxes.at(2));
+    await tester.pump();
+    expect(picked, {1});
+    await tester.tap(boxes.first);
+    await tester.pump();
+    expect(picked, {0, 1, 2});
+    await tester.tap(boxes.first);
+    await tester.pump();
+    expect(picked, isEmpty);
+  });
+
+  testWidgets(
+    'with 10,000 rows the builder builds a screenful under a fixed heading',
+    (tester) async {
+      await tester.pumpWidget(
+        app4(
+          DataTable.builder(
+            columns: const [
+              DataColumn(Text('Order')),
+              DataColumn(Text('Amount'), numeric: true),
+            ],
+            rowCount: 10000,
+            height: 400,
+            rowBuilder: (i) => [Text('Order $i'), Text('${i * 10}')],
+          ),
+        ),
+      );
+      expect(find.textContaining('Order ').evaluate().length, lessThan(20));
+      await tester.drag(find.text('Order 3'), const Offset(0, -20000));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Order ').evaluate().length, lessThan(20));
+      expect(find.text('Order').hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+''',
+    },
   ),
   'sheet': Component(
     description: "A panel that slides in from an edge of the screen.",
-    requires: ["theme","button"],
+    requires: ["theme", "button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
+      'sheet.dart':
+          r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -10856,6 +14655,181 @@ class Sheet extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "button", "input"],
+    tests: {
+      'sheet_test.dart':
+          r'''// Tests for Sheet. Copied into your app by `ashlar add sheet` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/sheet.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Future<void> open(WidgetTester tester, void Function(BuildContext) show) async {
+  tester.view.physicalSize = const Size(400, 800);
+  tester.view.devicePixelRatio = 1;
+  // A keyboard 300 tall.
+  tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    AshlarApp(
+      home: Builder(
+        builder: (context) => Center(
+          child: Button(
+            onPressed: () => show(context),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.tap(find.text('Open'));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  group('Sheet', () {
+    Future<void> open(WidgetTester tester, SheetSide side) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showSheet(
+                context: context,
+                side: side,
+                builder: (context) => const Sheet(
+                  title: Text('Edit profile'),
+                  content: Text('Form'),
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('slides in at the right edge, no wider than 384', (
+      tester,
+    ) async {
+      await open(tester, SheetSide.right);
+      final panel = tester.getRect(
+        find
+            .ancestor(
+              of: find.text('Edit profile'),
+              matching: find.byType(SafeArea),
+            )
+            .first,
+      );
+      expect(panel.right, 800);
+      expect(panel.width, lessThanOrEqualTo(384));
+      expect(panel.height, 600);
+    });
+
+    testWidgets('at the left edge, and from the bottom at its own height', (
+      tester,
+    ) async {
+      await open(tester, SheetSide.left);
+      expect(
+        tester
+            .getRect(
+              find
+                  .ancestor(
+                    of: find.text('Edit profile'),
+                    matching: find.byType(SafeArea),
+                  )
+                  .first,
+            )
+            .left,
+        0,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      await open(tester, SheetSide.bottom);
+      final panel = tester.getRect(
+        find
+            .ancestor(
+              of: find.text('Edit profile'),
+              matching: find.byType(SafeArea),
+            )
+            .first,
+      );
+      expect(panel.bottom, 600);
+      expect(panel.height, lessThan(300));
+    });
+
+    testWidgets('the close button, Escape and a tap outside close it', (
+      tester,
+    ) async {
+      await open(tester, SheetSide.right);
+      await tester.tap(find.bySemanticsLabel('Close').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Edit profile'), findsNothing);
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Edit profile'), findsNothing);
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 300));
+      await tester.pumpAndSettle();
+      expect(find.text('Edit profile'), findsNothing);
+    });
+  });
+
+  testWidgets('a sheet from the bottom rises above the keyboard', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      (context) => showSheet<void>(
+        context: context,
+        side: SheetSide.bottom,
+        builder: (_) => const Sheet(
+          title: Text('Search'),
+          content: Input(placeholder: 'Search'),
+        ),
+      ),
+    );
+    expect(tester.getRect(find.byType(Input)).bottom, lessThanOrEqualTo(500));
+  });
+
+  testWidgets('a sheet without its close button', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        Builder(
+          builder: (context) => Button(
+            onPressed: () => showSheet(
+              context: context,
+              builder: (_) =>
+                  const Sheet(title: Text('Edit'), showClose: false),
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Sheet), matching: find.byType(Button)),
+      findsNothing,
+    );
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'drawer': Component(
     description: "A panel that comes up from the bottom and drags away.",
@@ -10863,7 +14837,8 @@ class Sheet extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
+      'drawer.dart':
+          r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -11166,14 +15141,141 @@ class _DrawerState extends State<Drawer> {
 }
 ''',
     },
+    testNeeds: ["app", "button", "input"],
+    tests: {
+      'drawer_test.dart':
+          r'''// Tests for Drawer. Copied into your app by `ashlar add drawer` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/drawer.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Future<void> open(WidgetTester tester, void Function(BuildContext) show) async {
+  tester.view.physicalSize = const Size(400, 800);
+  tester.view.devicePixelRatio = 1;
+  // A keyboard 300 tall.
+  tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    AshlarApp(
+      home: Builder(
+        builder: (context) => Center(
+          child: Button(
+            onPressed: () => show(context),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.tap(find.text('Open'));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  group('Drawer', () {
+    Future<void> open(WidgetTester tester) async {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showDrawer(
+                context: context,
+                builder: (context) => const Drawer(
+                  title: Text('Move goal'),
+                  content: SizedBox(height: 200, child: Text('Steps')),
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets(
+      'comes up at the bottom; a small drag springs back, a long one closes it',
+      (tester) async {
+        await open(tester);
+        expect(tester.getBottomLeft(find.byType(Drawer)).dy, 600);
+        await tester.drag(find.text('Move goal'), const Offset(0, 40));
+        await tester.pumpAndSettle();
+        expect(find.text('Move goal'), findsOneWidget);
+        expect(tester.getBottomLeft(find.byType(Drawer)).dy, 600);
+        await tester.drag(find.text('Move goal'), const Offset(0, 250));
+        await tester.pumpAndSettle();
+        expect(find.text('Move goal'), findsNothing);
+      },
+    );
+
+    testWidgets('a tap outside closes it', (tester) async {
+      await open(tester);
+      await tester.tapAt(const Offset(400, 20));
+      await tester.pumpAndSettle();
+      expect(find.text('Move goal'), findsNothing);
+    });
+  });
+
+  testWidgets('a drawer from the bottom rises above the keyboard', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      (context) => showDrawer<void>(
+        context: context,
+        builder: (_) => const Drawer(
+          title: Text('Note'),
+          content: Input(placeholder: 'Note'),
+        ),
+      ),
+    );
+    expect(tester.getRect(find.byType(Input)).bottom, lessThanOrEqualTo(500));
+  });
+
+  testWidgets('a drawer from the left goes back left with a drag', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        Builder(
+          builder: (context) => Button(
+            onPressed: () => showDrawer(
+              context: context,
+              side: DrawerSide.left,
+              builder: (_) => const Drawer(title: Text('Filters')),
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(tester.getRect(find.byType(Drawer)).left, 0);
+    await tester.drag(find.text('Filters'), const Offset(-250, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Filters'), findsNothing);
+  });
+}
+''',
+    },
   ),
   'input-group': Component(
-    description: "A text field with text, buttons or a toolbar inside its border.",
-    requires: ["theme","input"],
+    description:
+        "A text field with text, buttons or a toolbar inside its border.",
+    requires: ["theme", "input"],
     packages: [],
     block: false,
     files: {
-      'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
+      'input_group.dart':
+          r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -11310,14 +15412,79 @@ class _InputGroupState extends State<InputGroup> {
 }
 ''',
     },
+    testNeeds: ["app", "input"],
+    tests: {
+      'input_group_test.dart':
+          r'''// Tests for Input Group. Copied into your app by `ashlar add input-group` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/input_group.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets(
+    'an input group puts its pieces in one border and rings it when the field has focus',
+    (tester) async {
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 320,
+            child: InputGroup(
+              start: Text('https://'),
+              end: Text('.co.ke'),
+              child: Input(decorated: false, placeholder: 'example'),
+            ),
+          ),
+        ),
+      );
+      BoxDecoration group() =>
+          tester
+                  .widget<AnimatedContainer>(
+                    find
+                        .descendant(
+                          of: find.byType(InputGroup),
+                          matching: find.byType(AnimatedContainer),
+                        )
+                        .first,
+                  )
+                  .decoration!
+              as BoxDecoration;
+      expect(group().boxShadow!.any((s) => s.spreadRadius == 3), isFalse);
+      // The field inside draws no box of its own.
+      final inner = tester.widget<AnimatedContainer>(
+        find
+            .descendant(
+              of: find.byType(Input),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+      expect(inner.decoration, isNull);
+      await tester.tap(find.byType(Input));
+      await tester.pumpAndSettle();
+      expect(group().boxShadow!.any((s) => s.spreadRadius == 3), isTrue);
+      expect(
+        tester.getRect(find.text('https://')).right,
+        lessThan(tester.getRect(find.byType(Input)).left + 1),
+      );
+    },
+  );
+}
+''',
+    },
   ),
   'input-otp': Component(
     description: "A one-time code, one character to a box.",
-    requires: ["theme","group"],
+    requires: ["theme", "group"],
     packages: [],
     block: false,
     files: {
-      'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
+      'input_otp.dart':
+          r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11566,6 +15733,63 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'input_otp_test.dart':
+          r'''// Tests for Input Otp. Copied into your app by `ashlar add input-otp` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/input_otp.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Input OTP', () {
+    testWidgets(
+      'fills a box per digit, ignores letters and reports the whole code',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        String? done;
+        await tester.pumpWidget(
+          app(InputOtp(groups: const [3, 3], onCompleted: (c) => done = c)),
+        );
+        await tester.tap(find.byType(InputOtp));
+        await tester.enterText(find.byType(EditableText), '12a3');
+        await tester.pump();
+        for (final d in ['1', '2', '3']) {
+          expect(find.text(d), findsOneWidget);
+        }
+        expect(find.text('a'), findsNothing);
+        expect(done, isNull);
+        // Pasted whole, or filled in from a text message.
+        await tester.enterText(find.byType(EditableText), '482913');
+        await tester.pump();
+        expect(done, '482913');
+        final node = tester
+            .getSemantics(find.byType(EditableText))
+            .getSemanticsData();
+        expect(node.label, contains('One-time code'));
+        expect(node.flagsCollection.isTextField, isTrue);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('stops at its length', (tester) async {
+      await tester.pumpWidget(app(const InputOtp(length: 4)));
+      await tester.tap(find.byType(InputOtp));
+      await tester.enterText(find.byType(EditableText), '123456');
+      await tester.pump();
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        '1234',
+      );
+    });
+  });
+}
+''',
+    },
   ),
   'resizable': Component(
     description: "Panels with handles between them that drag to resize.",
@@ -11573,7 +15797,8 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
     packages: [],
     block: false,
     files: {
-      'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
+      'resizable.dart':
+          r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11811,14 +16036,105 @@ class _NudgeIntent extends Intent {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'resizable_test.dart':
+          r'''// Tests for Resizable. Copied into your app by `ashlar add resizable` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/resizable.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Resizable', () {
+    Widget panes() => const SizedBox(
+      width: 401,
+      height: 200,
+      child: Resizable(
+        panels: [
+          ResizablePanel(size: 1, minSize: .2, child: Text('Left')),
+          ResizablePanel(size: 3, child: Text('Right')),
+        ],
+      ),
+    );
+
+    double left(WidgetTester tester) => tester
+        .getSize(
+          find
+              .ancestor(of: find.text('Left'), matching: find.byType(SizedBox))
+              .first,
+        )
+        .width;
+
+    testWidgets(
+      'starts at its shares and drags to new ones, not past the least',
+      (tester) async {
+        await tester.pumpWidget(app(panes()));
+        expect(left(tester), closeTo(100, .5));
+        final handle = tester.getCenter(find.bySemanticsLabel('Resize'));
+        await tester.dragFrom(handle, const Offset(100, 0));
+        await tester.pump();
+        expect(left(tester), closeTo(200, 1));
+        await tester.dragFrom(
+          tester.getCenter(find.bySemanticsLabel('Resize')),
+          const Offset(-300, 0),
+        );
+        await tester.pump();
+        expect(left(tester), closeTo(80, .5));
+      },
+    );
+
+    testWidgets('the handle takes focus and the arrows move it', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(panes()));
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(left(tester), closeTo(116, .5));
+    });
+  });
+
+  testWidgets('resizable reports the shares after a move', (tester) async {
+    List<double>? sizes;
+    await tester.pumpWidget(
+      app(
+        SizedBox(
+          width: 401,
+          height: 100,
+          child: Resizable(
+            onResize: (s) => sizes = s,
+            panels: const [
+              ResizablePanel(child: Text('A')),
+              ResizablePanel(child: Text('B')),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.dragFrom(
+      tester.getCenter(find.byType(Resizable)),
+      const Offset(100, 0),
+    );
+    expect(sizes![0], closeTo(.75, .01));
+  });
+}
+''',
+    },
   ),
   'command': Component(
-    description: "A search box over a list of things to do, picked with the keyboard.",
-    requires: ["theme","input","dialog"],
+    description:
+        "A search box over a list of things to do, picked with the keyboard.",
+    requires: ["theme", "input", "dialog"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
+      'command.dart':
+          r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -12293,14 +16609,138 @@ Future<void> showCommandDialog({
 );
 ''',
     },
+    testNeeds: ["app", "button"],
+    tests: {
+      'command_test.dart':
+          r'''// Tests for Command. Copied into your app by `ashlar add command` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/command.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Command', () {
+    Future<List<String>> command(WidgetTester tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 400,
+            child: Command(
+              groups: [
+                CommandGroup(heading: 'Suggestions', [
+                  CommandItem(
+                    'Calendar',
+                    onSelected: () => picked.add('calendar'),
+                  ),
+                  CommandItem(
+                    'Calculator',
+                    enabled: false,
+                    onSelected: () => picked.add('calculator'),
+                  ),
+                  CommandItem(
+                    'Search emoji',
+                    onSelected: () => picked.add('emoji'),
+                  ),
+                ]),
+                CommandGroup(heading: 'Settings', [
+                  CommandItem(
+                    'Billing',
+                    keywords: ['invoice', 'payment'],
+                    onSelected: () => picked.add('billing'),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      return picked;
+    }
+
+    testWidgets('typing narrows the list, by label or keyword', (tester) async {
+      await command(tester);
+      await tester.enterText(find.byType(EditableText), 'cal');
+      await tester.pump();
+      expect(find.text('Calendar'), findsOneWidget);
+      expect(find.text('Search emoji'), findsNothing);
+      expect(find.text('Settings'), findsNothing);
+      await tester.enterText(find.byType(EditableText), 'invoice');
+      await tester.pump();
+      expect(find.text('Billing'), findsOneWidget);
+      await tester.enterText(find.byType(EditableText), 'zzz');
+      await tester.pump();
+      expect(find.text('No results found.'), findsOneWidget);
+    });
+
+    testWidgets(
+      'the arrows move the highlight past what is off, Enter picks, and the box keeps the typing',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        final picked = await command(tester);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(find.bySemanticsLabel('Search emoji'), findsWidgets);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(picked, ['emoji']);
+        expect(
+          FocusManager.instance.primaryFocus!.context!
+              .findAncestorWidgetOfExactType<EditableText>(),
+          isNotNull,
+        );
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('as a dialog, picking closes it first', (tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Button(
+              onPressed: () => showCommandDialog(
+                context: context,
+                groups: [
+                  CommandGroup([
+                    CommandItem(
+                      'Profile',
+                      onSelected: () => picked.add('profile'),
+                    ),
+                  ]),
+                ],
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(picked, ['profile']);
+      expect(find.text('Profile'), findsNothing);
+    });
+  });
+}
+''',
+    },
   ),
   'combobox': Component(
-    description: "A select you can search: one pick or several as chips, groups, clearing.",
-    requires: ["theme","pressable","popover","command"],
+    description:
+        "A select you can search: one pick or several as chips, groups, clearing.",
+    requires: ["theme", "pressable", "popover", "command"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
+      'combobox.dart':
+          r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -12690,14 +17130,189 @@ class _Clear extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "popover", "theme"],
+    tests: {
+      'combobox_test.dart':
+          r'''// Tests for Combobox. Copied into your app by `ashlar add combobox` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/combobox.dart';
+import 'package:ashlar_ui_gallery/ui/popover.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+/// Without the room a finger's press area takes on a phone: these measure looks.
+Widget app2(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+  home: Center(child: SizedBox(width: 260, child: child)),
+);
+
+void main() {
+  testWidgets('in a short space, its list shrinks rather than overflow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Align(
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: 240,
+            child: Combobox<int>(
+              value: null,
+              options: [
+                for (var i = 0; i < 40; i++) ComboboxOption(i, 'Option $i'),
+              ],
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(Combobox<int>));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Option 0'), findsOneWidget);
+  });
+
+  testWidgets('a combobox searches, picks and says what it holds', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    String? value;
+    await tester.pumpWidget(
+      app(
+        SizedBox(
+          width: 240,
+          child: StatefulBuilder(
+            builder: (context, set) => Combobox<String>(
+              value: value,
+              placeholder: 'Choose a county',
+              semanticLabel: 'County',
+              options: const [
+                ComboboxOption('nbo', 'Nairobi'),
+                ComboboxOption('msa', 'Mombasa'),
+                ComboboxOption('ksm', 'Kisumu'),
+              ],
+              onChanged: (v) => set(() => value = v),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Choose a county'));
+    await tester.pumpAndSettle();
+    // As wide as the trigger, not the screen.
+    expect(
+      tester
+          .getSize(
+            find
+                .descendant(
+                  of: find.byType(PopoverPanel),
+                  matching: find.byType(TapRegion),
+                )
+                .first,
+          )
+          .width,
+      240,
+    );
+    await tester.enterText(find.byType(EditableText), 'mom');
+    await tester.pump();
+    expect(find.text('Nairobi'), findsNothing);
+    await tester.tap(find.text('Mombasa'));
+    await tester.pumpAndSettle();
+    expect(value, 'msa');
+    expect(find.text('Kisumu'), findsNothing);
+    final node = tester.getSemantics(find.text('Mombasa')).getSemanticsData();
+    expect(node.label, 'County');
+    expect(node.value, 'Mombasa');
+    semantics.dispose();
+  });
+
+  group('Combobox', () {
+    const options = [
+      ComboboxOption('ke', 'Kenya', group: 'East Africa'),
+      ComboboxOption('tz', 'Tanzania', group: 'East Africa'),
+      ComboboxOption('ug', 'Uganda', group: 'East Africa', enabled: false),
+      ComboboxOption('gh', 'Ghana', group: 'West Africa'),
+    ];
+
+    testWidgets(
+      'picks several as chips; a chip removes itself; the list stays open while picking',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var values = <String>{};
+        await tester.pumpWidget(
+          app2(
+            StatefulBuilder(
+              builder: (context, set) => Combobox<String>.multiple(
+                values: values,
+                placeholder: 'Countries',
+                options: options,
+                onValuesChanged: (v) => set(() => values = v),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Countries'));
+        await tester.pumpAndSettle();
+        expect(find.text('East Africa'), findsOneWidget);
+        await tester.tap(find.text('Kenya'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Ghana').last);
+        await tester.pumpAndSettle();
+        expect(values, {'ke', 'gh'});
+        // A disabled option cannot be picked.
+        await tester.tap(find.text('Uganda'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(values, {'ke', 'gh'});
+        await tester.tapAt(const Offset(5, 5));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Remove Kenya'));
+        await tester.pumpAndSettle();
+        expect(values, {'gh'});
+        semantics.dispose();
+      },
+    );
+
+    testWidgets('the clear button clears a single pick', (tester) async {
+      final semantics = tester.ensureSemantics();
+      String? value = 'tz';
+      await tester.pumpWidget(
+        app2(
+          StatefulBuilder(
+            builder: (context, set) => Combobox<String>(
+              value: value,
+              options: options,
+              placeholder: 'Country',
+              onChanged: (v) => set(() => value = v),
+              onCleared: () => set(() => value = null),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.bySemanticsLabel('Clear'));
+      await tester.pumpAndSettle();
+      expect(value, isNull);
+      expect(find.text('Country'), findsOneWidget);
+      expect(find.bySemanticsLabel('Clear'), findsNothing);
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'menubar': Component(
     description: "A bar of menus, as at the top of a desktop app.",
-    requires: ["theme","pressable","popover","dropdown-menu"],
+    requires: ["theme", "pressable", "popover", "dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
+      'menubar.dart':
+          r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -12874,14 +17489,109 @@ class _MenubarState extends State<Menubar> {
 }
 ''',
     },
+    testNeeds: ["app", "dropdown-menu"],
+    tests: {
+      'menubar_test.dart':
+          r'''// Tests for Menubar. Copied into your app by `ashlar add menubar` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
+import 'package:ashlar_ui_gallery/ui/menubar.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Menubar', () {
+    Future<List<String>> bar(WidgetTester tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(
+        app(
+          Menubar(
+            menus: [
+              MenubarMenu(
+                'File',
+                items: [
+                  MenuItem(
+                    onPressed: () => picked.add('new'),
+                    child: const Text('New tab'),
+                  ),
+                ],
+              ),
+              MenubarMenu(
+                'Edit',
+                items: [
+                  MenuItem(
+                    onPressed: () => picked.add('undo'),
+                    child: const Text('Undo'),
+                  ),
+                ],
+              ),
+              MenubarMenu(
+                'View',
+                items: [
+                  MenuItem(
+                    onPressed: () => picked.add('zoom'),
+                    child: const Text('Zoom in'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+      return picked;
+    }
+
+    testWidgets('a click opens a menu; pointing at the next switches to it', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final picked = await bar(tester);
+      await tester.tap(find.text('File'));
+      await tester.pumpAndSettle();
+      expect(find.text('New tab'), findsOneWidget);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: tester.getCenter(find.text('File')));
+      await mouse.moveTo(tester.getCenter(find.text('Edit')));
+      await tester.pumpAndSettle();
+      expect(find.text('New tab'), findsNothing);
+      expect(find.text('Undo'), findsOneWidget);
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect(picked, ['undo']);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    });
+
+    testWidgets('the arrows move between menus', (tester) async {
+      await bar(tester);
+      await tester.tap(find.text('File'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(find.text('Undo'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pumpAndSettle();
+      expect(find.text('Zoom in'), findsOneWidget);
+    });
+  });
+}
+''',
+    },
   ),
   'navigation-menu': Component(
     description: "A site's main links, with panels that open from headings.",
-    requires: ["theme","pressable","popover"],
+    requires: ["theme", "pressable", "popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
+      'navigation_menu.dart':
+          r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -13217,14 +17927,171 @@ class NavigationMenuLink extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'navigation_menu_test.dart':
+          r'''// Tests for Navigation Menu. Copied into your app by `ashlar add navigation-menu` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/navigation_menu.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+Widget menu() => AshlarApp(
+  home: Align(
+    alignment: Alignment.topCenter,
+    child: NavigationMenu(
+      items: [
+        NavigationMenuItem(
+          'Products',
+          width: 300,
+          content: (context) =>
+              NavigationMenuLink(title: 'Components', onPressed: () {}),
+        ),
+        NavigationMenuItem.link('Pricing', onPressed: () {}),
+        NavigationMenuItem(
+          'Company',
+          width: 220,
+          content: (context) =>
+              NavigationMenuLink(title: 'About us', onPressed: () {}),
+        ),
+      ],
+    ),
+  ),
+);
+
+/// The panel: the box around a link's content.
+Rect panelOf(WidgetTester tester, String link) => tester.getRect(
+  find
+      .ancestor(of: find.text(link), matching: find.byType(AnimatedContainer))
+      .last,
+);
+
+void main() {
+  testWidgets(
+    'a navigation menu opens on hover after a moment; its links close it',
+    (tester) async {
+      final went = <String>[];
+      await tester.pumpWidget(
+        app(
+          NavigationMenu(
+            items: [
+              NavigationMenuItem(
+                'Components',
+                content: (context) => NavigationMenuLink(
+                  title: 'Button',
+                  description: 'Six variants.',
+                  onPressed: () => went.add('button'),
+                ),
+              ),
+              NavigationMenuItem.link(
+                'Docs',
+                onPressed: () => went.add('docs'),
+              ),
+            ],
+          ),
+        ),
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.text('Components')));
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(find.text('Six variants.'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
+      expect(find.text('Six variants.'), findsOneWidget);
+      await mouse.moveTo(tester.getCenter(find.text('Button')));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.text('Button'));
+      await tester.pumpAndSettle();
+      expect(went, ['button']);
+      expect(find.text('Six variants.'), findsNothing);
+      await tester.tap(find.text('Docs'));
+      expect(went, ['button', 'docs']);
+    },
+  );
+
+  testWidgets('moving to another heading moves the one panel across to it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(menu());
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.text('Products')));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    final first = panelOf(tester, 'Components');
+    expect(first.width, closeTo(300, 1));
+
+    await mouse.moveTo(tester.getCenter(find.text('Company')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    // Midway: the panel is on its way, and both contents are there as one slides in.
+    final going = panelOf(tester, 'About us');
+    expect(going.left, greaterThan(first.left + 1));
+    expect(going.left, lessThan(tester.getRect(find.text('Company')).left));
+    await tester.pumpAndSettle();
+    final last = panelOf(tester, 'About us');
+    expect(last.width, closeTo(220, 1));
+    expect(
+      last.left,
+      closeTo(
+        tester
+            .getRect(
+              find
+                  .ancestor(
+                    of: find.text('Company'),
+                    matching: find.byType(KeyedSubtree),
+                  )
+                  .first,
+            )
+            .left,
+        2,
+      ),
+    );
+    // The content it left has gone.
+    expect(find.text('Components'), findsNothing);
+  });
+
+  testWidgets('Escape closes it, and a heading is said to be open or not', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(menu());
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Components'), findsOneWidget);
+    expect(
+      tester
+          .getSemantics(find.text('Products'))
+          .getSemanticsData()
+          .flagsCollection
+          .isExpanded,
+      isNot(equals(null)),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.text('Components'), findsNothing);
+    semantics.dispose();
+  });
+}
+''',
+    },
   ),
   'carousel': Component(
-    description: "Slides moved by swiping, buttons, keys, a controller or by themselves.",
+    description:
+        "Slides moved by swiping, buttons, keys, a controller or by themselves.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
+      'carousel.dart':
+          r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
 
 import 'dart:async';
 
@@ -13474,6 +18341,96 @@ class _CarouselState extends State<Carousel> {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'carousel_test.dart':
+          r'''// Tests for Carousel. Copied into your app by `ashlar add carousel` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/carousel.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  testWidgets(
+    'a carousel moves by its buttons and arrow keys, and says which slide shows',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 500,
+            height: 200,
+            child: Carousel(
+              children: [for (var i = 1; i <= 4; i++) Text('Card $i')],
+            ),
+          ),
+        ),
+      );
+      await tester.tap(
+        find.bySemanticsLabel('Previous slide'),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Card 1').hitTestable(), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Next slide'));
+      await tester.pumpAndSettle();
+      expect(find.text('Card 2').hitTestable(), findsOneWidget);
+      expect(find.bySemanticsLabel('Carousel'), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Carousel'))
+            .getSemanticsData()
+            .value,
+        'Slide 2 of 4',
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(find.text('Card 3').hitTestable(), findsOneWidget);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('a carousel moved by its controller, and by itself', (
+    tester,
+  ) async {
+    final controller = CarouselController();
+    await tester.pumpWidget(
+      app(
+        SizedBox(
+          width: 300,
+          height: 300,
+          child: Carousel(
+            axis: Axis.vertical,
+            controller: controller,
+            autoplay: const Duration(seconds: 2),
+            children: [for (var i = 1; i <= 3; i++) Text('Slide $i')],
+          ),
+        ),
+      ),
+    );
+    controller.next();
+    await tester.pumpAndSettle();
+    expect(controller.index, 1);
+    expect(find.text('Slide 2').hitTestable(), findsOneWidget);
+    // Upright: the next slide comes from below.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    expect(controller.index, 2);
+    // And from the last, back to the first.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    expect(controller.index, 0);
+    await tester.pumpWidget(const SizedBox());
+  });
+}
+''',
+    },
   ),
   'selection': Component(
     description: "Selection handles and the cut, copy and paste menu.",
@@ -13481,7 +18438,8 @@ class _CarouselState extends State<Carousel> {
     packages: [],
     block: false,
     files: {
-      'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
+      'selection.dart':
+          r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
 // yours to change. The handles and the cut, copy and paste menu, for text fields and for
 // text selected anywhere in the app.
 
@@ -13663,12 +18621,14 @@ class AshlarSelectionMenu extends StatelessWidget {
     },
   ),
   'calendar': Component(
-    description: "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
-    requires: ["theme","button","select"],
+    description:
+        "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
+    requires: ["theme", "button", "select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
+      'calendar.dart':
+          r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -14356,14 +19316,328 @@ class _Nav extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'calendar_test.dart':
+          r'''// Tests for Calendar. Copied into your app by `ashlar add calendar` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/calendar.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+final october = DateTime(2026, 10);
+
+/// The day cell showing [n] in the month shown (not a day from the month either side).
+Finder dayOf(int n) => find.text('$n').last;
+
+void main() {
+  group('Calendar', () {
+    testWidgets('lays out the month from Monday, with the days either side', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          Calendar(selected: null, initialMonth: october, onSelected: (_) {}),
+        ),
+      );
+      expect(find.text('October 2026'), findsOneWidget);
+      final heads = tester
+          .widgetList<Text>(
+            find.textContaining(RegExp(r'^(Mo|Tu|We|Th|Fr|Sa|Su)$')),
+          )
+          .map((t) => t.data)
+          .toList();
+      expect(heads, ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']);
+      // 1 October 2026 is a Thursday: the grid opens on Monday 28 September.
+      expect(
+        tester.getTopLeft(find.text('28').first).dx,
+        lessThan(tester.getTopLeft(find.text('1').first).dx),
+      );
+      expect(find.text('31'), findsOneWidget);
+    });
+
+    testWidgets('a tap picks a day, read out in full', (tester) async {
+      final semantics = tester.ensureSemantics();
+      DateTime? picked;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Calendar(
+              selected: picked,
+              initialMonth: october,
+              onSelected: (d) => set(() => picked = d),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(dayOf(13));
+      await tester.pump();
+      expect(picked, DateTime(2026, 10, 13));
+      final node = tester.getSemantics(
+        find.bySemanticsLabel(RegExp('Tuesday, 13 October 2026')),
+      );
+      expect(
+        node.getSemanticsData().flagsCollection.isSelected,
+        Tristate.isTrue,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('the arrows either side change the month', (tester) async {
+      await tester.pumpWidget(
+        app(
+          Calendar(selected: null, initialMonth: october, onSelected: (_) {}),
+        ),
+      );
+      await tester.tap(find.bySemanticsLabel('Next month'));
+      await tester.pump();
+      expect(find.text('November 2026'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Previous month'));
+      await tester.tap(find.bySemanticsLabel('Previous month'));
+      await tester.pump();
+      expect(find.text('September 2026'), findsOneWidget);
+    });
+
+    testWidgets(
+      'from the keyboard: arrows, a week down, the next month, Enter',
+      (tester) async {
+        DateTime? picked;
+        await tester.pumpWidget(
+          app(
+            Calendar(
+              selected: DateTime(2026, 10, 13),
+              onSelected: (d) => picked = d,
+              autofocus: true,
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(picked, DateTime(2026, 10, 21));
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+        await tester.pump();
+        expect(find.text('November 2026'), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        // 21 November 2026 is a Saturday; its week starts on Monday the 16th.
+        expect(picked, DateTime(2026, 11, 16));
+      },
+    );
+
+    testWidgets(
+      'a range: two taps in either order, the days between chosen too',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        DateRange? range;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Calendar.range(
+                range: range,
+                initialMonth: october,
+                onRangeChanged: (r) => set(() => range = r),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(dayOf(10));
+        await tester.pump();
+        expect(range, DateRange(DateTime(2026, 10, 10)));
+        await tester.tap(dayOf(5));
+        await tester.pump();
+        expect(range, DateRange(DateTime(2026, 10, 5), DateTime(2026, 10, 10)));
+        final middle = tester
+            .getSemantics(find.bySemanticsLabel('Wednesday, 7 October 2026'))
+            .getSemanticsData();
+        expect(middle.flagsCollection.isSelected, Tristate.isTrue);
+        // A third tap starts again.
+        await tester.tap(dayOf(20));
+        await tester.pump();
+        expect(range, DateRange(DateTime(2026, 10, 20)));
+        semantics.dispose();
+      },
+    );
+
+    testWidgets(
+      'days that cannot be picked: before the first date, and weekends',
+      (tester) async {
+        DateTime? picked;
+        await tester.pumpWidget(
+          app(
+            Calendar(
+              selected: null,
+              initialMonth: october,
+              firstDate: DateTime(2026, 10, 10),
+              isDisabled: (d) => d.weekday >= DateTime.saturday,
+              onSelected: (d) => picked = d,
+            ),
+          ),
+        );
+        await tester.tap(dayOf(5));
+        await tester.tap(dayOf(17)); // a Saturday
+        expect(picked, isNull);
+        await tester.tap(dayOf(15));
+        expect(picked, DateTime(2026, 10, 15));
+        // No month before the first date.
+        await tester.tap(
+          find.bySemanticsLabel('Previous month'),
+          warnIfMissed: false,
+        );
+        await tester.pump();
+        expect(find.text('October 2026'), findsOneWidget);
+      },
+    );
+
+    testWidgets('other names and a Sunday start come from DateNamesScope', (
+      tester,
+    ) async {
+      const swahili = DateNames(
+        months: [
+          'Januari',
+          'Februari',
+          'Machi',
+          'Aprili',
+          'Mei',
+          'Juni',
+          'Julai',
+          'Agosti',
+          'Septemba',
+          'Oktoba',
+          'Novemba',
+          'Desemba',
+        ],
+        weekdays: [
+          'Jumatatu',
+          'Jumanne',
+          'Jumatano',
+          'Alhamisi',
+          'Ijumaa',
+          'Jumamosi',
+          'Jumapili',
+        ],
+        weekdaysShort: ['J3', 'J4', 'J5', 'Al', 'Ij', 'J1', 'J2'],
+        firstWeekday: DateTime.sunday,
+      );
+      await tester.pumpWidget(
+        app(
+          DateNamesScope(
+            names: swahili,
+            child: Calendar(
+              selected: null,
+              initialMonth: october,
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Oktoba 2026'), findsOneWidget);
+      // Sunday first: J2, then J3.
+      expect(
+        tester.getTopLeft(find.text('J2')).dx,
+        lessThan(tester.getTopLeft(find.text('J3')).dx),
+      );
+    });
+  });
+
+  test('ISO week numbers', () {
+    expect(isoWeek(DateTime(2026, 1, 1)), 1);
+    expect(isoWeek(DateTime(2026, 10, 13)), 42);
+    expect(isoWeek(DateTime(2027, 1, 1)), 53);
+  });
+
+  testWidgets('several days picked and unpicked', (tester) async {
+    var days = <DateTime>{};
+    await tester.pumpWidget(
+      app(
+        StatefulBuilder(
+          builder: (context, set) => Calendar.multiple(
+            days: days,
+            initialMonth: october,
+            onDaysChanged: (d) => set(() => days = d),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('5').last);
+    await tester.pump();
+    await tester.tap(find.text('9').last);
+    await tester.pump();
+    await tester.tap(find.text('5').last);
+    await tester.pump();
+    expect(days, {DateTime(2026, 10, 9)});
+  });
+
+  testWidgets('two months side by side, with week numbers', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Calendar(
+          selected: null,
+          initialMonth: october,
+          months: 2,
+          showWeekNumbers: true,
+          onSelected: (_) {},
+        ),
+      ),
+    );
+    expect(find.text('October 2026'), findsOneWidget);
+    expect(find.text('November 2026'), findsOneWidget);
+    expect(find.text('42'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('month and year from lists', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Calendar(
+          selected: null,
+          initialMonth: october,
+          dropdowns: true,
+          onSelected: (_) {},
+        ),
+      ),
+    );
+    await tester.tap(find.text('2026'));
+    await tester.pumpAndSettle();
+    // The year list builds a screenful; typing jumps to the year.
+    for (final k in [
+      LogicalKeyboardKey.digit1,
+      LogicalKeyboardKey.digit9,
+      LogicalKeyboardKey.digit9,
+      LogicalKeyboardKey.digit0,
+    ]) {
+      await tester.sendKeyEvent(k);
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Oct'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mar'));
+    await tester.pumpAndSettle();
+    // 1 March 1990 was a Thursday.
+    expect(find.text('1990'), findsOneWidget);
+    expect(find.text('Mar'), findsOneWidget);
+  });
+}
+''',
+    },
   ),
   'date-picker': Component(
-    description: "A button that shows a date and opens a calendar, with presets.",
-    requires: ["theme","pressable","popover","calendar","select"],
+    description:
+        "A button that shows a date and opens a calendar, with presets.",
+    requires: ["theme", "pressable", "popover", "calendar", "select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
+      'date_picker.dart':
+          r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -14578,14 +19852,117 @@ class _DatePickerState extends State<DatePicker> {
 }
 ''',
     },
+    testNeeds: ["app", "calendar"],
+    tests: {
+      'date_picker_test.dart':
+          r'''// Tests for Date Picker. Copied into your app by `ashlar add date-picker` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/calendar.dart';
+import 'package:ashlar_ui_gallery/ui/date_picker.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(home: Center(child: child));
+
+void main() {
+  group('Date Picker', () {
+    testWidgets(
+      'shows the placeholder, opens a calendar, and closes on a pick',
+      (tester) async {
+        DateTime? value;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => DatePicker(
+                value: value,
+                onChanged: (d) => set(() => value = d),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('Pick a date'), findsOneWidget);
+        await tester.tap(find.text('Pick a date'));
+        await tester.pumpAndSettle();
+        final month = DateTime.now();
+        expect(find.text(DateNames.english.monthYear(month)), findsOneWidget);
+        await tester.tap(find.text('15').last);
+        await tester.pumpAndSettle();
+        expect(value, DateTime(month.year, month.month, 15));
+        expect(
+          find.text(
+            '15 ${DateNames.english.months[month.month - 1]} ${month.year}',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Mo'), findsNothing);
+      },
+    );
+
+    testWidgets('a range stays open until both ends are picked', (
+      tester,
+    ) async {
+      DateRange? range;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => DatePicker.range(
+              range: range,
+              onRangeChanged: (r) => set(() => range = r),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Pick dates'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('5').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Mo'), findsOneWidget);
+      await tester.tap(find.text('10').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Mo'), findsNothing);
+      final m = DateNames.english.months[DateTime.now().month - 1],
+          y = DateTime.now().year;
+      expect(find.text('5 $m $y to 10 $m $y'), findsOneWidget);
+    });
+  });
+
+  testWidgets('a preset picks its date and closes', (tester) async {
+    DateTime? value;
+    final tomorrow = DateTime(2026, 10, 14);
+    await tester.pumpWidget(
+      app(
+        StatefulBuilder(
+          builder: (context, set) => DatePicker(
+            value: value,
+            presets: [('Tomorrow', tomorrow)],
+            onChanged: (d) => set(() => value = d),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Pick a date'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pick a preset'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tomorrow'));
+    await tester.pumpAndSettle();
+    expect(value, tomorrow);
+    expect(find.text('14 October 2026'), findsOneWidget);
+  });
+}
+''',
+    },
   ),
   'chart': Component(
-    description: "Bar, line, area and pie charts, drawn here with no charting package.",
+    description:
+        "Bar, line, area and pie charts, drawn here with no charting package.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'chart.dart': r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
+      'chart.dart':
+          r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
 //
 // Drawn on the canvas here, with no charting package: bars, lines, areas, pies, radars
 // and radial bars, with a tooltip on hover, the arrow keys stepping through the values, a
@@ -16869,14 +22246,163 @@ class _LegendButtonState extends State<_LegendButton> {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'chart_test.dart':
+          r'''// Tests for Chart. Copied into your app by `ashlar add chart` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 480, child: child)),
+    );
+
+const labels = ['Jan', 'Feb', 'Mar', 'Apr'];
+
+const series = [
+  ChartSeries('Desktop', [186, 305, 237, 73]),
+  ChartSeries('Mobile', [80, 200, 120, 190]),
+];
+
+void main() {
+  testWidgets('every kind draws in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      for (final chart in <Widget>[
+        const BarChart(labels: labels, series: series),
+        const BarChart(labels: labels, series: series, stacked: true),
+        const LineChart(labels: labels, series: series),
+        const LineChart(
+          labels: labels,
+          series: series,
+          curve: ChartCurve.linear,
+        ),
+        const AreaChart(labels: labels, series: series),
+        const AreaChart(labels: labels, series: series, stacked: true),
+        const PieChart(
+          slices: [
+            ChartSlice('M-Pesa', 275),
+            ChartSlice('Card', 200),
+            ChartSlice('Bank', 90),
+          ],
+          center: Text('565'),
+        ),
+        const PieChart(
+          slices: [ChartSlice('A', 1), ChartSlice('B', 1)],
+          donut: false,
+        ),
+      ]) {
+        await tester.pumpWidget(app(chart, mode: mode));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: '$chart $mode');
+      }
+    }
+  });
+
+  testWidgets('a screen reader hears what it shows and every value', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        const BarChart(
+          labels: labels,
+          series: series,
+          semanticLabel: 'Visitors by month',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final node = tester
+        .getSemantics(find.bySemanticsLabel('Visitors by month'))
+        .getSemanticsData();
+    expect(node.value, contains('Jan: Desktop 186, Mobile 80'));
+    expect(node.value, contains('Apr: Desktop 73, Mobile 190'));
+    semantics.dispose();
+  });
+
+  testWidgets('hovering a month shows its values; leaving hides them', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(const BarChart(labels: labels, series: series)),
+    );
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(BarChart));
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    // The second of four columns.
+    await mouse.moveTo(Offset(box.left + box.width * .375, box.top + 100));
+    await tester.pump();
+    expect(find.text('Feb'), findsNWidgets(2));
+    expect(find.text('305'), findsOneWidget);
+    expect(find.text('200'), findsOneWidget);
+    await mouse.moveTo(Offset.zero);
+    await tester.pump();
+    expect(find.text('305'), findsNothing);
+  });
+
+  testWidgets('the arrow keys step through the values', (tester) async {
+    await tester.pumpWidget(
+      app(const LineChart(labels: labels, series: series)),
+    );
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+    expect(find.text('186'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+    expect(find.text('305'), findsOneWidget);
+  });
+
+  testWidgets('with less motion asked for, it draws at once', (tester) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: app(const BarChart(labels: labels, series: series)),
+      ),
+    );
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('a slice under the pointer shows its share', (tester) async {
+    await tester.pumpWidget(
+      app(
+        const PieChart(
+          slices: [ChartSlice('M-Pesa', 300), ChartSlice('Card', 100)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final pie = tester.getRect(find.byType(CustomPaint).first);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    // Three quarters is M-Pesa, clockwise from the top: the right side is in it.
+    await mouse.moveTo(pie.center + Offset(pie.width * .4, 0));
+    await tester.pump();
+    expect(find.text('75%'), findsOneWidget);
+  });
+}
+''',
+    },
   ),
   'sidebar': Component(
-    description: "An app's navigation down the side: variants, submenus, actions, a rail.",
-    requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
+    description:
+        "An app's navigation down the side: variants, submenus, actions, a rail.",
+    requires: ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sidebar.dart': r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
+      'sidebar.dart':
+          r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -17691,14 +23217,279 @@ class SidebarTrigger extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'sidebar_test.dart':
+          r'''// Tests for Sidebar. Copied into your app by `ashlar add sidebar` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show Tristate;
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/sidebar.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget layout(
+  List<String> went, {
+  double width = 900,
+  SidebarCollapse collapse = SidebarCollapse.icons,
+}) => AshlarApp(
+  home: Align(
+    alignment: Alignment.topLeft,
+    child: SizedBox(
+      width: width,
+      height: 500,
+      child: SidebarLayout(
+        collapse: collapse,
+        header: const Text('Acme'),
+        groups: [
+          SidebarGroup(label: 'App', [
+            SidebarItem(
+              'Home',
+              icon: AshlarIconsRoundedStroke.house,
+              active: true,
+              onPressed: () => went.add('home'),
+            ),
+            SidebarItem(
+              'Inbox',
+              icon: AshlarIconsRoundedStroke.inbox,
+              badge: '12',
+              onPressed: () => went.add('inbox'),
+            ),
+          ]),
+        ],
+        child: const Column(
+          children: [
+            Row(children: [SidebarTrigger()]),
+            Expanded(child: Center(child: Text('Page'))),
+          ],
+        ),
+      ),
+    ),
+  ),
+);
+
+double sidebarWidth(WidgetTester tester) =>
+    tester.getSize(find.byType(AnimatedContainer).first).width;
+
+void main() {
+  testWidgets(
+    'beside the page: labels, the page shown, a badge, and a tap goes there',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final went = <String>[];
+      await tester.pumpWidget(layout(went));
+      expect(sidebarWidth(tester), 256);
+      expect(find.text('Acme'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
+      expect(
+        tester
+            .getSemantics(find.text('Home'))
+            .getSemanticsData()
+            .flagsCollection
+            .isSelected,
+        Tristate.isTrue,
+      );
+      await tester.tap(find.text('Inbox'));
+      expect(went, ['inbox']);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'the trigger collapses it to icons, named for screen readers; Ctrl+B brings it back',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(layout([]));
+      await tester.tap(find.byType(SidebarTrigger));
+      await tester.pumpAndSettle();
+      expect(sidebarWidth(tester), 48);
+      expect(find.text('Inbox'), findsNothing);
+      expect(find.bySemanticsLabel('Inbox'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+      expect(sidebarWidth(tester), 256);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('offcanvas, it goes out of sight and out of what is read', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(layout([], collapse: SidebarCollapse.offcanvas));
+    await tester.tap(find.byType(SidebarTrigger));
+    await tester.pumpAndSettle();
+    expect(sidebarWidth(tester), 0);
+    expect(find.bySemanticsLabel('Inbox'), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets(
+    'on a narrow screen it is hidden, and slides in over the page; a pick closes it',
+    (tester) async {
+      final went = <String>[];
+      await tester.pumpWidget(layout(went, width: 500));
+      expect(sidebarWidth(tester), 0);
+      expect(find.text('Inbox'), findsNothing);
+      await tester.tap(find.byType(SidebarTrigger));
+      await tester.pumpAndSettle();
+      expect(find.text('Inbox'), findsOneWidget);
+      await tester.tap(find.text('Inbox'));
+      await tester.pumpAndSettle();
+      expect(went, ['inbox']);
+      expect(find.text('Inbox'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'a parent item opens its pages in place; an action shows under the pointer',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final went = <String>[];
+      await tester.pumpWidget(
+        AshlarApp(
+          home: SizedBox(
+            width: 900,
+            height: 500,
+            child: SidebarLayout(
+              groups: [
+                SidebarGroup(
+                  label: 'Projects',
+                  action: SidebarAction(
+                    icon: AshlarIconsRoundedStroke.plus,
+                    label: 'Add project',
+                    onPressed: () => went.add('add'),
+                  ),
+                  [
+                    SidebarItem(
+                      'Docs',
+                      icon: AshlarIconsRoundedStroke.folder,
+                      children: [
+                        SidebarItem(
+                          'Guides',
+                          icon: null,
+                          onPressed: () => went.add('guides'),
+                        ),
+                      ],
+                    ),
+                    SidebarItem(
+                      'Inbox',
+                      icon: AshlarIconsRoundedStroke.inbox,
+                      onPressed: () {},
+                      action: SidebarAction(
+                        icon: AshlarIconsRoundedStroke.ellipsis,
+                        label: 'More',
+                        onPressed: () => went.add('more'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SidebarGroup.loading(label: 'Loading', rows: 3),
+              ],
+              child: const SizedBox(),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Guides'), findsNothing);
+      await tester.tap(find.text('Docs'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Guides'));
+      expect(went, ['guides']);
+      expect(
+        tester
+            .getSemantics(find.text('Docs'))
+            .getSemanticsData()
+            .flagsCollection
+            .isExpanded
+            .toString(),
+        contains('isTrue'),
+      );
+      await tester.tap(find.bySemanticsLabel('Add project'));
+      await tester.tap(find.bySemanticsLabel('More'));
+      expect(went, ['guides', 'add', 'more']);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'floating, inset and on the end side; controlled; the rail toggles',
+    (tester) async {
+      var open = true;
+      await tester.pumpWidget(
+        AshlarApp(
+          home: SizedBox(
+            width: 900,
+            height: 500,
+            child: StatefulBuilder(
+              builder: (context, set) => SidebarLayout(
+                variant: SidebarVariant.floating,
+                side: SidebarSide.end,
+                open: open,
+                onOpenChanged: (v) => set(() => open = v),
+                groups: [
+                  SidebarGroup([
+                    SidebarItem(
+                      'Home',
+                      icon: AshlarIconsRoundedStroke.house,
+                      onPressed: () {},
+                    ),
+                  ]),
+                ],
+                child: const Center(child: Text('Page')),
+              ),
+            ),
+          ),
+        ),
+      );
+      // On the end side, after the page.
+      expect(
+        tester.getCenter(find.text('Home')).dx,
+        greaterThan(tester.getCenter(find.text('Page')).dx),
+      );
+      await tester.tap(find.bySemanticsLabel('Toggle sidebar'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(open, isFalse);
+      expect(find.text('Home'), findsNothing);
+      for (final v in SidebarVariant.values) {
+        await tester.pumpWidget(
+          AshlarApp(
+            home: SizedBox(
+              width: 900,
+              height: 500,
+              child: SidebarLayout(
+                variant: v,
+                groups: const [],
+                child: const SizedBox(),
+              ),
+            ),
+          ),
+        );
+        expect(tester.takeException(), isNull, reason: '$v');
+      }
+    },
+  );
+}
+''',
+    },
   ),
   'form': Component(
-    description: "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
-    requires: ["field","input"],
+    description:
+        "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
+    requires: ["field", "input"],
     packages: [],
     block: false,
     files: {
-      'form.dart': r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
+      'form.dart':
+          r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
 //
 // Built on Form and FormField from Flutter's widgets layer, which keep each field's value
 // and run its checks. This file draws each field as a Field with its error under it, and
@@ -18013,14 +23804,307 @@ extension FormSend on FormState {
 }
 ''',
     },
+    testNeeds: ["app", "button", "checkbox", "input", "select"],
+    tests: {
+      'form_test.dart':
+          r'''// Tests for Form. Copied into your app by `ashlar add form` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/checkbox.dart';
+import 'package:ashlar_ui_gallery/ui/form.dart';
+import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/select.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+class _SignUp extends StatefulWidget {
+  const _SignUp({required this.saved, this.sent});
+
+  final Map<String, Object?> saved;
+  final ValueChanged<bool>? sent;
+
+  @override
+  State<_SignUp> createState() => _SignUpState();
+}
+
+Future<Map<String, Object?>> pumpForm(
+  WidgetTester tester, {
+  List<bool>? results,
+}) async {
+  final saved = <String, Object?>{};
+  await tester.pumpWidget(
+    AshlarApp(
+      home: _SignUp(saved: saved, sent: results?.add),
+    ),
+  );
+  return saved;
+}
+
+Finder input(String label) => find.descendant(
+  of: find.ancestor(of: find.text(label), matching: find.byType(FormText)),
+  matching: find.byType(EditableText),
+);
+
+class _SignUpState extends State<_SignUp> {
+  final form = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    child: Form(
+      key: form,
+      child: Column(
+        children: [
+          FormText(
+            label: const Text('Name'),
+            validator: Validate.required('Enter your name.'),
+            onSaved: (v) => widget.saved['name'] = v,
+          ),
+          FormText(
+            label: const Text('Email'),
+            initialValue: 'ama@',
+            validator: Validate.all([Validate.required(), Validate.email()]),
+            onSaved: (v) => widget.saved['email'] = v,
+          ),
+          FormItem<String>(
+            label: const Text('Team'),
+            validator: Validate.required('Pick a team.'),
+            onSaved: (v) => widget.saved['team'] = v,
+            builder: (field) => Select<String>(
+              value: field.value,
+              placeholder: 'Choose',
+              error: field.hasError,
+              options: const [
+                SelectOption('design', 'Design'),
+                SelectOption('engineering', 'Engineering'),
+              ],
+              onChanged: field.didChange,
+            ),
+          ),
+          FormItem<bool>(
+            initialValue: false,
+            axis: Axis.horizontal,
+            label: const Text('Accept the terms'),
+            validator: Validate.required('Accept the terms to go on.'),
+            onSaved: (v) => widget.saved['terms'] = v,
+            builder: (field) => Checkbox(
+              value: field.value!,
+              error: field.hasError,
+              onChanged: field.didChange,
+            ),
+          ),
+          Button(
+            onPressed: () {
+              final ok = form.currentState!.submit();
+              widget.sent?.call(ok);
+            },
+            child: const Text('Create account'),
+          ),
+          Button(
+            onPressed: () => form.currentState!.reset(),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+void main() {
+  group('Validate', () {
+    test('required turns down nothing, blanks, empty lists and false', () {
+      final check = Validate.required<Object?>('No');
+      expect(check(null), 'No');
+      expect(check('  '), 'No');
+      expect(check(const <int>[]), 'No');
+      expect(check(false), 'No');
+      expect(check('a'), isNull);
+      expect(check(true), isNull);
+      expect(check(0), isNull);
+    });
+
+    test('lengths, email, numbers, and the first message of several wins', () {
+      expect(Validate.minLength(3)('ab'), 'At least 3 characters.');
+      expect(Validate.minLength(3)('abc'), isNull);
+      expect(Validate.maxLength(1)('ab'), 'At most 1 character.');
+      expect(Validate.email()('ama@solutech.co.ke'), isNull);
+      expect(Validate.email()('ama@'), 'Enter an email address.');
+      expect(Validate.email()(''), isNull);
+      expect(Validate.min(18)(17), 'At least 18.');
+      expect(Validate.max(99)(100), 'At most 99.');
+      final both = Validate.all<String>([
+        Validate.required('First'),
+        Validate.minLength(5, 'Second'),
+      ]);
+      expect(both(''), 'First');
+      expect(both('abc'), 'Second');
+      expect(both('abcdef'), isNull);
+    });
+  });
+
+  testWidgets('no errors show before the form is sent, even while typing', (
+    tester,
+  ) async {
+    await pumpForm(tester);
+    await tester.enterText(input('Name'), 'A');
+    await tester.enterText(input('Name'), '');
+    await tester.pump();
+    expect(find.text('Enter your name.'), findsNothing);
+  });
+
+  testWidgets(
+    'sending shows each error under its field and focuses the first wrong one',
+    (tester) async {
+      final results = <bool>[];
+      final saved = await pumpForm(tester, results: results);
+      await tester.tap(find.text('Create account'));
+      await tester.pumpAndSettle();
+      expect(results, [false]);
+      expect(saved, isEmpty);
+      expect(find.text('Enter your name.'), findsOneWidget);
+      expect(find.text('Enter an email address.'), findsOneWidget);
+      expect(find.text('Pick a team.'), findsOneWidget);
+      expect(find.text('Accept the terms to go on.'), findsOneWidget);
+      // Focus is in the Name input, the first on screen.
+      final focused = FocusManager.instance.primaryFocus!;
+      expect(
+        tester.widget<EditableText>(input('Name')).focusNode,
+        same(focused),
+      );
+      // The controls are marked too.
+      expect(
+        tester
+            .widget<Input>(
+              find.descendant(
+                of: find.ancestor(
+                  of: find.text('Name'),
+                  matching: find.byType(FormText),
+                ),
+                matching: find.byType(Input),
+              ),
+            )
+            .error,
+        isTrue,
+      );
+    },
+  );
+
+  testWidgets('after sending, each error clears as it is put right', (
+    tester,
+  ) async {
+    await pumpForm(tester);
+    await tester.tap(find.text('Create account'));
+    await tester.pumpAndSettle();
+    await tester.enterText(input('Name'), 'Ama');
+    await tester.pump();
+    expect(find.text('Enter your name.'), findsNothing);
+    expect(find.text('Enter an email address.'), findsOneWidget);
+    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.pump();
+    expect(find.text('Enter an email address.'), findsNothing);
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    expect(find.text('Accept the terms to go on.'), findsNothing);
+    // Still wrong: the team. Focus goes there now.
+    await tester.tap(find.text('Create account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pick a team.'), findsOneWidget);
+    final team = find.ancestor(
+      of: find.text('Team'),
+      matching: find.byType(FormItem<String>),
+    );
+    expect(
+      find
+          .descendant(of: team, matching: find.byType(Focus))
+          .evaluate()
+          .map((e) => (e.widget as Focus).focusNode)
+          .contains(FocusManager.instance.primaryFocus),
+      isTrue,
+    );
+  });
+
+  testWidgets('a right form saves every value and says so', (tester) async {
+    final results = <bool>[];
+    final saved = await pumpForm(tester, results: results);
+    await tester.enterText(input('Name'), 'Ama');
+    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.tap(find.text('Choose'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Design').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    await tester.tap(find.text('Create account'));
+    await tester.pump();
+    expect(results, [true]);
+    expect(saved, {
+      'name': 'Ama',
+      'email': 'ama@solutech.co.ke',
+      'team': 'design',
+      'terms': true,
+    });
+  });
+
+  testWidgets('reset puts the first values back, text included', (
+    tester,
+  ) async {
+    await pumpForm(tester);
+    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.tap(find.byType(Checkbox));
+    await tester.tap(find.text('Create account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reset'));
+    await tester.pump();
+    expect(tester.widget<EditableText>(input('Email')).controller.text, 'ama@');
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
+    expect(find.text('Enter your name.'), findsNothing);
+  });
+
+  testWidgets('a screen reader hears the error with the field', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpForm(tester);
+    await tester.tap(find.text('Create account'));
+    await tester.pumpAndSettle();
+    final data = tester.getSemantics(input('Name')).getSemanticsData();
+    expect('${data.label} ${data.hint}', contains('Enter your name.'));
+    semantics.dispose();
+  });
+
+  testWidgets('text set on its controller becomes the value', (tester) async {
+    final controller = TextEditingController();
+    String? saved;
+    final form = GlobalKey<FormState>();
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Form(
+          key: form,
+          child: FormText(
+            controller: controller,
+            label: const Text('Code'),
+            validator: Validate.minLength(4),
+            onSaved: (v) => saved = v,
+          ),
+        ),
+      ),
+    );
+    controller.text = 'KE-1234';
+    await tester.pump();
+    expect(form.currentState!.submit(), isTrue);
+    expect(saved, 'KE-1234');
+    controller.dispose();
+  });
+}
+''',
+    },
   ),
   'login-01': Component(
     description: "A sign-in card in the middle of the page.",
-    requires: ["button","card","form"],
+    requires: ["button", "card", "form"],
     packages: [],
     block: true,
     files: {
-      'blocks/login_01.dart': r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
+      'blocks/login_01.dart':
+          r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
 // change. A sign-in card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -18144,11 +24228,12 @@ class _Login01State extends State<Login01> {
   ),
   'login-02': Component(
     description: "Sign in on one side, a picture on the other.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_02.dart': r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
+      'blocks/login_02.dart':
+          r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -18373,11 +24458,12 @@ class _Or extends StatelessWidget {
   ),
   'login-03': Component(
     description: "A sign-in card on a muted page, other accounts first.",
-    requires: ["button","card","form","separator","theme"],
+    requires: ["button", "card", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_03.dart': r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
+      'blocks/login_03.dart':
+          r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
 // change. A sign-in card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -18596,11 +24682,12 @@ class _Or extends StatelessWidget {
   ),
   'login-04': Component(
     description: "A sign-in card in two halves, the form and a picture.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_04.dart': r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
+      'blocks/login_04.dart':
+          r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -18822,11 +24909,12 @@ class _Or extends StatelessWidget {
   ),
   'login-05': Component(
     description: "Sign in with an email address alone.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_05.dart': r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
+      'blocks/login_05.dart':
+          r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
 // change. Email only, for a sign-in link sent by mail, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -18990,11 +25078,12 @@ class _Login05State extends State<Login05> {
   ),
   'signup-01': Component(
     description: "A sign-up card in the middle of the page.",
-    requires: ["button","card","form"],
+    requires: ["button", "card", "form"],
     packages: [],
     block: true,
     files: {
-      'blocks/signup_01.dart': r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
+      'blocks/signup_01.dart':
+          r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
 // change. A sign-up card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -19139,11 +25228,12 @@ class _Signup01State extends State<Signup01> {
   ),
   'signup-02': Component(
     description: "Sign up on one side, a picture on the other.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_02.dart': r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
+      'blocks/signup_02.dart':
+          r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -19395,11 +25485,12 @@ class _Or extends StatelessWidget {
   ),
   'signup-03': Component(
     description: "A sign-up card on a muted page, other accounts first.",
-    requires: ["button","card","form","separator","theme"],
+    requires: ["button", "card", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_03.dart': r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
+      'blocks/signup_03.dart':
+          r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
 // change. A sign-up card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -19644,11 +25735,12 @@ class _Or extends StatelessWidget {
   ),
   'signup-04': Component(
     description: "A sign-up card in two halves, the form and a picture.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_04.dart': r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
+      'blocks/signup_04.dart':
+          r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -19897,11 +25989,12 @@ class _Or extends StatelessWidget {
   ),
   'signup-05': Component(
     description: "A sign-up page under a logo, other accounts below.",
-    requires: ["button","form","separator","theme"],
+    requires: ["button", "form", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_05.dart': r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
+      'blocks/signup_05.dart':
+          r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
 // change. The full sign-up form, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -20107,12 +26200,29 @@ class _Signup05State extends State<Signup05> {
     },
   ),
   'dashboard-01': Component(
-    description: "An app home: sidebar, header, four figures, a chart over time and a table.",
-    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
+    description:
+        "An app home: sidebar, header, four figures, a chart over time and a table.",
+    requires: [
+      "avatar",
+      "badge",
+      "button",
+      "card",
+      "chart",
+      "data-table",
+      "dropdown-menu",
+      "popover",
+      "select",
+      "separator",
+      "sidebar",
+      "tabs",
+      "theme",
+      "toggle-group",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/dashboard_01.dart': r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
+      'blocks/dashboard_01.dart':
+          r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
 // yours to change. An app's home: a sidebar, a header, four figures, a chart over time and
 // a table of documents.
 //
@@ -20754,12 +26864,22 @@ class _DocumentsState extends State<_Documents> {
     },
   ),
   'sidebar-01': Component(
-    description: "Documentation navigation grouped by section, with versions and search.",
-    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
+    description:
+        "Documentation navigation grouped by section, with versions and search.",
+    requires: [
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "input",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_01.dart': r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
+      'blocks/sidebar_01.dart':
+          r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
 // to change. Documentation navigation grouped by section, with a version switcher and a
 // search field at the top.
 
@@ -21015,12 +27135,22 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-02': Component(
-    description: "Documentation in sections that fold away, with versions and search.",
-    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
+    description:
+        "Documentation in sections that fold away, with versions and search.",
+    requires: [
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "input",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_02.dart': r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
+      'blocks/sidebar_02.dart':
+          r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
 // to change. Documentation navigation in sections that fold away, with a version switcher
 // and a search field at the top.
 
@@ -21284,11 +27414,12 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-03': Component(
     description: "Documentation with each section's pages listed under it.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
+    requires: ["breadcrumb", "separator", "sidebar", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_03.dart': r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
+      'blocks/sidebar_03.dart':
+          r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
 // to change. Documentation navigation with each section's pages listed under it.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -21510,11 +27641,12 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-04': Component(
     description: "A floating sidebar, sections with their pages under them.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
+    requires: ["breadcrumb", "separator", "sidebar", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_04.dart': r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
+      'blocks/sidebar_04.dart':
+          r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
 // to change. A floating sidebar: a rounded panel in from the edge, sections with their pages
 // under them.
 
@@ -21738,11 +27870,12 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-05': Component(
     description: "Sections that open as you need them, with search.",
-    requires: ["breadcrumb","input","separator","sidebar","theme"],
+    requires: ["breadcrumb", "input", "separator", "sidebar", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_05.dart': r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
+      'blocks/sidebar_05.dart':
+          r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
 // to change. Documentation navigation whose sections open as you need them, with a search
 // field at the top.
 
@@ -21976,12 +28109,24 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-06': Component(
-    description: "Sections that open their pages as menus, a newsletter card at the foot.",
-    requires: ["breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
+    description:
+        "Sections that open their pages as menus, a newsletter card at the foot.",
+    requires: [
+      "breadcrumb",
+      "button",
+      "card",
+      "dropdown-menu",
+      "input",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_06.dart': r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
+      'blocks/sidebar_06.dart':
+          r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
 // to change. Each section opens its pages as a menu beside the sidebar, and a newsletter
 // sign-up sits at the bottom.
 
@@ -22259,12 +28404,23 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-07': Component(
-    description: "An app sidebar that collapses to icons: teams, sections, projects, user.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    description:
+        "An app sidebar that collapses to icons: teams, sections, projects, user.",
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_07.dart': r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
+      'blocks/sidebar_07.dart':
+          r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
 // to change. An app's sidebar that collapses to a strip of icons: teams, the main
 // sections with their pages, projects, and who is signed in.
 
@@ -22607,12 +28763,23 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-08': Component(
-    description: "The page inset as a card, help and feedback at the sidebar's foot.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    description:
+        "The page inset as a card, help and feedback at the sidebar's foot.",
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_08.dart': r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
+      'blocks/sidebar_08.dart':
+          r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
 // to change. The page set into the sidebar as a card, with help and feedback kept at the
 // sidebar's foot.
 
@@ -22927,12 +29094,25 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-09': Component(
-    description: "Two sidebars as a mail app has them: folders, and their messages.",
-    requires: ["avatar","breadcrumb","button","input","label","separator","sidebar","switch","theme","tooltip"],
+    description:
+        "Two sidebars as a mail app has them: folders, and their messages.",
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "input",
+      "label",
+      "separator",
+      "sidebar",
+      "switch",
+      "theme",
+      "tooltip",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_09.dart': r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
+      'blocks/sidebar_09.dart':
+          r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
 // to change. Two sidebars side by side, as a mail app has them: a strip of folders that
 // stays, and the folder's messages beside it, which fold away.
 
@@ -23280,11 +29460,20 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-10': Component(
     description: "A notes app's sidebar, with the page's actions in a popover.",
-    requires: ["breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    requires: [
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_10.dart': r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
+      'blocks/sidebar_10.dart':
+          r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
 // to change. A notes app: search and the inbox at the top, favourites and workspaces under
 // them, and the page's actions in a panel that opens from its header.
 
@@ -23658,11 +29847,12 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-11': Component(
     description: "A project's files as a tree, the changed ones above it.",
-    requires: ["breadcrumb","pressable","separator","sidebar","theme"],
+    requires: ["breadcrumb", "pressable", "separator", "sidebar", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_11.dart': r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
+      'blocks/sidebar_11.dart':
+          r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
 // to change. A project's files as a tree whose folders open and close, with the changed
 // files listed above it.
 
@@ -23958,11 +30148,24 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-12': Component(
     description: "A calendar app: a month to pick from, and calendars to show.",
-    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "calendar",
+      "checkbox",
+      "dropdown-menu",
+      "field",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_12.dart': r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
+      'blocks/sidebar_12.dart':
+          r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
 // to change. A calendar app: who is signed in, a month to pick a day from, and the
 // calendars to show.
 
@@ -24272,11 +30475,12 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-13': Component(
     description: "Settings in a dialog, their sections down its side.",
-    requires: ["breadcrumb","button","dialog","separator","theme"],
+    requires: ["breadcrumb", "button", "dialog", "separator", "theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_13.dart': r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
+      'blocks/sidebar_13.dart':
+          r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
 // to change. Settings in a dialog: their sections down the side, the open one beside them.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -24400,11 +30604,12 @@ class _SettingsState extends State<_Settings> {
   ),
   'sidebar-14': Component(
     description: "A table of contents on the right of the page.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
+    requires: ["breadcrumb", "separator", "sidebar", "theme"],
     packages: [],
     block: true,
     files: {
-      'blocks/sidebar_14.dart': r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
+      'blocks/sidebar_14.dart':
+          r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
 // to change. A table of contents on the right of the page.
 
 import 'package:flutter/widgets.dart';
@@ -24555,12 +30760,26 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-15': Component(
-    description: "A sidebar on each side: pages on the left, a calendar on the right.",
-    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
+    description:
+        "A sidebar on each side: pages on the left, a calendar on the right.",
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "calendar",
+      "checkbox",
+      "dropdown-menu",
+      "field",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_15.dart': r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
+      'blocks/sidebar_15.dart':
+          r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
 // to change. A sidebar on each side: pages on the left, folding away; a calendar and the
 // calendars to show on the right, staying put.
 
@@ -25026,11 +31245,22 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-16': Component(
     description: "A site header across the top, the sidebar under it.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","input","popover","separator","sidebar","theme"],
+    requires: [
+      "avatar",
+      "breadcrumb",
+      "button",
+      "dropdown-menu",
+      "input",
+      "popover",
+      "separator",
+      "sidebar",
+      "theme",
+    ],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_16.dart': r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
+      'blocks/sidebar_16.dart':
+          r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
 // to change. A site header across the top that stays as the page scrolls, and the sidebar
 // under it.
 
@@ -25309,12 +31539,14 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'message': Component(
-    description: "One turn in a conversation: who sent it, what they said, a line above or below.",
+    description:
+        "One turn in a conversation: who sent it, what they said, a line above or below.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'message.dart': r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
+      'message.dart':
+          r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -25448,12 +31680,14 @@ class MessageGroup extends StatelessWidget {
     },
   ),
   'bubble': Component(
-    description: "What was said, in a rounded fill on the sender's side, with reactions.",
-    requires: ["message","pressable","theme"],
+    description:
+        "What was said, in a rounded fill on the sender's side, with reactions.",
+    requires: ["message", "pressable", "theme"],
     packages: [],
     block: false,
     files: {
-      'bubble.dart': r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
+      'bubble.dart':
+          r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -25637,14 +31871,141 @@ class BubbleGroup extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app", "message"],
+    tests: {
+      'bubble_test.dart':
+          r'''// Tests for Bubble. Copied into your app by `ashlar add bubble` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/bubble.dart';
+import 'package:ashlar_ui_gallery/ui/message.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  group('Message and Bubble', () {
+    for (final direction in TextDirection.values) {
+      testWidgets(
+        'what you sent sits at the end of the line, ${direction.name}',
+        (tester) async {
+          await tester.pumpWidget(
+            app(
+              const SizedBox(
+                width: 400,
+                child: Column(
+                  children: [
+                    Message(child: Bubble(child: Text('Theirs'))),
+                    Message(
+                      align: MessageAlign.end,
+                      avatar: SizedBox.square(dimension: 32, child: Text('ME')),
+                      child: Bubble(child: Text('Mine')),
+                    ),
+                  ],
+                ),
+              ),
+              direction: direction,
+            ),
+          );
+          final theirs = tester.getCenter(find.text('Theirs')).dx;
+          final mine = tester.getCenter(find.text('Mine')).dx;
+          final me = tester.getCenter(find.text('ME')).dx;
+          if (direction == TextDirection.ltr) {
+            expect(mine, greaterThan(theirs));
+            expect(me, greaterThan(mine));
+          } else {
+            expect(mine, lessThan(theirs));
+            expect(me, lessThan(mine));
+          }
+        },
+      );
+    }
+
+    testWidgets('a bubble is no wider than four fifths of the room', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          Center(
+            child: SizedBox(
+              width: 500,
+              child: Message(child: Bubble(child: Text('word ' * 80))),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(Bubble)).width, lessThanOrEqualTo(400));
+    });
+
+    testWidgets('reactions sit over the edge without covering what follows', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Bubble(reactions: Text('+2'), child: Text('Shipped')),
+              Text('Next'),
+            ],
+          ),
+        ),
+      );
+      final reaction = tester.getRect(find.text('+2'));
+      final next = tester.getRect(find.text('Next'));
+      expect(reaction.bottom, lessThanOrEqualTo(next.top));
+      expect(
+        reaction.top,
+        lessThan(tester.getRect(find.text('Shipped')).bottom + 12),
+      );
+    });
+
+    testWidgets('a bubble with onPressed is a button', (tester) async {
+      var taps = 0;
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          Center(
+            child: Bubble(
+              variant: BubbleVariant.outline,
+              onPressed: () => taps++,
+              child: const Text('Yes, book it'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Yes, book it'));
+      expect(taps, 1);
+      expect(
+        tester
+            .getSemantics(find.text('Yes, book it'))
+            .getSemanticsData()
+            .flagsCollection
+            .isButton,
+        isTrue,
+      );
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'marker': Component(
-    description: "A note in a conversation that nobody said: a day, someone joining, thinking.",
+    description:
+        "A note in a conversation that nobody said: a day, someone joining, thinking.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'marker.dart': r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
+      'marker.dart':
+          r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -25747,14 +32108,59 @@ class Marker extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'marker_test.dart':
+          r'''// Tests for Marker. Copied into your app by `ashlar add marker` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/marker.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  testWidgets('a separator marker has a line either side of its words', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        const SizedBox(
+          width: 400,
+          child: Marker(variant: MarkerVariant.separator, child: Text('Today')),
+        ),
+      ),
+    );
+    final lines = find.descendant(
+      of: find.byType(Marker),
+      matching: find.byWidgetPredicate(
+        (w) => w is Container && w.constraints?.maxHeight == 1,
+      ),
+    );
+    expect(lines, findsNWidgets(2));
+    final text = tester.getRect(find.text('Today'));
+    expect(tester.getRect(lines.first).right, lessThan(text.left));
+    expect(tester.getRect(lines.last).left, greaterThan(text.right));
+  });
+}
+''',
+    },
   ),
   'attachment': Component(
-    description: "A file or picture in a conversation: what it is and how its upload is going.",
-    requires: ["button","pressable","spinner","theme"],
+    description:
+        "A file or picture in a conversation: what it is and how its upload is going.",
+    requires: ["button", "pressable", "spinner", "theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'attachment.dart': r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
+      'attachment.dart':
+          r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -26176,14 +32582,125 @@ class _Dashes extends CustomPainter {
 }
 ''',
     },
+    testNeeds: ["app", "spinner"],
+    tests: {
+      'attachment_test.dart':
+          r'''// Tests for Attachment. Copied into your app by `ashlar add attachment` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/attachment.dart';
+import 'package:ashlar_ui_gallery/ui/spinner.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  group('Attachment', () {
+    testWidgets('says how it is getting on, to the eye and the ear', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Attachment(
+                  title: 'report.pdf',
+                  description: '2.4 MB',
+                  state: AttachmentState.uploading,
+                ),
+                Attachment(
+                  title: 'photo.jpg',
+                  description: 'Too large to send.',
+                  state: AttachmentState.error,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(Spinner), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('report.pdf, 2.4 MB, uploading'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('photo.jpg, Too large to send., failed'),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('opens when pressed; its actions work on their own', (
+      tester,
+    ) async {
+      var opened = 0, removed = 0;
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(
+          Center(
+            child: Attachment(
+              title: 'notes.txt',
+              onPressed: () => opened++,
+              actions: [
+                AttachmentAction(
+                  icon: AshlarIconsRoundedStroke.x,
+                  label: 'Remove',
+                  onPressed: () => removed++,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      // The name lets the press through to the card under it.
+      await tester.tap(find.text('notes.txt'), warnIfMissed: false);
+      await tester.tap(find.bySemanticsLabel('Remove'));
+      expect((opened, removed), (1, 1));
+      semantics.dispose();
+    });
+
+    testWidgets('a group scrolls sideways rather than overflowing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 300,
+            child: AttachmentGroup(
+              children: [
+                for (var i = 0; i < 6; i++) Attachment(title: 'file-$i.pdf'),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Scrollable), findsOneWidget);
+    });
+  });
+}
+''',
+    },
   ),
   'message-scroller': Component(
-    description: "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
+    description:
+        "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'message_scroller.dart': r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
+      'message_scroller.dart':
+          r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
 // yours to change.
 //
 // A conversation's scrolling, built on CustomScrollView from Flutter's widgets layer. It
@@ -26817,14 +33334,200 @@ class _EndButton extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'message_scroller_test.dart':
+          r'''// Tests for Message Scroller. Copied into your app by `ashlar add message-scroller` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/message_scroller.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+/// A row of a known height, named by its id.
+MessageScrollerItem row(String id, double height, {bool anchor = false}) =>
+    MessageScrollerItem(
+      id: id,
+      anchor: anchor,
+      child: SizedBox(height: height, child: Text(id)),
+    );
+
+void main() {
+  group('Message Scroller', () {
+    Future<MessageScrollerController> pump(
+      WidgetTester tester,
+      List<MessageScrollerItem> items, {
+      MessageScrollStart start = MessageScrollStart.lastAnchor,
+    }) async {
+      final controller = MessageScrollerController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        app(
+          Center(
+            child: SizedBox(
+              width: 400,
+              height: 400,
+              child: MessageScroller(
+                controller: controller,
+                start: start,
+                gap: 0,
+                padding: EdgeInsets.zero,
+                items: items,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return controller;
+    }
+
+    double topOf(WidgetTester tester, String id) =>
+        tester.getTopLeft(find.text(id)).dy -
+        tester.getTopLeft(find.byType(MessageScroller)).dy;
+
+    testWidgets('opens at the last turn when it is longer than the view', (
+      tester,
+    ) async {
+      await pump(tester, [
+        for (var i = 0; i < 10; i++) row('old $i', 100),
+        row('question', 60, anchor: true),
+        row('long answer', 600),
+      ]);
+      // The question near the top, its answer below: not the very end.
+      expect(topOf(tester, 'question'), closeTo(64, 1));
+    });
+
+    testWidgets('opens at the end when the last turn fits', (tester) async {
+      await pump(tester, [
+        for (var i = 0; i < 10; i++) row('old $i', 100),
+        row('question', 60, anchor: true),
+        row('short answer', 100),
+      ]);
+      expect(
+        tester.getBottomLeft(find.text('short answer')).dy,
+        closeTo(tester.getBottomLeft(find.byType(MessageScroller)).dy, 1),
+      );
+    });
+
+    testWidgets(
+      'a new turn rises near the top, the row before it peeking above',
+      (tester) async {
+        final items = [for (var i = 0; i < 10; i++) row('old $i', 100)];
+        await pump(tester, items);
+        await pump(tester, [...items, row('new question', 60, anchor: true)]);
+        // 64 of the row before stays in view; room is kept below to read from the top.
+        expect(topOf(tester, 'new question'), closeTo(64, 1));
+        expect(find.text('old 9'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'it follows a growing answer only while the reader is at the end',
+      (tester) async {
+        final items = [for (var i = 0; i < 10; i++) row('old $i', 100)];
+        await pump(tester, [
+          ...items,
+          row('q', 40, anchor: true),
+          row('a', 50),
+        ]);
+        // The answer streams in, longer than the view: the reader is carried along.
+        await pump(tester, [
+          ...items,
+          row('q', 40, anchor: true),
+          row('a', 900),
+        ]);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getBottomLeft(find.text('a')).dy,
+          closeTo(tester.getBottomLeft(find.byType(MessageScroller)).dy, 1),
+        );
+        // The reader scrolls up to read: more streams in, and they stay put.
+        await tester.drag(find.byType(MessageScroller), const Offset(0, 200));
+        await tester.pumpAndSettle();
+        final before = tester.getTopLeft(find.text('a')).dy;
+        await pump(tester, [
+          ...items,
+          row('q', 40, anchor: true),
+          row('a', 1200),
+        ]);
+        expect(tester.getTopLeft(find.text('a')).dy, closeTo(before, 1));
+      },
+    );
+
+    testWidgets('older messages load above without moving the view', (
+      tester,
+    ) async {
+      final items = [for (var i = 10; i < 20; i++) row('m $i', 100)];
+      await pump(tester, items, start: MessageScrollStart.start);
+      final at = topOf(tester, 'm 11');
+      await pump(tester, [
+        for (var i = 0; i < 10; i++) row('m $i', 100),
+        ...items,
+      ], start: MessageScrollStart.start);
+      expect(topOf(tester, 'm 11'), closeTo(at, 1));
+      expect(find.text('m 9'), findsNothing);
+    });
+
+    testWidgets(
+      'jumps to a message not yet built, and tells which turn shows',
+      (tester) async {
+        final controller = await pump(tester, [
+          for (var i = 0; i < 200; i++) row('m $i', 100, anchor: i % 10 == 0),
+        ], start: MessageScrollStart.end);
+        expect(find.text('m 30'), findsNothing);
+        expect(controller.scrollToMessage('m 30'), isTrue);
+        await tester.pumpAndSettle();
+        expect(topOf(tester, 'm 30'), closeTo(0, 1));
+        expect(controller.currentAnchor, 'm 30');
+        expect(controller.visible.first, 'm 30');
+        expect(controller.scrollToMessage('nobody'), isFalse);
+      },
+    );
+
+    testWidgets('the button shows only with more below, and takes you there', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pump(tester, [
+        for (var i = 0; i < 20; i++) row('m $i', 100),
+      ], start: MessageScrollStart.end);
+      expect(find.semantics.byLabel('Scroll to end'), findsNothing);
+      final mouse = TestPointer(1, PointerDeviceKind.mouse);
+      await tester.sendEventToBinding(
+        mouse.hover(tester.getCenter(find.byType(MessageScroller))),
+      );
+      await tester.sendEventToBinding(mouse.scroll(const Offset(0, -600)));
+      await tester.pumpAndSettle();
+      expect(find.semantics.byLabel('Scroll to end'), findsOne);
+      await tester.tap(find.bySemanticsLabel('Scroll to end'));
+      await tester.pumpAndSettle();
+      expect(find.text('m 19'), findsOneWidget);
+      expect(find.semantics.byLabel('Scroll to end'), findsNothing);
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'questionnaire': Component(
-    description: "Questions one at a time: one choice, several or words, with keys for every answer.",
-    requires: ["button","input","kbd","pressable","progress","theme"],
+    description:
+        "Questions one at a time: one choice, several or words, with keys for every answer.",
+    requires: ["button", "input", "kbd", "pressable", "progress", "theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'questionnaire.dart': r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
+      'questionnaire.dart':
+          r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
 // to change.
 //
 // Questions asked one at a time: a choice, several, or words of your own, each required or
@@ -27565,14 +34268,202 @@ class _Choice extends StatelessWidget {
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'questionnaire_test.dart':
+          r'''// Tests for Questionnaire. Copied into your app by `ashlar add questionnaire` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:ui' show CheckedState;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/questionnaire.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+const _questions = [
+  Question(
+    name: 'size',
+    prompt: 'How big is your team?',
+    required: true,
+    choices: [
+      QuestionChoice('small', '1 to 10'),
+      QuestionChoice('medium', '11 to 50'),
+      QuestionChoice('large', 'More than 50'),
+    ],
+  ),
+  Question(
+    name: 'tools',
+    prompt: 'What do you use?',
+    multiple: true,
+    choices: [
+      QuestionChoice('flutter', 'Flutter'),
+      QuestionChoice('react', 'React'),
+    ],
+    other: 'Something else',
+  ),
+  Question(name: 'notes', prompt: 'Anything else?', other: 'Notes'),
+];
+
+Future<List<Map<String, QuestionAnswer>>> pump(
+  WidgetTester tester, {
+  List<Question> questions = _questions,
+  QuestionShortcuts shortcuts = QuestionShortcuts.none,
+}) async {
+  final sent = <Map<String, QuestionAnswer>>[];
+  await tester.pumpWidget(
+    AshlarApp(
+      home: Center(
+        child: SizedBox(
+          width: 480,
+          child: Questionnaire(
+            questions: questions,
+            shortcuts: shortcuts,
+            onSubmit: sent.add,
+          ),
+        ),
+      ),
+    ),
+  );
+  return sent;
+}
+
+void main() {
+  testWidgets('a required question will not go on unanswered', (tester) async {
+    await pump(tester);
+    expect(find.text('Question 1 of 3'), findsOneWidget);
+    expect(find.text('Skip'), findsNothing);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose an answer to go on.'), findsOneWidget);
+    expect(find.text('How big is your team?'), findsOneWidget);
+    // Focus is back on the answers, to put it right.
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'Choice');
+    await tester.tap(find.text('11 to 50'));
+    await tester.pump();
+    expect(find.text('Choose an answer to go on.'), findsNothing);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('What do you use?'), findsOneWidget);
+    expect(find.text('Question 2 of 3'), findsOneWidget);
+  });
+
+  testWidgets(
+    'several picks, words of one\'s own, a skip, then everything is sent',
+    (tester) async {
+      final sent = await pump(tester);
+      await tester.tap(find.text('1 to 10'));
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Flutter'));
+      await tester.tap(find.text('React'));
+      await tester.tap(find.text('React'));
+      await tester.enterText(find.byType(EditableText), 'Dart on the server');
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.text('Submit'), findsOneWidget);
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(sent, hasLength(1));
+      expect(sent.single['size']!.picked, {'small'});
+      expect(sent.single['tools']!.picked, {'flutter'});
+      expect(sent.single['tools']!.text, 'Dart on the server');
+      expect(sent.single['notes']!.skipped, isTrue);
+    },
+  );
+
+  testWidgets('back keeps the answer given', (tester) async {
+    await pump(tester);
+    await tester.tap(find.text('More than 50'));
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+    final semantics = tester.ensureSemantics();
+    final node = tester.getSemantics(find.text('More than 50'));
+    expect(
+      node.getSemanticsData().flagsCollection.isChecked,
+      CheckedState.isTrue,
+    );
+    expect(
+      node.getSemanticsData().flagsCollection.isInMutuallyExclusiveGroup,
+      isTrue,
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('letters pick, Enter goes on, arrows move and pick', (
+    tester,
+  ) async {
+    final sent = await pump(tester, shortcuts: QuestionShortcuts.letters);
+    expect(find.text('A'), findsOneWidget);
+    // Tab reaches the question; nothing is picked yet.
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyC);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pump();
+    // Up from nothing focused lands on the last answer and picks it.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('What do you use?'), findsOneWidget);
+    // Ctrl+Enter from anywhere: this one is optional, so it goes on.
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pumpAndSettle();
+    expect(find.text('Anything else?'), findsOneWidget);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pumpAndSettle();
+    expect(sent.single['size']!.picked, {'medium'});
+  });
+
+  testWidgets('a question that does not apply is passed over and not counted', (
+    tester,
+  ) async {
+    final questions = [
+      const Question(
+        name: 'team',
+        prompt: 'Do you work in a team?',
+        required: true,
+        choices: [QuestionChoice('yes', 'Yes'), QuestionChoice('no', 'No')],
+      ),
+      Question(
+        name: 'size',
+        prompt: 'How big is it?',
+        choices: const [QuestionChoice('small', 'Small')],
+        applies: (a) => a['team']?.picked.contains('yes') ?? false,
+      ),
+      const Question(name: 'notes', prompt: 'Anything else?', other: 'Notes'),
+    ];
+    final sent = await pump(tester, questions: questions);
+    expect(find.text('Question 1 of 2'), findsOneWidget);
+    await tester.tap(find.text('No'));
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Anything else?'), findsOneWidget);
+    expect(find.text('Question 2 of 2'), findsOneWidget);
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(sent.single.keys, ['team', 'notes']);
+  });
+}
+''',
+    },
   ),
   'swipe-actions': Component(
-    description: "A row with actions behind it: swipe it aside to show them, all the way to do the first.",
-    requires: ["pressable","theme"],
+    description:
+        "A row with actions behind it: swipe it aside to show them, all the way to do the first.",
+    requires: ["pressable", "theme"],
     packages: [],
     block: false,
     files: {
-      'swipe_actions.dart': r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
+      'swipe_actions.dart':
+          r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
 // yours to change.
 
 import 'package:flutter/semantics.dart';
@@ -27815,14 +34706,158 @@ class _SwipeActionsState extends State<SwipeActions>
 }
 ''',
     },
+    testNeeds: ["app"],
+    tests: {
+      'swipe_actions_test.dart':
+          r'''// Tests for Swipe Actions. Copied into your app by `ashlar add swipe-actions` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/swipe_actions.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  group('Swipe Actions', () {
+    late List<String> done;
+    late int rowPresses;
+    Widget row({TextDirection direction = TextDirection.ltr}) => app(
+      Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: 360,
+          child: SwipeActions(
+            start: [
+              SwipeAction(
+                label: 'Pin',
+                icon: const Text('P'),
+                onPressed: () => done.add('pin'),
+              ),
+            ],
+            end: [
+              SwipeAction(
+                label: 'Delete',
+                icon: const Text('D'),
+                destructive: true,
+                onPressed: () => done.add('delete'),
+              ),
+              SwipeAction(
+                label: 'Archive',
+                icon: const Text('A'),
+                onPressed: () => done.add('archive'),
+              ),
+            ],
+            child: GestureDetector(
+              onTap: () => rowPresses++,
+              child: const SizedBox(
+                height: 60,
+                child: Center(child: Text('Invoice 2041')),
+              ),
+            ),
+          ),
+        ),
+      ),
+      direction: direction,
+    );
+
+    setUp(() {
+      done = [];
+      rowPresses = 0;
+    });
+
+    testWidgets(
+      'a swipe shows the actions; one pressed is done and closes it',
+      (tester) async {
+        await tester.pumpWidget(row());
+        expect(find.text('Delete'), findsNothing);
+        await tester.drag(find.text('Invoice 2041'), const Offset(-120, 0));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete'), findsOneWidget);
+        await tester.tap(find.text('Archive'));
+        await tester.pumpAndSettle();
+        expect(done, ['archive']);
+        expect(find.text('Delete'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'a short swipe springs back; a full one does the first action',
+      (tester) async {
+        await tester.pumpWidget(row());
+        await tester.drag(find.text('Invoice 2041'), const Offset(-30, 0));
+        await tester.pumpAndSettle();
+        expect(find.text('Delete'), findsNothing);
+        await tester.drag(find.text('Invoice 2041'), const Offset(-300, 0));
+        await tester.pumpAndSettle();
+        expect(done, ['delete']);
+        await tester.drag(find.text('Invoice 2041'), const Offset(300, 0));
+        await tester.pumpAndSettle();
+        expect(done, ['delete', 'pin']);
+      },
+    );
+
+    testWidgets('an open row closes on a tap, which does not reach the row', (
+      tester,
+    ) async {
+      await tester.pumpWidget(row());
+      await tester.drag(find.text('Invoice 2041'), const Offset(-120, 0));
+      await tester.pumpAndSettle();
+      // The row lets the tap through to the swipe, which closes.
+      await tester.tap(find.text('Invoice 2041'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(rowPresses, 0);
+      expect(find.text('Delete'), findsNothing);
+      await tester.tap(find.text('Invoice 2041'));
+      expect(rowPresses, 1);
+    });
+
+    testWidgets('right to left, the end is on the left', (tester) async {
+      await tester.pumpWidget(row(direction: TextDirection.rtl));
+      await tester.drag(find.text('Invoice 2041'), const Offset(120, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete'), findsOneWidget);
+      expect(
+        tester.getCenter(find.text('Delete')).dx,
+        lessThan(tester.getCenter(find.text('Invoice 2041')).dx),
+      );
+    });
+
+    testWidgets('a screen reader has the actions without swiping', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(row());
+      final node = tester.getSemantics(find.byType(SwipeActions));
+      final data = node.getSemanticsData();
+      expect(data.customSemanticsActionIds, hasLength(3));
+      final delete = data.customSemanticsActionIds!.firstWhere(
+        (id) => CustomSemanticsAction.getAction(id)!.label == 'Delete',
+      );
+      node.owner!.performAction(node.id, SemanticsAction.customAction, delete);
+      expect(done, ['delete']);
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'pull-to-refresh': Component(
-    description: "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.",
-    requires: ["spinner","theme"],
+    description:
+        "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.",
+    requires: ["spinner", "theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'pull_to_refresh.dart': r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
+      'pull_to_refresh.dart':
+          r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
 // yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -28044,14 +35079,138 @@ class _PullToRefreshState extends State<PullToRefresh>
 }
 ''',
     },
+    testNeeds: ["app", "spinner"],
+    tests: {
+      'pull_to_refresh_test.dart':
+          r'''// Tests for Pull To Refresh. Copied into your app by `ashlar add pull-to-refresh` with the component: they
+// check what it promises, so change them as you change it.
+import 'dart:async';
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/pull_to_refresh.dart';
+import 'package:ashlar_ui_gallery/ui/spinner.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  group('Pull to Refresh', () {
+    Future<Completer<void>> pumpList(
+      WidgetTester tester,
+      List<int> calls,
+    ) async {
+      final done = Completer<void>();
+      await tester.pumpWidget(
+        app(
+          PullToRefresh(
+            onRefresh: () {
+              calls.add(1);
+              return done.future;
+            },
+            child: ListView(
+              children: [
+                for (var i = 0; i < 30; i++)
+                  SizedBox(height: 50, child: Text('Order $i')),
+              ],
+            ),
+          ),
+        ),
+      );
+      return done;
+    }
+
+    for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+      testWidgets('pulled far enough, it refreshes, on ${platform.name}', (
+        tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = platform;
+        try {
+          final calls = <int>[];
+          final done = await pumpList(tester, calls);
+          await tester.fling(find.text('Order 2'), const Offset(0, 400), 400);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 100));
+          expect(calls, [1]);
+          expect(find.bySemanticsLabel('Refreshing'), findsOneWidget);
+          done.complete();
+          await tester.pumpAndSettle();
+          expect(find.bySemanticsLabel('Refreshing'), findsNothing);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+    }
+
+    testWidgets('a bouncing list is held under the spinner while it turns', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        final calls = <int>[];
+        final done = await pumpList(tester, calls);
+        await tester.fling(find.text('Order 2'), const Offset(0, 400), 400);
+        // The bounce back has finished; the refresh has not.
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(calls, [1]);
+        final spinner = tester.getRect(find.byType(Spinner));
+        expect(
+          tester.getRect(find.text('Order 0')).top,
+          greaterThanOrEqualTo(spinner.bottom),
+        );
+        done.complete();
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.text('Order 0')).top, 0);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('a short pull does not', (tester) async {
+      final calls = <int>[];
+      await pumpList(tester, calls);
+      await tester.drag(find.text('Order 2'), const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(calls, isEmpty);
+    });
+
+    testWidgets('a screen reader refreshes without pulling', (tester) async {
+      final semantics = tester.ensureSemantics();
+      final calls = <int>[];
+      final done = await pumpList(tester, calls);
+      final node = tester.getSemantics(find.byType(PullToRefresh));
+      final id = node.getSemanticsData().customSemanticsActionIds!.single;
+      expect(CustomSemanticsAction.getAction(id)!.label, 'Refresh');
+      node.owner!.performAction(node.id, SemanticsAction.customAction, id);
+      await tester.pump();
+      expect(calls, [1]);
+      done.complete();
+      await tester.pumpAndSettle();
+      semantics.dispose();
+    });
+  });
+}
+''',
+    },
   ),
   'bottom-bar': Component(
-    description: "An app's main places along the bottom of a phone screen, an icon and a name each.",
-    requires: ["pressable","theme"],
+    description:
+        "An app's main places along the bottom of a phone screen, an icon and a name each.",
+    requires: ["pressable", "theme"],
     packages: [],
     block: false,
     files: {
-      'bottom_bar.dart': r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
+      'bottom_bar.dart':
+          r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
 // change.
 
 import 'dart:ui' show SemanticsRole;
@@ -28238,6 +35397,98 @@ class BottomBar extends StatelessWidget {
       ),
     );
   }
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'bottom_bar_test.dart':
+          r'''// Tests for Bottom Bar. Copied into your app by `ashlar add bottom-bar` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/bottom_bar.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
+    AshlarApp(
+      builder: (context, page) =>
+          Directionality(textDirection: direction, child: page!),
+      home: child,
+    );
+
+void main() {
+  group('Bottom Bar', () {
+    testWidgets('a tap, or the arrow keys, choose a place; it is a tab bar', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      var page = 0;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => Align(
+              alignment: Alignment.bottomCenter,
+              child: BottomBar(
+                index: page,
+                onChanged: (i) => set(() => page = i),
+                items: const [
+                  BottomBarItem(label: 'Home', icon: Text('H')),
+                  BottomBarItem(label: 'Inbox', icon: Text('I'), badge: '3'),
+                  BottomBarItem(label: 'Profile', icon: Text('P')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Inbox'));
+      await tester.pump();
+      expect(page, 1);
+      final inbox = tester
+          .getSemantics(find.bySemanticsLabel('Inbox, 3'))
+          .getSemanticsData();
+      expect(inbox.role, SemanticsRole.tab);
+      expect(inbox.flagsCollection.isSelected, isNotNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(page, 2);
+      semantics.dispose();
+    });
+
+    testWidgets('it rises above the home indicator by its height', (
+      tester,
+    ) async {
+      Future<double> homeBottom() async {
+        await tester.pumpWidget(
+          app(
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: BottomBar(
+                index: 0,
+                onChanged: (_) {},
+                items: const [
+                  BottomBarItem(label: 'Home', icon: Text('H')),
+                  BottomBarItem(label: 'Inbox', icon: Text('I')),
+                ],
+              ),
+            ),
+          ),
+        );
+        return tester.getRect(find.text('Home')).bottom;
+      }
+
+      final without = await homeBottom();
+      // 34 physical pixels of home indicator.
+      tester.view.padding = const FakeViewPadding(bottom: 34);
+      addTearDown(tester.view.reset);
+      final within = await homeBottom();
+      expect(without - within, closeTo(34 / tester.view.devicePixelRatio, .01));
+    });
+  });
 }
 ''',
     },

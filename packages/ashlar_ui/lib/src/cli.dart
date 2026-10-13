@@ -47,6 +47,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar add <item>... [--all]          copy components, with what they need
              [--blocks]                 every block: whole screens, in lib/blocks
              [--overwrite]              replace files you already have
+             [--no-tests]               leave out their tests (test/ashlar)
   ashlar view <item>...                 what an item is and its files, before adding it
   ashlar search [words] [@registry...]  find items by name or description
   ashlar list                           what there is, and what you have
@@ -57,6 +58,9 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
 
 Items from a registry of your own are named @name/item, where ashlar.json says where
 @name is: "registries": {"@acme": "https://acme.dev/r"} or a folder.
+
+Each component comes with its tests, in test/ashlar, so you can change it and check it
+still does what it promised. "tests": false in ashlar.json leaves them out.
 
 Run it in a Flutter project's root. The files are yours to change: ashlar never
 replaces one unless you pass --overwrite.''';
@@ -122,6 +126,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       final code = await project.add(
         ['theme', 'app'],
         overwrite: rest.contains('--overwrite'),
+        tests: !rest.contains('--no-tests'),
         out: o,
       );
       if (code != 0) return code;
@@ -177,6 +182,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       return project.add(
         names,
         overwrite: rest.contains('--overwrite'),
+        tests: !rest.contains('--no-tests'),
         out: o,
       );
     case 'view':
@@ -197,6 +203,13 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         }
         if (c.packages.isNotEmpty) {
           o.writeln('  adds ${c.packages.join(', ')} from pub.dev');
+        }
+        if (c.tests.isNotEmpty) {
+          // AshlarApp and the theme come with init; name only what else the tests use.
+          final uses = c.testNeeds.where((n) => n != 'app' && n != 'theme');
+          o.writeln(
+            '  with its tests: ${c.tests.keys.join(', ')}${uses.isEmpty ? '' : ', which also use ${uses.join(', ')}'}',
+          );
         }
         for (final MapEntry(key: file, value: source) in c.files.entries) {
           o
@@ -390,6 +403,46 @@ class Project {
         )
       : source;
 
+  /// Where components' tests go: ashlar.json's "tests", or test/ashlar; null when it
+  /// says false.
+  String? get tests {
+    final set = config['tests'];
+    if (set == false) return null;
+    return set is String ? set : 'test/ashlar';
+  }
+
+  /// The project's package name, from pubspec.yaml.
+  String? get _package => RegExp(
+    r'^name:\s*(\S+)',
+    multiLine: true,
+  ).firstMatch(File('${root.path}/pubspec.yaml').readAsStringSync())?[1];
+
+  /// A test's [source] as it is written into this project: its imports point at the
+  /// components in this package. Null when the components are not under lib, where a
+  /// test cannot import them from.
+  String? testSource(String source) {
+    final package = _package;
+    if (!path.startsWith('lib/') || package == null) return null;
+    return source.replaceAll(
+      'package:ashlar_ui_gallery/ui/',
+      'package:$package/${path.substring(4)}/',
+    );
+  }
+
+  /// Where each of [c]'s files lands here, as ashlar writes it: its source files, then
+  /// its tests.
+  Iterable<({String at, String text, bool test})> _placed(Component c) sync* {
+    for (final MapEntry(key: file, value: source) in c.files.entries) {
+      yield (at: target(c, file), text: written(c, source), test: false);
+    }
+    final dir = tests;
+    if (dir == null) return;
+    for (final MapEntry(key: file, value: source) in c.tests.entries) {
+      final text = testSource(source);
+      if (text != null) yield (at: '$dir/$file', text: text, test: true);
+    }
+  }
+
   bool has(Component c) => c.files.keys.every(
     (f) => File('${root.path}/${target(c, f)}').existsSync(),
   );
@@ -449,11 +502,13 @@ class Project {
     }
   }
 
-  /// Copies [names] and what they need, and adds the packages they use.
+  /// Copies [names] and what they need, with their [tests], and adds the packages they
+  /// use.
   Future<int> add(
     List<String> names, {
     required bool overwrite,
     required StringSink out,
+    bool tests = true,
   }) async {
     // Everything named and needed, needed first, read before anything is written.
     final order = <String>[];
@@ -502,6 +557,7 @@ class Project {
         out.writeln('  wrote  $at');
       }
     }
+    if (tests) _addTests(order, overwrite, fingerprints, out);
     if (_file.existsSync() || fingerprints.isNotEmpty) {
       save({...config, 'files': fingerprints});
     }
@@ -542,6 +598,53 @@ class Project {
     return 0;
   }
 
+  /// Writes the tests of the components you have whose tests can now run: those of
+  /// [added], and those that were waiting for a component just added. A test written
+  /// before is not written again, even if you deleted it, unless its component is
+  /// added again with [overwrite].
+  void _addTests(
+    List<String> added,
+    bool overwrite,
+    Map<String, String> fingerprints,
+    StringSink out,
+  ) {
+    final dir = tests;
+    if (dir == null) return;
+    for (final MapEntry(key: name, value: c) in registry.entries) {
+      if (c.tests.isEmpty || !has(c)) continue;
+      final adding = added.contains(name);
+      final waiting = c.testNeeds.where((n) => !has(registry[n]!)).toList();
+      for (final MapEntry(key: file, value: source) in c.tests.entries) {
+        final at = '$dir/$file';
+        final f = File('${root.path}/$at');
+        if ((f.existsSync() || fingerprints.containsKey(at)) &&
+            !(adding && overwrite)) {
+          continue;
+        }
+        if (waiting.isNotEmpty) {
+          if (adding) {
+            out.writeln('  later  $at, once you have ${waiting.join(', ')}');
+          }
+          continue;
+        }
+        final text = testSource(source);
+        if (text == null) {
+          if (adding) {
+            out.writeln(
+              '  no     $at: a test imports components from lib, and $path is not in it',
+            );
+          }
+          continue;
+        }
+        f.parent.createSync(recursive: true);
+        f.writeAsStringSync(text);
+        fingerprints[at] = fingerprint(text);
+        _keep(at, text);
+        out.writeln('  wrote  $at');
+      }
+    }
+  }
+
   /// A copy of [at] as ashlar wrote it, for [update] to merge from.
   File _base(String at) => File('${root.path}/.ashlar/base/$at');
 
@@ -570,11 +673,10 @@ class Project {
     var took = 0, merged = 0, conflicts = 0, kept = 0;
     for (final name in chosen) {
       final c = registry[name]!;
-      for (final MapEntry(key: file, value: source) in c.files.entries) {
-        final at = target(c, file);
+      for (final (:at, text: latest, test: _) in _placed(c)) {
         final f = File('${root.path}/$at');
         if (!f.existsSync()) continue;
-        final yours = f.readAsStringSync(), latest = written(c, source);
+        final yours = f.readAsStringSync();
         if (yours == latest) continue;
         // What ashlar wrote: kept since this version of ashlar; before that, the file
         // itself if it is as written.
@@ -647,14 +749,14 @@ class Project {
     var differing = 0;
     for (final name in chosen) {
       final c = registry[name]!;
-      for (final MapEntry(key: file, value: source) in c.files.entries) {
-        final at = target(c, file);
+      for (final (:at, text: latest, :test) in _placed(c)) {
         final f = File('${root.path}/$at');
         if (!f.existsSync()) {
-          out.writeln('  $at: not added');
+          // A test not written, or deleted, is yours to leave out.
+          if (!test) out.writeln('  $at: not added');
           continue;
         }
-        final yours = f.readAsStringSync(), latest = written(c, source);
+        final yours = f.readAsStringSync();
         if (yours == latest) continue;
         differing++;
         final then = _written[at];

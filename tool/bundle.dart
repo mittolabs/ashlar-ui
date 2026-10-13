@@ -14,7 +14,20 @@ void main() {
     ..writeln()
     ..writeln('/// Every component the ashlar command can add, by name.')
     ..writeln('const registry = <String, Component>{');
+  // Which item each file is, for reading which items a test uses.
+  final itemOf = {
+    for (final MapEntry(key: name, value: spec as Map<String, dynamic>) in manifest.entries)
+      for (final file in (spec['files'] as List).cast<String>()) file: name,
+  };
   for (final MapEntry(key: name, value: spec as Map<String, dynamic>) in manifest.entries) {
+    final tests = (spec['tests'] as List? ?? []).cast<String>();
+    // The items its tests import besides it: its tests are written once these are there.
+    final testNeeds = <String>{
+      for (final file in tests)
+        for (final m in RegExp(r'package:ashlar_ui_gallery/ui/(\w+\.dart)')
+            .allMatches(File('registry/$file').readAsStringSync()))
+          itemOf[m[1]] ?? (throw StateError('$file imports ${m[1]}, which no item has')),
+    }..remove(name);
     out
       ..writeln("  '$name': Component(")
       ..writeln('    description: ${jsonEncode(spec['description'])},')
@@ -26,9 +39,17 @@ void main() {
       final source = File('registry/$file').readAsStringSync();
       out.writeln("      '$file': ${_raw(source)},");
     }
-    out
-      ..writeln('    },')
-      ..writeln('  ),');
+    out.writeln('    },');
+    if (tests.isNotEmpty) {
+      out
+        ..writeln('    testNeeds: ${jsonEncode(testNeeds.toList()..sort())},')
+        ..writeln('    tests: {');
+      for (final file in tests) {
+        out.writeln("      '${file.split('/').last}': ${_raw(File('registry/$file').readAsStringSync())},");
+      }
+      out.writeln('    },');
+    }
+    out.writeln('  ),');
   }
   out.writeln('};');
   File('packages/ashlar_ui/lib/src/registry.g.dart').writeAsStringSync(out.toString());

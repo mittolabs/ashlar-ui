@@ -1,13 +1,9 @@
 // Menu parts: checkbox and radio items, insets and submenus; and panels on all four sides.
-import 'dart:ui' show CheckedState, SemanticsRole;
-
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
-import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
 import 'package:ashlar_ui_gallery/ui/popover.dart';
 import 'package:ashlar_ui_gallery/ui/tooltip.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,151 +14,6 @@ Finder panel() => find
     .first;
 
 void main() {
-  group('Menu items', () {
-    Future<Map<String, Object?>> menu(WidgetTester tester) async {
-      final state = <String, Object?>{
-        'bar': true,
-        'pos': 'top',
-        'picked': null,
-      };
-      await tester.pumpWidget(
-        app(
-          StatefulBuilder(
-            builder: (context, set) => DropdownMenu(
-              builder: (context, m) =>
-                  Button(onPressed: m.open, child: const Text('Open')),
-              items: [
-                const MenuLabel(inset: true, child: Text('View')),
-                MenuCheckboxItem(
-                  checked: state['bar']! as bool,
-                  onChanged: (v) => set(() => state['bar'] = v),
-                  child: const Text('Status bar'),
-                ),
-                const MenuSeparator(),
-                MenuRadioGroup<String>(
-                  value: state['pos'] as String?,
-                  onChanged: (v) => set(() => state['pos'] = v),
-                  children: const [
-                    MenuRadioItem(value: 'top', child: Text('Top')),
-                    MenuRadioItem(value: 'bottom', child: Text('Bottom')),
-                  ],
-                ),
-                MenuItem(
-                  inset: true,
-                  onPressed: () => set(() => state['picked'] = 'plain'),
-                  child: const Text('Plain'),
-                ),
-                MenuSub(
-                  items: [
-                    MenuItem(
-                      onPressed: () => set(() => state['picked'] = 'email'),
-                      child: const Text('Email'),
-                    ),
-                    MenuItem(
-                      onPressed: () => set(() => state['picked'] = 'link'),
-                      child: const Text('Copy link'),
-                    ),
-                  ],
-                  child: const Text('Share'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      return state;
-    }
-
-    testWidgets(
-      'a checkbox item flips, says whether it is checked, and closes the menu',
-      (tester) async {
-        final semantics = tester.ensureSemantics();
-        final state = await menu(tester);
-        final node = tester
-            .getSemantics(find.text('Status bar'))
-            .getSemanticsData();
-        expect(node.flagsCollection.isChecked, CheckedState.isTrue);
-        expect(node.role, SemanticsRole.menuItemCheckbox);
-        await tester.tap(find.text('Status bar'));
-        await tester.pumpAndSettle();
-        expect(state['bar'], isFalse);
-        expect(find.text('Status bar'), findsNothing);
-        semantics.dispose();
-      },
-    );
-
-    testWidgets(
-      'a radio item picks one, and the inset lines labels up with them',
-      (tester) async {
-        final state = await menu(tester);
-        expect(
-          tester.getTopLeft(find.text('View')).dx,
-          tester.getTopLeft(find.text('Top')).dx,
-        );
-        expect(
-          tester.getTopLeft(find.text('Plain')).dx,
-          tester.getTopLeft(find.text('Top')).dx,
-        );
-        await tester.tap(find.text('Bottom'));
-        await tester.pumpAndSettle();
-        expect(state['pos'], 'bottom');
-      },
-    );
-
-    testWidgets(
-      'a submenu opens on hover beside its row; picking in it closes everything',
-      (tester) async {
-        final state = await menu(tester);
-        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-        await mouse.addPointer(location: Offset.zero);
-        await mouse.moveTo(tester.getCenter(find.text('Share')));
-        await tester.pump(const Duration(milliseconds: 200));
-        await tester.pumpAndSettle();
-        expect(find.text('Email'), findsOneWidget);
-        expect(
-          tester.getTopLeft(find.text('Email')).dx,
-          greaterThan(tester.getTopRight(find.text('Share')).dx),
-        );
-        // Moving to another row of the first menu closes it.
-        await mouse.moveTo(tester.getCenter(find.text('Plain')));
-        await tester.pumpAndSettle();
-        expect(find.text('Email'), findsNothing);
-        await mouse.moveTo(tester.getCenter(find.text('Share')));
-        await tester.pump(const Duration(milliseconds: 200));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Copy link'));
-        await tester.pumpAndSettle();
-        expect(state['picked'], 'link');
-        expect(find.text('Share'), findsNothing);
-      },
-    );
-
-    testWidgets(
-      'from the keyboard: right opens the submenu on its first item, left comes back',
-      (tester) async {
-        final state = await menu(tester);
-        // Down to Share: the checkbox, two radios, Plain, Share.
-        for (var i = 0; i < 5; i++) {
-          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-        }
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-        await tester.pumpAndSettle();
-        expect(find.text('Email'), findsOneWidget);
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
-        await tester.pumpAndSettle();
-        expect(find.text('Email'), findsNothing);
-        expect(find.text('Share'), findsOneWidget);
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-        await tester.pumpAndSettle();
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-        await tester.pumpAndSettle();
-        expect(state['picked'], 'email');
-      },
-    );
-  });
-
   group('Four sides', () {
     testWidgets('a popover opens left or right of its trigger', (tester) async {
       for (final side in [PopoverSide.left, PopoverSide.right]) {

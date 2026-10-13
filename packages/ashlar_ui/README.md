@@ -20,12 +20,26 @@ Run it in the root of a Flutter project.
 |---|---|
 | `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say). |
 | `ashlar apply` | Chooses the theme again with the same options; `--accent none` takes the accent away. Your components are left as they are. |
-| `ashlar add <item>...` | Copies components, and what they need. `--all` adds every component, `--blocks` every block (whole screens, written to `lib/blocks`). A file you already have is kept unless you pass `--overwrite`. |
+| `ashlar add <item>...` | Copies components, and what they need. `--all` adds every component, `--blocks` every block (whole screens, written to `lib/blocks`). A file you already have is kept unless you pass `--overwrite`. Each comes with its tests, in `test/ashlar`; `--no-tests` leaves them out. |
 | `ashlar view <item>...` | Shows what an item is, what it needs and its files, before you add it. |
 | `ashlar search [words]` | Finds items by name or description. `ashlar list` lists them all, ticking the ones you have. |
 | `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
 | `ashlar update [item...]` | Takes what is newer in this version and keeps your changes: a file you have not changed is replaced; one you have is merged, line by line, from the copy ashlar wrote. Where you and this version changed the same lines, both are kept between `<<<<<<< yours` and `>>>>>>> ashlar` for you to choose. `--dry-run` says what it would do. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
+
+## Tests that come with each component
+
+A component comes with the tests that check what it promises: that a screen reader can
+reach Swipe Actions without swiping, that a dialog rises above the keyboard, that a select
+list is as wide as its trigger. They are written to `test/ashlar`, importing the
+component from your package, and `flutter test` runs them with your own.
+
+The files are yours, so change a component and its tests tell you which promise your
+change broke; change the tests when you meant to break it. Tests that use another
+component (most use a Button as a trigger) are written once you have that one too.
+A test you delete stays deleted. `ashlar update` merges tests as it merges components.
+`"tests": false` in `ashlar.json` leaves them out, and `"tests": "test/ui"` puts them
+elsewhere. Components outside `lib` get no tests, since a test cannot import them.
 
 ## Keeping your changes through updates
 

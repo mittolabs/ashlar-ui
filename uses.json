@@ -1,0 +1,208 @@
+{
+ "field": [
+  "app",
+  "checkbox",
+  "input"
+ ],
+ "textarea": [
+  "app"
+ ],
+ "radio": [
+  "app"
+ ],
+ "tabs": [
+  "app",
+  "button",
+  "theme"
+ ],
+ "dropdown-menu": [
+  "app",
+  "button"
+ ],
+ "select": [
+  "app",
+  "theme"
+ ],
+ "popover": [
+  "app",
+  "button",
+  "input"
+ ],
+ "tooltip": [
+  "app",
+  "button"
+ ],
+ "toast": [
+  "app",
+  "button"
+ ],
+ "typography": [
+  "app"
+ ],
+ "empty": [
+  "app",
+  "button",
+  "item"
+ ],
+ "item": [
+  "app"
+ ],
+ "progress": [
+  "app"
+ ],
+ "breadcrumb": [
+  "app"
+ ],
+ "collapsible": [
+  "app",
+  "button"
+ ],
+ "accordion": [
+  "app"
+ ],
+ "toggle-group": [
+  "app",
+  "theme",
+  "toggle"
+ ],
+ "slider": [
+  "app",
+  "theme"
+ ],
+ "pagination": [
+  "app"
+ ],
+ "alert-dialog": [
+  "app",
+  "button"
+ ],
+ "hover-card": [
+  "app",
+  "button"
+ ],
+ "context-menu": [
+  "app",
+  "button",
+  "dropdown-menu",
+  "popover"
+ ],
+ "scroll-area": [
+  "app"
+ ],
+ "data-table": [
+  "app",
+  "checkbox"
+ ],
+ "sheet": [
+  "app",
+  "button",
+  "input"
+ ],
+ "drawer": [
+  "app",
+  "button",
+  "input"
+ ],
+ "input-group": [
+  "app",
+  "input"
+ ],
+ "input-otp": [
+  "app"
+ ],
+ "resizable": [
+  "app"
+ ],
+ "command": [
+  "app",
+  "button"
+ ],
+ "combobox": [
+  "app",
+  "popover",
+  "theme"
+ ],
+ "menubar": [
+  "app",
+  "dropdown-menu"
+ ],
+ "navigation-menu": [
+  "app"
+ ],
+ "carousel": [
+  "app"
+ ],
+ "calendar": [
+  "app"
+ ],
+ "date-picker": [
+  "app",
+  "calendar"
+ ],
+ "chart": [
+  "app"
+ ],
+ "bubble": [
+  "app",
+  "message"
+ ],
+ "marker": [
+  "app"
+ ],
+ "attachment": [
+  "app",
+  "spinner"
+ ],
+ "message-scroller": [
+  "app"
+ ],
+ "button": [
+  "app",
+  "theme"
+ ],
+ "checkbox": [
+  "app",
+  "switch",
+  "theme"
+ ],
+ "input": [
+  "app",
+  "theme"
+ ],
+ "dialog": [
+  "app",
+  "button",
+  "input",
+  "theme"
+ ],
+ "card": [
+  "app",
+  "badge",
+  "button",
+  "separator",
+  "theme"
+ ],
+ "avatar": [
+  "app",
+  "theme"
+ ],
+ "form": [
+  "app",
+  "checkbox",
+  "input"
+ ],
+ "swipe-actions": [
+  "app"
+ ],
+ "pull-to-refresh": [
+  "app",
+  "spinner"
+ ],
+ "bottom-bar": [
+  "app"
+ ],
+ "questionnaire": [],
+ "sidebar": [
+  "app"
+ ]
+}

@@ -7,6 +7,8 @@ class Component {
     this.requires = const [],
     this.packages = const [],
     this.block = false,
+    this.tests = const {},
+    this.testNeeds = const [],
   });
 
   final String description;
@@ -23,4 +25,11 @@ class Component {
   /// A whole screen made of components, written beside them in a blocks folder rather
   /// than with them.
   final bool block;
+
+  /// Its tests, file name to source: written to the project's test/ashlar with it, so
+  /// they check what it still promises after you change it.
+  final Map<String, String> tests;
+
+  /// The other items its tests use: the tests are written once the project has these.
+  final List<String> testNeeds;
 }
