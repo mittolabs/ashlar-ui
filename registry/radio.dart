@@ -72,8 +72,19 @@ class _RadioState<T> extends State<Radio<T>> {
     super.dispose();
   }
 
+  // Its own size, at the start, even where its parent stretches what it holds; a card
+  // fills the width it is given.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => widget.card
+      ? _control(context)
+      : Align(
+          alignment: AlignmentDirectional.centerStart,
+          widthFactor: 1,
+          heightFactor: 1,
+          child: _control(context),
+        );
+
+  Widget _control(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final registry = RadioGroup.maybeOf<T>(context);

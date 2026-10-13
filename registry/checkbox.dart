@@ -46,8 +46,17 @@ class Checkbox extends StatelessWidget {
   /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
+  // Its own size, at the start, even where its parent stretches what it holds: a
+  // stacked Field, a column that fills its width.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Align(
+    alignment: AlignmentDirectional.centerStart,
+    widthFactor: 1,
+    heightFactor: 1,
+    child: _control(context),
+  );
+
+  Widget _control(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     return Pressable(

@@ -97,7 +97,7 @@ void main() {
     );
     expect(
       tester
-          .getSemantics(find.byType(Checkbox))
+          .getSemantics(find.bySemanticsLabel('All'))
           .getSemanticsData()
           .flagsCollection
           .isChecked,

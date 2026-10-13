@@ -193,7 +193,14 @@ void main() {
         await tester.pump();
         expect(value, isTrue);
         expect(
-          tester.getSemantics(find.byType(Checkbox)),
+          tester.getSemantics(
+            find
+                .descendant(
+                  of: find.byType(Checkbox),
+                  matching: find.byType(MergeSemantics),
+                )
+                .first,
+          ),
           matchesSemantics(
             label: 'Terms',
             hasCheckedState: true,
@@ -231,7 +238,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(value, isTrue);
       expect(
-        tester.getSemantics(find.byType(Switch)),
+        tester.getSemantics(
+          find
+              .descendant(
+                of: find.byType(Switch),
+                matching: find.byType(MergeSemantics),
+              )
+              .first,
+        ),
         matchesSemantics(
           label: 'Wi-Fi',
           hasToggledState: true,

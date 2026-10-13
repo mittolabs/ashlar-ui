@@ -16,6 +16,8 @@ import 'package:ashlar_ui_gallery/ui/kbd.dart';
 import 'package:ashlar_ui_gallery/ui/badge.dart';
 import 'package:ashlar_ui_gallery/ui/toggle.dart';
 import 'package:ashlar_ui_gallery/ui/marker.dart';
+import 'package:ashlar_ui_gallery/ui/radio.dart';
+import 'package:ashlar_ui_gallery/ui/switch.dart';
 import 'package:ashlar_ui_gallery/ui/message.dart';
 import 'package:ashlar_ui_gallery/ui/tabs.dart';
 import 'package:flutter/widgets.dart';
@@ -90,4 +92,40 @@ void main() {
       expect(tester.getSize(find.byWidget(widget)).width, lessThan(120));
     });
   }
+
+  testWidgets(
+    'a switch, a checkbox and a radio keep their size where a column stretches them',
+    (tester) async {
+      final controls = <Widget>[
+        Switch(value: true, onChanged: (_) {}),
+        Checkbox(value: true, onChanged: (_) {}),
+        const Radio(value: 1),
+      ];
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Center(
+            child: SizedBox(
+              width: 300,
+              child: RadioGroup<int>(
+                groupValue: 1,
+                onChanged: (_) {},
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: controls,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      for (final c in controls) {
+        // The drawn control, inside the space it was given.
+        final drawn = find
+            .descendant(of: find.byWidget(c), matching: find.byType(Semantics))
+            .first;
+        expect(tester.getSize(drawn).width, lessThan(40));
+      }
+    },
+  );
 }
