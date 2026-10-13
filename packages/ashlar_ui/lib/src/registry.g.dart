@@ -4662,4 +4662,929 @@ class Breadcrumb extends StatelessWidget {
 ''',
     },
   ),
+  'collapsible': Component(
+    description: "Content that opens and closes under a trigger.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
+// change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Content that opens and closes under a trigger. [builder] draws the trigger and gets
+/// whether it is open and a function that opens or closes it; give that to a Button.
+/// Closed, the content is out of the Tab order and out of what screen readers read.
+///
+/// Give [open] and [onChanged] to hold the state yourself; leave them out and it holds
+/// its own, starting at [initiallyOpen].
+///
+/// ```dart
+/// Collapsible(
+///   builder: (context, open, toggle) => Button(variant: ButtonVariant.ghost, onPressed: toggle, child: Text(open ? 'Hide' : 'Show')),
+///   child: Text('The details.'),
+/// )
+/// ```
+class Collapsible extends StatefulWidget {
+  const Collapsible({
+    super.key,
+    required this.builder,
+    required this.child,
+    this.open,
+    this.onChanged,
+    this.initiallyOpen = false,
+  });
+
+  final Widget Function(BuildContext context, bool open, VoidCallback toggle)
+  builder;
+  final Widget child;
+  final bool? open;
+  final ValueChanged<bool>? onChanged;
+  final bool initiallyOpen;
+
+  @override
+  State<Collapsible> createState() => _CollapsibleState();
+}
+
+class _CollapsibleState extends State<Collapsible>
+    with SingleTickerProviderStateMixin {
+  late bool _own = widget.initiallyOpen;
+  bool get _open => widget.open ?? _own;
+  late final _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+    value: _open ? 1 : 0,
+  )..addStatusListener((_) => setState(() {}));
+  late final _size = CurvedAnimation(
+    parent: _c,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
+
+  void _toggle() {
+    if (widget.open == null) setState(() => _own = !_own);
+    widget.onChanged?.call(!_open);
+    _run();
+  }
+
+  void _run() {
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (still) {
+      _c.value = _open ? 1 : 0;
+    } else if (_open) {
+      _c.forward();
+    } else {
+      _c.reverse();
+    }
+  }
+
+  @override
+  void didUpdateWidget(Collapsible old) {
+    super.didUpdateWidget(old);
+    if (old.open != widget.open) _run();
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        widget.builder(context, _open, _toggle),
+        SizeTransition(
+          sizeFactor: _size,
+          alignment: Alignment.topCenter,
+          child: Visibility(
+            // Fully closed: kept, but not drawn, focused or read.
+            visible: !_c.isDismissed,
+            maintainState: true,
+            child: ExcludeFocus(
+              excluding: !_open,
+              child: DefaultTextStyle.merge(
+                style: t.text.sm,
+                child: widget.child,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'accordion': Component(
+    description: "Sections that open one at a time under their headings.",
+    requires: ["theme","pressable","collapsible"],
+    packages: ["ashlar_icons"],
+    files: {
+      'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'collapsible.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One section of an [Accordion]: its heading and what opens under it.
+@immutable
+class AccordionItem {
+  const AccordionItem({required this.title, required this.content});
+
+  final Widget title;
+  final Widget content;
+}
+
+/// Sections stacked one above the other, each opening under its heading. One open at a
+/// time, or any number with [multiple]. A screen reader hears each heading as a button
+/// that is expanded or collapsed.
+///
+/// ```dart
+/// Accordion(items: [
+///   AccordionItem(title: Text('Can I change the components?'), content: Text('Yes. They are files in your app.')),
+///   AccordionItem(title: Text('Does it use Material?'), content: Text('No. Only Flutter\'s widgets layer.')),
+/// ])
+/// ```
+class Accordion extends StatefulWidget {
+  const Accordion({
+    super.key,
+    required this.items,
+    this.multiple = false,
+    this.initiallyOpen = const {},
+  });
+
+  final List<AccordionItem> items;
+  final bool multiple;
+
+  /// The sections open at first, by index.
+  final Set<int> initiallyOpen;
+
+  @override
+  State<Accordion> createState() => _AccordionState();
+}
+
+class _AccordionState extends State<Accordion> {
+  late final Set<int> _open = {...widget.initiallyOpen};
+
+  void _toggle(int i) => setState(() {
+    if (_open.contains(i)) {
+      _open.remove(i);
+    } else {
+      if (!widget.multiple) _open.clear();
+      _open.add(i);
+    }
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, item) in widget.items.indexed)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: i == widget.items.length - 1
+                      ? const Color(0x00000000)
+                      : c.border,
+                ),
+              ),
+            ),
+            child: Collapsible(
+              open: _open.contains(i),
+              builder: (context, open, _) => Pressable(
+                onPressed: () => _toggle(i),
+                expanded: open,
+                builder: (context, state) => AnimatedContainer(
+                  duration: t.duration,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(t.radiusMd),
+                    boxShadow: [if (state.focused) ...t.focusRing],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: DefaultTextStyle.merge(
+                          style: t.text.sm.copyWith(
+                            color: c.foreground,
+                            fontWeight: FontWeight.w500,
+                            decoration: state.hovered
+                                ? TextDecoration.underline
+                                : null,
+                            decorationColor: c.foreground,
+                          ),
+                          child: item.title,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      AnimatedRotation(
+                        turns: open ? .5 : 0,
+                        duration: t.duration,
+                        child: AshlarIcon(
+                          AshlarIconsRoundedStroke.chevronDown,
+                          size: 16,
+                          color: c.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(color: c.foreground),
+                  child: item.content,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'toggle': Component(
+    description: "A button that stays pressed: bold, italic, a filter.",
+    requires: ["theme","pressable","group"],
+    packages: [],
+    files: {
+      'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'group.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+enum ToggleVariant {
+  /// No border until it is on.
+  plain,
+
+  /// A border all the time.
+  outline,
+}
+
+enum ToggleSize { sm, md, lg }
+
+/// A button that stays pressed: bold, italic, a filter. Give an icon-only toggle a
+/// [semanticLabel].
+///
+/// ```dart
+/// Toggle(pressed: bold, onChanged: (v) => setState(() => bold = v), semanticLabel: 'Bold', child: AshlarIcon(AshlarIconsRoundedStroke.bold))
+/// ```
+class Toggle extends StatelessWidget {
+  const Toggle({
+    super.key,
+    required this.pressed,
+    required this.onChanged,
+    required this.child,
+    this.variant = ToggleVariant.plain,
+    this.size = ToggleSize.md,
+    this.semanticLabel,
+  });
+
+  final bool pressed;
+
+  /// Null disables it.
+  final ValueChanged<bool>? onChanged;
+  final Widget child;
+  final ToggleVariant variant;
+  final ToggleSize size;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final height = switch (size) {
+      ToggleSize.sm => 32.0,
+      ToggleSize.md => 36.0,
+      ToggleSize.lg => 40.0,
+    };
+    return Pressable(
+      onPressed: onChanged == null ? null : () => onChanged!(!pressed),
+      toggled: pressed,
+      semanticLabel: semanticLabel,
+      builder: (context, state) {
+        final fg = pressed
+            ? c.accentForeground
+            : (state.hovered ? c.mutedForeground : c.foreground);
+        return Opacity(
+          opacity: state.enabled ? 1 : .5,
+          child: AnimatedContainer(
+            duration: t.duration,
+            height: height,
+            constraints: BoxConstraints(minWidth: height),
+            padding: EdgeInsets.symmetric(
+              horizontal: size == ToggleSize.sm ? 6 : 8,
+            ),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: pressed
+                  ? c.accent
+                  : (state.hovered ? c.muted : const Color(0x00000000)),
+              borderRadius: joinedRadius(context, t.radiusMd),
+              border: variant == ToggleVariant.outline
+                  ? joinedBorder(context, state.focused ? c.ring : c.input)
+                  : null,
+              boxShadow: [
+                if (state.focused) ...t.focusRing,
+                if (variant == ToggleVariant.outline) ...t.shadowXs,
+              ],
+            ),
+            child: DefaultTextStyle.merge(
+              style: t.text.sm.copyWith(color: fg, fontWeight: FontWeight.w500),
+              maxLines: 1,
+              child: IconTheme.merge(
+                data: IconThemeData(color: fg, size: 16),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+''',
+    },
+  ),
+  'toggle-group': Component(
+    description: "Toggles joined into one piece, one or several pressed.",
+    requires: ["toggle","group"],
+    packages: [],
+    files: {
+      'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
+// change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'group.dart';
+import 'toggle.dart';
+
+/// One choice in a [ToggleGroup].
+@immutable
+class ToggleGroupItem<T> {
+  const ToggleGroupItem(
+    this.value,
+    this.child, {
+    this.semanticLabel,
+    this.enabled = true,
+  });
+
+  final T value;
+  final Widget child;
+  final String? semanticLabel;
+  final bool enabled;
+}
+
+/// Toggles joined into one piece. Without [multiple], pressing one releases the rest, and
+/// pressing the pressed one releases it. The arrow keys move between them.
+///
+/// ```dart
+/// ToggleGroup<TextAlign>(
+///   values: {align},
+///   onChanged: (v) => setState(() => align = v.firstOrNull ?? TextAlign.left),
+///   items: [
+///     ToggleGroupItem(TextAlign.left, AshlarIcon(AshlarIconsRoundedStroke.alignLeft), semanticLabel: 'Align left'),
+///     ToggleGroupItem(TextAlign.center, AshlarIcon(AshlarIconsRoundedStroke.alignCenter), semanticLabel: 'Centre'),
+///   ],
+/// )
+/// ```
+class ToggleGroup<T> extends StatelessWidget {
+  const ToggleGroup({
+    super.key,
+    required this.values,
+    required this.onChanged,
+    required this.items,
+    this.multiple = false,
+    this.variant = ToggleVariant.outline,
+    this.size = ToggleSize.md,
+    this.semanticLabel,
+  });
+
+  /// The pressed ones.
+  final Set<T> values;
+
+  /// Null disables the group.
+  final ValueChanged<Set<T>>? onChanged;
+  final List<ToggleGroupItem<T>> items;
+  final bool multiple;
+  final ToggleVariant variant;
+  final ToggleSize size;
+
+  /// What the group sets, read before it: 'Text alignment'.
+  final String? semanticLabel;
+
+  void _press(T value, bool on) {
+    final next = multiple ? {...values} : <T>{};
+    if (on) {
+      next.add(value);
+    } else {
+      next.remove(value);
+    }
+    onChanged?.call(next);
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: semanticLabel,
+    child: Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowRight): NextFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowDown): NextFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): PreviousFocusIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowUp): PreviousFocusIntent(),
+      },
+      child: FocusTraversalGroup(
+        child: IntrinsicHeight(
+          child: JoinedGroup(
+            children: [
+              for (final item in items)
+                Toggle(
+                  pressed: values.contains(item.value),
+                  onChanged: onChanged == null || !item.enabled
+                      ? null
+                      : (on) => _press(item.value, on),
+                  variant: variant,
+                  size: size,
+                  semanticLabel: item.semanticLabel,
+                  child: item.child,
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'slider': Component(
+    description: "A value picked by dragging along a track, or with the arrow keys.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A value between [min] and [max], picked by dragging or tapping along a track, or with
+/// the arrow keys (Page Up and Page Down move ten steps, Home and End to the ends).
+///
+/// ```dart
+/// Slider(value: volume, onChanged: (v) => setState(() => volume = v), semanticLabel: 'Volume')
+/// Slider(value: price, min: 0, max: 10000, step: 500, onChanged: setPrice, semanticLabel: 'Price')
+/// ```
+class Slider extends StatefulWidget {
+  const Slider({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.min = 0,
+    this.max = 1,
+    this.step,
+    this.onChangeEnd,
+    this.semanticLabel,
+    this.semanticFormat,
+    this.focusNode,
+  });
+
+  final double value;
+
+  /// Null disables it.
+  final ValueChanged<double>? onChanged;
+  final ValueChanged<double>? onChangeEnd;
+  final double min, max;
+
+  /// What the value snaps to. Null moves freely; the keys then move a hundredth.
+  final double? step;
+  final String? semanticLabel;
+
+  /// How a screen reader reads a value. Defaults to a percentage of the way along.
+  final String Function(double value)? semanticFormat;
+  final FocusNode? focusNode;
+
+  @override
+  State<Slider> createState() => _SliderState();
+}
+
+class _SliderState extends State<Slider> {
+  bool _hovered = false, _focused = false, _dragging = false;
+
+  bool get _enabled => widget.onChanged != null;
+  double get _keyStep => widget.step ?? (widget.max - widget.min) / 100;
+  double get _fraction =>
+      ((widget.value - widget.min) / (widget.max - widget.min)).clamp(0.0, 1.0);
+
+  double _snap(double v) {
+    v = v.clamp(widget.min, widget.max);
+    final s = widget.step;
+    return s == null
+        ? v
+        : (widget.min + ((v - widget.min) / s).round() * s).clamp(
+            widget.min,
+            widget.max,
+          );
+  }
+
+  void _set(double v) {
+    v = _snap(v);
+    if (v != widget.value) widget.onChanged?.call(v);
+  }
+
+  void _setFromX(double x, double width) => _set(
+    widget.min + (x / width).clamp(0.0, 1.0) * (widget.max - widget.min),
+  );
+
+  String _read(double v) =>
+      widget.semanticFormat?.call(v) ??
+      '${((v - widget.min) / (widget.max - widget.min) * 100).round()}%';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    const thumb = 16.0;
+    return Semantics(
+      slider: true,
+      label: widget.semanticLabel,
+      enabled: _enabled,
+      value: _read(widget.value),
+      increasedValue: _read(_snap(widget.value + _keyStep)),
+      decreasedValue: _read(_snap(widget.value - _keyStep)),
+      onIncrease: _enabled ? () => _set(widget.value + _keyStep) : null,
+      onDecrease: _enabled ? () => _set(widget.value - _keyStep) : null,
+      child: FocusableActionDetector(
+        focusNode: widget.focusNode,
+        enabled: _enabled,
+        mouseCursor: _enabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.arrowRight): _StepIntent(1),
+          SingleActivator(LogicalKeyboardKey.arrowUp): _StepIntent(1),
+          SingleActivator(LogicalKeyboardKey.arrowLeft): _StepIntent(-1),
+          SingleActivator(LogicalKeyboardKey.arrowDown): _StepIntent(-1),
+          SingleActivator(LogicalKeyboardKey.pageUp): _StepIntent(10),
+          SingleActivator(LogicalKeyboardKey.pageDown): _StepIntent(-10),
+          SingleActivator(LogicalKeyboardKey.home): _StepIntent.toMin(),
+          SingleActivator(LogicalKeyboardKey.end): _StepIntent.toMax(),
+        },
+        actions: {
+          _StepIntent: CallbackAction<_StepIntent>(
+            onInvoke: (i) {
+              final v = i.toEnd == null
+                  ? widget.value + i.steps * _keyStep
+                  : (i.toEnd! ? widget.max : widget.min);
+              _set(v);
+              widget.onChangeEnd?.call(_snap(v));
+              return null;
+            },
+          ),
+        },
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final width = box.maxWidth.isFinite ? box.maxWidth : 200.0;
+              // The thumb's centre runs from one end of the track to the other.
+              final usable = width - thumb;
+              void at(Offset p) => _setFromX(p.dx - thumb / 2, usable);
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: _enabled ? (d) => at(d.localPosition) : null,
+                onTapUp: _enabled
+                    ? (_) => widget.onChangeEnd?.call(widget.value)
+                    : null,
+                onHorizontalDragStart: _enabled
+                    ? (d) => setState(() => _dragging = true)
+                    : null,
+                onHorizontalDragUpdate: _enabled
+                    ? (d) => at(d.localPosition)
+                    : null,
+                onHorizontalDragEnd: _enabled
+                    ? (_) {
+                        setState(() => _dragging = false);
+                        widget.onChangeEnd?.call(widget.value);
+                      }
+                    : null,
+                child: Opacity(
+                  opacity: _enabled ? 1 : .5,
+                  child: SizedBox(
+                    width: width,
+                    height: 20,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        Positioned(
+                          left: thumb / 2,
+                          right: thumb / 2,
+                          child: Container(
+                            height: 6,
+                            alignment: Alignment.centerLeft,
+                            decoration: BoxDecoration(
+                              color: c.muted,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: FractionallySizedBox(
+                              widthFactor: _fraction,
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: c.primary,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: _fraction * usable,
+                          child: AnimatedContainer(
+                            duration: t.duration,
+                            width: thumb,
+                            height: thumb,
+                            decoration: BoxDecoration(
+                              color: c.background,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: c.primary),
+                              boxShadow: [
+                                if (_focused ||
+                                    ((_hovered || _dragging) && _enabled))
+                                  BoxShadow(
+                                    color: c.ring.withValues(alpha: .5),
+                                    spreadRadius: 4,
+                                  ),
+                                ...t.shadowSm,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StepIntent extends Intent {
+  const _StepIntent(this.steps) : toEnd = null;
+  const _StepIntent.toMin() : steps = 0, toEnd = false;
+  const _StepIntent.toMax() : steps = 0, toEnd = true;
+
+  final int steps;
+
+  /// True to the maximum, false to the minimum, null to move by [steps].
+  final bool? toEnd;
+}
+''',
+    },
+  ),
+  'pagination': Component(
+    description: "Previous, page numbers and Next, for a long list.",
+    requires: ["theme","button"],
+    packages: ["ashlar_icons"],
+    files: {
+      'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
+// change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'theme.dart';
+
+/// Moves between the pages of a long list: Previous, the page numbers near this one with
+/// the first and last, and Next. Pages count from 1.
+///
+/// ```dart
+/// Pagination(page: page, pageCount: 12, onChanged: (p) => setState(() => page = p))
+/// ```
+class Pagination extends StatelessWidget {
+  const Pagination({
+    super.key,
+    required this.page,
+    required this.pageCount,
+    required this.onChanged,
+    this.siblings = 1,
+  });
+
+  final int page;
+  final int pageCount;
+  final ValueChanged<int> onChanged;
+
+  /// How many pages either side of this one are shown by number.
+  final int siblings;
+
+  /// The pages to show by number, with null for a gap.
+  List<int?> get _pages {
+    final shown = <int>{
+      1,
+      pageCount,
+      for (var p = page - siblings; p <= page + siblings; p++) p,
+    }.where((p) => p >= 1 && p <= pageCount).toList()..sort();
+    final out = <int?>[];
+    for (final p in shown) {
+      if (out.isNotEmpty && p - out.last! > 1) {
+        // A gap of one page shows the page; a longer one shows an ellipsis.
+        if (p - out.last! == 2) {
+          out.add(p - 1);
+        } else {
+          out.add(null);
+        }
+      }
+      out.add(p);
+    }
+    return out;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AshlarTheme.of(context).colors;
+    return Semantics(
+      container: true,
+      label: 'Pagination',
+      explicitChildNodes: true,
+      child: Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Button(
+            variant: ButtonVariant.ghost,
+            leading: const AshlarIcon(AshlarIconsRoundedStroke.chevronLeft),
+            semanticLabel: 'Previous page',
+            onPressed: page > 1 ? () => onChanged(page - 1) : null,
+            child: const Text('Previous'),
+          ),
+          for (final p in _pages)
+            if (p == null)
+              Semantics(
+                label: 'More pages',
+                child: ExcludeSemantics(
+                  child: SizedBox(
+                    width: 36,
+                    child: Center(
+                      child: AshlarIcon(
+                        AshlarIconsRoundedStroke.ellipsis,
+                        size: 16,
+                        color: c.mutedForeground,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Button(
+                variant: p == page
+                    ? ButtonVariant.outline
+                    : ButtonVariant.ghost,
+                size: ButtonSize.icon,
+                semanticLabel: p == page ? 'Page $p, current page' : 'Page $p',
+                onPressed: p == page ? () {} : () => onChanged(p),
+                child: Text('$p'),
+              ),
+          Button(
+            variant: ButtonVariant.ghost,
+            trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronRight),
+            semanticLabel: 'Next page',
+            onPressed: page < pageCount ? () => onChanged(page + 1) : null,
+            child: const Text('Next'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'alert-dialog': Component(
+    description: "A question that needs an answer before going on.",
+    requires: ["dialog","button"],
+    packages: [],
+    files: {
+      'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
+// change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'dialog.dart';
+
+/// Asks a question that needs an answer before going on: deleting, leaving with unsaved
+/// work. Unlike a Dialog it has no close button and a tap outside does nothing; Escape
+/// counts as [cancel]. Returns true for [action], false for anything else.
+///
+/// ```dart
+/// if (await showAlertDialog(context, title: 'Delete the project?', description: 'This cannot be undone.', action: 'Delete', destructive: true)) {
+///   delete();
+/// }
+/// ```
+Future<bool> showAlertDialog(
+  BuildContext context, {
+  required String title,
+  String? description,
+  String cancel = 'Cancel',
+  String action = 'Continue',
+  bool destructive = false,
+}) async =>
+    await showAshlarDialog<bool>(
+      context: context,
+      dismissible: false,
+      builder: (context) => AlertDialog(
+        title: title,
+        description: description,
+        cancel: cancel,
+        action: action,
+        destructive: destructive,
+      ),
+    ) ??
+    false;
+
+/// The panel [showAlertDialog] shows.
+class AlertDialog extends StatelessWidget {
+  const AlertDialog({
+    super.key,
+    required this.title,
+    this.description,
+    this.cancel = 'Cancel',
+    this.action = 'Continue',
+    this.destructive = false,
+  });
+
+  final String title;
+  final String? description;
+  final String cancel, action;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) => CallbackShortcuts(
+    bindings: {
+      const SingleActivator(LogicalKeyboardKey.escape): () =>
+          Navigator.pop(context, false),
+    },
+    child: Focus(
+      autofocus: true,
+      child: Dialog(
+        showClose: false,
+        title: Text(title),
+        description: description == null ? null : Text(description!),
+        actions: [
+          Button(
+            variant: ButtonVariant.outline,
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(cancel),
+          ),
+          Button(
+            variant: destructive
+                ? ButtonVariant.destructive
+                : ButtonVariant.primary,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(action),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
 };
