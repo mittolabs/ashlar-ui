@@ -16,7 +16,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 |---|---|---|
 | Components | 62 | 55 |
 | Showcase situations across components | about 480 | 55 (one demo each) |
-| Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 0 |
+| Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 27: the same set |
 | Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 4 kinds, no radar or radial |
 | Themes | 7 base colours and 17 accent colours | neutral only |
 | Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 1 |
@@ -154,6 +154,15 @@ with the form; `Validate` has required, lengths, email, pattern, min, max and al
 `submit()` shows every error, focuses the first wrong field on screen (where a screen reader
 hears its error) and saves when all are right. Errors appear on sending and clear as each
 is put right, as shadcn's react-hook-form examples behave. The site has a Form page.
+
+**Step 4, blocks: done** (13 October 2026, 4528926, cc0fb89). 27 whole screens, as shadcn
+has: dashboard-01; sidebar-01 to sidebar-16 (documentation, floating, menus, icon strip,
+inset, mail folders, popover actions, file tree, calendar, dialog, right, both sides, site
+header); login-01 to 05 and signup-01 to 05, their forms checked by Form. `ashlar add
+login-01` writes to `lib/blocks` beside the components with imports pointing at them;
+`--blocks` adds all. Sidebar gained custom and bottom groups and a fixed mode; Tabs scroll
+when too wide; a stacked area chart now fills to the series below. Social sign-in buttons
+carry names only: Ashlar's icons have no Google or Meta marks.
 
 ## Plan
 
