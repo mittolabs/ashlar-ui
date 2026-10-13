@@ -40,6 +40,8 @@ class Avatar extends StatelessWidget {
           color: t.colors.mutedForeground,
           fontSize: size * .4,
           height: 1,
+          // The font's spare leading split above and below, so the text sits centred.
+          leadingDistribution: TextLeadingDistribution.even,
         ),
         maxLines: 1,
       ),

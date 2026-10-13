@@ -27,6 +27,8 @@ class Label extends StatelessWidget {
           color: t.colors.foreground,
           fontWeight: FontWeight.w500,
           height: 1,
+          // The font's spare leading split above and below, so the text sits centred.
+          leadingDistribution: TextLeadingDistribution.even,
         ),
         child: child,
       ),

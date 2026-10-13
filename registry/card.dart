@@ -71,6 +71,8 @@ class CardHeader extends StatelessWidget {
                     style: t.text.base.copyWith(
                       fontWeight: FontWeight.w600,
                       height: 1,
+                      // The font's spare leading split above and below, so the text sits centred.
+                      leadingDistribution: TextLeadingDistribution.even,
                     ),
                     child: title!,
                   ),
