@@ -1,3 +1,7 @@
+## 0.1.1
+
+- An example of using the command, and doc comments on what the package exports.
+
 ## 0.1.0
 
 The first release of the `ashlar` command for Ashlar UI: Flutter components built on the

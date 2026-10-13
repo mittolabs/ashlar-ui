@@ -1,6 +1,7 @@
 /// A component the ashlar command can add: its files, the components it needs, and
 /// the packages it needs from pub.dev.
 class Component {
+  /// A component as the registry describes it: what it is, its files, and what it needs.
   const Component({
     required this.description,
     required this.files,
@@ -13,6 +14,7 @@ class Component {
     this.previewWidget,
   });
 
+  /// What it is, in a line: shown by ashlar view, search and list.
   final String description;
 
   /// File name to source.
