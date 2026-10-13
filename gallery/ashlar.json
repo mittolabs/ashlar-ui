@@ -94,6 +94,9 @@
     "lib/blocks/sidebar_13.dart": "-6e79410a2604c3c6",
     "lib/blocks/sidebar_14.dart": "-4b58557d190f27f2",
     "lib/blocks/sidebar_15.dart": "-2999abcf1bc3d880",
-    "lib/blocks/sidebar_16.dart": "3fba329f3931164e"
+    "lib/blocks/sidebar_16.dart": "3fba329f3931164e",
+    "lib/ui/swipe_actions.dart": "4ba293222c775b40",
+    "lib/ui/pull_to_refresh.dart": "283824fd9cec7535",
+    "lib/ui/bottom_bar.dart": "-50ec3d477ea59cbd"
   }
 }

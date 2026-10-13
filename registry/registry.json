@@ -91,5 +91,8 @@
   "marker": { "description": "A note in a conversation that nobody said: a day, someone joining, thinking.", "files": ["marker.dart"], "requires": ["theme"] },
   "attachment": { "description": "A file or picture in a conversation: what it is and how its upload is going.", "files": ["attachment.dart"], "requires": ["button", "pressable", "spinner", "theme"], "packages": ["ashlar_icons"] },
   "message-scroller": { "description": "A conversation that scrolls as people expect: new turns near the top, following only at the end.", "files": ["message_scroller.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
-  "questionnaire": { "description": "Questions one at a time: one choice, several or words, with keys for every answer.", "files": ["questionnaire.dart"], "requires": ["button", "input", "kbd", "pressable", "progress", "theme"], "packages": ["ashlar_icons"] }
+  "questionnaire": { "description": "Questions one at a time: one choice, several or words, with keys for every answer.", "files": ["questionnaire.dart"], "requires": ["button", "input", "kbd", "pressable", "progress", "theme"], "packages": ["ashlar_icons"] },
+  "swipe-actions": { "description": "A row with actions behind it: swipe it aside to show them, all the way to do the first.", "files": ["swipe_actions.dart"], "requires": ["pressable", "theme"] },
+  "pull-to-refresh": { "description": "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.", "files": ["pull_to_refresh.dart"], "requires": ["spinner", "theme"], "packages": ["ashlar_icons"] },
+  "bottom-bar": { "description": "An app's main places along the bottom of a phone screen, an icon and a name each.", "files": ["bottom_bar.dart"], "requires": ["pressable", "theme"] }
 }

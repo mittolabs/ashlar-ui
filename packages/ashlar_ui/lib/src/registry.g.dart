@@ -27566,4 +27566,646 @@ class _Choice extends StatelessWidget {
 ''',
     },
   ),
+  'swipe-actions': Component(
+    description: "A row with actions behind it: swipe it aside to show them, all the way to do the first.",
+    requires: ["pressable","theme"],
+    packages: [],
+    block: false,
+    files: {
+      'swipe_actions.dart': r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
+// yours to change.
+
+import 'package:flutter/semantics.dart';
+import 'package:flutter/widgets.dart';
+
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One action behind a row: archive, delete, pin.
+@immutable
+class SwipeAction {
+  const SwipeAction({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    this.destructive = false,
+  });
+
+  /// What it does, under its icon and to a screen reader.
+  final String label;
+  final Widget icon;
+  final VoidCallback onPressed;
+
+  /// Drawn in the destructive colour, for what cannot be undone.
+  final bool destructive;
+}
+
+/// A row with actions behind it, as phone lists have: swipe it aside to show them, then
+/// press one. Swiped all the way across, it does the first action on that side.
+///
+/// A screen reader is offered the actions directly, without swiping. Where there is a
+/// pointer and a keyboard, put the same actions in a menu on the row as well.
+///
+/// ```dart
+/// SwipeActions(
+///   end: [SwipeAction(label: 'Delete', icon: AshlarIcon(AshlarIconsRoundedStroke.trash), destructive: true, onPressed: delete)],
+///   child: Item(title: Text('Invoice 2041')),
+/// )
+/// ```
+class SwipeActions extends StatefulWidget {
+  const SwipeActions({
+    super.key,
+    required this.child,
+    this.start = const [],
+    this.end = const [],
+    this.fullSwipe = true,
+    this.actionWidth = 72,
+  });
+
+  /// The row.
+  final Widget child;
+
+  /// Behind the row's start, shown by swiping towards the end.
+  final List<SwipeAction> start;
+
+  /// Behind the row's end, shown by swiping towards the start.
+  final List<SwipeAction> end;
+
+  /// Swiped all the way across, it does the first action on that side.
+  final bool fullSwipe;
+
+  /// Each action's width.
+  final double actionWidth;
+
+  @override
+  State<SwipeActions> createState() => _SwipeActionsState();
+}
+
+class _SwipeActionsState extends State<SwipeActions>
+    with SingleTickerProviderStateMixin {
+  // How far the row has moved, in logical pixels: towards the end is positive.
+  late final AnimationController _offset =
+      AnimationController.unbounded(vsync: this)..addListener(() {
+        final open = _offset.value != 0;
+        if (open != _open) setState(() => _open = open);
+      });
+  double _width = 0;
+
+  /// Moved aside: a tap then closes it, rather than reaching the row.
+  var _open = false;
+
+  double get _startRoom => widget.start.length * widget.actionWidth;
+  double get _endRoom => widget.end.length * widget.actionWidth;
+
+  @override
+  void dispose() {
+    _offset.dispose();
+    super.dispose();
+  }
+
+  void _settle(double to) => _offset.animateTo(
+    to,
+    duration: const Duration(milliseconds: 220),
+    curve: Curves.easeOutCubic,
+  );
+
+  void close() => _settle(0);
+
+  void _drag(DragUpdateDetails d) {
+    final rtl = isRtl(context);
+    final by = rtl ? -d.primaryDelta! : d.primaryDelta!;
+    var next = _offset.value + by;
+    // Only as far as there are actions that way; past the actions only on a full swipe.
+    final most = widget.fullSwipe && widget.start.isNotEmpty
+        ? _width
+        : _startRoom;
+    final least = widget.fullSwipe && widget.end.isNotEmpty
+        ? -_width
+        : -_endRoom;
+    next = next.clamp(least, most);
+    _offset.value = next;
+  }
+
+  void _release(DragEndDetails d) {
+    final v = _offset.value;
+    final speed = (isRtl(context) ? -1 : 1) * (d.primaryVelocity ?? 0);
+    // Across most of the row: the first action on that side.
+    if (widget.fullSwipe && _width > 0 && v.abs() > _width * .6) {
+      final action = v > 0 ? widget.start.first : widget.end.first;
+      _settle(0);
+      action.onPressed();
+      return;
+    }
+    if (v > 0) {
+      _settle(v > _startRoom / 2 || speed > 400 ? _startRoom : 0);
+    } else if (v < 0) {
+      _settle(-v > _endRoom / 2 || speed < -400 ? -_endRoom : 0);
+    }
+  }
+
+  Widget _actions(List<SwipeAction> actions, bool atStart) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final a in actions)
+          Pressable(
+            semanticLabel: a.label,
+            onPressed: () {
+              close();
+              a.onPressed();
+            },
+            builder: (context, state) => Container(
+              width: widget.actionWidth,
+              color: a.destructive ? c.destructive : c.muted,
+              alignment: Alignment.center,
+              child: IconTheme.merge(
+                data: IconThemeData(
+                  color: a.destructive ? c.destructiveForeground : c.foreground,
+                  size: 18,
+                ),
+                child: DefaultTextStyle.merge(
+                  style: t.text.xs.copyWith(
+                    color: a.destructive
+                        ? c.destructiveForeground
+                        : c.foreground,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      a.icon,
+                      const SizedBox(height: 4),
+                      Text(a.label),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AshlarTheme.of(context).colors;
+    final rtl = isRtl(context);
+    return Semantics(
+      // Without swiping: each action as an action on the row.
+      customSemanticsActions: {
+        for (final a in [...widget.start, ...widget.end])
+          CustomSemanticsAction(label: a.label): a.onPressed,
+      },
+      child: LayoutBuilder(
+        builder: (context, box) {
+          _width = box.maxWidth;
+          return ClipRect(
+            child: AnimatedBuilder(
+              animation: _offset,
+              builder: (context, child) {
+                final v = _offset.value;
+                return Stack(
+                  children: [
+                    // Behind the row: only the side being shown, so nothing peeks out.
+                    if (v > 0)
+                      Positioned.fill(
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: ExcludeSemantics(
+                            excluding: v < _startRoom,
+                            child: _actions(widget.start, true),
+                          ),
+                        ),
+                      ),
+                    if (v < 0)
+                      Positioned.fill(
+                        child: Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: ExcludeSemantics(
+                            excluding: -v < _endRoom,
+                            child: _actions(widget.end, false),
+                          ),
+                        ),
+                      ),
+                    Transform.translate(
+                      offset: Offset(rtl ? -v : v, 0),
+                      child: child,
+                    ),
+                  ],
+                );
+              },
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragUpdate: _drag,
+                onHorizontalDragEnd: _release,
+                // A tap on an open row closes it rather than reaching the row.
+                onTap: _open ? close : null,
+                child: IgnorePointer(
+                  ignoring: _open,
+                  child: ColoredBox(color: c.background, child: widget.child),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'pull-to-refresh': Component(
+    description: "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.",
+    requires: ["spinner","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'pull_to_refresh.dart': r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
+// yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/widgets.dart';
+
+import 'spinner.dart';
+import 'theme.dart';
+
+/// A list that refreshes when pulled down from its top, as phone lists do: a spinner
+/// shows how far to pull, then turns while [onRefresh] runs.
+///
+/// Works with both ways of scrolling: past the top with a bounce (iOS), or stopping at it
+/// (Android). A screen reader is offered Refresh as an action instead of pulling. A mouse
+/// does not pull a list, so on a desktop give a refresh button as well.
+///
+/// ```dart
+/// PullToRefresh(
+///   onRefresh: () => orders.reload(),
+///   child: ListView(children: [for (final o in orders) Item(title: Text(o.name))]),
+/// )
+/// ```
+class PullToRefresh extends StatefulWidget {
+  const PullToRefresh({
+    super.key,
+    required this.onRefresh,
+    required this.child,
+    this.distance = 80,
+    this.semanticLabel = 'Refresh',
+  });
+
+  /// Called once pulled far enough; the spinner turns until it completes.
+  final Future<void> Function() onRefresh;
+
+  /// The scrolling list.
+  final Widget child;
+
+  /// How far to pull before letting go refreshes.
+  final double distance;
+
+  /// What a screen reader calls the action.
+  final String semanticLabel;
+
+  @override
+  State<PullToRefresh> createState() => _PullToRefreshState();
+}
+
+class _PullToRefreshState extends State<PullToRefresh>
+    with SingleTickerProviderStateMixin {
+  // How far it has been pulled past the top.
+  double _pulled = 0;
+  bool _dragging = false, _working = false;
+  late final AnimationController _back = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+  )..addListener(() => setState(() => _pulled = _from * (1 - _back.value)));
+  double _from = 0;
+
+  @override
+  void dispose() {
+    _back.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    if (_working) return;
+    setState(() {
+      _working = true;
+      _pulled = widget.distance;
+    });
+    try {
+      await widget.onRefresh();
+    } finally {
+      if (mounted) {
+        setState(() => _working = false);
+        _settle();
+      }
+    }
+  }
+
+  void _settle() {
+    _from = _pulled;
+    _back.forward(from: 0);
+  }
+
+  /// The finger has lifted: refresh if pulled far enough, otherwise let go.
+  void _lifted() {
+    _dragging = false;
+    if (_pulled >= widget.distance) {
+      _refresh();
+    } else if (_pulled > 0) {
+      _settle();
+    }
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || _working) return false;
+    if (n is ScrollStartNotification && n.dragDetails != null) _dragging = true;
+    if (n is ScrollUpdateNotification && _dragging) {
+      if (n.dragDetails == null) {
+        // Moving on its own: the finger lifted and a bounce or fling began.
+        _lifted();
+        return false;
+      }
+      // Bouncing: the list itself goes past its top.
+      if (n.metrics.pixels < n.metrics.minScrollExtent) {
+        setState(() => _pulled = n.metrics.minScrollExtent - n.metrics.pixels);
+      } else if (_pulled > 0 && n.scrollDelta! > 0) {
+        // Pushed back up while pulled: the mark goes back with it.
+        setState(
+          () => _pulled = (_pulled - n.scrollDelta!).clamp(0, double.infinity),
+        );
+      }
+    }
+    // Stopping at the top: the pull is what it would have scrolled.
+    if (n is OverscrollNotification &&
+        n.dragDetails != null &&
+        n.overscroll < 0) {
+      setState(
+        () => _pulled = (_pulled - n.overscroll * .5).clamp(
+          0,
+          widget.distance * 1.5,
+        ),
+      );
+    }
+    if (n is ScrollEndNotification && _dragging) _lifted();
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AshlarTheme.of(context).colors;
+    final share = (_pulled / widget.distance).clamp(0.0, 1.0);
+    return Semantics(
+      customSemanticsActions: {
+        CustomSemanticsAction(label: widget.semanticLabel): _refresh,
+      },
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onScroll,
+        child: Stack(
+          children: [
+            widget.child,
+            if (_pulled > 0 || _working)
+              Positioned(
+                top: (_pulled.clamp(0, widget.distance) - 40) / 2 + 8,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: Center(
+                    child: Opacity(
+                      opacity: _working ? 1 : share,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: c.popover,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.border),
+                        ),
+                        child: _working
+                            ? const Spinner(
+                                size: 16,
+                                semanticLabel: 'Refreshing',
+                              )
+                            // How far to go, as a turn of the mark: a full turn refreshes.
+                            : Transform.rotate(
+                                angle: share * 6.28,
+                                child: AshlarIcon(
+                                  AshlarIconsRoundedStroke.loaderCircle,
+                                  size: 16,
+                                  color: c.foreground,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'bottom-bar': Component(
+    description: "An app's main places along the bottom of a phone screen, an icon and a name each.",
+    requires: ["pressable","theme"],
+    packages: [],
+    block: false,
+    files: {
+      'bottom_bar.dart': r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
+// change.
+
+import 'dart:ui' show SemanticsRole;
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One place in a [BottomBar].
+@immutable
+class BottomBarItem {
+  const BottomBarItem({
+    required this.label,
+    required this.icon,
+    this.activeIcon,
+    this.badge,
+  });
+
+  /// Its name, under the icon.
+  final String label;
+  final Widget icon;
+
+  /// Shown instead of [icon] while it is the place you are: a filled icon, say.
+  final Widget? activeIcon;
+
+  /// A count to show on the icon: unread messages. Null shows none.
+  final String? badge;
+}
+
+/// An app's main places along the bottom of a phone screen, an icon and a name each,
+/// above the home indicator. Two to five places; the one you are in stands out.
+///
+/// To a screen reader it is a tab bar; from a keyboard, the arrow keys move along it.
+///
+/// ```dart
+/// BottomBar(
+///   index: page,
+///   onChanged: (i) => setState(() => page = i),
+///   items: [
+///     BottomBarItem(label: 'Home', icon: AshlarIcon(AshlarIconsRoundedStroke.house)),
+///     BottomBarItem(label: 'Inbox', icon: AshlarIcon(AshlarIconsRoundedStroke.inbox), badge: '3'),
+///   ],
+/// )
+/// ```
+class BottomBar extends StatelessWidget {
+  const BottomBar({
+    super.key,
+    required this.items,
+    required this.index,
+    required this.onChanged,
+  }) : assert(items.length >= 2 && items.length <= 5);
+
+  final List<BottomBarItem> items;
+
+  /// The place you are in.
+  final int index;
+
+  /// Told the place chosen.
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final rtl = isRtl(context);
+    void step(int by) => onChanged((index + (rtl ? -by : by)) % items.length);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: c.background,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.arrowRight): () => step(1),
+            const SingleActivator(LogicalKeyboardKey.arrowLeft): () => step(-1),
+          },
+          child: Semantics(
+            role: SemanticsRole.tabBar,
+            container: true,
+            explicitChildNodes: true,
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  for (final (i, item) in items.indexed)
+                    Expanded(
+                      child: Pressable(
+                        role: SemanticsRole.tab,
+                        selected: i == index,
+                        semanticLabel: item.badge == null
+                            ? item.label
+                            : '${item.label}, ${item.badge}',
+                        onPressed: () => onChanged(i),
+                        builder: (context, state) {
+                          final on = i == index;
+                          final ink = on ? c.foreground : c.mutedForeground;
+                          return AnimatedContainer(
+                            duration: t.duration,
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: state.hovered
+                                  ? c.muted
+                                  : const Color(0x00000000),
+                              borderRadius: BorderRadius.circular(t.radiusMd),
+                              border: state.focused
+                                  ? Border.all(color: c.ring, width: 2)
+                                  : null,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    IconTheme.merge(
+                                      data: IconThemeData(color: ink, size: 22),
+                                      child: on
+                                          ? item.activeIcon ?? item.icon
+                                          : item.icon,
+                                    ),
+                                    if (item.badge != null)
+                                      PositionedDirectional(
+                                        top: -4,
+                                        end: -10,
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          height: 16,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: c.destructive,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            border: Border.all(
+                                              color: c.background,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item.badge!,
+                                            style: t.text.xs.copyWith(
+                                              fontSize: 10,
+                                              height: 1,
+                                              color: c.destructiveForeground,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: t.text.xs.copyWith(
+                                    color: ink,
+                                    fontWeight: on
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
 };
