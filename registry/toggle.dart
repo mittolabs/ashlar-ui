@@ -72,8 +72,9 @@ class Toggle extends StatelessWidget {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            // A height at least: larger text makes it taller rather than being cut off.
-            constraints: BoxConstraints(minWidth: height, minHeight: height),
+            // Taller with larger text rather than cutting it off, and never stretched.
+            height: grownHeight(context, height),
+            constraints: BoxConstraints(minWidth: height),
             padding: EdgeInsets.symmetric(
               horizontal: size == ToggleSize.sm ? 6 : 8,
             ),

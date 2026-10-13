@@ -119,6 +119,7 @@ class MessageGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       for (final (i, c) in children.indexed) ...[

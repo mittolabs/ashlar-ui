@@ -109,7 +109,8 @@ class Empty extends StatelessWidget {
         borderRadius: BorderRadius.circular(t.radiusLg),
         border: border ? Border.all(color: c.border) : null,
       ),
-      child: Center(child: content),
+      // Centred across, and as tall as what it holds.
+      child: Center(heightFactor: 1, child: content),
     );
   }
 }
