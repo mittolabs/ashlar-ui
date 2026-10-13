@@ -57,5 +57,6 @@
   "calendar": { "description": "Months of days to pick one, several or a range from, with week numbers and dropdowns.", "files": ["calendar.dart"], "requires": ["theme", "button", "select"], "packages": ["ashlar_icons"] },
   "date-picker": { "description": "A button that shows a date and opens a calendar, with presets.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar", "select"], "packages": ["ashlar_icons"] },
   "chart": { "description": "Bar, line, area and pie charts, drawn here with no charting package.", "files": ["chart.dart"], "requires": ["theme"] },
-  "sidebar": { "description": "An app's navigation down the side: variants, submenus, actions, a rail.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"], "packages": ["ashlar_icons"] }
+  "sidebar": { "description": "An app's navigation down the side: variants, submenus, actions, a rail.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"], "packages": ["ashlar_icons"] },
+  "form": { "description": "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.", "files": ["form.dart"], "requires": ["field", "input"] }
 }
