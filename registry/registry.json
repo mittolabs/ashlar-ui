@@ -1,0 +1,13 @@
+{
+  "theme": { "description": "Colours, corners, text and motion, light and dark.", "files": ["theme.dart"] },
+  "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.", "files": ["app.dart"], "requires": ["theme"] },
+  "pressable": { "description": "Hover, press, keyboard focus and activation, for every control.", "files": ["pressable.dart"] },
+  "button": { "description": "Six variants and four sizes, with leading and trailing icons.", "files": ["button.dart"], "requires": ["theme", "pressable"] },
+  "badge": { "description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"] },
+  "card": { "description": "A panel with a header, content and a footer.", "files": ["card.dart"], "requires": ["theme"] },
+  "separator": { "description": "A one-pixel line, across or down.", "files": ["separator.dart"], "requires": ["theme"] },
+  "input": { "description": "A text field with selection handles and a cut, copy and paste menu.", "files": ["input.dart"], "requires": ["theme"] },
+  "checkbox": { "description": "A box that is ticked or not.", "files": ["checkbox.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"] },
+  "switch": { "description": "An on and off switch.", "files": ["switch.dart"], "requires": ["theme", "pressable"] },
+  "dialog": { "description": "A modal panel over a dimmed page, with title, content and actions.", "files": ["dialog.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] }
+}

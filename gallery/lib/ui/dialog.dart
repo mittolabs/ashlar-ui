@@ -1,0 +1,129 @@
+// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'theme.dart';
+
+/// Opens a dialog above the page and waits for it to close, with what it closed with.
+/// The page dims behind it; a tap outside or Escape closes it, unless [dismissible] is false.
+///
+/// ```dart
+/// final ok = await showAshlarDialog<bool>(
+///   context: context,
+///   builder: (context) => Dialog(
+///     title: Text('Delete the file?'),
+///     description: Text('This cannot be undone.'),
+///     actions: [
+///       Button(variant: ButtonVariant.outline, onPressed: () => Navigator.pop(context, false), child: Text('Cancel')),
+///       Button(variant: ButtonVariant.destructive, onPressed: () => Navigator.pop(context, true), child: Text('Delete')),
+///     ],
+///   ),
+/// );
+/// ```
+Future<T?> showAshlarDialog<T>({required BuildContext context, required WidgetBuilder builder, bool dismissible = true}) {
+  final theme = AshlarTheme.of(context);
+  return Navigator.of(context).push<T>(
+    RawDialogRoute<T>(
+      barrierDismissible: dismissible,
+      barrierLabel: 'Close',
+      barrierColor: const Color(0x80000000),
+      transitionDuration: const Duration(milliseconds: 200),
+      // The route is above the app's AshlarTheme, so it carries the theme across.
+      pageBuilder: (context, animation, secondary) => AshlarTheme(data: theme, child: Builder(builder: builder)),
+      transitionBuilder: (context, animation, secondary, child) {
+        final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(scale: Tween(begin: .95, end: 1.0).animate(curved), child: child),
+        );
+      },
+    ),
+  );
+}
+
+/// The panel a dialog shows: [title], [description], any [content], and [actions] at
+/// its foot, with a close button at the top right.
+class Dialog extends StatelessWidget {
+  const Dialog({super.key, this.title, this.description, this.content, this.actions = const [], this.showClose = true, this.maxWidth = 512});
+
+  final Widget? title;
+  final Widget? description;
+  final Widget? content;
+  final List<Widget> actions;
+  final bool showClose;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Semantics(
+              scopesRoute: true,
+              namesRoute: true,
+              explicitChildNodes: true,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: c.background,
+                  borderRadius: BorderRadius.circular(t.radiusLg),
+                  border: Border.all(color: c.border),
+                  boxShadow: t.shadowLg,
+                ),
+                child: DefaultTextStyle(
+                  style: t.text.sm.copyWith(color: c.foreground),
+                  child: Stack(clipBehavior: Clip.none, children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (title != null)
+                          Padding(
+                            padding: EdgeInsets.only(right: showClose ? 24 : 0),
+                            child: DefaultTextStyle.merge(style: t.text.lg.copyWith(fontWeight: FontWeight.w600, height: 1.2), child: title!),
+                          ),
+                        if (description != null) ...[
+                          const SizedBox(height: 8),
+                          DefaultTextStyle.merge(style: TextStyle(color: c.mutedForeground), child: description!),
+                        ],
+                        if (content != null) ...[const SizedBox(height: 16), content!],
+                        if (actions.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Wrap(
+                            alignment: WrapAlignment.end,
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: actions,
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (showClose)
+                      Positioned(
+                        top: -12,
+                        right: -12,
+                        child: Button(
+                          variant: ButtonVariant.ghost,
+                          size: ButtonSize.icon,
+                          semanticLabel: 'Close',
+                          onPressed: () => Navigator.maybePop(context),
+                          child: AshlarIcon(AshlarIconsRoundedStroke.x, color: c.mutedForeground),
+                        ),
+                      ),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
