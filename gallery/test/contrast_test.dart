@@ -58,10 +58,11 @@ void main() {
           for (final MapEntry(key: what, value: (fg, bg, need))
               in pairs.entries) {
             final r = ratio(fg, bg);
-            if (r < need)
+            if (r < need) {
               failing.add(
                 '${accent?.name ?? 'no accent'}, ${b.name}: $what ${r.toStringAsFixed(2)}',
               );
+            }
           }
         }
       }
