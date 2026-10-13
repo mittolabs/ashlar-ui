@@ -7,6 +7,7 @@ import 'package:ashlar_ui_gallery/ui/input_group.dart';
 import 'package:ashlar_ui_gallery/ui/input_otp.dart';
 import 'package:ashlar_ui_gallery/ui/resizable.dart';
 import 'package:ashlar_ui_gallery/ui/sheet.dart';
+import 'package:ashlar_ui_gallery/ui/textarea.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -287,6 +288,61 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       await tester.pump();
       expect(left(tester), closeTo(116, .5));
+    });
+  });
+
+  group('Textarea', () {
+    Finder grip() => find
+        .descendant(
+          of: find.byType(Textarea),
+          matching: find.byType(CustomPaint),
+        )
+        .last;
+
+    testWidgets(
+      'the grip drags it taller a line at a time, and no shorter than two lines',
+      (tester) async {
+        await tester.pumpWidget(
+          app(const SizedBox(width: 320, child: Textarea(placeholder: 'Note'))),
+        );
+        final start = tester.getSize(find.byType(Textarea)).height;
+        await tester.drag(grip(), const Offset(0, 60));
+        await tester.pump();
+        expect(
+          tester.getSize(find.byType(Textarea)).height,
+          closeTo(start + 60, 1),
+        );
+        await tester.drag(grip(), const Offset(0, -400));
+        await tester.pump();
+        expect(tester.getSize(find.byType(Textarea)).height, 64);
+        await tester.enterText(
+          find.byType(EditableText),
+          List.filled(10, 'line').join('\n'),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(find.byType(Textarea)).height, 64);
+      },
+    );
+
+    testWidgets('without resizable there is no grip', (tester) async {
+      await tester.pumpWidget(
+        app(const SizedBox(width: 320, child: Textarea(resizable: false))),
+      );
+      expect(
+        find
+            .descendant(
+              of: find.byType(Textarea),
+              matching: find.byType(MouseRegion),
+            )
+            .evaluate()
+            .where(
+              (e) =>
+                  (e.widget as MouseRegion).cursor ==
+                  SystemMouseCursors.resizeUpDown,
+            ),
+        isEmpty,
+      );
     });
   });
 }

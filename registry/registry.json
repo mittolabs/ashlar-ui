@@ -12,7 +12,7 @@
   "dialog": { "description": "A modal panel over a dimmed page, with title, content and actions.", "files": ["dialog.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
   "label": { "description": "The name of a control, above it or beside it.", "files": ["label.dart"], "requires": ["theme"] },
   "field": { "description": "A control with its label, description and error, read out together.", "files": ["field.dart"], "requires": ["theme", "label"] },
-  "textarea": { "description": "A text field for several lines that grows with its text.", "files": ["textarea.dart"], "requires": ["input"] },
+  "textarea": { "description": "A text field for several lines that grows with its text and drags taller.", "files": ["textarea.dart"], "requires": ["input", "theme"] },
   "avatar": { "description": "A picture in a circle, with initials while it loads or when it fails.", "files": ["avatar.dart"], "requires": ["theme"] },
   "skeleton": { "description": "A pulsing placeholder in the shape of content still loading.", "files": ["skeleton.dart"], "requires": ["theme"] },
   "spinner": { "description": "A turning ring that says something is working.", "files": ["spinner.dart"], "packages": ["ashlar_icons"] },

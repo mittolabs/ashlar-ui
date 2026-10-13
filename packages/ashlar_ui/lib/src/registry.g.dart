@@ -1940,8 +1940,8 @@ class Field extends StatelessWidget {
     },
   ),
   'textarea': Component(
-    description: "A text field for several lines that grows with its text.",
-    requires: ["input"],
+    description: "A text field for several lines that grows with its text and drags taller.",
+    requires: ["input","theme"],
     packages: [],
     files: {
       'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
@@ -1950,14 +1950,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'input.dart';
+import 'theme.dart';
 
 /// A text field for more than one line. It starts [minLines] tall and grows to [maxLines]
-/// as the text does, then scrolls.
+/// as the text does, then scrolls. With [resizable], a grip at the bottom right drags it
+/// taller or shorter, a line at a time; the text then scrolls inside the height chosen.
 ///
 /// ```dart
 /// Textarea(placeholder: 'Tell us what happened', onChanged: (v) => note = v)
 /// ```
-class Textarea extends StatelessWidget {
+class Textarea extends StatefulWidget {
   const Textarea({
     super.key,
     this.controller,
@@ -1969,6 +1971,7 @@ class Textarea extends StatelessWidget {
     this.autofocus = false,
     this.minLines = 3,
     this.maxLines = 8,
+    this.resizable = true,
     this.inputFormatters,
     this.onChanged,
     this.semanticLabel,
@@ -1984,6 +1987,9 @@ class Textarea extends StatelessWidget {
   final bool autofocus;
   final int minLines;
   final int maxLines;
+
+  /// Shows the grip that drags it taller or shorter.
+  final bool resizable;
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
   final String? semanticLabel;
@@ -1992,23 +1998,103 @@ class Textarea extends StatelessWidget {
   final bool decorated;
 
   @override
-  Widget build(BuildContext context) => Input(
-    controller: controller,
-    focusNode: focusNode,
-    placeholder: placeholder,
-    enabled: enabled,
-    readOnly: readOnly,
-    error: error,
-    autofocus: autofocus,
-    minLines: minLines,
-    maxLines: maxLines,
-    keyboardType: TextInputType.multiline,
-    textInputAction: TextInputAction.newline,
-    inputFormatters: inputFormatters,
-    onChanged: onChanged,
-    semanticLabel: semanticLabel,
-    decorated: decorated,
-  );
+  State<Textarea> createState() => _TextareaState();
+}
+
+class _TextareaState extends State<Textarea> {
+  /// The height dragged to, in lines; null until the grip is used.
+  int? _lines;
+  double _dragged = 0;
+  final _box = GlobalKey();
+
+  static const _fewest = 2;
+
+  void _start(DragStartDetails _) =>
+      _dragged = _box.currentContext?.size?.height ?? 0;
+
+  void _drag(DragUpdateDetails d, double lineHeight, double chrome) {
+    _dragged += d.delta.dy;
+    final lines = ((_dragged - chrome) / lineHeight).round().clamp(_fewest, 50);
+    if (lines != _lines) setState(() => _lines = lines);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final lines = _lines;
+    final field = Input(
+      key: _box,
+      controller: widget.controller,
+      focusNode: widget.focusNode,
+      placeholder: widget.placeholder,
+      enabled: widget.enabled,
+      readOnly: widget.readOnly,
+      error: widget.error,
+      autofocus: widget.autofocus,
+      minLines: lines ?? widget.minLines,
+      maxLines: lines ?? widget.maxLines,
+      keyboardType: TextInputType.multiline,
+      textInputAction: TextInputAction.newline,
+      inputFormatters: widget.inputFormatters,
+      onChanged: widget.onChanged,
+      semanticLabel: widget.semanticLabel,
+      decorated: widget.decorated,
+    );
+    if (!widget.resizable || !widget.enabled) return field;
+    final style = t.text.sm;
+    final lineHeight = style.fontSize! * (style.height ?? 1.2);
+    // Padding and border round the text: 8 above and below, and a pixel of border each side.
+    final chrome = widget.decorated ? 18.0 : 16.0;
+    return Stack(
+      children: [
+        field,
+        Positioned(
+          right: 2,
+          bottom: 2,
+          // A mouse and touch handle, as in a browser; the text itself needs no keyboard way.
+          child: ExcludeSemantics(
+            child: MouseRegion(
+              cursor: SystemMouseCursors.resizeUpDown,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onVerticalDragStart: _start,
+                onVerticalDragUpdate: (d) => _drag(d, lineHeight, chrome),
+                child: SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CustomPaint(
+                    painter: _Grip(c.mutedForeground.withValues(alpha: .6)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Two short diagonal strokes in the corner.
+class _Grip extends CustomPainter {
+  _Grip(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round;
+    final w = size.width, h = size.height;
+    canvas.drawLine(Offset(w - 3, h - 9), Offset(w - 9, h - 3), p);
+    canvas.drawLine(Offset(w - 3, h - 5.5), Offset(w - 5.5, h - 3), p);
+  }
+
+  @override
+  bool shouldRepaint(_Grip old) => old.color != color;
 }
 ''',
     },
