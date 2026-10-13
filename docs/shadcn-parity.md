@@ -21,7 +21,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Themes | 7 base colours and 17 accent colours | the same 7 and 17, with contrast floors |
 | Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 6: standard, compact, rounded, sharp, dense, soft |
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
-| CLI commands | 15: init, add, apply, build, diff, docs, eject, info, mcp, migrate, preset, search, view, registry, dry run | 3: init, add, list |
+| CLI commands | 15: init, add, apply, build, diff, docs, eject, info, mcp, migrate, preset, search, view, registry, dry run | 9: init, apply, add, view, search, list, diff, build, registries |
 | Right-to-left | yes, CLI converts to logical sides | yes, logical sides; tested in both directions |
 | Forms | guides and examples for 3 form libraries (34 examples) | Form on Flutter's `Form`: any control, checks, focus on the first error |
 
@@ -183,6 +183,13 @@ dense, soft) carry radius, control density, panel spacing and shadows, which but
 inputs, selects, toggles, tabs, menus, cards and panels read. `ashlar init --base --accent
 --style` writes `app_theme.dart`. Not carried over: fonts per style (Ashlar ships no
 fonts), and shadcn's per-component rules beyond spacing and shape.
+
+**Step 7, CLI: done** (13 October 2026, 85951df). `view`, `search` (with `list`), `diff` (your
+changes told from newer versions by fingerprints recorded at install), `apply` (the theme
+chosen again), `build` (a registry of your own to host), and `@name/item` from a web
+address or a folder named in `ashlar.json`, with paths that would leave the project
+refused. Not carried over: `mcp`, `migrate`, `eject` and preset codes; `docs` and `info`
+are covered by `view` and `list`.
 
 ## Plan
 
