@@ -132,10 +132,13 @@ class AshlarColors {
 /// Text styles by size. Colours come from where the text sits, so these carry none.
 @immutable
 class AshlarText {
-  const AshlarText({this.fontFamily});
+  const AshlarText({this.fontFamily, this.fontFamilyFallback});
 
   /// Null uses the platform's font. Set it, and add the font to pubspec.yaml, to use your own.
   final String? fontFamily;
+
+  /// Fonts to draw what [fontFamily] has no glyph for: symbols, emoji, other scripts.
+  final List<String>? fontFamilyFallback;
 
   TextStyle _size(
     double size,
@@ -143,6 +146,7 @@ class AshlarText {
     FontWeight weight = FontWeight.w400,
   ]) => TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: size,
     height: height / size,
     fontWeight: weight,
