@@ -149,16 +149,19 @@ class _PressableState extends State<Pressable> {
                   ? () => setState(() => _pressed = false)
                   : null,
               onTap: _enabled ? _activate : null,
-              // A label replaces what the control shows, rather than adding to it.
-              child: ExcludeSemantics(
-                excluding: widget.semanticLabel != null,
-                child: widget.builder(
-                  context,
-                  PressableState(
-                    hovered: _hovered && _enabled,
-                    pressed: _pressed,
-                    focused: _focused,
-                    enabled: _enabled,
+              // A label replaces what the control shows, rather than adding to it. And a
+              // control's text is never selected: a drag over a button is not a selection.
+              child: SelectionContainer.disabled(
+                child: ExcludeSemantics(
+                  excluding: widget.semanticLabel != null,
+                  child: widget.builder(
+                    context,
+                    PressableState(
+                      hovered: _hovered && _enabled,
+                      pressed: _pressed,
+                      focused: _focused,
+                      enabled: _enabled,
+                    ),
                   ),
                 ),
               ),

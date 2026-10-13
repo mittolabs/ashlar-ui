@@ -1,12 +1,12 @@
 {
   "theme": { "description": "Colours, corners, text and motion, light and dark.", "files": ["theme.dart"] },
-  "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.", "files": ["app.dart"], "requires": ["theme"] },
+  "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.", "files": ["app.dart"], "requires": ["theme", "selection"] },
   "pressable": { "description": "Hover, press, keyboard focus and activation, for every control.", "files": ["pressable.dart"] },
   "button": { "description": "Six variants and four sizes, with leading and trailing icons.", "files": ["button.dart"], "requires": ["theme", "pressable", "group"] },
   "badge": { "description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"] },
   "card": { "description": "A panel with a header, content and a footer.", "files": ["card.dart"], "requires": ["theme"] },
   "separator": { "description": "A one-pixel line, across or down.", "files": ["separator.dart"], "requires": ["theme"] },
-  "input": { "description": "A text field with selection handles and a cut, copy and paste menu.", "files": ["input.dart"], "requires": ["theme"] },
+  "input": { "description": "A text field with selection handles and a cut, copy and paste menu.", "files": ["input.dart"], "requires": ["theme", "selection"] },
   "checkbox": { "description": "A box that is ticked or not.", "files": ["checkbox.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"] },
   "switch": { "description": "An on and off switch.", "files": ["switch.dart"], "requires": ["theme", "pressable"] },
   "dialog": { "description": "A modal panel over a dimmed page, with title, content and actions.", "files": ["dialog.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
@@ -52,5 +52,6 @@
   "combobox": { "description": "A select you can search, for long lists.", "files": ["combobox.dart"], "requires": ["theme", "pressable", "popover", "command"], "packages": ["ashlar_icons"] },
   "menubar": { "description": "A bar of menus, as at the top of a desktop app.", "files": ["menubar.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"] },
   "navigation-menu": { "description": "A site's main links, with panels that open from headings.", "files": ["navigation_menu.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
-  "carousel": { "description": "Slides in a row, moved by swiping, buttons or the arrow keys.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] }
+  "carousel": { "description": "Slides in a row, moved by swiping, buttons or the arrow keys.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
+  "selection": { "description": "Selection handles and the cut, copy and paste menu.", "files": ["selection.dart"], "requires": ["theme"] }
 }

@@ -1,8 +1,10 @@
 // Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'selection.dart';
 import 'theme.dart';
 
 /// Which theme an [AshlarApp] shows.
@@ -26,6 +28,7 @@ class AshlarApp extends StatelessWidget {
     this.supportedLocales = const [Locale('en', 'US')],
     this.localizationsDelegates,
     this.builder,
+    this.selectable,
   });
 
   final Widget? home;
@@ -41,6 +44,21 @@ class AshlarApp extends StatelessWidget {
   final Iterable<Locale> supportedLocales;
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final TransitionBuilder? builder;
+
+  /// Whether text anywhere in the app can be selected and copied, as on a web page.
+  /// Controls are left out: dragging over a button never selects its label. Null means
+  /// yes on the web and the desktop, and no on iOS and Android, where apps do not do it.
+  final bool? selectable;
+
+  bool get _selectable =>
+      selectable ??
+      (kIsWeb ||
+          switch (defaultTargetPlatform) {
+            TargetPlatform.iOS ||
+            TargetPlatform.android ||
+            TargetPlatform.fuchsia => false,
+            _ => true,
+          });
 
   AshlarThemeData _themeFor(BuildContext context) => switch (themeMode) {
     AshlarThemeMode.light => theme,
@@ -81,7 +99,12 @@ class AshlarApp extends StatelessWidget {
                 behavior: const _AshlarScrollBehavior(),
                 child: ColoredBox(
                   color: data.colors.background,
-                  child: child ?? const SizedBox.shrink(),
+                  child: _selectable
+                      ? _Selectable(
+                          colors: data.colors,
+                          child: child ?? const SizedBox.shrink(),
+                        )
+                      : child ?? const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -92,6 +115,49 @@ class AshlarApp extends StatelessWidget {
       },
     );
   }
+}
+
+/// Makes the text below selectable. The selection's handles and menu need an Overlay
+/// above the region, and the app's own is inside the Navigator below, so it brings one:
+/// the handles then float over dialogs too.
+class _Selectable extends StatefulWidget {
+  const _Selectable({required this.colors, required this.child});
+
+  final AshlarColors colors;
+  final Widget child;
+
+  @override
+  State<_Selectable> createState() => _SelectableState();
+}
+
+class _SelectableState extends State<_Selectable> {
+  late final _entry = OverlayEntry(
+    builder: (context) => SelectableRegion(
+      selectionControls: AshlarSelectionControls(widget.colors.foreground),
+      contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+        anchors: state.contextMenuAnchors,
+        items: state.contextMenuButtonItems,
+      ),
+      child: widget.child,
+    ),
+  );
+
+  @override
+  void didUpdateWidget(_Selectable old) {
+    super.didUpdateWidget(old);
+    _entry.markNeedsBuild();
+  }
+
+  @override
+  void dispose() {
+    _entry
+      ..remove()
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
 }
 
 /// A page that fades and rises a little as it opens.

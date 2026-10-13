@@ -276,14 +276,16 @@ class AshlarTheme extends InheritedWidget {
   ),
   'app': Component(
     description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
-    requires: ["theme"],
+    requires: ["theme","selection"],
     packages: [],
     files: {
       'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'selection.dart';
 import 'theme.dart';
 
 /// Which theme an [AshlarApp] shows.
@@ -307,6 +309,7 @@ class AshlarApp extends StatelessWidget {
     this.supportedLocales = const [Locale('en', 'US')],
     this.localizationsDelegates,
     this.builder,
+    this.selectable,
   });
 
   final Widget? home;
@@ -322,6 +325,21 @@ class AshlarApp extends StatelessWidget {
   final Iterable<Locale> supportedLocales;
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final TransitionBuilder? builder;
+
+  /// Whether text anywhere in the app can be selected and copied, as on a web page.
+  /// Controls are left out: dragging over a button never selects its label. Null means
+  /// yes on the web and the desktop, and no on iOS and Android, where apps do not do it.
+  final bool? selectable;
+
+  bool get _selectable =>
+      selectable ??
+      (kIsWeb ||
+          switch (defaultTargetPlatform) {
+            TargetPlatform.iOS ||
+            TargetPlatform.android ||
+            TargetPlatform.fuchsia => false,
+            _ => true,
+          });
 
   AshlarThemeData _themeFor(BuildContext context) => switch (themeMode) {
     AshlarThemeMode.light => theme,
@@ -362,7 +380,12 @@ class AshlarApp extends StatelessWidget {
                 behavior: const _AshlarScrollBehavior(),
                 child: ColoredBox(
                   color: data.colors.background,
-                  child: child ?? const SizedBox.shrink(),
+                  child: _selectable
+                      ? _Selectable(
+                          colors: data.colors,
+                          child: child ?? const SizedBox.shrink(),
+                        )
+                      : child ?? const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -373,6 +396,49 @@ class AshlarApp extends StatelessWidget {
       },
     );
   }
+}
+
+/// Makes the text below selectable. The selection's handles and menu need an Overlay
+/// above the region, and the app's own is inside the Navigator below, so it brings one:
+/// the handles then float over dialogs too.
+class _Selectable extends StatefulWidget {
+  const _Selectable({required this.colors, required this.child});
+
+  final AshlarColors colors;
+  final Widget child;
+
+  @override
+  State<_Selectable> createState() => _SelectableState();
+}
+
+class _SelectableState extends State<_Selectable> {
+  late final _entry = OverlayEntry(
+    builder: (context) => SelectableRegion(
+      selectionControls: AshlarSelectionControls(widget.colors.foreground),
+      contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+        anchors: state.contextMenuAnchors,
+        items: state.contextMenuButtonItems,
+      ),
+      child: widget.child,
+    ),
+  );
+
+  @override
+  void didUpdateWidget(_Selectable old) {
+    super.didUpdateWidget(old);
+    _entry.markNeedsBuild();
+  }
+
+  @override
+  void dispose() {
+    _entry
+      ..remove()
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
 }
 
 /// A page that fades and rises a little as it opens.
@@ -571,16 +637,19 @@ class _PressableState extends State<Pressable> {
                   ? () => setState(() => _pressed = false)
                   : null,
               onTap: _enabled ? _activate : null,
-              // A label replaces what the control shows, rather than adding to it.
-              child: ExcludeSemantics(
-                excluding: widget.semanticLabel != null,
-                child: widget.builder(
-                  context,
-                  PressableState(
-                    hovered: _hovered && _enabled,
-                    pressed: _pressed,
-                    focused: _focused,
-                    enabled: _enabled,
+              // A label replaces what the control shows, rather than adding to it. And a
+              // control's text is never selected: a drag over a button is not a selection.
+              child: SelectionContainer.disabled(
+                child: ExcludeSemantics(
+                  excluding: widget.semanticLabel != null,
+                  child: widget.builder(
+                    context,
+                    PressableState(
+                      hovered: _hovered && _enabled,
+                      pressed: _pressed,
+                      focused: _focused,
+                      enabled: _enabled,
+                    ),
                   ),
                 ),
               ),
@@ -1031,18 +1100,18 @@ class Separator extends StatelessWidget {
   ),
   'input': Component(
     description: "A text field with selection handles and a cut, copy and paste menu.",
-    requires: ["theme"],
+    requires: ["theme","selection"],
     packages: [],
     files: {
       'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
 // The widgets layer gives EditableText and no field around it: no selection handles, no
-// cut and paste menu, no tap to place the cursor. This file supplies all three.
+// cut and paste menu, no tap to place the cursor. This file and selection.dart supply them.
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'selection.dart';
 import 'theme.dart';
 
 /// A one-line text field (or more, with [maxLines]), with a placeholder, focus ring and
@@ -1175,8 +1244,11 @@ class _InputState extends State<Input>
       cursorWidth: 1.5,
       cursorRadius: const Radius.circular(1),
       selectionColor: c.ring.withValues(alpha: .35),
-      selectionControls: _AshlarSelectionControls(c.foreground),
-      contextMenuBuilder: (context, state) => _SelectionMenu(state: state),
+      selectionControls: AshlarSelectionControls(c.foreground),
+      contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+        anchors: state.contextMenuAnchors,
+        items: state.contextMenuButtonItems,
+      ),
       maxLines: widget.maxLines,
       minLines: multiline
           ? (widget.minLines ?? widget.maxLines.clamp(1, 3))
@@ -1297,156 +1369,6 @@ class _InputState extends State<Input>
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Selection handles for touch: a small dot on a stem at each end of the selection.
-class _AshlarSelectionControls extends TextSelectionControls {
-  _AshlarSelectionControls(this.color);
-
-  final Color color;
-  static const _size = 18.0;
-
-  @override
-  Widget buildHandle(
-    BuildContext context,
-    TextSelectionHandleType type,
-    double textLineHeight, [
-    VoidCallback? onTap,
-  ]) {
-    if (type == TextSelectionHandleType.collapsed) {
-      return const SizedBox.shrink();
-    }
-    final start = type == TextSelectionHandleType.left;
-    return SizedBox(
-      width: _size,
-      height: _size + textLineHeight,
-      child: CustomPaint(painter: _HandlePainter(color, start, textLineHeight)),
-    );
-  }
-
-  @override
-  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) =>
-      switch (type) {
-        TextSelectionHandleType.left => Offset(_size / 2, textLineHeight),
-        TextSelectionHandleType.right => const Offset(_size / 2, 0),
-        TextSelectionHandleType.collapsed => Offset.zero,
-      };
-
-  @override
-  Size getHandleSize(double textLineHeight) =>
-      Size(_size, _size + textLineHeight);
-
-  // The menu is built by contextMenuBuilder; this older hook is not used.
-  @override
-  Widget buildToolbar(
-    BuildContext context,
-    Rect globalEditableRegion,
-    double textLineHeight,
-    Offset selectionMidpoint,
-    List<TextSelectionPoint> endpoints,
-    TextSelectionDelegate delegate,
-    ValueListenable<ClipboardStatus>? clipboardStatus,
-    Offset? lastSecondaryTapDownPosition,
-  ) => const SizedBox.shrink();
-}
-
-class _HandlePainter extends CustomPainter {
-  _HandlePainter(this.color, this.start, this.lineHeight);
-
-  final Color color;
-  final bool start;
-  final double lineHeight;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-    final x = size.width / 2;
-    // The start handle hangs below the text line, the end handle sits above it.
-    final dot = start ? Offset(x, size.height - 6) : const Offset(9, 6);
-    canvas.drawRect(
-      Rect.fromLTWH(
-        x - .75,
-        start ? lineHeight : 6,
-        1.5,
-        size.height - lineHeight - 6,
-      ),
-      paint,
-    );
-    canvas.drawCircle(dot, 6, paint);
-  }
-
-  @override
-  bool shouldRepaint(_HandlePainter old) => old.color != color;
-}
-
-/// The cut, copy, paste and select-all menu, drawn as a popover above the selection.
-class _SelectionMenu extends StatelessWidget {
-  const _SelectionMenu({required this.state});
-
-  final EditableTextState state;
-
-  static String _label(ContextMenuButtonItem item) =>
-      item.label ??
-      switch (item.type) {
-        ContextMenuButtonType.cut => 'Cut',
-        ContextMenuButtonType.copy => 'Copy',
-        ContextMenuButtonType.paste => 'Paste',
-        ContextMenuButtonType.selectAll => 'Select all',
-        ContextMenuButtonType.delete => 'Delete',
-        ContextMenuButtonType.lookUp => 'Look up',
-        ContextMenuButtonType.searchWeb => 'Search',
-        ContextMenuButtonType.share => 'Share',
-        ContextMenuButtonType.liveTextInput => 'Scan text',
-        ContextMenuButtonType.custom => '',
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final items = state.contextMenuButtonItems
-        .where((i) => _label(i).isNotEmpty)
-        .toList();
-    if (items.isEmpty) return const SizedBox.shrink();
-    final anchors = state.contextMenuAnchors;
-    return CustomSingleChildLayout(
-      delegate: TextSelectionToolbarLayoutDelegate(
-        anchorAbove: anchors.primaryAnchor - const Offset(0, 8),
-        anchorBelow:
-            (anchors.secondaryAnchor ?? anchors.primaryAnchor) +
-            const Offset(0, 24),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: c.popover,
-          borderRadius: BorderRadius.circular(t.radiusMd),
-          border: Border.all(color: c.border),
-          boxShadow: t.shadowLg,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final item in items)
-              GestureDetector(
-                onTap: item.onPressed,
-                behavior: HitTestBehavior.opaque,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  child: Text(
-                    _label(item),
-                    style: t.text.sm.copyWith(color: c.popoverForeground),
-                  ),
-                ),
-              ),
-          ],
         ),
       ),
     );
@@ -8393,6 +8315,175 @@ class _CarouselState extends State<Carousel> {
           _at < _last ? () => _go(_at + 1) : null,
         ),
       ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'selection': Component(
+    description: "Selection handles and the cut, copy and paste menu.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
+// yours to change. The handles and the cut, copy and paste menu, for text fields and for
+// text selected anywhere in the app.
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Selection handles for touch: a small dot on a stem at each end of the selection.
+class AshlarSelectionControls extends TextSelectionControls {
+  AshlarSelectionControls(this.color);
+
+  final Color color;
+  static const _size = 18.0;
+
+  @override
+  Widget buildHandle(
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textLineHeight, [
+    VoidCallback? onTap,
+  ]) {
+    if (type == TextSelectionHandleType.collapsed) {
+      return const SizedBox.shrink();
+    }
+    final start = type == TextSelectionHandleType.left;
+    return SizedBox(
+      width: _size,
+      height: _size + textLineHeight,
+      child: CustomPaint(painter: _HandlePainter(color, start, textLineHeight)),
+    );
+  }
+
+  @override
+  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) =>
+      switch (type) {
+        TextSelectionHandleType.left => Offset(_size / 2, textLineHeight),
+        TextSelectionHandleType.right => const Offset(_size / 2, 0),
+        TextSelectionHandleType.collapsed => Offset.zero,
+      };
+
+  @override
+  Size getHandleSize(double textLineHeight) =>
+      Size(_size, _size + textLineHeight);
+
+  // The menu is built by contextMenuBuilder; this older hook is not used.
+  @override
+  Widget buildToolbar(
+    BuildContext context,
+    Rect globalEditableRegion,
+    double textLineHeight,
+    Offset selectionMidpoint,
+    List<TextSelectionPoint> endpoints,
+    TextSelectionDelegate delegate,
+    ValueListenable<ClipboardStatus>? clipboardStatus,
+    Offset? lastSecondaryTapDownPosition,
+  ) => const SizedBox.shrink();
+}
+
+class _HandlePainter extends CustomPainter {
+  _HandlePainter(this.color, this.start, this.lineHeight);
+
+  final Color color;
+  final bool start;
+  final double lineHeight;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final x = size.width / 2;
+    // The start handle hangs below the text line, the end handle sits above it.
+    final dot = start ? Offset(x, size.height - 6) : const Offset(9, 6);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        x - .75,
+        start ? lineHeight : 6,
+        1.5,
+        size.height - lineHeight - 6,
+      ),
+      paint,
+    );
+    canvas.drawCircle(dot, 6, paint);
+  }
+
+  @override
+  bool shouldRepaint(_HandlePainter old) => old.color != color;
+}
+
+/// The cut, copy, paste and select-all menu, drawn as a popover above the selection.
+class AshlarSelectionMenu extends StatelessWidget {
+  const AshlarSelectionMenu({
+    super.key,
+    required this.anchors,
+    required this.items,
+  });
+
+  /// Where the selection is, from the field's or the region's state.
+  final TextSelectionToolbarAnchors anchors;
+  final List<ContextMenuButtonItem> items;
+
+  static String _label(ContextMenuButtonItem item) =>
+      item.label ??
+      switch (item.type) {
+        ContextMenuButtonType.cut => 'Cut',
+        ContextMenuButtonType.copy => 'Copy',
+        ContextMenuButtonType.paste => 'Paste',
+        ContextMenuButtonType.selectAll => 'Select all',
+        ContextMenuButtonType.delete => 'Delete',
+        ContextMenuButtonType.lookUp => 'Look up',
+        ContextMenuButtonType.searchWeb => 'Search',
+        ContextMenuButtonType.share => 'Share',
+        ContextMenuButtonType.liveTextInput => 'Scan text',
+        ContextMenuButtonType.custom => '',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final shown = items.where((i) => _label(i).isNotEmpty).toList();
+    if (shown.isEmpty) return const SizedBox.shrink();
+    return CustomSingleChildLayout(
+      delegate: TextSelectionToolbarLayoutDelegate(
+        anchorAbove: anchors.primaryAnchor - const Offset(0, 8),
+        anchorBelow:
+            (anchors.secondaryAnchor ?? anchors.primaryAnchor) +
+            const Offset(0, 24),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: c.popover,
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: Border.all(color: c.border),
+          boxShadow: t.shadowLg,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final item in shown)
+              GestureDetector(
+                onTap: item.onPressed,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    _label(item),
+                    style: t.text.sm.copyWith(color: c.popoverForeground),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
