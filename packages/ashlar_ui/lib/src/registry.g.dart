@@ -13733,9 +13733,24 @@ class SidebarLayout extends StatefulWidget {
   /// Below this width the sidebar is hidden, and slides in over the page.
   final double narrow;
 
-  /// The layout above [context]: whether it is open, and the way to toggle it.
-  static SidebarLayoutState of(BuildContext context) =>
-      context.findAncestorStateOfType<SidebarLayoutState>()!;
+  /// The layout above [context]: whether it is open, and the way to toggle it. Past one
+  /// that stays put ([SidebarCollapse.none]) to one that moves, when there is one, so a
+  /// trigger beside a fixed sidebar works the one that moves.
+  static SidebarLayoutState of(BuildContext context) {
+    SidebarLayoutState? first, movable;
+    context.visitAncestorElements((e) {
+      if (e is StatefulElement && e.state is SidebarLayoutState) {
+        final s = e.state as SidebarLayoutState;
+        first ??= s;
+        if (s.widget.collapse != SidebarCollapse.none) {
+          movable = s;
+          return false;
+        }
+      }
+      return true;
+    });
+    return (movable ?? first)!;
+  }
 
   @override
   State<SidebarLayout> createState() => SidebarLayoutState();
@@ -14302,13 +14317,21 @@ class SidebarTrigger extends StatelessWidget {
   const SidebarTrigger({super.key});
 
   @override
-  Widget build(BuildContext context) => Button(
-    variant: ButtonVariant.ghost,
-    size: ButtonSize.icon,
-    semanticLabel: 'Toggle sidebar',
-    onPressed: () => SidebarLayout.of(context).toggle(),
-    child: const AshlarIcon(AshlarIconsRoundedStroke.panelLeft),
-  );
+  Widget build(BuildContext context) {
+    // The panel icon points to the side the sidebar is on.
+    final end = SidebarLayout.of(context).widget.side == SidebarSide.end;
+    return Button(
+      variant: ButtonVariant.ghost,
+      size: ButtonSize.icon,
+      semanticLabel: 'Toggle sidebar',
+      onPressed: () => SidebarLayout.of(context).toggle(),
+      child: AshlarIcon(
+        end != isRtl(context)
+            ? AshlarIconsRoundedStroke.panelRight
+            : AshlarIconsRoundedStroke.panelLeft,
+      ),
+    );
+  }
 }
 ''',
     },
@@ -17361,6 +17384,4561 @@ class _DocumentsState extends State<_Documents> {
           ),
         ),
       ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-01': Component(
+    description: "Documentation navigation grouped by section, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_01.dart': r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
+// to change. Documentation navigation grouped by section, with a version switcher and a
+// search field at the top.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages, one of them open.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    [
+      'Routing',
+      'Data Fetching',
+      'Rendering',
+      'State',
+      'Styling',
+      'Testing',
+      'Accessibility',
+      'Deploying',
+    ],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  (
+    'Architecture',
+    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
+  ),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A sidebar of documentation, grouped by section.
+class Sidebar01 extends StatefulWidget {
+  const Sidebar01({super.key});
+
+  @override
+  State<Sidebar01> createState() => _Sidebar01State();
+}
+
+class _Sidebar01State extends State<Sidebar01> {
+  var _page = 'Data Fetching';
+  var _version = '1.0.1';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    header: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _VersionSwitcher(
+          version: _version,
+          versions: const ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
+          onChanged: (v) => setState(() => _version = v),
+        ),
+        const SizedBox(height: 8),
+        const Input(
+          placeholder: 'Search the docs…',
+          semanticLabel: 'Search the docs',
+          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+        ),
+      ],
+    ),
+    groups: [
+      for (final (section, pages) in _sections)
+        SidebarGroup(label: section, [
+          for (final page in pages)
+            SidebarItem(
+              page,
+              icon: null,
+              active: page == _page,
+              onPressed: () => setState(() => _page = page),
+            ),
+        ]),
+    ],
+    child: _Page(
+      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+    ),
+  );
+}
+
+/// The product's mark and name, and a menu of its versions.
+class _VersionSwitcher extends StatelessWidget {
+  const _VersionSwitcher({
+    required this.version,
+    required this.versions,
+    required this.onChanged,
+  });
+
+  final String version;
+  final List<String> versions;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Documentation, version $version',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(
+                AshlarIconsRoundedStroke.galleryVerticalEnd,
+                color: c.sidebarPrimaryForeground,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Documentation',
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text('v$version', style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        for (final v in versions)
+          MenuItem(
+            selected: v == version,
+            onPressed: () => onChanged(v),
+            child: Text(v),
+          ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-02': Component(
+    description: "Documentation in sections that fold away, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_02.dart': r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
+// to change. Documentation navigation in sections that fold away, with a version switcher
+// and a search field at the top.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages, one of them open.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    [
+      'Routing',
+      'Data Fetching',
+      'Rendering',
+      'State',
+      'Styling',
+      'Testing',
+      'Accessibility',
+      'Deploying',
+    ],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  (
+    'Architecture',
+    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
+  ),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A sidebar of documentation in sections that fold.
+class Sidebar02 extends StatefulWidget {
+  const Sidebar02({super.key});
+
+  @override
+  State<Sidebar02> createState() => _Sidebar02State();
+}
+
+class _Sidebar02State extends State<Sidebar02> {
+  var _page = 'Data Fetching';
+  var _version = '1.0.1';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    header: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _VersionSwitcher(
+          version: _version,
+          versions: const ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
+          onChanged: (v) => setState(() => _version = v),
+        ),
+        const SizedBox(height: 8),
+        const Input(
+          placeholder: 'Search the docs…',
+          semanticLabel: 'Search the docs',
+          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+        ),
+      ],
+    ),
+    groups: [
+      SidebarGroup([
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: true,
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: _Page(
+      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+    ),
+  );
+}
+
+/// The product's mark and name, and a menu of its versions.
+class _VersionSwitcher extends StatelessWidget {
+  const _VersionSwitcher({
+    required this.version,
+    required this.versions,
+    required this.onChanged,
+  });
+
+  final String version;
+  final List<String> versions;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Documentation, version $version',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(
+                AshlarIconsRoundedStroke.galleryVerticalEnd,
+                color: c.sidebarPrimaryForeground,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Documentation',
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text('v$version', style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        for (final v in versions)
+          MenuItem(
+            selected: v == version,
+            onPressed: () => onChanged(v),
+            child: Text(v),
+          ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-03': Component(
+    description: "Documentation with each section's pages listed under it.",
+    requires: ["breadcrumb","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_03.dart': r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
+// to change. Documentation navigation with each section's pages listed under it.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages, one of them open.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    [
+      'Routing',
+      'Data Fetching',
+      'Rendering',
+      'State',
+      'Styling',
+      'Testing',
+      'Accessibility',
+      'Deploying',
+    ],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  (
+    'Architecture',
+    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
+  ),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A sidebar of documentation, each section's pages under it.
+class Sidebar03 extends StatefulWidget {
+  const Sidebar03({super.key});
+
+  @override
+  State<Sidebar03> createState() => _Sidebar03State();
+}
+
+class _Sidebar03State extends State<Sidebar03> {
+  var _page = 'Data Fetching';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    header: const _Brand(),
+    groups: [
+      SidebarGroup([
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: true,
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: _Page(
+      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+    ),
+  );
+}
+
+/// The product's mark, name and version.
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.galleryVerticalEnd,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Documentation',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('v1.0.0', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-04': Component(
+    description: "A floating sidebar, sections with their pages under them.",
+    requires: ["breadcrumb","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_04.dart': r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
+// to change. A floating sidebar: a rounded panel in from the edge, sections with their pages
+// under them.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages, one of them open.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    [
+      'Routing',
+      'Data Fetching',
+      'Rendering',
+      'State',
+      'Styling',
+      'Testing',
+      'Accessibility',
+      'Deploying',
+    ],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  (
+    'Architecture',
+    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
+  ),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A floating sidebar of documentation.
+class Sidebar04 extends StatefulWidget {
+  const Sidebar04({super.key});
+
+  @override
+  State<Sidebar04> createState() => _Sidebar04State();
+}
+
+class _Sidebar04State extends State<Sidebar04> {
+  var _page = 'Data Fetching';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    variant: SidebarVariant.floating,
+    header: const _Brand(),
+    groups: [
+      SidebarGroup([
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: true,
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: _Page(
+      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+    ),
+  );
+}
+
+/// The product's mark, name and version.
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.galleryVerticalEnd,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Documentation',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('v1.0.0', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-05': Component(
+    description: "Sections that open as you need them, with search.",
+    requires: ["breadcrumb","input","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_05.dart': r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
+// to change. Documentation navigation whose sections open as you need them, with a search
+// field at the top.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/input.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages, one of them open.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    [
+      'Routing',
+      'Data Fetching',
+      'Rendering',
+      'State',
+      'Styling',
+      'Testing',
+      'Accessibility',
+      'Deploying',
+    ],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  (
+    'Architecture',
+    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
+  ),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A sidebar of documentation with sections that open as needed.
+class Sidebar05 extends StatefulWidget {
+  const Sidebar05({super.key});
+
+  @override
+  State<Sidebar05> createState() => _Sidebar05State();
+}
+
+class _Sidebar05State extends State<Sidebar05> {
+  var _page = 'Data Fetching';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    header: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _Brand(),
+        const SizedBox(height: 8),
+        const Input(
+          placeholder: 'Search the docs…',
+          semanticLabel: 'Search the docs',
+          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+        ),
+      ],
+    ),
+    groups: [
+      SidebarGroup([
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: section == _sections.first.$1,
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: _Page(
+      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+    ),
+  );
+}
+
+/// The product's mark, name and version.
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.galleryVerticalEnd,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Documentation',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('v1.0.0', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-06': Component(
+    description: "Sections that open their pages as menus, a newsletter card at the foot.",
+    requires: ["breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_06.dart': r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
+// to change. Each section opens its pages as a menu beside the sidebar, and a newsletter
+// sign-up sits at the bottom.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample navigation: sections of pages.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    ['Routing', 'Data Fetching', 'Rendering', 'State', 'Styling', 'Testing'],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  ('Architecture', ['Layers', 'Hot Reload', 'Platform Channels']),
+  ('Community', ['Contribution Guide']),
+];
+
+/// A sidebar whose sections open as menus.
+class Sidebar06 extends StatefulWidget {
+  const Sidebar06({super.key});
+
+  @override
+  State<Sidebar06> createState() => _Sidebar06State();
+}
+
+class _Sidebar06State extends State<Sidebar06> {
+  var _page = 'Data Fetching';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return SidebarLayout(
+      collapse: SidebarCollapse.offcanvas,
+      header: const _Brand(),
+      groups: [
+        SidebarGroup.custom(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (section, pages) in _sections)
+                DropdownMenu(
+                  side: PopoverSide.right,
+                  width: 192,
+                  builder: (context, menu) => Button(
+                    variant: ButtonVariant.ghost,
+                    expand: true,
+                    onPressed: menu.open,
+                    trailing: const AshlarIcon(
+                      AshlarIconsRoundedStroke.ellipsis,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        section,
+                        style: t.text.sm.copyWith(
+                          fontWeight: pages.contains(_page)
+                              ? FontWeight.w600
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                  items: [
+                    for (final page in pages)
+                      MenuItem(
+                        selected: page == _page,
+                        onPressed: () => setState(() => _page = page),
+                        child: Text(page),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+      footer: const _OptIn(),
+      child: _Page(
+        trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
+      ),
+    );
+  }
+}
+
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.galleryVerticalEnd,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Documentation',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('v1.0.0', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A small card asking for an email address for the newsletter.
+class _OptIn extends StatelessWidget {
+  const _OptIn();
+
+  @override
+  Widget build(BuildContext context) => Card(
+    size: CardSize.sm,
+    children: [
+      const CardHeader(
+        title: Text('Subscribe to our newsletter'),
+        description: Text(
+          'Opt-in to receive updates and news about the sidebar.',
+        ),
+      ),
+      CardContent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Input(
+              placeholder: 'Email',
+              semanticLabel: 'Email',
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 8),
+            Button(
+              size: ButtonSize.sm,
+              variant: ButtonVariant.secondary,
+              expand: true,
+              onPressed: () {},
+              child: const Text('Subscribe'),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-07': Component(
+    description: "An app sidebar that collapses to icons: teams, sections, projects, user.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_07.dart': r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
+// to change. An app's sidebar that collapses to a strip of icons: teams, the main
+// sections with their pages, projects, and who is signed in.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample sections, each with its pages.
+const _platform = [
+  (
+    'Playground',
+    AshlarIconsRoundedStroke.terminal,
+    ['History', 'Starred', 'Settings'],
+  ),
+  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
+  (
+    'Documentation',
+    AshlarIconsRoundedStroke.bookOpen,
+    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
+  ),
+  (
+    'Settings',
+    AshlarIconsRoundedStroke.settings,
+    ['General', 'Team', 'Billing', 'Limits'],
+  ),
+];
+
+/// Sample projects.
+const _projects = [
+  ('Design Engineering', AshlarIconsRoundedStroke.frame),
+  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
+  ('Travel', AshlarIconsRoundedStroke.map),
+];
+
+/// A sidebar that collapses to icons, each with its label in a tooltip.
+class Sidebar07 extends StatelessWidget {
+  const Sidebar07({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    header: const _TeamSwitcher(),
+    groups: [
+      SidebarGroup(label: 'Platform', [
+        for (final (i, (label, icon, pages)) in _platform.indexed)
+          SidebarItem(
+            label,
+            icon: icon,
+            initiallyOpen: i == 0,
+            children: [
+              for (final page in pages)
+                SidebarItem(page, icon: null, onPressed: () {}),
+            ],
+          ),
+      ]),
+      SidebarGroup(label: 'Projects', [
+        for (final (label, icon) in _projects)
+          SidebarItem(
+            label,
+            icon: icon,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $label',
+              onPressed: () {},
+            ),
+          ),
+        SidebarItem(
+          'More',
+          icon: AshlarIconsRoundedStroke.ellipsis,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    footer: const _NavUser(),
+    child: const _Page(trail: ['Build Your App', 'Data Fetching']),
+  );
+}
+
+/// The team you are working in, and a menu to change it.
+class _TeamSwitcher extends StatefulWidget {
+  const _TeamSwitcher();
+
+  @override
+  State<_TeamSwitcher> createState() => _TeamSwitcherState();
+}
+
+class _TeamSwitcherState extends State<_TeamSwitcher> {
+  // Sample teams.
+  static const _teams = [
+    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
+    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
+    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
+  ];
+  var _team = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (name, plan, icon) = _teams[_team];
+    return DropdownMenu(
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Team: $name',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(plan, style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        const MenuLabel(child: Text('Teams')),
+        for (final (i, (name, _, icon)) in _teams.indexed)
+          MenuItem(
+            leading: AshlarIcon(icon),
+            shortcut: Text('⌘${i + 1}'),
+            onPressed: () => setState(() => _team = i),
+            child: Text(name),
+          ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+          onPressed: () {},
+          child: const Text('Add team'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Who is signed in, and a menu for their account.
+class _NavUser extends StatelessWidget {
+  const _NavUser();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
+          onPressed: () {},
+          child: const Text('Upgrade to Pro'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-08': Component(
+    description: "The page inset as a card, help and feedback at the sidebar's foot.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_08.dart': r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
+// to change. The page set into the sidebar as a card, with help and feedback kept at the
+// sidebar's foot.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample sections, each with its pages.
+const _platform = [
+  (
+    'Playground',
+    AshlarIconsRoundedStroke.terminal,
+    ['History', 'Starred', 'Settings'],
+  ),
+  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
+  (
+    'Documentation',
+    AshlarIconsRoundedStroke.bookOpen,
+    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
+  ),
+  (
+    'Settings',
+    AshlarIconsRoundedStroke.settings,
+    ['General', 'Team', 'Billing', 'Limits'],
+  ),
+];
+
+/// Sample projects.
+const _projects = [
+  ('Design Engineering', AshlarIconsRoundedStroke.frame),
+  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
+  ('Travel', AshlarIconsRoundedStroke.map),
+];
+
+/// An inset sidebar, with secondary navigation at its foot.
+class Sidebar08 extends StatelessWidget {
+  const Sidebar08({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    variant: SidebarVariant.inset,
+    header: const _Brand(),
+    groups: [
+      SidebarGroup(label: 'Platform', [
+        for (final (i, (label, icon, pages)) in _platform.indexed)
+          SidebarItem(
+            label,
+            icon: icon,
+            initiallyOpen: i == 0,
+            children: [
+              for (final page in pages)
+                SidebarItem(page, icon: null, onPressed: () {}),
+            ],
+          ),
+      ]),
+      SidebarGroup(label: 'Projects', [
+        for (final (label, icon) in _projects)
+          SidebarItem(
+            label,
+            icon: icon,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $label',
+              onPressed: () {},
+            ),
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Support',
+          icon: AshlarIconsRoundedStroke.lifeBuoy,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Feedback',
+          icon: AshlarIconsRoundedStroke.send,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    footer: const _NavUser(),
+    child: const _Page(trail: ['Build Your App', 'Data Fetching']),
+  );
+}
+
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.command,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Acme Inc',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Enterprise', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Who is signed in, and a menu for their account.
+class _NavUser extends StatelessWidget {
+  const _NavUser();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
+          onPressed: () {},
+          child: const Text('Upgrade to Pro'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-09': Component(
+    description: "Two sidebars as a mail app has them: folders, and their messages.",
+    requires: ["avatar","breadcrumb","button","input","label","separator","sidebar","switch","theme","tooltip"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_09.dart': r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
+// to change. Two sidebars side by side, as a mail app has them: a strip of folders that
+// stays, and the folder's messages beside it, which fold away.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/input.dart';
+import '../ui/label.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/switch.dart';
+import '../ui/theme.dart';
+import '../ui/tooltip.dart';
+
+/// Sample folders.
+const _folders = [
+  ('Inbox', AshlarIconsRoundedStroke.inbox),
+  ('Drafts', AshlarIconsRoundedStroke.file),
+  ('Sent', AshlarIconsRoundedStroke.send),
+  ('Junk', AshlarIconsRoundedStroke.archive),
+  ('Trash', AshlarIconsRoundedStroke.trash),
+];
+
+/// Sample messages: who from, when, the subject, the start of the text, and whether read.
+const _mail = [
+  (
+    'Achieng Otieno',
+    '09:34 AM',
+    'Meeting tomorrow',
+    'Can we move the review to ten? The figures from the field team came in late.',
+    false,
+  ),
+  (
+    'Kofi Mensah',
+    'Yesterday',
+    'Re: Project update',
+    'Thanks for the update. The new screens look clean and the team is happy with them.',
+    false,
+  ),
+  (
+    'Amina Diallo',
+    '2 days ago',
+    'Weekend plans',
+    'Hiking on Saturday if the weather holds. Bring water and a jacket.',
+    true,
+  ),
+  (
+    'Tendai Moyo',
+    '2 days ago',
+    'Question about the budget',
+    'I went through the numbers again and think we can save on hosting.',
+    true,
+  ),
+  (
+    'Lerato Dlamini',
+    '1 week ago',
+    'Re: Conference talk',
+    'The talk is accepted. Slides are due two weeks before the day.',
+    true,
+  ),
+  (
+    'Juma Mwangi',
+    '1 week ago',
+    'Invoice 2041',
+    'Please find the invoice for September attached. Payment within 30 days.',
+    true,
+  ),
+  (
+    'Nia Okafor',
+    '2 weeks ago',
+    'Design review notes',
+    'Notes from the session are in the shared folder. Most points are small.',
+    true,
+  ),
+];
+
+/// A strip of folders beside a list of the open folder's messages.
+class Sidebar09 extends StatefulWidget {
+  const Sidebar09({super.key});
+
+  @override
+  State<Sidebar09> createState() => _Sidebar09State();
+}
+
+class _Sidebar09State extends State<Sidebar09> {
+  var _folder = 'Inbox';
+  var _unread = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final mail = [
+      for (final m in _mail)
+        if (!_unread || !m.$5) m,
+    ];
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The folders: always there, on a phone too.
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: c.sidebar,
+            border: BorderDirectional(end: BorderSide(color: c.sidebarBorder)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: c.sidebarPrimary,
+                      borderRadius: BorderRadius.circular(t.radiusLg),
+                    ),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.command,
+                      color: c.sidebarPrimaryForeground,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  for (final (name, icon) in _folders)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Tooltip(
+                        message: name,
+                        side: TooltipSide.right,
+                        child: Button(
+                          variant: name == _folder
+                              ? ButtonVariant.secondary
+                              : ButtonVariant.ghost,
+                          size: ButtonSize.icon,
+                          semanticLabel: name,
+                          onPressed: () => setState(() => _folder = name),
+                          child: AshlarIcon(icon),
+                        ),
+                      ),
+                    ),
+                  const Spacer(),
+                  const Avatar(fallback: 'WK', semanticLabel: 'Wanjiru Kamau'),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: SidebarLayout(
+            collapse: SidebarCollapse.offcanvas,
+            width: 320,
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _folder,
+                        style: t.text.base.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Label(child: Text('Unreads')),
+                    const SizedBox(width: 8),
+                    Switch(
+                      size: SwitchSize.sm,
+                      value: _unread,
+                      semanticLabel: 'Unread only',
+                      onChanged: (v) => setState(() => _unread = v),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Input(
+                  placeholder: 'Type to search…',
+                  semanticLabel: 'Search mail',
+                  leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+                ),
+              ],
+            ),
+            groups: [
+              SidebarGroup.custom(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (i, (from, sent, subject, text, _))
+                        in mail.indexed) ...[
+                      if (i > 0) const Separator(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    from,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: t.text.sm.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Text(sent, style: t.text.xs),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              subject,
+                              style: t.text.sm.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              text,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: t.text.xs.copyWith(
+                                color: c.mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            child: _Page(trail: ['All Inboxes', _folder]),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-10': Component(
+    description: "A notes app's sidebar, with the page's actions in a popover.",
+    requires: ["breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_10.dart': r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
+// to change. A notes app: search and the inbox at the top, favourites and workspaces under
+// them, and the page's actions in a panel that opens from its header.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample pages and workspaces.
+const _favorites = [
+  'Project Management & Task Tracking',
+  'Family Recipe Collection & Meal Planning',
+  'Fitness Tracker & Workout Routines',
+  'Book Notes & Reading List',
+];
+const _workspaces = [
+  (
+    'Personal Life Management',
+    ['Daily Journal & Reflection', 'Health & Wellness Tracker'],
+  ),
+  (
+    'Professional Development',
+    ['Career Objectives & Milestones', 'Skill Acquisition Plan'],
+  ),
+  (
+    'Creative Projects',
+    ['Writing Ideas & Story Outlines', 'Art & Design Portfolio'],
+  ),
+];
+
+/// A sidebar of pages, and the page's actions in a popover.
+class Sidebar10 extends StatelessWidget {
+  const Sidebar10({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    header: const _TeamSwitcher(),
+    groups: [
+      SidebarGroup([
+        SidebarItem(
+          'Search',
+          icon: AshlarIconsRoundedStroke.search,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Ask AI',
+          icon: AshlarIconsRoundedStroke.sparkles,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Home',
+          icon: AshlarIconsRoundedStroke.house,
+          active: true,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Inbox',
+          icon: AshlarIconsRoundedStroke.inbox,
+          badge: '10',
+          onPressed: () {},
+        ),
+      ]),
+      SidebarGroup(label: 'Favorites', [
+        for (final page in _favorites)
+          SidebarItem(
+            page,
+            icon: AshlarIconsRoundedStroke.fileText,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $page',
+              onPressed: () {},
+            ),
+          ),
+      ]),
+      SidebarGroup(label: 'Workspaces', [
+        for (final (name, pages) in _workspaces)
+          SidebarItem(
+            name,
+            icon: AshlarIconsRoundedStroke.folder,
+            children: [
+              for (final page in pages)
+                SidebarItem(page, icon: null, onPressed: () {}),
+            ],
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Calendar',
+          icon: AshlarIconsRoundedStroke.calendar,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Settings',
+          icon: AshlarIconsRoundedStroke.settings,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Templates',
+          icon: AshlarIconsRoundedStroke.blocks,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Trash',
+          icon: AshlarIconsRoundedStroke.trash,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Help',
+          icon: AshlarIconsRoundedStroke.circleQuestionMark,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(items: [BreadcrumbItem(_favorites.first)]),
+                ),
+                const _Actions(),
+              ],
+            ),
+          ),
+        ),
+        const Expanded(child: _Placeholder()),
+      ],
+    ),
+  );
+}
+
+/// When the page was edited, a star, and the page's actions in a popover.
+class _Actions extends StatelessWidget {
+  const _Actions();
+
+  static const _groups = [
+    [
+      ('Customize Page', AshlarIconsRoundedStroke.settings),
+      ('Turn into wiki', AshlarIconsRoundedStroke.fileText),
+    ],
+    [
+      ('Copy Link', AshlarIconsRoundedStroke.link),
+      ('Duplicate', AshlarIconsRoundedStroke.layers),
+      ('Move to Trash', AshlarIconsRoundedStroke.trash),
+    ],
+    [
+      ('View analytics', AshlarIconsRoundedStroke.chartLine),
+      ('Version History', AshlarIconsRoundedStroke.clock),
+      ('Notifications', AshlarIconsRoundedStroke.bell),
+    ],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final wide = MediaQuery.sizeOf(context).width >= 768;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (wide)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: Text(
+              'Edit Oct 08',
+              style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            ),
+          ),
+        Button(
+          variant: ButtonVariant.ghost,
+          size: ButtonSize.icon,
+          semanticLabel: 'Add to favorites',
+          onPressed: () {},
+          child: const AshlarIcon(AshlarIconsRoundedStroke.star),
+        ),
+        Popover(
+          align: PopoverAlign.end,
+          width: 224,
+          builder: (context, menu) => Button(
+            variant: ButtonVariant.ghost,
+            size: ButtonSize.icon,
+            semanticLabel: 'Page actions',
+            onPressed: menu.open,
+            child: const AshlarIcon(AshlarIconsRoundedStroke.ellipsis),
+          ),
+          content: (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, group) in _groups.indexed) ...[
+                if (i > 0)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Separator(),
+                  ),
+                for (final (label, icon) in group)
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.sm,
+                    expand: true,
+                    leading: AshlarIcon(icon),
+                    onPressed: () {},
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(label),
+                    ),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The team you are working in, and a menu to change it.
+class _TeamSwitcher extends StatefulWidget {
+  const _TeamSwitcher();
+
+  @override
+  State<_TeamSwitcher> createState() => _TeamSwitcherState();
+}
+
+class _TeamSwitcherState extends State<_TeamSwitcher> {
+  // Sample teams.
+  static const _teams = [
+    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
+    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
+    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
+  ];
+  var _team = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (name, plan, icon) = _teams[_team];
+    return DropdownMenu(
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Team: $name',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(plan, style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        const MenuLabel(child: Text('Teams')),
+        for (final (i, (name, _, icon)) in _teams.indexed)
+          MenuItem(
+            leading: AshlarIcon(icon),
+            shortcut: Text('⌘${i + 1}'),
+            onPressed: () => setState(() => _team = i),
+            child: Text(name),
+          ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+          onPressed: () {},
+          child: const Text('Add team'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-11': Component(
+    description: "A project's files as a tree, the changed ones above it.",
+    requires: ["breadcrumb","pressable","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_11.dart': r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
+// to change. A project's files as a tree whose folders open and close, with the changed
+// files listed above it.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/pressable.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// A file, or a folder of more.
+class _Node {
+  const _Node(this.name, [this.children]);
+
+  final String name;
+  final List<_Node>? children;
+}
+
+/// A sample project.
+const _tree = [
+  _Node('lib', [
+    _Node('main.dart'),
+    _Node('ui', [_Node('button.dart'), _Node('card.dart')]),
+    _Node('screens', [_Node('home.dart'), _Node('settings.dart')]),
+  ]),
+  _Node('test', [_Node('widget_test.dart')]),
+  _Node('web', [_Node('index.html'), _Node('favicon.png')]),
+  _Node('analysis_options.yaml'),
+  _Node('pubspec.yaml'),
+  _Node('README.md'),
+];
+
+/// Files changed since the last commit: modified or untracked.
+const _changes = [
+  ('lib/ui/button.dart', 'M'),
+  ('lib/screens/settings.dart', 'U'),
+  ('pubspec.yaml', 'M'),
+];
+
+/// A sidebar with a file tree.
+class Sidebar11 extends StatefulWidget {
+  const Sidebar11({super.key});
+
+  @override
+  State<Sidebar11> createState() => _Sidebar11State();
+}
+
+class _Sidebar11State extends State<Sidebar11> {
+  var _file = 'lib/ui/button.dart';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    groups: [
+      SidebarGroup(label: 'Changes', [
+        for (final (path, state) in _changes)
+          SidebarItem(
+            path.split('/').last,
+            icon: AshlarIconsRoundedStroke.file,
+            badge: state,
+            active: path == _file,
+            onPressed: () => setState(() => _file = path),
+          ),
+      ]),
+      SidebarGroup.custom(
+        label: 'Files',
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final node in _tree)
+              _Branch(
+                node: node,
+                path: node.name,
+                picked: _file,
+                onPicked: (p) => setState(() => _file = p),
+              ),
+          ],
+        ),
+      ),
+    ],
+    child: _Page(trail: _file.split('/')),
+  );
+}
+
+/// One row of the tree: a file to pick, or a folder that opens onto its own rows.
+class _Branch extends StatefulWidget {
+  const _Branch({
+    required this.node,
+    required this.path,
+    required this.picked,
+    required this.onPicked,
+  });
+
+  final _Node node;
+  final String path, picked;
+  final ValueChanged<String> onPicked;
+
+  @override
+  State<_Branch> createState() => _BranchState();
+}
+
+class _BranchState extends State<_Branch> {
+  // Folders on the way to the picked file start open.
+  late var _open = widget.picked.startsWith('${widget.path}/');
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final children = widget.node.children;
+    final folder = children != null;
+    final picked = widget.path == widget.picked;
+    final row = Pressable(
+      onPressed: folder
+          ? () => setState(() => _open = !_open)
+          : () => widget.onPicked(widget.path),
+      expanded: folder ? _open : null,
+      selected: folder ? null : picked,
+      semanticLabel: widget.node.name,
+      builder: (context, states) => Container(
+        height: 32,
+        padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
+        decoration: BoxDecoration(
+          color: picked || states.hovered
+              ? c.sidebarAccent
+              : const Color(0x00000000),
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: states.focused ? Border.all(color: c.sidebarRing) : null,
+        ),
+        child: Row(
+          children: [
+            if (folder) ...[
+              AnimatedRotation(
+                turns: _open ? .25 : 0,
+                duration: t.duration,
+                child: AshlarIcon(
+                  isRtl(context)
+                      ? AshlarIconsRoundedStroke.chevronLeft
+                      : AshlarIconsRoundedStroke.chevronRight,
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            AshlarIcon(
+              folder
+                  ? (_open
+                        ? AshlarIconsRoundedStroke.folderOpen
+                        : AshlarIconsRoundedStroke.folder)
+                  : AshlarIconsRoundedStroke.file,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(widget.node.name, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!folder) return row;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row,
+        if (_open)
+          Container(
+            margin: const EdgeInsetsDirectional.only(start: 15),
+            padding: const EdgeInsetsDirectional.only(start: 6),
+            decoration: BoxDecoration(
+              border: BorderDirectional(
+                start: BorderSide(color: c.sidebarBorder),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final child in children)
+                  _Branch(
+                    node: child,
+                    path: '${widget.path}/${child.name}',
+                    picked: widget.picked,
+                    onPicked: widget.onPicked,
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-12': Component(
+    description: "A calendar app: a month to pick from, and calendars to show.",
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_12.dart': r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
+// to change. A calendar app: who is signed in, a month to pick a day from, and the
+// calendars to show.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/calendar.dart';
+import '../ui/checkbox.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/field.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// A sidebar with a calendar.
+class Sidebar12 extends StatefulWidget {
+  const Sidebar12({super.key});
+
+  @override
+  State<Sidebar12> createState() => _Sidebar12State();
+}
+
+class _Sidebar12State extends State<Sidebar12> {
+  var _day = DateTime(2026, 10, 13);
+
+  @override
+  Widget build(BuildContext context) {
+    final names = DateNames.of(context);
+    return SidebarLayout(
+      collapse: SidebarCollapse.offcanvas,
+      header: const _NavUser(),
+      groups: [
+        SidebarGroup.custom(
+          Calendar(selected: _day, onSelected: (d) => setState(() => _day = d)),
+        ),
+        const SidebarGroup.custom(Separator()),
+        const SidebarGroup.custom(_Calendars()),
+      ],
+      footer: Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+        onPressed: () {},
+        child: const Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text('New Calendar'),
+        ),
+      ),
+      child: _Page(trail: [names.monthYear(_day), names.date(_day)]),
+    );
+  }
+}
+
+/// Sample calendars, in groups.
+const _calendars = [
+  ('My Calendars', ['Personal', 'Work', 'Family']),
+  ('Favorites', ['Holidays', 'Birthdays']),
+  ('Other', ['Travel', 'Reminders', 'Deadlines']),
+];
+
+/// The calendars to show, by group, each group folding away.
+class _Calendars extends StatefulWidget {
+  const _Calendars();
+
+  @override
+  State<_Calendars> createState() => _CalendarsState();
+}
+
+class _CalendarsState extends State<_Calendars> {
+  final _shown = {'Personal', 'Work', 'Holidays'};
+  final _open = {'My Calendars'};
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (group, names) in _calendars) ...[
+          Button(
+            variant: ButtonVariant.ghost,
+            size: ButtonSize.sm,
+            expand: true,
+            onPressed: () => setState(
+              () => _open.contains(group)
+                  ? _open.remove(group)
+                  : _open.add(group),
+            ),
+            trailing: AnimatedRotation(
+              turns: _open.contains(group) ? .25 : 0,
+              duration: t.duration,
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
+            ),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(group),
+            ),
+          ),
+          if (_open.contains(group))
+            for (final name in names)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: 12,
+                  top: 4,
+                  bottom: 4,
+                ),
+                child: Field(
+                  axis: Axis.horizontal,
+                  label: Text(name),
+                  child: Checkbox(
+                    value: _shown.contains(name),
+                    onChanged: (v) => setState(
+                      () => v ? _shown.add(name) : _shown.remove(name),
+                    ),
+                  ),
+                ),
+              ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Who is signed in, and a menu for their account.
+class _NavUser extends StatelessWidget {
+  const _NavUser();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
+          onPressed: () {},
+          child: const Text('Upgrade to Pro'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-13': Component(
+    description: "Settings in a dialog, their sections down its side.",
+    requires: ["breadcrumb","button","dialog","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_13.dart': r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
+// to change. Settings in a dialog: their sections down the side, the open one beside them.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dialog.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// Sample settings sections.
+const _sections = [
+  ('Notifications', AshlarIconsRoundedStroke.bell),
+  ('Navigation', AshlarIconsRoundedStroke.menu),
+  ('Home', AshlarIconsRoundedStroke.house),
+  ('Appearance', AshlarIconsRoundedStroke.paintbrush),
+  ('Messages & media', AshlarIconsRoundedStroke.messageCircle),
+  ('Language & region', AshlarIconsRoundedStroke.globe),
+  ('Accessibility', AshlarIconsRoundedStroke.keyboard),
+  ('Mark as read', AshlarIconsRoundedStroke.check),
+  ('Audio & video', AshlarIconsRoundedStroke.video),
+  ('Connected accounts', AshlarIconsRoundedStroke.link),
+  ('Privacy & visibility', AshlarIconsRoundedStroke.lock),
+  ('Advanced', AshlarIconsRoundedStroke.settings),
+];
+
+/// A page with a button that opens the settings dialog.
+class Sidebar13 extends StatelessWidget {
+  const Sidebar13({super.key});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Button(
+      onPressed: () => showAshlarDialog<void>(
+        context: context,
+        builder: (context) => const Dialog(maxWidth: 800, content: _Settings()),
+      ),
+      child: const Text('Open Dialog'),
+    ),
+  );
+}
+
+/// The settings: sections down the side where there is room, the open one beside them.
+class _Settings extends StatefulWidget {
+  const _Settings();
+
+  @override
+  State<_Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<_Settings> {
+  var _section = 'Messages & media';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final wide = MediaQuery.sizeOf(context).width >= 768;
+    final box = BoxDecoration(
+      color: c.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Breadcrumb(
+          items: [
+            BreadcrumbItem('Settings', onPressed: () {}),
+            BreadcrumbItem(_section),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const Separator(),
+        const SizedBox(height: 16),
+        for (var i = 0; i < 6; i++) ...[
+          if (i > 0) const SizedBox(height: 16),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: DecoratedBox(decoration: box),
+          ),
+        ],
+      ],
+    );
+    if (!wide) return content;
+    return SizedBox(
+      height: 480,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 200,
+            child: ListView(
+              children: [
+                for (final (name, icon) in _sections)
+                  Button(
+                    variant: name == _section
+                        ? ButtonVariant.secondary
+                        : ButtonVariant.ghost,
+                    size: ButtonSize.sm,
+                    expand: true,
+                    leading: AshlarIcon(icon),
+                    onPressed: () => setState(() => _section = name),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(name, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(child: SingleChildScrollView(child: content)),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-14': Component(
+    description: "A table of contents on the right of the page.",
+    requires: ["breadcrumb","separator","sidebar","theme"],
+    packages: [],
+    block: true,
+    files: {
+      'blocks/sidebar_14.dart': r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
+// to change. A table of contents on the right of the page.
+
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample contents: sections of pages.
+const _sections = [
+  ('Getting Started', ['Installation', 'Project Structure']),
+  (
+    'Build Your App',
+    ['Routing', 'Data Fetching', 'Rendering', 'State', 'Styling'],
+  ),
+  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
+  ('Architecture', ['Layers', 'Hot Reload', 'Platform Channels']),
+];
+
+/// A sidebar on the right.
+class Sidebar14 extends StatefulWidget {
+  const Sidebar14({super.key});
+
+  @override
+  State<Sidebar14> createState() => _Sidebar14State();
+}
+
+class _Sidebar14State extends State<Sidebar14> {
+  var _page = 'Data Fetching';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    side: SidebarSide.end,
+    collapse: SidebarCollapse.offcanvas,
+    groups: [
+      SidebarGroup(label: 'Table of Contents', [
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: true,
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 64,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem(
+                        _sections.firstWhere((s) => s.$2.contains(_page)).$1,
+                        onPressed: () {},
+                      ),
+                      BreadcrumbItem(_page),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                const SidebarTrigger(),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        const Expanded(child: _Placeholder()),
+      ],
+    ),
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-15': Component(
+    description: "A sidebar on each side: pages on the left, a calendar on the right.",
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_15.dart': r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
+// to change. A sidebar on each side: pages on the left, folding away; a calendar and the
+// calendars to show on the right, staying put.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/calendar.dart';
+import '../ui/checkbox.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/field.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample pages and workspaces.
+const _favorites = [
+  'Project Management & Task Tracking',
+  'Family Recipe Collection & Meal Planning',
+  'Fitness Tracker & Workout Routines',
+];
+const _workspaces = [
+  (
+    'Personal Life Management',
+    ['Daily Journal & Reflection', 'Health & Wellness Tracker'],
+  ),
+  (
+    'Professional Development',
+    ['Career Objectives & Milestones', 'Skill Acquisition Plan'],
+  ),
+];
+
+/// A sidebar on the left and another on the right.
+class Sidebar15 extends StatefulWidget {
+  const Sidebar15({super.key});
+
+  @override
+  State<Sidebar15> createState() => _Sidebar15State();
+}
+
+class _Sidebar15State extends State<Sidebar15> {
+  var _day = DateTime(2026, 10, 13);
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    header: const _TeamSwitcher(),
+    groups: [
+      SidebarGroup([
+        SidebarItem(
+          'Search',
+          icon: AshlarIconsRoundedStroke.search,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Ask AI',
+          icon: AshlarIconsRoundedStroke.sparkles,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Home',
+          icon: AshlarIconsRoundedStroke.house,
+          active: true,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Inbox',
+          icon: AshlarIconsRoundedStroke.inbox,
+          badge: '10',
+          onPressed: () {},
+        ),
+      ]),
+      SidebarGroup(label: 'Favorites', [
+        for (final page in _favorites)
+          SidebarItem(
+            page,
+            icon: AshlarIconsRoundedStroke.fileText,
+            onPressed: () {},
+          ),
+      ]),
+      SidebarGroup(label: 'Workspaces', [
+        for (final (name, pages) in _workspaces)
+          SidebarItem(
+            name,
+            icon: AshlarIconsRoundedStroke.folder,
+            children: [
+              for (final page in pages)
+                SidebarItem(page, icon: null, onPressed: () {}),
+            ],
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Settings',
+          icon: AshlarIconsRoundedStroke.settings,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Help',
+          icon: AshlarIconsRoundedStroke.circleQuestionMark,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    child: SidebarLayout(
+      side: SidebarSide.end,
+      collapse: SidebarCollapse.none,
+      width: 288,
+      narrow: 1024,
+      header: const _NavUser(),
+      groups: [
+        SidebarGroup.custom(
+          Calendar(selected: _day, onSelected: (d) => setState(() => _day = d)),
+        ),
+        const SidebarGroup.custom(Separator()),
+        const SidebarGroup.custom(_Calendars()),
+      ],
+      footer: Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+        onPressed: () {},
+        child: const Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text('New Calendar'),
+        ),
+      ),
+      child: _Page(trail: [_favorites.first]),
+    ),
+  );
+}
+
+/// The team you are working in, and a menu to change it.
+class _TeamSwitcher extends StatefulWidget {
+  const _TeamSwitcher();
+
+  @override
+  State<_TeamSwitcher> createState() => _TeamSwitcherState();
+}
+
+class _TeamSwitcherState extends State<_TeamSwitcher> {
+  // Sample teams.
+  static const _teams = [
+    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
+    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
+    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
+  ];
+  var _team = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (name, plan, icon) = _teams[_team];
+    return DropdownMenu(
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Team: $name',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(plan, style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        const MenuLabel(child: Text('Teams')),
+        for (final (i, (name, _, icon)) in _teams.indexed)
+          MenuItem(
+            leading: AshlarIcon(icon),
+            shortcut: Text('⌘${i + 1}'),
+            onPressed: () => setState(() => _team = i),
+            child: Text(name),
+          ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+          onPressed: () {},
+          child: const Text('Add team'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Sample calendars, in groups.
+const _calendars = [
+  ('My Calendars', ['Personal', 'Work', 'Family']),
+  ('Favorites', ['Holidays', 'Birthdays']),
+  ('Other', ['Travel', 'Reminders', 'Deadlines']),
+];
+
+/// The calendars to show, by group, each group folding away.
+class _Calendars extends StatefulWidget {
+  const _Calendars();
+
+  @override
+  State<_Calendars> createState() => _CalendarsState();
+}
+
+class _CalendarsState extends State<_Calendars> {
+  final _shown = {'Personal', 'Work', 'Holidays'};
+  final _open = {'My Calendars'};
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (group, names) in _calendars) ...[
+          Button(
+            variant: ButtonVariant.ghost,
+            size: ButtonSize.sm,
+            expand: true,
+            onPressed: () => setState(
+              () => _open.contains(group)
+                  ? _open.remove(group)
+                  : _open.add(group),
+            ),
+            trailing: AnimatedRotation(
+              turns: _open.contains(group) ? .25 : 0,
+              duration: t.duration,
+              child: AshlarIcon(
+                isRtl(context)
+                    ? AshlarIconsRoundedStroke.chevronLeft
+                    : AshlarIconsRoundedStroke.chevronRight,
+              ),
+            ),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(group),
+            ),
+          ),
+          if (_open.contains(group))
+            for (final name in names)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: 12,
+                  top: 4,
+                  bottom: 4,
+                ),
+                child: Field(
+                  axis: Axis.horizontal,
+                  label: Text(name),
+                  child: Checkbox(
+                    value: _shown.contains(name),
+                    onChanged: (v) => setState(
+                      () => v ? _shown.add(name) : _shown.remove(name),
+                    ),
+                  ),
+                ),
+              ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Who is signed in, and a menu for their account.
+class _NavUser extends StatelessWidget {
+  const _NavUser();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
+          onPressed: () {},
+          child: const Text('Upgrade to Pro'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+/// for your content under it.
+class _Page extends StatelessWidget {
+  const _Page({required this.trail});
+
+  /// Where you are, from the top down; the last is this page.
+  final List<String> trail;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(
+        height: 64,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Breadcrumb(
+                  items: [
+                    for (final (i, label) in trail.indexed)
+                      BreadcrumbItem(
+                        label,
+                        onPressed: i == trail.length - 1 ? null : () {},
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const Separator(),
+      const Expanded(child: _Placeholder()),
+    ],
+  );
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'sidebar-16': Component(
+    description: "A site header across the top, the sidebar under it.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","input","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/sidebar_16.dart': r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
+// to change. A site header across the top that stays as the page scrolls, and the sidebar
+// under it.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Sample sections, each with its pages.
+const _platform = [
+  (
+    'Playground',
+    AshlarIconsRoundedStroke.terminal,
+    ['History', 'Starred', 'Settings'],
+  ),
+  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
+  (
+    'Documentation',
+    AshlarIconsRoundedStroke.bookOpen,
+    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
+  ),
+  (
+    'Settings',
+    AshlarIconsRoundedStroke.settings,
+    ['General', 'Team', 'Billing', 'Limits'],
+  ),
+];
+
+/// Sample projects.
+const _projects = [
+  ('Design Engineering', AshlarIconsRoundedStroke.frame),
+  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
+  ('Travel', AshlarIconsRoundedStroke.map),
+];
+
+/// A site header over a sidebar and its page.
+class Sidebar16 extends StatefulWidget {
+  const Sidebar16({super.key});
+
+  @override
+  State<Sidebar16> createState() => _Sidebar16State();
+}
+
+class _Sidebar16State extends State<Sidebar16> {
+  // The header is above the sidebar, so its button reaches the sidebar by this key.
+  final _sidebar = GlobalKey<SidebarLayoutState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 640;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.icon,
+                  semanticLabel: 'Toggle sidebar',
+                  onPressed: () => _sidebar.currentState?.toggle(),
+                  child: const AshlarIcon(AshlarIconsRoundedStroke.panelLeft),
+                ),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem('Build Your App', onPressed: () {}),
+                      const BreadcrumbItem('Data Fetching'),
+                    ],
+                  ),
+                ),
+                if (wide)
+                  const SizedBox(
+                    width: 240,
+                    child: Input(
+                      placeholder: 'Type to search…',
+                      semanticLabel: 'Search',
+                      leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: SidebarLayout(
+            key: _sidebar,
+            groups: [
+              SidebarGroup(label: 'Platform', [
+                for (final (i, (label, icon, pages)) in _platform.indexed)
+                  SidebarItem(
+                    label,
+                    icon: icon,
+                    initiallyOpen: i == 0,
+                    children: [
+                      for (final page in pages)
+                        SidebarItem(page, icon: null, onPressed: () {}),
+                    ],
+                  ),
+              ]),
+              SidebarGroup(label: 'Projects', [
+                for (final (label, icon) in _projects)
+                  SidebarItem(label, icon: icon, onPressed: () {}),
+              ]),
+              SidebarGroup(atEnd: true, [
+                SidebarItem(
+                  'Support',
+                  icon: AshlarIconsRoundedStroke.lifeBuoy,
+                  onPressed: () {},
+                ),
+                SidebarItem(
+                  'Feedback',
+                  icon: AshlarIconsRoundedStroke.send,
+                  onPressed: () {},
+                ),
+              ]),
+            ],
+            footer: const _NavUser(),
+            child: const _Placeholder(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Who is signed in, and a menu for their account.
+class _NavUser extends StatelessWidget {
+  const _NavUser();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
+          onPressed: () {},
+          child: const Text('Upgrade to Pro'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Grey shapes where the page's content goes.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final box = BoxDecoration(
+      color: t.colors.muted.withValues(alpha: .5),
+      borderRadius: BorderRadius.circular(t.radiusXl),
+    );
+    return LayoutBuilder(
+      builder: (context, size) => size.maxWidth >= 768
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: DecoratedBox(decoration: box),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DecoratedBox(decoration: box),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var i = 0; i < 3; i++) ...[
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: DecoratedBox(decoration: box),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
+              ],
+            ),
     );
   }
 }

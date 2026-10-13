@@ -54,8 +54,14 @@ void main() {
         final r = first.borderRadius!.resolve(TextDirection.ltr);
         expect(r.topLeft.x, greaterThan(0));
         expect(r.topRight, Radius.zero);
-        expect(middle.borderRadius!.resolve(TextDirection.ltr), BorderRadius.zero);
-        expect(last.borderRadius!.resolve(TextDirection.ltr).topRight.x, greaterThan(0));
+        expect(
+          middle.borderRadius!.resolve(TextDirection.ltr),
+          BorderRadius.zero,
+        );
+        expect(
+          last.borderRadius!.resolve(TextDirection.ltr).topRight.x,
+          greaterThan(0),
+        );
         expect((middle.border! as Border).left, BorderSide.none);
         expect((first.border! as Border).left, isNot(BorderSide.none));
         // Touching: one piece.

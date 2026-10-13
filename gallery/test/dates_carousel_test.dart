@@ -73,7 +73,12 @@ void main() {
     await tester.tap(find.text('2026'));
     await tester.pumpAndSettle();
     // The year list builds a screenful; typing jumps to the year.
-    for (final k in [LogicalKeyboardKey.digit1, LogicalKeyboardKey.digit9, LogicalKeyboardKey.digit9, LogicalKeyboardKey.digit0]) {
+    for (final k in [
+      LogicalKeyboardKey.digit1,
+      LogicalKeyboardKey.digit9,
+      LogicalKeyboardKey.digit9,
+      LogicalKeyboardKey.digit0,
+    ]) {
       await tester.sendKeyEvent(k);
     }
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);

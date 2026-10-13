@@ -174,9 +174,24 @@ class SidebarLayout extends StatefulWidget {
   /// Below this width the sidebar is hidden, and slides in over the page.
   final double narrow;
 
-  /// The layout above [context]: whether it is open, and the way to toggle it.
-  static SidebarLayoutState of(BuildContext context) =>
-      context.findAncestorStateOfType<SidebarLayoutState>()!;
+  /// The layout above [context]: whether it is open, and the way to toggle it. Past one
+  /// that stays put ([SidebarCollapse.none]) to one that moves, when there is one, so a
+  /// trigger beside a fixed sidebar works the one that moves.
+  static SidebarLayoutState of(BuildContext context) {
+    SidebarLayoutState? first, movable;
+    context.visitAncestorElements((e) {
+      if (e is StatefulElement && e.state is SidebarLayoutState) {
+        final s = e.state as SidebarLayoutState;
+        first ??= s;
+        if (s.widget.collapse != SidebarCollapse.none) {
+          movable = s;
+          return false;
+        }
+      }
+      return true;
+    });
+    return (movable ?? first)!;
+  }
 
   @override
   State<SidebarLayout> createState() => SidebarLayoutState();
@@ -743,11 +758,19 @@ class SidebarTrigger extends StatelessWidget {
   const SidebarTrigger({super.key});
 
   @override
-  Widget build(BuildContext context) => Button(
-    variant: ButtonVariant.ghost,
-    size: ButtonSize.icon,
-    semanticLabel: 'Toggle sidebar',
-    onPressed: () => SidebarLayout.of(context).toggle(),
-    child: const AshlarIcon(AshlarIconsRoundedStroke.panelLeft),
-  );
+  Widget build(BuildContext context) {
+    // The panel icon points to the side the sidebar is on.
+    final end = SidebarLayout.of(context).widget.side == SidebarSide.end;
+    return Button(
+      variant: ButtonVariant.ghost,
+      size: ButtonSize.icon,
+      semanticLabel: 'Toggle sidebar',
+      onPressed: () => SidebarLayout.of(context).toggle(),
+      child: AshlarIcon(
+        end != isRtl(context)
+            ? AshlarIconsRoundedStroke.panelRight
+            : AshlarIconsRoundedStroke.panelLeft,
+      ),
+    );
+  }
 }
