@@ -75,7 +75,8 @@ class _HoverCardState extends State<HoverCard> {
         child: MouseRegion(
           onEnter: (_) => _stay(),
           onExit: (_) => _hide(),
-          child: Padding(
+          // Sized to its content, scrolling if the room is shorter than that.
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: DefaultTextStyle.merge(
               style: t.text.sm,
