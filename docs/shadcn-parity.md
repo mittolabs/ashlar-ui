@@ -137,7 +137,7 @@ dialogs, Empty, Drawer, Sheet, Pagination, Radio and Resizable have their parts 
 Calendar picks several days, shows week numbers, two months and dropdowns; Carousel runs
 upright with a controller and autoplay.
 
-Left from step 1, smaller: Navigation Menu's shared animated viewport between panels. Not
+Navigation Menu now has one panel that moves between headings (done later the same day). Not
 applicable to Flutter: Native Select, a file Input, Aspect Ratio (Flutter has it).
 
 **Step 2, right-to-left: done** (13 October 2026, c323e30). Padding, alignment, borders

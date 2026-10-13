@@ -39,7 +39,7 @@ class NavigationMenuItem {
 
 /// A site's main navigation: links, and headings whose panels open on hover, on a click
 /// or from the keyboard, with links and a line about each inside. Moving to another
-/// heading while one is open switches straight to it.
+/// heading while one is open moves the one panel across to it, its content sliding in.
 ///
 /// ```dart
 /// NavigationMenu(items: [
@@ -60,16 +60,24 @@ class NavigationMenu extends StatefulWidget {
 }
 
 class _NavigationMenuState extends State<NavigationMenu> {
-  late final _menus = [for (final _ in widget.items) MenuController()];
+  // One panel for the whole bar: it moves to the heading being shown, and its content
+  // slides across, rather than one panel closing and another opening.
+  final _menu = MenuController();
+  final _bar = GlobalKey();
+  late final _keys = [for (final _ in widget.items) GlobalKey()];
   int? _open;
+
+  /// Which way the content slides: towards the heading moved to.
+  var _direction = 0;
   Timer? _timer;
 
   void _show(int i) {
     _timer?.cancel();
-    for (final (j, m) in _menus.indexed) {
-      if (j != i && m.isOpen) m.close();
-    }
-    if (!_menus[i].isOpen) _menus[i].open();
+    setState(() {
+      _direction = _open == null ? 0 : (i - _open!).sign;
+      _open = i;
+    });
+    if (!_menu.isOpen) _menu.open();
   }
 
   /// Opens after a moment on hover, straight away if one is already open.
@@ -85,8 +93,17 @@ class _NavigationMenuState extends State<NavigationMenu> {
   void _hoverOut() {
     _timer?.cancel();
     _timer = Timer(const Duration(milliseconds: 300), () {
-      if (mounted && _open != null) _menus[_open!].close();
+      if (mounted) _menu.close();
     });
+  }
+
+  /// Heading [i]'s rectangle, from the bar's rectangle [bar] in the overlay.
+  Rect _heading(Rect bar, int i) {
+    final barBox = _bar.currentContext?.findRenderObject() as RenderBox?;
+    final box = _keys[i].currentContext?.findRenderObject() as RenderBox?;
+    if (barBox == null || box == null || !box.attached) return bar;
+    return (bar.topLeft + box.localToGlobal(Offset.zero, ancestor: barBox)) &
+        box.size;
   }
 
   @override
@@ -103,8 +120,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
         Pressable(
           link: item.onPressed != null,
           expanded: item.content == null ? null : open,
-          onPressed:
-              item.onPressed ?? () => open ? _menus[i].close() : _show(i),
+          onPressed: item.onPressed ?? () => open ? _menu.close() : _show(i),
           builder: (context, state) => AnimatedContainer(
             duration: t.duration,
             height: t.control(36),
@@ -147,39 +163,103 @@ class _NavigationMenuState extends State<NavigationMenu> {
       container: true,
       label: 'Main',
       explicitChildNodes: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (i, item) in widget.items.indexed)
-            if (item.content == null)
-              trigger(i, item, open: false)
-            else
-              RawMenuAnchor(
-                controller: _menus[i],
-                onOpen: () => setState(() => _open = i),
-                onClose: () =>
-                    setState(() => _open = _open == i ? null : _open),
-                overlayBuilder: (context, info) => PopoverPanel(
-                  info: info,
+      child: RawMenuAnchor(
+        controller: _menu,
+        onClose: () => setState(() => _open = null),
+        overlayBuilder: (context, info) {
+          final i = _open;
+          if (i == null) return const SizedBox.shrink();
+          final item = widget.items[i];
+          final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+          final move = still ? Duration.zero : t.duration * 1.5;
+          // The panel follows the heading: its place, width and height move together.
+          return TweenAnimationBuilder<Rect?>(
+            tween: RectTween(end: _heading(info.anchorRect, i)),
+            duration: move,
+            curve: Curves.easeOutCubic,
+            builder: (context, at, child) => PopoverPanel(
+              info: RawMenuOverlayInfo(
+                anchorRect: at!,
+                overlaySize: info.overlaySize,
+                tapRegionGroupId: info.tapRegionGroupId,
+                position: info.position,
+              ),
+              child: child!,
+            ),
+            child: MouseRegion(
+              onEnter: (_) => _timer?.cancel(),
+              onExit: (_) => _hoverOut(),
+              child: FocusTraversalGroup(
+                child: AnimatedContainer(
+                  duration: move,
+                  curve: Curves.easeOutCubic,
                   width: item.width,
-                  child: MouseRegion(
-                    onEnter: (_) => _timer?.cancel(),
-                    onExit: (_) => _hoverOut(),
-                    child: FocusTraversalGroup(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Builder(builder: item.content!),
+                  child: AnimatedSize(
+                    duration: move,
+                    curve: Curves.easeOutCubic,
+                    alignment: AlignmentDirectional.topStart,
+                    child: AnimatedSwitcher(
+                      duration: move,
+                      // The new panel's content comes in from the side it was moved
+                      // towards; the old goes the other way.
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween(
+                            begin: Offset(
+                              child.key == ValueKey(i)
+                                  ? _direction * .15
+                                  : -_direction * .15,
+                              0,
+                            ),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        ),
+                      ),
+                      layoutBuilder: (current, previous) => Stack(
+                        alignment: AlignmentDirectional.topStart,
+                        children: [
+                          for (final p in previous)
+                            Positioned.fill(
+                              child: IgnorePointer(
+                                child: ExcludeSemantics(child: p),
+                              ),
+                            ),
+                          ?current,
+                        ],
+                      ),
+                      child: KeyedSubtree(
+                        key: ValueKey(i),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Builder(builder: item.content!),
+                        ),
                       ),
                     ),
                   ),
                 ),
-                child: MouseRegion(
-                  onEnter: (_) => _hoverIn(i),
-                  onExit: (_) => _hoverOut(),
-                  child: trigger(i, item, open: _open == i),
-                ),
               ),
-        ],
+            ),
+          );
+        },
+        child: Row(
+          key: _bar,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (i, item) in widget.items.indexed)
+              KeyedSubtree(
+                key: _keys[i],
+                child: item.content == null
+                    ? trigger(i, item, open: false)
+                    : MouseRegion(
+                        onEnter: (_) => _hoverIn(i),
+                        onExit: (_) => _hoverOut(),
+                        child: trigger(i, item, open: _open == i),
+                      ),
+              ),
+          ],
+        ),
       ),
     );
   }
