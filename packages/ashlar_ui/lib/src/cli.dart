@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
 import 'merge.dart';
@@ -53,6 +54,8 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar list                           what there is, and what you have
   ashlar diff [item...]                 what changed in your copies, and what is newer
   ashlar update [item...] [--dry-run]   take what is newer, keeping your changes
+  ashlar check [--no-contrast]          what can be proved about your app's accessibility:
+                                        theme contrast, labels, right to left, touch targets
   ashlar build [registry.json]          make your own registry's files to host
              [--out public/r]
 
@@ -252,6 +255,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       }
       if (found == 0) o.writeln('Nothing matches "$query".');
       return 0;
+    case 'check':
+      return project.check(contrast: !rest.contains('--no-contrast'), out: o);
     case 'diff':
       return project.diff(words, o);
     case 'update':
@@ -732,6 +737,127 @@ class Project {
           : '${dryRun ? 'Would update' : 'Updated'}: $took taken, $merged merged, $conflicts to choose, $kept kept as they were.',
     );
     return conflicts > 0 ? 1 : 0;
+  }
+
+  /// Finds what can be proved about the app's accessibility: the contrast of its theme,
+  /// measured, if [contrast]; and in its source under lib, icon-only controls without a
+  /// label, left and right where start and end belong, and touch targets turned off.
+  /// Returns 1 when it finds something, for CI.
+  Future<int> check({required bool contrast, required StringSink out}) async {
+    final found = <Finding>[];
+    final lib = Directory('${root.path}/lib');
+    var files = 0;
+    if (lib.existsSync()) {
+      final dart =
+          lib
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.dart'))
+              .toList()
+            ..sort((a, b) => a.path.compareTo(b.path));
+      for (final f in dart) {
+        files++;
+        found.addAll(
+          checkSource(
+            f.path.substring(root.path.length + 1),
+            f.readAsStringSync(),
+          ),
+        );
+      }
+    }
+    String? unmeasured;
+    if (contrast) {
+      final measured = await _measureContrast();
+      if (measured case (final List<Finding> f, null)) found.insertAll(0, f);
+      unmeasured = measured.$2;
+    }
+    for (final kind in [
+      'contrast',
+      'labels',
+      'right to left',
+      'touch targets',
+    ]) {
+      final these = found.where((f) => f.kind == kind).toList();
+      if (these.isEmpty) continue;
+      out.writeln(
+        kind == 'contrast'
+            ? 'Contrast, measured in $path/app_theme.dart:'
+            : '${kind[0].toUpperCase()}${kind.substring(1)}:',
+      );
+      for (final f in these) {
+        out.writeln(
+          '  ${f.at.padRight(kind == 'contrast' ? 6 : 0)}  ${f.message}',
+        );
+      }
+      out.writeln();
+    }
+    if (unmeasured != null) out.writeln('Contrast not measured: $unmeasured\n');
+    out
+      ..writeln(
+        '${found.isEmpty ? 'Nothing found' : '${found.length} found'} in $files file${files == 1 ? '' : 's'} under lib${contrast && unmeasured == null ? ' and your theme' : ''}. A line that means it can say // ashlar: ignore.',
+      )
+      ..writeln(
+        'Not checked, as source cannot show it: the size of your own tap areas, labels on your own controls, and contrast of colours you set outside the theme. A widget test with meetsGuideline(androidTapTargetGuideline) and labeledTapTargetGuideline checks a screen.',
+      );
+    return found.isEmpty ? 0 : 1;
+  }
+
+  /// Measures the theme in app_theme.dart with flutter test: the findings, or why it
+  /// could not be measured.
+  Future<(List<Finding>, String?)> _measureContrast() async {
+    if (!File('${root.path}/$path/app_theme.dart').existsSync()) {
+      return (
+        <Finding>[],
+        'there is no $path/app_theme.dart; ashlar init writes it.',
+      );
+    }
+    final package = _package;
+    if (!path.startsWith('lib/') || package == null) {
+      return (
+        <Finding>[],
+        'the theme is not under lib, where a test can import it from.',
+      );
+    }
+    final dir = Directory('${root.path}/.ashlar/check')
+      ..createSync(recursive: true);
+    final harness = File('${dir.path}/contrast_test.dart')
+      ..writeAsStringSync(
+        contrastHarness('package:$package/${path.substring(4)}'),
+      );
+    final fvm = File('${root.path}/.fvmrc').existsSync();
+    final cmd = [
+      if (fvm) 'fvm',
+      'flutter',
+      'test',
+      '--reporter',
+      'expanded',
+      harness.path.substring(root.path.length + 1),
+    ];
+    try {
+      final result = await Process.run(
+        cmd.first,
+        cmd.skip(1).toList(),
+        workingDirectory: root.path,
+        runInShell: true,
+      );
+      final output = '${result.stdout}';
+      if (!output.contains('ASHLAR\t')) {
+        final why = '${result.stdout}${result.stderr}'
+            .split('\n')
+            .where((l) => l.contains('Error') || l.contains('error'))
+            .take(3)
+            .join(' ');
+        return (
+          <Finding>[],
+          '${cmd.join(' ')} did not run it${why.isEmpty ? '' : ': $why'}',
+        );
+      }
+      return (contrastFindings(output), null);
+    } on ProcessException {
+      return (<Finding>[], '${cmd.first} could not be run here.');
+    } finally {
+      dir.deleteSync(recursive: true);
+    }
   }
 
   /// For each item you have (or each named), whether your copy is as it was written,

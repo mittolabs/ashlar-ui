@@ -25,6 +25,7 @@ Run it in the root of a Flutter project.
 | `ashlar search [words]` | Finds items by name or description. `ashlar list` lists them all, ticking the ones you have. |
 | `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
 | `ashlar update [item...]` | Takes what is newer in this version and keeps your changes: a file you have not changed is replaced; one you have is merged, line by line, from the copy ashlar wrote. Where you and this version changed the same lines, both are kept between `<<<<<<< yours` and `>>>>>>> ashlar` for you to choose. `--dry-run` says what it would do. |
+| `ashlar check` | Reports what can be proved about your app's accessibility: your theme's contrast, measured, and in your source icon-only buttons without a label, left and right where start and end belong, and touch targets turned off. Exits 1 when it finds something, for CI. `--no-contrast` skips the measuring. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
 
 ## Tests that come with each component
@@ -40,6 +41,27 @@ component (most use a Button as a trigger) are written once you have that one to
 A test you delete stays deleted. `ashlar update` merges tests as it merges components.
 `"tests": false` in `ashlar.json` leaves them out, and `"tests": "test/ui"` puts them
 elsewhere. Components outside `lib` get no tests, since a test cannot import them.
+
+## Checking your app
+
+`ashlar check` reports only what it can prove, each with where it is and what to do:
+
+- **Contrast**, measured: it builds `appTheme` and `appDarkTheme` from your
+  `app_theme.dart` in a flutter test and measures each pair the components draw, text
+  against WCAG 1.4.3 (4.5:1), the focus ring and field borders against 1.4.11 (3:1).
+- **Labels**: a Button or Toggle holding only an icon, with no `semanticLabel`.
+- **Right to left**: `EdgeInsets.only(left:)`, `Alignment.centerRight`, `TextAlign.left`
+  and the like, where the directional form follows the reading direction. Values that
+  follow a physical side or the text direction are not reported.
+- **Touch targets**: `tapTarget: 0`, which turns off the room for a finger.
+
+It says what it did not check, as source cannot show it: the size of your own tap areas
+and labels on your own controls. A widget test with `meetsGuideline` checks a screen for
+those. A line that means it can say `// ashlar: ignore`; a file, `// ashlar: ignore-file`
+with its reason.
+
+The field borders Ashlar and shadcn draw are 1.2 to 1.5:1, a choice of look that
+`ashlar check` reports.
 
 ## Keeping your changes through updates
 

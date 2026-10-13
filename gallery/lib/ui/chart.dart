@@ -1,4 +1,6 @@
 // Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
+// ashlar: ignore-file. Charts are drawn left to right in any language, as time and
+// number lines are read; ashlar check leaves this file out.
 //
 // Drawn on the canvas here, with no charting package: bars, lines, areas, pies, radars
 // and radial bars, with a tooltip on hover, the arrow keys stepping through the values, a
