@@ -431,8 +431,9 @@ class _CartesianPainter extends CustomPainter {
             for (var i = n - 1; i >= 0; i--)
               Offset((i + .5) * band, y(lows[i])),
           ];
+          // Down to the series below and back along it, as one outline.
           fill.lineTo(under.first.dx, under.first.dy);
-          fill.addPath(_through(under), Offset.zero);
+          fill.extendWithPath(_through(under), Offset.zero);
         } else {
           fill
             ..lineTo(points.last.dx, h)

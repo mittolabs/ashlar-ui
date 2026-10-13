@@ -13100,8 +13100,9 @@ class _CartesianPainter extends CustomPainter {
             for (var i = n - 1; i >= 0; i--)
               Offset((i + .5) * band, y(lows[i])),
           ];
+          // Down to the series below and back along it, as one outline.
           fill.lineTo(under.first.dx, under.first.dy);
-          fill.addPath(_through(under), Offset.zero);
+          fill.extendWithPath(_through(under), Offset.zero);
         } else {
           fill
             ..lineTo(points.last.dx, h)
@@ -15595,7 +15596,8 @@ class _Login05State extends State<Login05> {
                           AshlarIconsRoundedStroke.apple,
                         ),
                         onPressed: widget.onApple,
-                        child: const Text('Continue with Apple'),
+                        semanticLabel: 'Continue with Apple',
+                        child: const Text('Apple'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -15604,7 +15606,8 @@ class _Login05State extends State<Login05> {
                         expand: true,
                         variant: ButtonVariant.outline,
                         onPressed: widget.onGoogle,
-                        child: const Text('Continue with Google'),
+                        semanticLabel: 'Continue with Google',
+                        child: const Text('Google'),
                       ),
                     ),
                   ],
@@ -16711,7 +16714,8 @@ class _Signup05State extends State<Signup05> {
                           AshlarIconsRoundedStroke.apple,
                         ),
                         onPressed: widget.onApple,
-                        child: const Text('Continue with Apple'),
+                        semanticLabel: 'Continue with Apple',
+                        child: const Text('Apple'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -16720,7 +16724,8 @@ class _Signup05State extends State<Signup05> {
                         expand: true,
                         variant: ButtonVariant.outline,
                         onPressed: widget.onGoogle,
-                        child: const Text('Continue with Google'),
+                        semanticLabel: 'Continue with Google',
+                        child: const Text('Google'),
                       ),
                     ),
                   ],
