@@ -125,6 +125,21 @@ the same composition.
 - **The site.** For each component: composition trees, an API reference, a gallery of every
   situation with code, and blocks, charts and themes pages with a theme builder.
 
+## Progress
+
+**Step 1, depth where apps live: done** (13 October 2026). Menus have checkbox, radio and
+inset items, groups and submenus; panels and tooltips open on all four sides; Select has
+groups, type-to-find and lazy lists; Combobox picks several; Slider takes ranges and stands
+upright; Checkbox is indeterminate; Avatar has badges and groups; Button, Switch, Badge, Tabs
+and Toggle Group have their sizes and variants; Toast has types, promises and a stack; Sidebar
+has variants, submenus, actions and a rail; Card, Field, Item, Breadcrumb, Accordion, the
+dialogs, Empty, Drawer, Sheet, Pagination, Radio and Resizable have their parts and options;
+Calendar picks several days, shows week numbers, two months and dropdowns; Carousel runs
+upright with a controller and autoplay.
+
+Left from step 1, smaller: Navigation Menu's shared animated viewport between panels. Not
+applicable to Flutter: Native Select, a file Input, Aspect Ratio (Flutter has it).
+
 ## Plan
 
 In order of what makes Ashlar UI feel complete soonest:
