@@ -6,14 +6,12 @@ import 'component.dart';
 /// Every component the ashlar command can add, by name.
 const registry = <String, Component>{
   'theme': Component(
-    description:
-        "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
+    description: "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'theme.dart':
-          r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
+      'theme.dart': r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
 
 import 'package:flutter/widgets.dart';
@@ -509,8 +507,7 @@ class AshlarTheme extends InheritedWidget {
 bool isRtl(BuildContext context) =>
     Directionality.maybeOf(context) == TextDirection.rtl;
 ''',
-      'palette.dart':
-          r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
+      'palette.dart': r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
 //
 // GENERATED from shadcn/ui's themes (registry/themes.ts, oklch converted to sRGB) by the
 // palette tool. Edit the tool, not this file, to change every colour at once.
@@ -1437,14 +1434,12 @@ const _accents = <AshlarAccent, (_Accent, _Accent)>{
     },
   ),
   'app': Component(
-    description:
-        "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
-    requires: ["theme", "selection"],
+    description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
+    requires: ["theme","selection"],
     packages: [],
     block: false,
     files: {
-      'app.dart':
-          r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
+      'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
 
 import 'package:flutter/foundation.dart';
@@ -1636,14 +1631,12 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     },
   ),
   'pressable': Component(
-    description:
-        "Hover, press, keyboard focus and activation, for every control.",
+    description: "Hover, press, keyboard focus and activation, for every control.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'pressable.dart':
-          r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
+      'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
@@ -1831,14 +1824,12 @@ class _PressableState extends State<Pressable> {
     },
   ),
   'button': Component(
-    description:
-        "Six variants and four sizes, with leading and trailing icons.",
-    requires: ["theme", "pressable", "group"],
+    description: "Six variants and four sizes, with leading and trailing icons.",
+    requires: ["theme","pressable","group"],
     packages: [],
     block: false,
     files: {
-      'button.dart':
-          r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
+      'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2057,8 +2048,7 @@ class Button extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'badge.dart':
-          r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
+      'badge.dart': r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2151,8 +2141,7 @@ class Badge extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'card.dart':
-          r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
+      'card.dart': r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2369,8 +2358,7 @@ class CardFooter extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'separator.dart':
-          r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
+      'separator.dart': r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2402,14 +2390,12 @@ class Separator extends StatelessWidget {
     },
   ),
   'input': Component(
-    description:
-        "A text field with selection handles and a cut, copy and paste menu.",
-    requires: ["theme", "selection"],
+    description: "A text field with selection handles and a cut, copy and paste menu.",
+    requires: ["theme","selection"],
     packages: [],
     block: false,
     files: {
-      'input.dart':
-          r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
+      'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
 // The widgets layer gives EditableText and no field around it: no selection handles, no
 // cut and paste menu, no tap to place the cursor. This file and selection.dart supply them.
@@ -2687,12 +2673,11 @@ class _InputState extends State<Input>
   ),
   'checkbox': Component(
     description: "A box that is ticked or not.",
-    requires: ["theme", "pressable"],
+    requires: ["theme","pressable"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'checkbox.dart':
-          r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
+      'checkbox.dart': r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -2795,12 +2780,11 @@ class Checkbox extends StatelessWidget {
   ),
   'switch': Component(
     description: "An on and off switch.",
-    requires: ["theme", "pressable"],
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'switch.dart':
-          r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
+      'switch.dart': r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2889,14 +2873,12 @@ class Switch extends StatelessWidget {
     },
   ),
   'dialog': Component(
-    description:
-        "A modal panel over a dimmed page, with title, content and actions.",
-    requires: ["theme", "button"],
+    description: "A modal panel over a dimmed page, with title, content and actions.",
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dialog.dart':
-          r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
+      'dialog.dart': r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -3123,8 +3105,7 @@ class Dialog extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'label.dart':
-          r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
+      'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3165,14 +3146,12 @@ class Label extends StatelessWidget {
     },
   ),
   'field': Component(
-    description:
-        "A control with its label, description and error, read out together.",
-    requires: ["theme", "label"],
+    description: "A control with its label, description and error, read out together.",
+    requires: ["theme","label"],
     packages: [],
     block: false,
     files: {
-      'field.dart':
-          r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
+      'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3422,14 +3401,12 @@ class FieldSeparator extends StatelessWidget {
     },
   ),
   'textarea': Component(
-    description:
-        "A text field for several lines that grows with its text and drags taller.",
-    requires: ["input", "theme"],
+    description: "A text field for several lines that grows with its text and drags taller.",
+    requires: ["input","theme"],
     packages: [],
     block: false,
     files: {
-      'textarea.dart':
-          r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
+      'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -3585,14 +3562,12 @@ class _Grip extends CustomPainter {
     },
   ),
   'avatar': Component(
-    description:
-        "A picture in a circle, with initials while it loads or when it fails.",
+    description: "A picture in a circle, with initials while it loads or when it fails.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'avatar.dart':
-          r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
+      'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3818,8 +3793,7 @@ class AvatarGroup extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'skeleton.dart':
-          r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
+      'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3895,8 +3869,7 @@ class _SkeletonState extends State<Skeleton>
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'spinner.dart':
-          r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
+      'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -3955,14 +3928,12 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     },
   ),
   'alert': Component(
-    description:
-        "A notice, warning or error in the page, read out when it appears.",
+    description: "A notice, warning or error in the page, read out when it appears.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'alert.dart':
-          r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
+      'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4071,8 +4042,7 @@ class Alert extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'kbd.dart':
-          r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
+      'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4138,8 +4108,7 @@ class Kbd extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'radio.dart':
-          r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
+      'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
 //
 // Flutter's widgets layer has the group: RadioGroup holds the chosen value, and moves the
 // choice with the arrow keys. This file draws the radios inside it.
@@ -4306,14 +4275,12 @@ class _RadioState<T> extends State<Radio<T>> {
     },
   ),
   'tabs': Component(
-    description:
-        "Views of one thing, one at a time, chosen from a row of tabs.",
-    requires: ["theme", "pressable"],
+    description: "Views of one thing, one at a time, chosen from a row of tabs.",
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'tabs.dart':
-          r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
+      'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -4650,8 +4617,7 @@ class _MoveIntent extends Intent {
     packages: [],
     block: false,
     files: {
-      'popover.dart':
-          r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
+      'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
 //
 // Built on RawMenuAnchor from Flutter's widgets layer, which opens and closes the panel,
 // closes it on Escape, and closes it when the page scrolls. This
@@ -5007,14 +4973,12 @@ class PopoverHeader extends StatelessWidget {
     },
   ),
   'dropdown-menu': Component(
-    description:
-        "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
-    requires: ["theme", "pressable", "popover"],
+    description: "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dropdown_menu.dart':
-          r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
+      'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -5717,14 +5681,12 @@ class MenuSeparator extends StatelessWidget {
     },
   ),
   'select': Component(
-    description:
-        "Picks one value from a list: groups, icons, type to find, and long lists.",
-    requires: ["theme", "pressable", "popover"],
+    description: "Picks one value from a list: groups, icons, type to find, and long lists.",
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'select.dart':
-          r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
+      'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
 
 import 'dart:async';
 
@@ -6277,8 +6239,7 @@ class _Option<T> extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'tooltip.dart':
-          r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
+      'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
 //
 // Built on RawTooltip from Flutter's widgets layer, which shows it on hover and on a long
 // press. This file also shows it on keyboard focus and gives screen readers the message.
@@ -6416,14 +6377,12 @@ class _TooltipState extends State<Tooltip> {
     },
   ),
   'toast': Component(
-    description:
-        "Short messages that go by themselves: types, promises and a stack.",
+    description: "Short messages that go by themselves: types, promises and a stack.",
     requires: ["theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'toast.dart':
-          r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
+      'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
 
 import 'dart:async';
 
@@ -6966,14 +6925,12 @@ class _TurningState extends State<_Turning>
     },
   ),
   'group': Component(
-    description:
-        "Joins controls into one piece: Button Group and Toggle Group use it.",
+    description: "Joins controls into one piece: Button Group and Toggle Group use it.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'group.dart':
-          r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
+      'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
 // Group; it is yours to change.
 
 import 'package:flutter/widgets.dart';
@@ -7072,14 +7029,12 @@ Border joinedBorder(BuildContext context, Color color) =>
     },
   ),
   'button-group': Component(
-    description:
-        "Buttons joined into one piece, for actions that belong together.",
+    description: "Buttons joined into one piece, for actions that belong together.",
     requires: ["group"],
     packages: [],
     block: false,
     files: {
-      'button_group.dart':
-          r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
+      'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
 // to change.
 
 import 'package:flutter/widgets.dart';
@@ -7127,8 +7082,7 @@ class ButtonGroup extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'typography.dart':
-          r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
+      'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -7417,8 +7371,7 @@ class TypographyTable extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'empty.dart':
-          r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
+      'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -7531,14 +7484,12 @@ class Empty extends StatelessWidget {
     },
   ),
   'item': Component(
-    description:
-        "A row in a list: media, a title and description, and actions.",
-    requires: ["theme", "pressable"],
+    description: "A row in a list: media, a title and description, and actions.",
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'item.dart':
-          r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
+      'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -7798,8 +7749,7 @@ class ItemSeparator extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'progress.dart':
-          r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
+      'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -7910,14 +7860,12 @@ class _ProgressState extends State<Progress>
     },
   ),
   'breadcrumb': Component(
-    description:
-        "Where a page sits, as links to the pages above it, folding long trails.",
-    requires: ["theme", "pressable", "dropdown-menu"],
+    description: "Where a page sits, as links to the pages above it, folding long trails.",
+    requires: ["theme","pressable","dropdown-menu"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'breadcrumb.dart':
-          r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
+      'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -8077,8 +8025,7 @@ class Breadcrumb extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'collapsible.dart':
-          r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
+      'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -8196,12 +8143,11 @@ class _CollapsibleState extends State<Collapsible>
   ),
   'accordion': Component(
     description: "Sections that open one at a time under their headings.",
-    requires: ["theme", "pressable", "collapsible"],
+    requires: ["theme","pressable","collapsible"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'accordion.dart':
-          r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
+      'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -8366,12 +8312,11 @@ class _AccordionState extends State<Accordion> {
   ),
   'toggle': Component(
     description: "A button that stays pressed: bold, italic, a filter.",
-    requires: ["theme", "pressable", "group"],
+    requires: ["theme","pressable","group"],
     packages: [],
     block: false,
     files: {
-      'toggle.dart':
-          r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
+      'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -8474,12 +8419,11 @@ class Toggle extends StatelessWidget {
   ),
   'toggle-group': Component(
     description: "Toggles joined into one piece, one or several pressed.",
-    requires: ["toggle", "group"],
+    requires: ["toggle","group"],
     packages: [],
     block: false,
     files: {
-      'toggle_group.dart':
-          r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
+      'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -8625,14 +8569,12 @@ class ToggleGroup<T> extends StatelessWidget {
     },
   ),
   'slider': Component(
-    description:
-        "A value picked by dragging along a track, or with the arrow keys.",
+    description: "A value picked by dragging along a track, or with the arrow keys.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'slider.dart':
-          r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
+      'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -9037,12 +8979,11 @@ class _EndIntent extends Intent {
   ),
   'pagination': Component(
     description: "Previous, page numbers and Next, for a long list.",
-    requires: ["theme", "button"],
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'pagination.dart':
-          r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
+      'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -9215,12 +9156,11 @@ class Pagination extends StatelessWidget {
   ),
   'alert-dialog': Component(
     description: "A question that needs an answer before going on.",
-    requires: ["dialog", "button"],
+    requires: ["dialog","button"],
     packages: [],
     block: false,
     files: {
-      'alert_dialog.dart':
-          r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
+      'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -9325,12 +9265,11 @@ class AlertDialog extends StatelessWidget {
   ),
   'hover-card': Component(
     description: "A card that appears when the pointer rests on something.",
-    requires: ["theme", "popover"],
+    requires: ["theme","popover"],
     packages: [],
     block: false,
     files: {
-      'hover_card.dart':
-          r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
+      'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
 // change.
 
 import 'dart:async';
@@ -9441,14 +9380,12 @@ class _HoverCardState extends State<HoverCard> {
     },
   ),
   'context-menu': Component(
-    description:
-        "A menu that opens where something is right-clicked or long-pressed.",
-    requires: ["popover", "dropdown-menu"],
+    description: "A menu that opens where something is right-clicked or long-pressed.",
+    requires: ["popover","dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'context_menu.dart':
-          r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
+      'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
 // change.
 
 import 'package:flutter/foundation.dart';
@@ -9563,14 +9500,12 @@ class _OpenIntent extends Intent {
     },
   ),
   'scroll-area': Component(
-    description:
-        "Scrolling with a thin themed scrollbar; a builder for long lists.",
+    description: "Scrolling with a thin themed scrollbar; a builder for long lists.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'scroll_area.dart':
-          r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
+      'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -9680,14 +9615,12 @@ class _ScrollAreaState extends State<ScrollArea> {
     },
   ),
   'data-table': Component(
-    description:
-        "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
-    requires: ["theme", "pressable", "checkbox"],
+    description: "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
+    requires: ["theme","pressable","checkbox"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'data_table.dart':
-          r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
+      'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
 // change. (Flutter's widgets layer has a Table for layout; this one is for data.)
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -10028,12 +9961,11 @@ class _RowState extends State<_Row> {
   ),
   'sheet': Component(
     description: "A panel that slides in from an edge of the screen.",
-    requires: ["theme", "button"],
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sheet.dart':
-          r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
+      'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -10276,8 +10208,7 @@ class Sheet extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'drawer.dart':
-          r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
+      'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -10575,14 +10506,12 @@ class _DrawerState extends State<Drawer> {
     },
   ),
   'input-group': Component(
-    description:
-        "A text field with text, buttons or a toolbar inside its border.",
-    requires: ["theme", "input"],
+    description: "A text field with text, buttons or a toolbar inside its border.",
+    requires: ["theme","input"],
     packages: [],
     block: false,
     files: {
-      'input_group.dart':
-          r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
+      'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -10721,12 +10650,11 @@ class _InputGroupState extends State<InputGroup> {
   ),
   'input-otp': Component(
     description: "A one-time code, one character to a box.",
-    requires: ["theme", "group"],
+    requires: ["theme","group"],
     packages: [],
     block: false,
     files: {
-      'input_otp.dart':
-          r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
+      'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -10960,8 +10888,7 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
     packages: [],
     block: false,
     files: {
-      'resizable.dart':
-          r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
+      'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11197,14 +11124,12 @@ class _NudgeIntent extends Intent {
     },
   ),
   'command': Component(
-    description:
-        "A search box over a list of things to do, picked with the keyboard.",
-    requires: ["theme", "input", "dialog"],
+    description: "A search box over a list of things to do, picked with the keyboard.",
+    requires: ["theme","input","dialog"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'command.dart':
-          r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
+      'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -11660,14 +11585,12 @@ Future<void> showCommandDialog({
     },
   ),
   'combobox': Component(
-    description:
-        "A select you can search: one pick or several as chips, groups, clearing.",
-    requires: ["theme", "pressable", "popover", "command"],
+    description: "A select you can search: one pick or several as chips, groups, clearing.",
+    requires: ["theme","pressable","popover","command"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'combobox.dart':
-          r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
+      'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -12031,12 +11954,11 @@ class _Clear extends StatelessWidget {
   ),
   'menubar': Component(
     description: "A bar of menus, as at the top of a desktop app.",
-    requires: ["theme", "pressable", "popover", "dropdown-menu"],
+    requires: ["theme","pressable","popover","dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'menubar.dart':
-          r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
+      'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -12214,12 +12136,11 @@ class _MenubarState extends State<Menubar> {
   ),
   'navigation-menu': Component(
     description: "A site's main links, with panels that open from headings.",
-    requires: ["theme", "pressable", "popover"],
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'navigation_menu.dart':
-          r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
+      'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -12463,14 +12384,12 @@ class NavigationMenuLink extends StatelessWidget {
     },
   ),
   'carousel': Component(
-    description:
-        "Slides moved by swiping, buttons, keys, a controller or by themselves.",
+    description: "Slides moved by swiping, buttons, keys, a controller or by themselves.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'carousel.dart':
-          r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
+      'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
 
 import 'dart:async';
 
@@ -12718,8 +12637,7 @@ class _CarouselState extends State<Carousel> {
     packages: [],
     block: false,
     files: {
-      'selection.dart':
-          r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
+      'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
 // yours to change. The handles and the cut, copy and paste menu, for text fields and for
 // text selected anywhere in the app.
 
@@ -12898,14 +12816,12 @@ class AshlarSelectionMenu extends StatelessWidget {
     },
   ),
   'calendar': Component(
-    description:
-        "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
-    requires: ["theme", "button", "select"],
+    description: "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
+    requires: ["theme","button","select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'calendar.dart':
-          r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
+      'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -13580,14 +13496,12 @@ class _Nav extends StatelessWidget {
     },
   ),
   'date-picker': Component(
-    description:
-        "A button that shows a date and opens a calendar, with presets.",
-    requires: ["theme", "pressable", "popover", "calendar", "select"],
+    description: "A button that shows a date and opens a calendar, with presets.",
+    requires: ["theme","pressable","popover","calendar","select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'date_picker.dart':
-          r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
+      'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -13788,18 +13702,16 @@ class _DatePickerState extends State<DatePicker> {
     },
   ),
   'chart': Component(
-    description:
-        "Bar, line, area and pie charts, drawn here with no charting package.",
+    description: "Bar, line, area and pie charts, drawn here with no charting package.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'chart.dart':
-          r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
+      'chart.dart': r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
 //
-// Drawn on the canvas here, with no charting package: bars, lines, areas and pies, with
-// a tooltip on hover, the arrow keys stepping through the values, and a summary a screen
-// reader can read.
+// Drawn on the canvas here, with no charting package: bars, lines, areas, pies, radars
+// and radial bars, with a tooltip on hover, the arrow keys stepping through the values, a
+// legend that hides and shows series, and a summary a screen reader can read.
 
 import 'dart:math' as math;
 
@@ -13811,29 +13723,99 @@ import 'theme.dart';
 /// One run of values, one per label: "Desktop", "Mobile".
 @immutable
 class ChartSeries {
-  const ChartSeries(this.label, this.values, {this.color});
+  const ChartSeries(
+    this.label,
+    this.values, {
+    this.color,
+    this.colors,
+    this.icon,
+  });
 
   final String label;
   final List<double> values;
 
   /// Null takes the theme's chart colours in turn.
   final Color? color;
+
+  /// A colour for each value, for bars that each mean something of their own.
+  final List<Color>? colors;
+
+  /// Shown in the legend and the tooltip in place of the colour swatch.
+  final IconData? icon;
 }
 
-/// One part of a pie.
+/// One part of a pie, or one ring of a radial chart.
 @immutable
 class ChartSlice {
-  const ChartSlice(this.label, this.value, {this.color});
+  const ChartSlice(this.label, this.value, {this.color, this.icon});
 
   final String label;
   final double value;
   final Color? color;
+  final IconData? icon;
 }
+
+/// How a line goes from one value to the next.
+enum ChartCurve {
+  /// A smooth curve that never overshoots a value.
+  smooth,
+
+  /// Straight from point to point.
+  linear,
+
+  /// Level, then up or down halfway between: for values that hold until they change.
+  step,
+}
+
+/// The mark beside each value in a tooltip.
+enum ChartIndicator {
+  /// A small square of the series' colour.
+  dot,
+
+  /// A bar of the colour down the side of the rows.
+  line,
+
+  /// The same bar, dashed.
+  dashed,
+
+  /// No mark.
+  none,
+}
+
+/// How a chart's tooltip looks.
+@immutable
+class ChartTooltip {
+  const ChartTooltip({
+    this.enabled = true,
+    this.indicator = ChartIndicator.dot,
+    this.showTitle = true,
+    this.title,
+    this.total = false,
+  });
+
+  /// False: no tooltip, though the keys still step and a screen reader still reads.
+  final bool enabled;
+  final ChartIndicator indicator;
+
+  /// False hides the label (the month, say) at the top.
+  final bool showTitle;
+
+  /// Writes the label at the top: 'July 2026' for 'Jul'.
+  final String Function(String label)? title;
+
+  /// A last row adding the values up.
+  final bool total;
+}
+
+/// Where a chart's legend sits.
+enum ChartLegend { none, top, bottom }
 
 String _plain(double v) =>
     v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
 
-/// A round number at or above [max] for the top of the scale: 1, 2, 2.5 or 5 times a
+String _percent(double v) => '${(v * 100).round()}%';
+
+/// A round number at or above [max] for the end of the scale: 1, 2, 2.5 or 5 times a
 /// power of ten.
 double _niceTop(double max) {
   if (max <= 0) return 1;
@@ -13846,7 +13828,8 @@ double _niceTop(double max) {
 
 enum _Kind { bar, line, area }
 
-/// Bars by label, a series side by side or stacked.
+/// Bars by label, series side by side or stacked; upright or lying [horizontal]. Values
+/// below zero hang down from a zero line.
 ///
 /// ```dart
 /// BarChart(
@@ -13861,9 +13844,16 @@ class BarChart extends _Cartesian {
     required super.series,
     super.height,
     super.stacked,
+    super.expand,
+    super.horizontal,
+    super.active,
+    super.valueLabels,
+    super.axis,
+    super.grid,
     super.format,
     super.semanticLabel,
     super.legend,
+    super.tooltip,
   }) : super(kind: _Kind.bar);
 }
 
@@ -13874,14 +13864,20 @@ class LineChart extends _Cartesian {
     required super.labels,
     required super.series,
     super.height,
+    super.curve,
+    super.dots,
+    super.valueLabels,
+    super.axis,
+    super.grid,
     super.format,
     super.semanticLabel,
     super.legend,
-    super.curved,
+    super.tooltip,
   }) : super(kind: _Kind.line);
 }
 
-/// Lines with the area under them filled; [stacked] puts each series on the one below.
+/// Lines with the area under them filled; [stacked] puts each series on the one below,
+/// and [expand] shows each label's values as shares of their whole.
 class AreaChart extends _Cartesian {
   const AreaChart({
     super.key,
@@ -13889,10 +13885,16 @@ class AreaChart extends _Cartesian {
     required super.series,
     super.height,
     super.stacked,
+    super.expand,
+    super.curve,
+    super.dots,
+    super.gradient,
+    super.axis,
+    super.grid,
     super.format,
     super.semanticLabel,
     super.legend,
-    super.curved,
+    super.tooltip,
   }) : super(kind: _Kind.area);
 }
 
@@ -13904,9 +13906,18 @@ abstract class _Cartesian extends StatefulWidget {
     required this.kind,
     this.height = 250,
     this.stacked = false,
-    this.curved = true,
-    this.legend = true,
-    this.format = _plain,
+    this.expand = false,
+    this.horizontal = false,
+    this.curve = ChartCurve.smooth,
+    this.dots = false,
+    this.gradient = true,
+    this.active,
+    this.valueLabels = false,
+    this.axis = false,
+    this.grid = true,
+    this.legend = ChartLegend.bottom,
+    this.tooltip = const ChartTooltip(),
+    this.format,
     this.semanticLabel,
   });
 
@@ -13914,10 +13925,40 @@ abstract class _Cartesian extends StatefulWidget {
   final List<ChartSeries> series;
   final _Kind kind;
   final double height;
-  final bool stacked, curved, legend;
 
-  /// How a value is written in the tooltip and read out: "KES 2,400".
-  final String Function(double value) format;
+  /// Each series on top of the one before.
+  final bool stacked;
+
+  /// Stacked, and each label's values as shares of their whole, up to 100%.
+  final bool expand;
+
+  /// Bars lying along, labels down the side.
+  final bool horizontal;
+  final ChartCurve curve;
+
+  /// A dot on each value of a line.
+  final bool dots;
+
+  /// An area fades to nothing at the bottom; false fills it evenly.
+  final bool gradient;
+
+  /// One label's bars drawn full and the rest faded: the one being talked about.
+  final int? active;
+
+  /// Each value written on its bar or point.
+  final bool valueLabels;
+
+  /// The scale's numbers beside the plot.
+  final bool axis;
+
+  /// Lines across the plot at each step of the scale.
+  final bool grid;
+  final ChartLegend legend;
+  final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip, on the chart and read out: "KES 2,400".
+  /// Shares are written as percentages unless you say.
+  final String Function(double value)? format;
 
   /// What the chart shows, read before its values: 'Visitors by month'.
   final String? semanticLabel;
@@ -13934,6 +13975,7 @@ class _CartesianState extends State<_Cartesian>
   );
   int? _at;
   bool _focused = false;
+  final _hidden = <int>{};
 
   @override
   void didChangeDependencies() {
@@ -13952,14 +13994,30 @@ class _CartesianState extends State<_Cartesian>
     super.dispose();
   }
 
-  List<Color> _colors(AshlarColors c) => [
-    for (final (i, s) in widget.series.indexed)
-      s.color ?? c.charts[i % c.charts.length],
+  bool get _stacked => widget.stacked || widget.expand;
+  String Function(double) get _format =>
+      widget.format ?? (widget.expand ? _percent : _plain);
+
+  /// The visible series, by their place in [_Cartesian.series].
+  List<int> get _shown => [
+    for (var i = 0; i < widget.series.length; i++)
+      if (!_hidden.contains(i)) i,
   ];
+
+  /// What is drawn for series [s] at label [i]: its value, or its share when expanded.
+  double _value(int s, int i) {
+    final v = widget.series[s].values[i];
+    if (!widget.expand) return v;
+    final whole = _shown.fold<double>(
+      0,
+      (a, k) => a + widget.series[k].values[i],
+    );
+    return whole == 0 ? 0 : v / whole;
+  }
 
   String get _summary => [
     for (final (i, label) in widget.labels.indexed)
-      '$label: ${[for (final s in widget.series) '${s.label} ${widget.format(s.values[i])}'].join(', ')}',
+      '$label: ${[for (final s in _shown) '${widget.series[s].label} ${_format(_value(s, i))}'].join(', ')}',
   ].join('; ');
 
   void _step(int by) {
@@ -13967,20 +14025,52 @@ class _CartesianState extends State<_Cartesian>
     setState(() => _at = ((_at ?? (by > 0 ? -1 : n)) + by).clamp(0, n - 1));
   }
 
+  void _toggle(int s) => setState(() {
+    if (_hidden.contains(s)) {
+      _hidden.remove(s);
+    } else if (_shown.length > 1) {
+      // One series always stays.
+      _hidden.add(s);
+    }
+  });
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final colors = _colors(c);
+    final colors = [
+      for (final (i, s) in widget.series.indexed)
+        s.color ?? c.charts[i % c.charts.length],
+    ];
     final n = widget.labels.length;
-    final top = _niceTop(
-      [
-        for (var i = 0; i < n; i++)
-          widget.stacked
-              ? widget.series.fold<double>(0, (s, x) => s + x.values[i])
-              : widget.series.map((s) => s.values[i]).fold<double>(0, math.max),
-      ].fold<double>(0, math.max),
-    );
+    final shown = _shown;
+    // The scale: from zero, or from below it, to a round number above the largest.
+    var lo = 0.0, hi = 0.0;
+    for (var i = 0; i < n; i++) {
+      if (_stacked) {
+        hi = math.max(hi, shown.fold<double>(0, (a, s) => a + _value(s, i)));
+      } else {
+        for (final s in shown) {
+          hi = math.max(hi, _value(s, i));
+          lo = math.min(lo, _value(s, i));
+        }
+      }
+    }
+    hi = widget.expand ? 1 : _niceTop(hi);
+    if (lo < 0) lo = -_niceTop(-lo);
+    final across = widget.horizontal && widget.kind == _Kind.bar;
+    // Room for the scale's numbers, and for the labels down the side of lying bars.
+    final gutter = across ? 80.0 : (widget.axis ? 40.0 : 0.0);
+    final foot = across ? (widget.axis ? 20.0 : 0.0) : 24.0;
+    final legend = widget.legend != ChartLegend.none && widget.series.length > 1
+        ? _Legend(
+            items: [
+              for (final (i, s) in widget.series.indexed)
+                (colors[i], s.label, s.icon, !_hidden.contains(i)),
+            ],
+            onToggle: _toggle,
+          )
+        : null;
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? 'Chart',
@@ -13997,11 +14087,17 @@ class _CartesianState extends State<_Cartesian>
           if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
             return KeyEventResult.ignored;
           }
-          if (e.logicalKey == LogicalKeyboardKey.arrowRight) {
+          final next = across
+              ? LogicalKeyboardKey.arrowDown
+              : LogicalKeyboardKey.arrowRight;
+          final back = across
+              ? LogicalKeyboardKey.arrowUp
+              : LogicalKeyboardKey.arrowLeft;
+          if (e.logicalKey == next) {
             _step(1);
             return KeyEventResult.handled;
           }
-          if (e.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (e.logicalKey == back) {
             _step(-1);
             return KeyEventResult.handled;
           }
@@ -14011,14 +14107,30 @@ class _CartesianState extends State<_Cartesian>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (legend != null && widget.legend == ChartLegend.top) ...[
+              legend,
+              const SizedBox(height: 12),
+            ],
             SizedBox(
               height: widget.height,
               child: LayoutBuilder(
                 builder: (context, box) {
-                  final plot = Size(box.maxWidth, widget.height - 24);
-                  int? indexAt(Offset p) => n == 0
-                      ? null
-                      : (p.dx / plot.width * n).floor().clamp(0, n - 1);
+                  final plot = Rect.fromLTWH(
+                    gutter,
+                    0,
+                    box.maxWidth - gutter,
+                    widget.height - foot,
+                  );
+                  int? indexAt(Offset p) {
+                    if (n == 0) return null;
+                    final along = across
+                        ? (p.dy - plot.top) / plot.height
+                        : (p.dx - plot.left) / plot.width;
+                    if (along < 0 || along > 1) return null;
+                    return (along * n).floor().clamp(0, n - 1);
+                  }
+
+                  final band = (across ? plot.height : plot.width) / n;
                   return MouseRegion(
                     onHover: (e) =>
                         setState(() => _at = indexAt(e.localPosition)),
@@ -14035,63 +14147,130 @@ class _CartesianState extends State<_Cartesian>
                               builder: (context, _) => CustomPaint(
                                 painter: _CartesianPainter(
                                   kind: widget.kind,
-                                  series: widget.series,
-                                  colors: colors,
-                                  top: top,
-                                  stacked: widget.stacked,
-                                  curved: widget.curved,
+                                  values: [
+                                    for (final s in shown)
+                                      [
+                                        for (var i = 0; i < n; i++)
+                                          _value(s, i),
+                                      ],
+                                  ],
+                                  colors: [for (final s in shown) colors[s]],
+                                  barColors: [
+                                    for (final s in shown)
+                                      widget.series[s].colors,
+                                  ],
+                                  plot: plot,
+                                  lo: lo,
+                                  hi: hi,
+                                  stacked: _stacked,
+                                  across: across,
+                                  curve: widget.curve,
+                                  dots: widget.dots,
+                                  gradient: widget.gradient,
+                                  active: widget.active,
+                                  valueLabels: widget.valueLabels,
+                                  axis: widget.axis,
+                                  grid: widget.grid,
+                                  format: _format,
+                                  text: t.text.xs.copyWith(
+                                    color: c.mutedForeground,
+                                  ),
+                                  valueText: t.text.xs.copyWith(
+                                    color: c.foreground,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                   grow: Curves.easeOutCubic.transform(
                                     _grow.value,
                                   ),
                                   at: _at,
-                                  grid: c.border,
+                                  gridColor: c.border,
                                   cursor: c.muted,
                                   ring: _focused ? c.ring : null,
-                                  plotHeight: plot.height,
                                 ),
                               ),
                             ),
                           ),
-                          // Labels along the bottom.
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: 20,
-                            // Time runs left to right in any language, as the plot is drawn.
-                            child: ExcludeSemantics(
-                              child: Row(
-                                textDirection: TextDirection.ltr,
-                                children: [
-                                  for (final l in widget.labels)
-                                    Expanded(
-                                      child: Text(
-                                        l,
-                                        textAlign: TextAlign.center,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.clip,
-                                        style: t.text.xs.copyWith(
-                                          color: c.mutedForeground,
-                                        ),
+                          // The labels: along the bottom, or down the side for lying
+                          // bars. Time runs left to right in any language, as drawn.
+                          if (across)
+                            for (final (i, l) in widget.labels.indexed)
+                              Positioned(
+                                left: 0,
+                                width: gutter - 8,
+                                top: plot.top + i * band,
+                                height: band,
+                                child: ExcludeSemantics(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      l,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: t.text.xs.copyWith(
+                                        color: c.mutedForeground,
                                       ),
                                     ),
-                                ],
+                                  ),
+                                ),
+                              )
+                          else
+                            Positioned(
+                              left: plot.left,
+                              right: 0,
+                              bottom: 0,
+                              height: 20,
+                              child: ExcludeSemantics(
+                                child: Row(
+                                  textDirection: TextDirection.ltr,
+                                  children: [
+                                    for (final l in widget.labels)
+                                      Expanded(
+                                        child: Text(
+                                          l,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          style: t.text.xs.copyWith(
+                                            color: c.mutedForeground,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (_at != null)
+                          if (_at != null && widget.tooltip.enabled)
                             _Tooltip(
-                              x: (_at! + .5) / n * plot.width,
-                              width: plot.width,
-                              title: widget.labels[_at!],
+                              at: across
+                                  ? Offset(
+                                      plot.right * .6,
+                                      plot.top + (_at! + .5) * band,
+                                    )
+                                  : Offset(plot.left + (_at! + .5) * band, 8),
+                              width: box.maxWidth,
+                              style: widget.tooltip,
+                              title:
+                                  widget.tooltip.title?.call(
+                                    widget.labels[_at!],
+                                  ) ??
+                                  widget.labels[_at!],
                               rows: [
-                                for (final (i, s) in widget.series.indexed)
+                                for (final s in shown)
                                   (
-                                    colors[i],
-                                    s.label,
-                                    widget.format(s.values[_at!]),
+                                    widget.series[s].colors?[_at!] ?? colors[s],
+                                    widget.series[s].label,
+                                    _format(_value(s, _at!)),
+                                    widget.series[s].icon,
                                   ),
                               ],
+                              total: widget.tooltip.total
+                                  ? _format(
+                                      shown.fold<double>(
+                                        0,
+                                        (a, s) => a + _value(s, _at!),
+                                      ),
+                                    )
+                                  : null,
                             ),
                         ],
                       ),
@@ -14100,14 +14279,9 @@ class _CartesianState extends State<_Cartesian>
                 },
               ),
             ),
-            if (widget.legend && widget.series.length > 1) ...[
+            if (legend != null && widget.legend == ChartLegend.bottom) ...[
               const SizedBox(height: 12),
-              _Legend(
-                items: [
-                  for (final (i, s) in widget.series.indexed)
-                    (colors[i], s.label),
-                ],
-              ),
+              legend,
             ],
           ],
         ),
@@ -14119,49 +14293,137 @@ class _CartesianState extends State<_Cartesian>
 class _CartesianPainter extends CustomPainter {
   _CartesianPainter({
     required this.kind,
-    required this.series,
+    required this.values,
     required this.colors,
-    required this.top,
+    required this.barColors,
+    required this.plot,
+    required this.lo,
+    required this.hi,
     required this.stacked,
-    required this.curved,
+    required this.across,
+    required this.curve,
+    required this.dots,
+    required this.gradient,
+    required this.active,
+    required this.valueLabels,
+    required this.axis,
+    required this.grid,
+    required this.format,
+    required this.text,
+    required this.valueText,
     required this.grow,
     required this.at,
-    required this.grid,
+    required this.gridColor,
     required this.cursor,
     required this.ring,
-    required this.plotHeight,
   });
 
   final _Kind kind;
-  final List<ChartSeries> series;
+  final List<List<double>> values;
   final List<Color> colors;
-  final double top, grow, plotHeight;
-  final bool stacked, curved;
-  final int? at;
-  final Color grid, cursor;
+  final List<List<Color>?> barColors;
+  final Rect plot;
+  final double lo, hi, grow;
+  final bool stacked, across, dots, gradient, valueLabels, axis, grid;
+  final ChartCurve curve;
+  final int? active, at;
+  final String Function(double) format;
+  final TextStyle text, valueText;
+  final Color gridColor, cursor;
   final Color? ring;
+
+  /// Where value [v] falls along the value axis, in pixels: up the plot, or along it for
+  /// lying bars. Grows from the zero line as the chart appears.
+  double _at(double v) {
+    double place(double x) => across
+        ? plot.left + (x - lo) / (hi - lo) * plot.width
+        : plot.bottom - (x - lo) / (hi - lo) * plot.height;
+    final zero = place(0);
+    return zero + (place(v) - zero) * grow;
+  }
+
+  void _write(
+    Canvas canvas,
+    String s,
+    Offset at,
+    TextStyle style,
+    Alignment align,
+  ) {
+    final p = TextPainter(
+      text: TextSpan(text: s, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    p.paint(
+      canvas,
+      at - Offset((align.x + 1) / 2 * p.width, (align.y + 1) / 2 * p.height),
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width, h = plotHeight;
-    if (series.isEmpty || series.first.values.isEmpty) return;
-    final n = series.first.values.length;
-    final band = w / n;
-    double y(double v) => h - (v / top) * h * grow;
+    if (values.isEmpty || values.first.isEmpty) return;
+    final n = values.first.length;
+    final band = (across ? plot.height : plot.width) / n;
 
-    // Gridlines: four steps, the bottom one solid.
+    // The scale: four steps, the zero line solid.
     final line = Paint()
-      ..color = grid
+      ..color = gridColor
       ..strokeWidth = 1;
     for (var i = 0; i <= 4; i++) {
-      final gy = (h * i / 4).roundToDouble() + .5;
-      canvas.drawLine(Offset(0, gy), Offset(w, gy), line);
+      final v = lo + (hi - lo) * i / 4;
+      if (across) {
+        final gx = plot.left + (v - lo) / (hi - lo) * plot.width;
+        if (grid) {
+          canvas.drawLine(
+            Offset(gx.roundToDouble() + .5, plot.top),
+            Offset(gx.roundToDouble() + .5, plot.bottom),
+            line,
+          );
+        }
+        if (axis) {
+          _write(
+            canvas,
+            format(v),
+            Offset(gx, plot.bottom + 4),
+            text,
+            Alignment.topCenter,
+          );
+        }
+      } else {
+        final gy =
+            (plot.bottom - (v - lo) / (hi - lo) * plot.height).roundToDouble() +
+            .5;
+        if (grid || v == 0) {
+          canvas.drawLine(Offset(plot.left, gy), Offset(plot.right, gy), line);
+        }
+        if (axis) {
+          _write(
+            canvas,
+            format(v),
+            Offset(plot.left - 8, gy),
+            text,
+            Alignment.centerRight,
+          );
+        }
+      }
     }
     // The column under the pointer, behind the bars.
     if (at != null && kind == _Kind.bar) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(at! * band + 2, 0, band - 4, h),
+          across
+              ? Rect.fromLTWH(
+                  plot.left,
+                  plot.top + at! * band + 2,
+                  plot.width,
+                  band - 4,
+                )
+              : Rect.fromLTWH(
+                  plot.left + at! * band + 2,
+                  plot.top,
+                  band - 4,
+                  plot.height,
+                ),
           const Radius.circular(6),
         ),
         Paint()..color = cursor,
@@ -14169,10 +14431,7 @@ class _CartesianPainter extends CustomPainter {
     }
     if (ring != null) {
       canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(0, 0, w, h).inflate(4),
-          const Radius.circular(8),
-        ),
+        RRect.fromRectAndRadius(plot.inflate(4), const Radius.circular(8)),
         Paint()
           ..color = ring!
           ..style = PaintingStyle.stroke
@@ -14181,27 +14440,77 @@ class _CartesianPainter extends CustomPainter {
     }
 
     if (kind == _Kind.bar) {
-      final groups = stacked ? 1 : series.length;
+      final groups = stacked ? 1 : values.length;
       final inner = band * .7, each = inner / groups;
       for (var i = 0; i < n; i++) {
         var base = 0.0;
-        for (final (s, ser) in series.indexed) {
-          final v = ser.values[i];
-          final left = i * band + (band - inner) / 2 + (stacked ? 0 : s * each);
-          final width = (stacked ? inner : each) - (stacked ? 0 : 2);
+        for (var s = 0; s < values.length; s++) {
+          final v = values[s][i];
+          final start =
+              i * band + (band - inner) / 2 + (stacked ? 0 : s * each);
+          final thick = (stacked ? inner : each) - (stacked ? 0 : 2);
           final from = stacked ? base : 0.0, to = from + v;
           base = to;
-          final rect = Rect.fromLTRB(left, y(to), left + width, y(from));
-          // Only a bar's top rounds; in a stack, only the top segment's.
-          final round = !stacked || s == series.length - 1;
+          final a = _at(from), b = _at(to);
+          final rect = across
+              ? Rect.fromLTRB(
+                  math.min(a, b),
+                  plot.top + start,
+                  math.max(a, b),
+                  plot.top + start + thick,
+                )
+              : Rect.fromLTRB(
+                  plot.left + start,
+                  math.min(a, b),
+                  plot.left + start + thick,
+                  math.max(a, b),
+                );
+          // Only a bar's far end rounds; in a stack, only the last segment's.
+          final round = !stacked || s == values.length - 1;
+          const r = Radius.circular(4);
+          final down = v < 0;
+          final corners = across
+              ? RRect.fromRectAndCorners(
+                  rect,
+                  topRight: round && !down ? r : Radius.zero,
+                  bottomRight: round && !down ? r : Radius.zero,
+                  topLeft: round && down ? r : Radius.zero,
+                  bottomLeft: round && down ? r : Radius.zero,
+                )
+              : RRect.fromRectAndCorners(
+                  rect,
+                  topLeft: round && !down ? r : Radius.zero,
+                  topRight: round && !down ? r : Radius.zero,
+                  bottomLeft: round && down ? r : Radius.zero,
+                  bottomRight: round && down ? r : Radius.zero,
+                );
+          final color = barColors[s]?[i] ?? colors[s];
           canvas.drawRRect(
-            RRect.fromRectAndCorners(
-              rect,
-              topLeft: Radius.circular(round ? 4 : 0),
-              topRight: Radius.circular(round ? 4 : 0),
-            ),
-            Paint()..color = colors[s],
+            corners,
+            Paint()
+              ..color = active == null || active == i
+                  ? color
+                  : color.withValues(alpha: color.a * .35),
           );
+          if (valueLabels &&
+              grow == 1 &&
+              (!stacked || s == values.length - 1)) {
+            final shown = stacked ? to : v;
+            _write(
+              canvas,
+              format(shown),
+              across
+                  ? Offset(rect.right + 6, rect.center.dy)
+                  : Offset(
+                      rect.center.dx,
+                      down ? rect.bottom + 4 : rect.top - 4,
+                    ),
+              valueText,
+              across
+                  ? Alignment.centerLeft
+                  : (down ? Alignment.topCenter : Alignment.bottomCenter),
+            );
+          }
         }
       }
       return;
@@ -14209,15 +14518,18 @@ class _CartesianPainter extends CustomPainter {
 
     // Lines and areas: points at the middle of each band.
     final base = List<double>.filled(n, 0);
-    for (final (s, ser) in series.indexed) {
+    for (var s = 0; s < values.length; s++) {
       final lows = List<double>.of(base);
       final points = [
         for (var i = 0; i < n; i++)
-          Offset((i + .5) * band, y((stacked ? base[i] : 0) + ser.values[i])),
+          Offset(
+            plot.left + (i + .5) * band,
+            _at((stacked ? base[i] : 0) + values[s][i]),
+          ),
       ];
       if (stacked) {
         for (var i = 0; i < n; i++) {
-          base[i] += ser.values[i];
+          base[i] += values[s][i];
         }
       }
       final path = _through(points);
@@ -14226,15 +14538,16 @@ class _CartesianPainter extends CustomPainter {
         if (stacked && s > 0) {
           final under = [
             for (var i = n - 1; i >= 0; i--)
-              Offset((i + .5) * band, y(lows[i])),
+              Offset(plot.left + (i + .5) * band, _at(lows[i])),
           ];
           // Down to the series below and back along it, as one outline.
           fill.lineTo(under.first.dx, under.first.dy);
           fill.extendWithPath(_through(under), Offset.zero);
         } else {
+          final zero = _at(0);
           fill
-            ..lineTo(points.last.dx, h)
-            ..lineTo(points.first.dx, h);
+            ..lineTo(points.last.dx, zero)
+            ..lineTo(points.first.dx, zero);
         }
         fill.close();
         canvas.drawPath(
@@ -14243,11 +14556,16 @@ class _CartesianPainter extends CustomPainter {
             ..shader = LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                colors[s].withValues(alpha: .4),
-                colors[s].withValues(alpha: .05),
-              ],
-            ).createShader(Rect.fromLTWH(0, 0, w, h)),
+              colors: gradient
+                  ? [
+                      colors[s].withValues(alpha: .4),
+                      colors[s].withValues(alpha: .05),
+                    ]
+                  : [
+                      colors[s].withValues(alpha: .3),
+                      colors[s].withValues(alpha: .3),
+                    ],
+            ).createShader(plot),
         );
       }
       canvas.drawPath(
@@ -14258,20 +14576,49 @@ class _CartesianPainter extends CustomPainter {
           ..strokeWidth = 2
           ..strokeJoin = StrokeJoin.round,
       );
-      if (at != null) {
-        canvas.drawCircle(points[at!], 4, Paint()..color = colors[s]);
+      for (var i = 0; i < n; i++) {
+        if (dots || at == i) {
+          canvas.drawCircle(
+            points[i],
+            at == i ? 4 : 3,
+            Paint()..color = colors[s],
+          );
+        }
+        if (valueLabels && grow == 1) {
+          _write(
+            canvas,
+            format(values[s][i]),
+            points[i] - const Offset(0, 8),
+            valueText,
+            Alignment.bottomCenter,
+          );
+        }
       }
     }
     if (at != null) {
-      final x = (at! + .5) * band;
-      canvas.drawLine(Offset(x, 0), Offset(x, h), Paint()..color = grid);
+      final x = plot.left + (at! + .5) * band;
+      canvas.drawLine(
+        Offset(x, plot.top),
+        Offset(x, plot.bottom),
+        Paint()..color = gridColor,
+      );
     }
   }
 
-  /// A path through [p]: straight, or a smooth curve that never overshoots a point.
+  /// A path through [p]: straight, stepped, or a smooth curve that never overshoots.
   Path _through(List<Offset> p) {
     final path = Path()..moveTo(p.first.dx, p.first.dy);
-    if (!curved || p.length < 3) {
+    if (curve == ChartCurve.step) {
+      for (var i = 1; i < p.length; i++) {
+        final mid = (p[i - 1].dx + p[i].dx) / 2;
+        path
+          ..lineTo(mid, p[i - 1].dy)
+          ..lineTo(mid, p[i].dy)
+          ..lineTo(p[i].dx, p[i].dy);
+      }
+      return path;
+    }
+    if (curve == ChartCurve.linear || p.length < 3) {
       for (final q in p.skip(1)) {
         path.lineTo(q.dx, q.dy);
       }
@@ -14305,16 +14652,22 @@ class _CartesianPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_CartesianPainter old) =>
-      old.grow != grow ||
-      old.at != at ||
-      old.series != series ||
-      old.colors != colors ||
-      old.ring != ring ||
-      old.top != top;
+  bool shouldRepaint(_CartesianPainter old) => true;
+}
+
+/// How a pie writes on its slices.
+enum PieLabels {
+  none,
+
+  /// Each slice's value, inside it.
+  amounts,
+
+  /// Each slice's name, outside it.
+  titles,
 }
 
 /// Slices of a whole, as a pie or, with a hole, a donut with [center] in the middle.
+/// [inner] adds a second ring inside, for a whole split two ways.
 ///
 /// ```dart
 /// PieChart(slices: [ChartSlice('M-Pesa', 275), ChartSlice('Card', 200), ChartSlice('Bank', 90)], center: Text('565'))
@@ -14323,18 +14676,33 @@ class PieChart extends StatefulWidget {
   const PieChart({
     super.key,
     required this.slices,
+    this.inner,
     this.size = 250,
     this.donut = true,
     this.center,
-    this.legend = true,
+    this.active,
+    this.labels = PieLabels.none,
+    this.separators = true,
+    this.legend = ChartLegend.bottom,
+    this.tooltip = const ChartTooltip(),
     this.format = _plain,
     this.semanticLabel,
   });
 
   final List<ChartSlice> slices;
+  final List<ChartSlice>? inner;
   final double size;
-  final bool donut, legend;
+  final bool donut;
   final Widget? center;
+
+  /// One slice drawn out from the rest: the one being talked about.
+  final int? active;
+  final PieLabels labels;
+
+  /// A thin line of the page between slices.
+  final bool separators;
+  final ChartLegend legend;
+  final ChartTooltip tooltip;
   final String Function(double value) format;
   final String? semanticLabel;
 
@@ -14371,14 +14739,18 @@ class _PieChartState extends State<PieChart>
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final colors = [
-      for (final (i, s) in widget.slices.indexed)
+    List<Color> colorsOf(List<ChartSlice> slices) => [
+      for (final (i, s) in slices.indexed)
         s.color ?? c.charts[i % c.charts.length],
     ];
+    final colors = colorsOf(widget.slices);
     final total = widget.slices.fold<double>(0, (a, s) => a + s.value);
+    // Names outside the pie need room round it.
+    final margin = widget.labels == PieLabels.titles ? 36.0 : 0.0;
+    final pie = widget.size - margin * 2;
     int? sliceAt(Offset p) {
       final centre = Offset(widget.size / 2, widget.size / 2), d = p - centre;
-      final r = widget.size / 2;
+      final r = pie / 2;
       if (d.distance > r || (widget.donut && d.distance < r * .6)) return null;
       // Angles run clockwise from the top.
       var a = math.atan2(d.dy, d.dx) + math.pi / 2;
@@ -14391,6 +14763,23 @@ class _PieChartState extends State<PieChart>
       return null;
     }
 
+    final sweep = Curves.easeOutCubic.transform(_grow.value);
+    // Where each slice's middle points, clockwise from the top.
+    final middles = <double>[];
+    var run = -math.pi / 2;
+    for (final s in widget.slices) {
+      final a = total == 0 ? 0.0 : s.value / total * 2 * math.pi;
+      middles.add(run + a / 2);
+      run += a;
+    }
+    final legend = widget.legend == ChartLegend.none
+        ? null
+        : _Legend(
+            items: [
+              for (final (i, s) in widget.slices.indexed)
+                (colors[i], s.label, s.icon, true),
+            ],
+          );
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? 'Chart',
@@ -14400,6 +14789,10 @@ class _PieChartState extends State<PieChart>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (legend != null && widget.legend == ChartLegend.top) ...[
+            legend,
+            const SizedBox(height: 12),
+          ],
           MouseRegion(
             onHover: (e) => setState(() => _at = sliceAt(e.localPosition)),
             onExit: (_) => setState(() => _at = null),
@@ -14407,45 +14800,739 @@ class _PieChartState extends State<PieChart>
               onTapDown: (d) => setState(() => _at = sliceAt(d.localPosition)),
               child: SizedBox.square(
                 dimension: widget.size,
+                child: AnimatedBuilder(
+                  animation: _grow,
+                  builder: (context, _) => Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned.fill(
+                        child: Padding(
+                          padding: EdgeInsets.all(margin),
+                          child: CustomPaint(
+                            painter: _PiePainter(
+                              rings: [
+                                (
+                                  [for (final s in widget.slices) s.value],
+                                  colors,
+                                ),
+                                if (widget.inner case final inner?)
+                                  (
+                                    [for (final s in inner) s.value],
+                                    colorsOf(inner),
+                                  ),
+                              ],
+                              donut: widget.donut,
+                              at: _at ?? widget.active,
+                              gap: widget.separators ? c.background : null,
+                              sweep: Curves.easeOutCubic.transform(_grow.value),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (sweep == 1 && widget.labels != PieLabels.none)
+                        for (final (i, s) in widget.slices.indexed)
+                          _PieLabel(
+                            at:
+                                Offset(widget.size / 2, widget.size / 2) +
+                                Offset(
+                                      math.cos(middles[i]),
+                                      math.sin(middles[i]),
+                                    ) *
+                                    (widget.labels == PieLabels.titles
+                                        ? pie / 2 + 18
+                                        : pie / 2 * (widget.donut ? .8 : .65)),
+                            text: widget.labels == PieLabels.titles
+                                ? s.label
+                                : widget.format(s.value),
+                            style: widget.labels == PieLabels.titles
+                                ? t.text.xs.copyWith(color: c.foreground)
+                                : t.text.xs.copyWith(
+                                    color: c.background,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                          ),
+                      if (widget.center != null && widget.donut)
+                        DefaultTextStyle.merge(
+                          style: t.text.xl.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: c.foreground,
+                          ),
+                          textAlign: TextAlign.center,
+                          child: widget.center!,
+                        ),
+                      if (_at != null && widget.tooltip.enabled)
+                        Positioned(
+                          top: 0,
+                          left: widget.size * .5,
+                          child: _TooltipCard(
+                            style: widget.tooltip,
+                            title: widget.slices[_at!].label,
+                            rows: [
+                              (
+                                colors[_at!],
+                                '${(widget.slices[_at!].value / total * 100).round()}%',
+                                widget.format(widget.slices[_at!].value),
+                                widget.slices[_at!].icon,
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (legend != null && widget.legend == ChartLegend.bottom) ...[
+            const SizedBox(height: 12),
+            legend,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Text centred on a point, without catching the pointer.
+class _PieLabel extends StatelessWidget {
+  const _PieLabel({required this.at, required this.text, required this.style});
+
+  final Offset at;
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: at.dx - 60,
+    top: at.dy - 10,
+    width: 120,
+    height: 20,
+    child: IgnorePointer(
+      child: ExcludeSemantics(
+        child: Center(
+          child: Text(
+            text,
+            maxLines: 1,
+            style: style,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _PiePainter extends CustomPainter {
+  _PiePainter({
+    required this.rings,
+    required this.donut,
+    required this.at,
+    required this.gap,
+    required this.sweep,
+  });
+
+  /// Each ring's values and colours, outside in.
+  final List<(List<double>, List<Color>)> rings;
+  final bool donut;
+  final int? at;
+  final Color? gap;
+  final double sweep;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.shortestSide / 2;
+    final centre = size.center(Offset.zero);
+    // With rings inside, each takes an even share of the width.
+    final hole = donut ? r * .6 : (rings.length > 1 ? r * .3 : 0.0);
+    final thick = (r - 4 - hole) / rings.length;
+    for (final (k, (values, colors)) in rings.indexed) {
+      final total = values.fold<double>(0, (a, v) => a + v);
+      if (total <= 0) continue;
+      final outer = r - 4 - k * thick;
+      var start = -math.pi / 2;
+      for (final (i, v) in values.indexed) {
+        final a = v / total * 2 * math.pi * sweep;
+        // The slice under the pointer, or the one being talked about, stands out.
+        final grow = k == 0 && i == at ? 6.0 : 0.0;
+        final paint = Paint()
+          ..color = colors[i]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = thick + grow;
+        canvas.drawArc(
+          Rect.fromCircle(center: centre, radius: outer - thick / 2 + grow / 2),
+          start,
+          a,
+          false,
+          paint,
+        );
+        if (gap != null) {
+          // A thin line of the page between slices.
+          final dir = Offset(math.cos(start), math.sin(start));
+          canvas.drawLine(
+            centre + dir * (outer - thick),
+            centre + dir * (outer + grow),
+            Paint()
+              ..color = gap!
+              ..strokeWidth = 2,
+          );
+        }
+        start += a;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PiePainter old) => true;
+}
+
+/// The lines a radar chart is drawn over.
+enum RadarGrid {
+  /// Polygons through the axes.
+  polygon,
+
+  /// Circles round the centre.
+  circle,
+
+  /// Nothing behind the shapes.
+  none,
+}
+
+/// Several values for each series round a circle, joined into a shape: how a series
+/// spreads across the labels, and how series compare.
+///
+/// ```dart
+/// RadarChart(
+///   labels: ['Speed', 'Range', 'Price', 'Comfort', 'Safety'],
+///   series: [ChartSeries('This year', [80, 60, 70, 90, 75])],
+/// )
+/// ```
+class RadarChart extends StatefulWidget {
+  const RadarChart({
+    super.key,
+    required this.labels,
+    required this.series,
+    this.size = 280,
+    this.grid = RadarGrid.polygon,
+    this.spokes = true,
+    this.gridFill = false,
+    this.fill = true,
+    this.dots = false,
+    this.max,
+    this.legend = ChartLegend.bottom,
+    this.tooltip = const ChartTooltip(),
+    this.format = _plain,
+    this.semanticLabel,
+  });
+
+  /// One per axis, round the circle clockwise from the top.
+  final List<String> labels;
+  final List<ChartSeries> series;
+  final double size;
+  final RadarGrid grid;
+
+  /// Lines from the centre out to each label.
+  final bool spokes;
+
+  /// The grid's bands filled, every other one.
+  final bool gridFill;
+
+  /// The shapes filled; false draws their outlines alone.
+  final bool fill;
+  final bool dots;
+
+  /// The value at the edge; a round number above the largest when not given.
+  final double? max;
+  final ChartLegend legend;
+  final ChartTooltip tooltip;
+  final String Function(double value) format;
+  final String? semanticLabel;
+
+  @override
+  State<RadarChart> createState() => _RadarChartState();
+}
+
+class _RadarChartState extends State<RadarChart>
+    with SingleTickerProviderStateMixin {
+  late final _grow = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 700),
+  );
+  int? _at;
+  final _hidden = <int>{};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (still) {
+      _grow.value = 1;
+    } else if (_grow.isDismissed) {
+      _grow.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _grow.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final n = widget.labels.length;
+    final colors = [
+      for (final (i, s) in widget.series.indexed)
+        s.color ?? c.charts[i % c.charts.length],
+    ];
+    final shown = [
+      for (var i = 0; i < widget.series.length; i++)
+        if (!_hidden.contains(i)) i,
+    ];
+    final top =
+        widget.max ??
+        _niceTop(
+          [for (final s in shown) ...widget.series[s].values]
+              .fold<double>(0, math.max),
+        );
+    // Room round the shape for the labels.
+    const margin = 40.0;
+    final r = widget.size / 2 - margin;
+    final centre = Offset(widget.size / 2, widget.size / 2);
+    double angle(int i) => -math.pi / 2 + i * 2 * math.pi / n;
+    int? axisAt(Offset p) {
+      final d = p - centre;
+      if (d.distance > r + margin || n == 0) return null;
+      var a = math.atan2(d.dy, d.dx) + math.pi / 2;
+      if (a < 0) a += 2 * math.pi;
+      return (a / (2 * math.pi) * n).round() % n;
+    }
+
+    final legend = widget.legend != ChartLegend.none && widget.series.length > 1
+        ? _Legend(
+            items: [
+              for (final (i, s) in widget.series.indexed)
+                (colors[i], s.label, s.icon, !_hidden.contains(i)),
+            ],
+            onToggle: (s) => setState(() {
+              if (_hidden.contains(s)) {
+                _hidden.remove(s);
+              } else if (shown.length > 1) {
+                _hidden.add(s);
+              }
+            }),
+          )
+        : null;
+    return Semantics(
+      container: true,
+      label: widget.semanticLabel ?? 'Chart',
+      value: [
+        for (final (i, l) in widget.labels.indexed)
+          '$l: ${[for (final s in shown) '${widget.series[s].label} ${widget.format(widget.series[s].values[i])}'].join(', ')}',
+      ].join('; '),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (legend != null && widget.legend == ChartLegend.top) ...[
+            legend,
+            const SizedBox(height: 12),
+          ],
+          MouseRegion(
+            onHover: (e) => setState(() => _at = axisAt(e.localPosition)),
+            onExit: (_) => setState(() => _at = null),
+            child: GestureDetector(
+              onTapDown: (d) => setState(() => _at = axisAt(d.localPosition)),
+              child: SizedBox.square(
+                dimension: widget.size,
                 child: Stack(
                   clipBehavior: Clip.none,
-                  alignment: Alignment.center,
                   children: [
                     Positioned.fill(
                       child: AnimatedBuilder(
                         animation: _grow,
                         builder: (context, _) => CustomPaint(
-                          painter: _PiePainter(
-                            values: [for (final s in widget.slices) s.value],
-                            colors: colors,
-                            donut: widget.donut,
+                          painter: _RadarPainter(
+                            n: n,
+                            values: [
+                              for (final s in shown) widget.series[s].values,
+                            ],
+                            colors: [for (final s in shown) colors[s]],
+                            top: top,
+                            r: r,
+                            centre: centre,
+                            grid: widget.grid,
+                            spokes: widget.spokes,
+                            gridFill: widget.gridFill ? c.muted : null,
+                            fill: widget.fill,
+                            dots: widget.dots,
                             at: _at,
-                            gap: c.background,
-                            sweep: Curves.easeOutCubic.transform(_grow.value),
+                            gridColor: c.border,
+                            grow: Curves.easeOutCubic.transform(_grow.value),
                           ),
                         ),
                       ),
                     ),
-                    if (widget.center != null && widget.donut)
-                      DefaultTextStyle.merge(
-                        style: t.text.xl.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: c.foreground,
+                    for (var i = 0; i < n; i++)
+                      _PieLabel(
+                        at:
+                            centre +
+                            Offset(math.cos(angle(i)), math.sin(angle(i))) *
+                                (r + 18),
+                        text: widget.labels[i],
+                        style: t.text.xs.copyWith(
+                          color: i == _at ? c.foreground : c.mutedForeground,
+                          fontWeight: i == _at ? FontWeight.w500 : null,
                         ),
-                        textAlign: TextAlign.center,
-                        child: widget.center!,
                       ),
-                    if (_at != null)
+                    if (_at != null && widget.tooltip.enabled)
                       Positioned(
                         top: 0,
-                        left: widget.size * .5,
+                        left: widget.size * .55,
                         child: _TooltipCard(
+                          style: widget.tooltip,
+                          title:
+                              widget.tooltip.title?.call(widget.labels[_at!]) ??
+                              widget.labels[_at!],
+                          rows: [
+                            for (final s in shown)
+                              (
+                                colors[s],
+                                widget.series[s].label,
+                                widget.format(widget.series[s].values[_at!]),
+                                widget.series[s].icon,
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (legend != null && widget.legend == ChartLegend.bottom) ...[
+            const SizedBox(height: 12),
+            legend,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RadarPainter extends CustomPainter {
+  _RadarPainter({
+    required this.n,
+    required this.values,
+    required this.colors,
+    required this.top,
+    required this.r,
+    required this.centre,
+    required this.grid,
+    required this.spokes,
+    required this.gridFill,
+    required this.fill,
+    required this.dots,
+    required this.at,
+    required this.gridColor,
+    required this.grow,
+  });
+
+  final int n;
+  final List<List<double>> values;
+  final List<Color> colors;
+  final double top, r, grow;
+  final Offset centre;
+  final RadarGrid grid;
+  final bool spokes, fill, dots;
+  final Color? gridFill;
+  final int? at;
+  final Color gridColor;
+
+  Offset _point(int i, double distance) {
+    final a = -math.pi / 2 + i * 2 * math.pi / n;
+    return centre + Offset(math.cos(a), math.sin(a)) * distance;
+  }
+
+  Path _ring(double distance) {
+    if (grid == RadarGrid.circle) {
+      return Path()..addOval(Rect.fromCircle(center: centre, radius: distance));
+    }
+    final p = Path()..moveTo(_point(0, distance).dx, _point(0, distance).dy);
+    for (var i = 1; i < n; i++) {
+      p.lineTo(_point(i, distance).dx, _point(i, distance).dy);
+    }
+    return p..close();
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (n < 3) return;
+    final line = Paint()
+      ..color = gridColor
+      ..style = PaintingStyle.stroke;
+    if (grid != RadarGrid.none) {
+      // Bands from the edge in, every other one filled when asked.
+      for (var k = 4; k >= 1; k--) {
+        final ring = _ring(r * k / 4);
+        if (gridFill != null && k.isOdd) {
+          canvas.drawPath(
+            ring,
+            Paint()..color = gridFill!.withValues(alpha: .6),
+          );
+        }
+        canvas.drawPath(ring, line);
+      }
+    }
+    if (spokes) {
+      for (var i = 0; i < n; i++) {
+        canvas.drawLine(
+          centre,
+          _point(i, r),
+          i == at
+              ? (Paint()
+                  ..color = gridColor
+                  ..strokeWidth = 2)
+              : line,
+        );
+      }
+    }
+    for (final (s, v) in values.indexed) {
+      final shape = Path();
+      for (var i = 0; i < n; i++) {
+        final p = _point(i, r * (v[i] / top).clamp(0, 1) * grow);
+        i == 0 ? shape.moveTo(p.dx, p.dy) : shape.lineTo(p.dx, p.dy);
+      }
+      shape.close();
+      if (fill) {
+        canvas.drawPath(
+          shape,
+          Paint()..color = colors[s].withValues(alpha: .55),
+        );
+      }
+      canvas.drawPath(
+        shape,
+        Paint()
+          ..color = colors[s]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeJoin = StrokeJoin.round,
+      );
+      for (var i = 0; i < n; i++) {
+        if (dots || i == at) {
+          canvas.drawCircle(
+            _point(i, r * (v[i] / top).clamp(0, 1) * grow),
+            i == at ? 4 : 3,
+            Paint()..color = colors[s],
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RadarPainter old) => true;
+}
+
+/// Values as arcs round a centre: one ring each, or one ring split between them
+/// ([stacked]); round the whole circle, or the top half.
+///
+/// ```dart
+/// RadialChart(slices: [ChartSlice('Visitors', 1260)], max: 2000, center: Text('1,260'))
+/// ```
+class RadialChart extends StatefulWidget {
+  const RadialChart({
+    super.key,
+    required this.slices,
+    this.max,
+    this.size = 250,
+    this.stacked = false,
+    this.half = false,
+    this.track = true,
+    this.center,
+    this.legend = ChartLegend.none,
+    this.tooltip = const ChartTooltip(),
+    this.format = _plain,
+    this.semanticLabel,
+  });
+
+  final List<ChartSlice> slices;
+
+  /// The value a full ring stands for; the largest value, or the total when stacked,
+  /// when not given.
+  final double? max;
+  final double size;
+
+  /// One ring, split between the slices, in place of a ring each.
+  final bool stacked;
+
+  /// The top half of the circle, a gauge, in place of all of it.
+  final bool half;
+
+  /// A faint full ring behind each arc, to show what a full one would be.
+  final bool track;
+
+  /// In the middle: the figure the chart is about.
+  final Widget? center;
+  final ChartLegend legend;
+  final ChartTooltip tooltip;
+  final String Function(double value) format;
+  final String? semanticLabel;
+
+  @override
+  State<RadialChart> createState() => _RadialChartState();
+}
+
+class _RadialChartState extends State<RadialChart>
+    with SingleTickerProviderStateMixin {
+  late final _grow = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+  int? _at;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (still) {
+      _grow.value = 1;
+    } else if (_grow.isDismissed) {
+      _grow.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _grow.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final colors = [
+      for (final (i, s) in widget.slices.indexed)
+        s.color ?? c.charts[i % c.charts.length],
+    ];
+    final values = [for (final s in widget.slices) s.value];
+    final max =
+        widget.max ??
+        (widget.stacked
+            ? values.fold<double>(0, (a, v) => a + v)
+            : values.fold<double>(0, math.max));
+    final height = widget.half ? widget.size / 2 + 24 : widget.size;
+    final legend = widget.legend == ChartLegend.none
+        ? null
+        : _Legend(
+            items: [
+              for (final (i, s) in widget.slices.indexed)
+                (colors[i], s.label, s.icon, true),
+            ],
+          );
+    // Which arc is under the pointer: the ring it is on, or the part of the one ring.
+    int? arcAt(Offset p) {
+      final centre = Offset(widget.size / 2, widget.size / 2);
+      final d = p - centre;
+      final r = widget.size / 2 - 4;
+      if (d.distance > r) return null;
+      if (widget.stacked) {
+        if (d.distance < r * .7) return null;
+        var a = math.atan2(d.dy, d.dx) - (widget.half ? math.pi : -math.pi / 2);
+        while (a < 0) {
+          a += 2 * math.pi;
+        }
+        final whole = widget.half ? math.pi : 2 * math.pi;
+        var run = 0.0;
+        for (final (i, v) in values.indexed) {
+          run += v / max * whole;
+          if (a <= run) return i;
+        }
+        return null;
+      }
+      final thick = r * .6 / values.length;
+      final ring = ((r - d.distance) / thick).floor();
+      return ring >= 0 && ring < values.length ? ring : null;
+    }
+
+    return Semantics(
+      container: true,
+      label: widget.semanticLabel ?? 'Chart',
+      value: [
+        for (final s in widget.slices)
+          '${s.label} ${widget.format(s.value)} of ${widget.format(max)}',
+      ].join(', '),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (legend != null && widget.legend == ChartLegend.top) ...[
+            legend,
+            const SizedBox(height: 12),
+          ],
+          MouseRegion(
+            onHover: (e) => setState(() => _at = arcAt(e.localPosition)),
+            onExit: (_) => setState(() => _at = null),
+            child: GestureDetector(
+              onTapDown: (d) => setState(() => _at = arcAt(d.localPosition)),
+              child: SizedBox(
+                width: widget.size,
+                height: height,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      width: widget.size,
+                      height: widget.size,
+                      child: AnimatedBuilder(
+                        animation: _grow,
+                        builder: (context, _) => CustomPaint(
+                          painter: _RadialPainter(
+                            values: values,
+                            colors: colors,
+                            max: max,
+                            stacked: widget.stacked,
+                            half: widget.half,
+                            track: widget.track ? c.muted : null,
+                            at: _at,
+                            grow: Curves.easeOutCubic.transform(_grow.value),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (widget.center != null)
+                      Positioned(
+                        left: 0,
+                        width: widget.size,
+                        top: widget.half ? widget.size / 2 - 48 : 0,
+                        height: widget.half ? 56 : widget.size,
+                        child: Center(
+                          child: DefaultTextStyle.merge(
+                            style: t.text.xl.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: c.foreground,
+                            ),
+                            textAlign: TextAlign.center,
+                            child: widget.center!,
+                          ),
+                        ),
+                      ),
+                    if (_at != null && widget.tooltip.enabled)
+                      Positioned(
+                        top: 0,
+                        left: widget.size * .55,
+                        child: _TooltipCard(
+                          style: widget.tooltip,
                           title: widget.slices[_at!].label,
                           rows: [
                             (
                               colors[_at!],
-                              '${(widget.slices[_at!].value / total * 100).round()}%',
-                              widget.format(widget.slices[_at!].value),
+                              '${(values[_at!] / max * 100).round()}%',
+                              widget.format(values[_at!]),
+                              widget.slices[_at!].icon,
                             ),
                           ],
                         ),
@@ -14455,14 +15542,9 @@ class _PieChartState extends State<PieChart>
               ),
             ),
           ),
-          if (widget.legend) ...[
+          if (legend != null && widget.legend == ChartLegend.bottom) ...[
             const SizedBox(height: 12),
-            _Legend(
-              items: [
-                for (final (i, s) in widget.slices.indexed)
-                  (colors[i], s.label),
-              ],
-            ),
+            legend,
           ],
         ],
       ),
@@ -14470,113 +15552,159 @@ class _PieChartState extends State<PieChart>
   }
 }
 
-class _PiePainter extends CustomPainter {
-  _PiePainter({
+class _RadialPainter extends CustomPainter {
+  _RadialPainter({
     required this.values,
     required this.colors,
-    required this.donut,
+    required this.max,
+    required this.stacked,
+    required this.half,
+    required this.track,
     required this.at,
-    required this.gap,
-    required this.sweep,
+    required this.grow,
   });
 
   final List<double> values;
   final List<Color> colors;
-  final bool donut;
+  final double max, grow;
+  final bool stacked, half;
+  final Color? track;
   final int? at;
-  final Color gap;
-  final double sweep;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final total = values.fold<double>(0, (a, v) => a + v);
-    if (total <= 0) return;
-    final r = size.shortestSide / 2;
+    if (values.isEmpty || max <= 0) return;
+    final r = size.shortestSide / 2 - 4;
     final centre = size.center(Offset.zero);
-    var start = -math.pi / 2;
-    for (final (i, v) in values.indexed) {
-      final a = v / total * 2 * math.pi * sweep;
-      // The slice under the pointer stands out a little.
-      final grow = i == at ? 4.0 : 0.0;
-      final rect = Rect.fromCircle(center: centre, radius: r - 4 + grow);
-      final paint = Paint()..color = colors[i];
-      if (donut) {
-        final thick = r * .4;
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = thick + grow;
+    final start = half ? math.pi : -math.pi / 2;
+    final whole = half ? math.pi : 2 * math.pi;
+    Paint stroke(Color color, double width) => Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round;
+    if (stacked) {
+      final thick = r * .3;
+      final rect = Rect.fromCircle(center: centre, radius: r - thick / 2);
+      if (track != null) {
+        canvas.drawArc(rect, start, whole, false, stroke(track!, thick));
+      }
+      var from = start;
+      for (final (i, v) in values.indexed) {
+        final a = v / max * whole * grow;
         canvas.drawArc(
-          Rect.fromCircle(center: centre, radius: r - 4 - thick / 2 + grow / 2),
-          start,
+          rect,
+          from,
           a,
           false,
-          paint,
+          stroke(colors[i], thick + (i == at ? 6 : 0))
+            ..strokeCap = StrokeCap.butt,
         );
-      } else {
-        canvas.drawArc(rect, start, a, true, paint);
+        from += a;
       }
-      // A thin line of the page between slices.
-      final edge = centre + Offset(math.cos(start), math.sin(start)) * r;
-      canvas.drawLine(
-        centre,
-        edge,
-        Paint()
-          ..color = gap
-          ..strokeWidth = 2,
-      );
-      start += a;
+      return;
     }
-    if (donut) {
-      canvas.drawCircle(centre, r * .6 - 4, Paint()..color = gap);
+    // A ring each, the first outside, with a little room between them.
+    final thick = r * .6 / values.length;
+    for (final (i, v) in values.indexed) {
+      final radius = r - thick * i - thick / 2;
+      final rect = Rect.fromCircle(center: centre, radius: radius);
+      final width = thick * .75 + (i == at ? 4 : 0);
+      if (track != null) {
+        canvas.drawArc(rect, start, whole, false, stroke(track!, thick * .75));
+      }
+      canvas.drawArc(
+        rect,
+        start,
+        (v / max).clamp(0, 1) * whole * grow,
+        false,
+        stroke(colors[i], width),
+      );
     }
   }
 
   @override
-  bool shouldRepaint(_PiePainter old) =>
-      old.sweep != sweep ||
-      old.at != at ||
-      old.values != values ||
-      old.colors != colors;
+  bool shouldRepaint(_RadialPainter old) => true;
 }
 
 /// The tooltip over a chart, kept inside its width.
 class _Tooltip extends StatelessWidget {
   const _Tooltip({
-    required this.x,
+    required this.at,
     required this.width,
+    required this.style,
     required this.title,
     required this.rows,
+    this.total,
   });
 
-  final double x, width;
+  final Offset at;
+  final double width;
+  final ChartTooltip style;
   final String title;
-  final List<(Color, String, String)> rows;
+  final List<(Color, String, String, IconData?)> rows;
+  final String? total;
 
   @override
   Widget build(BuildContext context) {
     // Right of the pointer, or left of it near the right edge.
-    final right = x > width * .6;
+    final right = at.dx > width * .6;
     return Positioned(
-      top: 8,
-      left: right ? null : x + 12,
-      right: right ? width - x + 12 : null,
+      top: at.dy,
+      left: right ? null : at.dx + 12,
+      right: right ? width - at.dx + 12 : null,
       child: IgnorePointer(
-        child: _TooltipCard(title: title, rows: rows),
+        child: _TooltipCard(
+          style: style,
+          title: title,
+          rows: rows,
+          total: total,
+        ),
       ),
     );
   }
 }
 
 class _TooltipCard extends StatelessWidget {
-  const _TooltipCard({required this.title, required this.rows});
+  const _TooltipCard({
+    required this.style,
+    required this.title,
+    required this.rows,
+    this.total,
+  });
 
+  final ChartTooltip style;
   final String title;
-  final List<(Color, String, String)> rows;
+  final List<(Color, String, String, IconData?)> rows;
+  final String? total;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
+    Widget mark(Color color, IconData? icon) => switch (style.indicator) {
+      _ when icon != null => _SeriesIcon(icon, color: color),
+      ChartIndicator.dot => Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+      ChartIndicator.line => Container(width: 4, height: 16, color: color),
+      ChartIndicator.dashed => SizedBox(
+        width: 4,
+        height: 16,
+        child: CustomPaint(painter: _Dash(color)),
+      ),
+      ChartIndicator.none => const SizedBox.shrink(),
+    };
+    final value = t.text.xs.copyWith(
+      color: c.foreground,
+      fontWeight: FontWeight.w500,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return ExcludeSemantics(
       child: Container(
         constraints: const BoxConstraints(minWidth: 128),
@@ -14593,45 +15721,53 @@ class _TooltipCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: t.text.xs.copyWith(
-                fontWeight: FontWeight.w500,
-                color: c.foreground,
+            if (style.showTitle) ...[
+              Text(
+                title,
+                style: t.text.xs.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: c.foreground,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            for (final (color, label, value) in rows)
+              const SizedBox(height: 4),
+            ],
+            for (final (color, label, v, icon) in rows)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                    mark(color, icon),
+                    if (style.indicator != ChartIndicator.none || icon != null)
+                      const SizedBox(width: 8),
                     Text(
                       label,
                       style: t.text.xs.copyWith(color: c.mutedForeground),
                     ),
                     const SizedBox(width: 16),
-                    Text(
-                      value,
-                      style: t.text.xs.copyWith(
-                        color: c.foreground,
-                        fontWeight: FontWeight.w500,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
+                    Text(v, style: value),
                   ],
                 ),
               ),
+            if (total != null) ...[
+              const SizedBox(height: 4),
+              Container(height: 1, width: 120, color: c.border),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Total',
+                    style: t.text.xs.copyWith(
+                      color: c.foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(total!, style: value),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -14639,40 +15775,143 @@ class _TooltipCard extends StatelessWidget {
   }
 }
 
-class _Legend extends StatelessWidget {
-  const _Legend({required this.items});
+/// A series' icon, drawn from its font.
+class _SeriesIcon extends StatelessWidget {
+  const _SeriesIcon(this.icon, {required this.color});
 
-  final List<(Color, String)> items;
+  final IconData icon;
+  static const size = 12.0;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    String.fromCharCode(icon.codePoint),
+    style: TextStyle(
+      fontFamily: icon.fontFamily,
+      package: icon.fontPackage,
+      fontSize: size,
+      height: 1,
+      color: color,
+    ),
+  );
+}
+
+class _Dash extends CustomPainter {
+  const _Dash(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    for (var y = 0.0; y < size.height; y += 4) {
+      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 2), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Dash old) => old.color != color;
+}
+
+/// The series' names and colours; with [onToggle], each is a button that hides and shows
+/// its series.
+class _Legend extends StatelessWidget {
+  const _Legend({required this.items, this.onToggle});
+
+  final List<(Color, String, IconData?, bool)> items;
+  final ValueChanged<int>? onToggle;
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    return ExcludeSemantics(
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 16,
-        runSpacing: 4,
-        children: [
-          for (final (color, label) in items)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+    final c = t.colors;
+    Widget item(int i) {
+      final (color, label, icon, on) = items[i];
+      final row = Opacity(
+        opacity: on ? 1 : .4,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null)
+              _SeriesIcon(icon, color: color)
+            else
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: t.text.xs.copyWith(color: t.colors.foreground),
-                ),
-              ],
+              ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: t.text.xs.copyWith(
+                color: c.foreground,
+                decoration: on ? null : TextDecoration.lineThrough,
+              ),
             ),
-        ],
+          ],
+        ),
+      );
+      if (onToggle == null) return ExcludeSemantics(child: row);
+      // A button: pressed, tapped, or Enter or Space from the keyboard.
+      return Semantics(
+        button: true,
+        toggled: on,
+        label: label,
+        excludeSemantics: true,
+        onTap: () => onToggle!(i),
+        child: _LegendButton(onPressed: () => onToggle!(i), child: row),
+      );
+    }
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 4,
+      children: [for (var i = 0; i < items.length; i++) item(i)],
+    );
+  }
+}
+
+class _LegendButton extends StatefulWidget {
+  const _LegendButton({required this.onPressed, required this.child});
+
+  final VoidCallback onPressed;
+  final Widget child;
+
+  @override
+  State<_LegendButton> createState() => _LegendButtonState();
+}
+
+class _LegendButtonState extends State<_LegendButton> {
+  var _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return FocusableActionDetector(
+      mouseCursor: SystemMouseCursors.click,
+      onShowFocusHighlight: (v) => setState(() => _focused = v),
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) => widget.onPressed(),
+        ),
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(t.radiusSm),
+            border: Border.all(
+              color: _focused ? t.colors.ring : const Color(0x00000000),
+            ),
+          ),
+          child: widget.child,
+        ),
       ),
     );
   }
@@ -14681,14 +15920,12 @@ class _Legend extends StatelessWidget {
     },
   ),
   'sidebar': Component(
-    description:
-        "An app's navigation down the side: variants, submenus, actions, a rail.",
-    requires: ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"],
+    description: "An app's navigation down the side: variants, submenus, actions, a rail.",
+    requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sidebar.dart':
-          r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
+      'sidebar.dart': r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -15468,14 +16705,12 @@ class SidebarTrigger extends StatelessWidget {
     },
   ),
   'form': Component(
-    description:
-        "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
-    requires: ["field", "input"],
+    description: "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
+    requires: ["field","input"],
     packages: [],
     block: false,
     files: {
-      'form.dart':
-          r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
+      'form.dart': r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
 //
 // Built on Form and FormField from Flutter's widgets layer, which keep each field's value
 // and run its checks. This file draws each field as a Field with its error under it, and
@@ -15790,12 +17025,11 @@ extension FormSend on FormState {
   ),
   'login-01': Component(
     description: "A sign-in card in the middle of the page.",
-    requires: ["button", "card", "form"],
+    requires: ["button","card","form"],
     packages: [],
     block: true,
     files: {
-      'blocks/login_01.dart':
-          r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
+      'blocks/login_01.dart': r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
 // change. A sign-in card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -15919,12 +17153,11 @@ class _Login01State extends State<Login01> {
   ),
   'login-02': Component(
     description: "Sign in on one side, a picture on the other.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_02.dart':
-          r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
+      'blocks/login_02.dart': r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -16149,12 +17382,11 @@ class _Or extends StatelessWidget {
   ),
   'login-03': Component(
     description: "A sign-in card on a muted page, other accounts first.",
-    requires: ["button", "card", "form", "separator", "theme"],
+    requires: ["button","card","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_03.dart':
-          r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
+      'blocks/login_03.dart': r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
 // change. A sign-in card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -16373,12 +17605,11 @@ class _Or extends StatelessWidget {
   ),
   'login-04': Component(
     description: "A sign-in card in two halves, the form and a picture.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_04.dart':
-          r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
+      'blocks/login_04.dart': r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -16600,12 +17831,11 @@ class _Or extends StatelessWidget {
   ),
   'login-05': Component(
     description: "Sign in with an email address alone.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_05.dart':
-          r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
+      'blocks/login_05.dart': r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
 // change. Email only, for a sign-in link sent by mail, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -16769,12 +17999,11 @@ class _Login05State extends State<Login05> {
   ),
   'signup-01': Component(
     description: "A sign-up card in the middle of the page.",
-    requires: ["button", "card", "form"],
+    requires: ["button","card","form"],
     packages: [],
     block: true,
     files: {
-      'blocks/signup_01.dart':
-          r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
+      'blocks/signup_01.dart': r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
 // change. A sign-up card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -16919,12 +18148,11 @@ class _Signup01State extends State<Signup01> {
   ),
   'signup-02': Component(
     description: "Sign up on one side, a picture on the other.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_02.dart':
-          r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
+      'blocks/signup_02.dart': r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -17176,12 +18404,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-03': Component(
     description: "A sign-up card on a muted page, other accounts first.",
-    requires: ["button", "card", "form", "separator", "theme"],
+    requires: ["button","card","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_03.dart':
-          r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
+      'blocks/signup_03.dart': r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
 // change. A sign-up card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -17426,12 +18653,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-04': Component(
     description: "A sign-up card in two halves, the form and a picture.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_04.dart':
-          r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
+      'blocks/signup_04.dart': r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -17680,12 +18906,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-05': Component(
     description: "A sign-up page under a logo, other accounts below.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_05.dart':
-          r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
+      'blocks/signup_05.dart': r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
 // change. The full sign-up form, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -17891,29 +19116,12 @@ class _Signup05State extends State<Signup05> {
     },
   ),
   'dashboard-01': Component(
-    description:
-        "An app home: sidebar, header, four figures, a chart over time and a table.",
-    requires: [
-      "avatar",
-      "badge",
-      "button",
-      "card",
-      "chart",
-      "data-table",
-      "dropdown-menu",
-      "popover",
-      "select",
-      "separator",
-      "sidebar",
-      "tabs",
-      "theme",
-      "toggle-group",
-    ],
+    description: "An app home: sidebar, header, four figures, a chart over time and a table.",
+    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/dashboard_01.dart':
-          r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
+      'blocks/dashboard_01.dart': r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
 // yours to change. An app's home: a sidebar, a header, four figures, a chart over time and
 // a table of documents.
 //
@@ -18555,22 +19763,12 @@ class _DocumentsState extends State<_Documents> {
     },
   ),
   'sidebar-01': Component(
-    description:
-        "Documentation navigation grouped by section, with versions and search.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Documentation navigation grouped by section, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_01.dart':
-          r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
+      'blocks/sidebar_01.dart': r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
 // to change. Documentation navigation grouped by section, with a version switcher and a
 // search field at the top.
 
@@ -18826,22 +20024,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-02': Component(
-    description:
-        "Documentation in sections that fold away, with versions and search.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Documentation in sections that fold away, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_02.dart':
-          r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
+      'blocks/sidebar_02.dart': r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
 // to change. Documentation navigation in sections that fold away, with a version switcher
 // and a search field at the top.
 
@@ -19105,12 +20293,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-03': Component(
     description: "Documentation with each section's pages listed under it.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_03.dart':
-          r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
+      'blocks/sidebar_03.dart': r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
 // to change. Documentation navigation with each section's pages listed under it.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -19332,12 +20519,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-04': Component(
     description: "A floating sidebar, sections with their pages under them.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_04.dart':
-          r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
+      'blocks/sidebar_04.dart': r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
 // to change. A floating sidebar: a rounded panel in from the edge, sections with their pages
 // under them.
 
@@ -19561,12 +20747,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-05': Component(
     description: "Sections that open as you need them, with search.",
-    requires: ["breadcrumb", "input", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_05.dart':
-          r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
+      'blocks/sidebar_05.dart': r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
 // to change. Documentation navigation whose sections open as you need them, with a search
 // field at the top.
 
@@ -19800,24 +20985,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-06': Component(
-    description:
-        "Sections that open their pages as menus, a newsletter card at the foot.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "card",
-      "dropdown-menu",
-      "input",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Sections that open their pages as menus, a newsletter card at the foot.",
+    requires: ["breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_06.dart':
-          r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
+      'blocks/sidebar_06.dart': r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
 // to change. Each section opens its pages as a menu beside the sidebar, and a newsletter
 // sign-up sits at the bottom.
 
@@ -20095,23 +21268,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-07': Component(
-    description:
-        "An app sidebar that collapses to icons: teams, sections, projects, user.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "An app sidebar that collapses to icons: teams, sections, projects, user.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_07.dart':
-          r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
+      'blocks/sidebar_07.dart': r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
 // to change. An app's sidebar that collapses to a strip of icons: teams, the main
 // sections with their pages, projects, and who is signed in.
 
@@ -20454,23 +21616,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-08': Component(
-    description:
-        "The page inset as a card, help and feedback at the sidebar's foot.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "The page inset as a card, help and feedback at the sidebar's foot.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_08.dart':
-          r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
+      'blocks/sidebar_08.dart': r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
 // to change. The page set into the sidebar as a card, with help and feedback kept at the
 // sidebar's foot.
 
@@ -20785,25 +21936,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-09': Component(
-    description:
-        "Two sidebars as a mail app has them: folders, and their messages.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "input",
-      "label",
-      "separator",
-      "sidebar",
-      "switch",
-      "theme",
-      "tooltip",
-    ],
+    description: "Two sidebars as a mail app has them: folders, and their messages.",
+    requires: ["avatar","breadcrumb","button","input","label","separator","sidebar","switch","theme","tooltip"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_09.dart':
-          r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
+      'blocks/sidebar_09.dart': r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
 // to change. Two sidebars side by side, as a mail app has them: a strip of folders that
 // stays, and the folder's messages beside it, which fold away.
 
@@ -21151,20 +22289,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-10': Component(
     description: "A notes app's sidebar, with the page's actions in a popover.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_10.dart':
-          r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
+      'blocks/sidebar_10.dart': r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
 // to change. A notes app: search and the inbox at the top, favourites and workspaces under
 // them, and the page's actions in a panel that opens from its header.
 
@@ -21538,12 +22667,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-11': Component(
     description: "A project's files as a tree, the changed ones above it.",
-    requires: ["breadcrumb", "pressable", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","pressable","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_11.dart':
-          r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
+      'blocks/sidebar_11.dart': r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
 // to change. A project's files as a tree whose folders open and close, with the changed
 // files listed above it.
 
@@ -21839,24 +22967,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-12': Component(
     description: "A calendar app: a month to pick from, and calendars to show.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "calendar",
-      "checkbox",
-      "dropdown-menu",
-      "field",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_12.dart':
-          r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
+      'blocks/sidebar_12.dart': r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
 // to change. A calendar app: who is signed in, a month to pick a day from, and the
 // calendars to show.
 
@@ -22166,12 +23281,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-13': Component(
     description: "Settings in a dialog, their sections down its side.",
-    requires: ["breadcrumb", "button", "dialog", "separator", "theme"],
+    requires: ["breadcrumb","button","dialog","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_13.dart':
-          r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
+      'blocks/sidebar_13.dart': r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
 // to change. Settings in a dialog: their sections down the side, the open one beside them.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -22295,12 +23409,11 @@ class _SettingsState extends State<_Settings> {
   ),
   'sidebar-14': Component(
     description: "A table of contents on the right of the page.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: [],
     block: true,
     files: {
-      'blocks/sidebar_14.dart':
-          r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
+      'blocks/sidebar_14.dart': r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
 // to change. A table of contents on the right of the page.
 
 import 'package:flutter/widgets.dart';
@@ -22451,26 +23564,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-15': Component(
-    description:
-        "A sidebar on each side: pages on the left, a calendar on the right.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "calendar",
-      "checkbox",
-      "dropdown-menu",
-      "field",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "A sidebar on each side: pages on the left, a calendar on the right.",
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_15.dart':
-          r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
+      'blocks/sidebar_15.dart': r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
 // to change. A sidebar on each side: pages on the left, folding away; a calendar and the
 // calendars to show on the right, staying put.
 
@@ -22936,22 +24035,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-16': Component(
     description: "A site header across the top, the sidebar under it.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["avatar","breadcrumb","button","dropdown-menu","input","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_16.dart':
-          r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
+      'blocks/sidebar_16.dart': r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
 // to change. A site header across the top that stays as the page scrolls, and the sidebar
 // under it.
 
@@ -23230,14 +24318,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'message': Component(
-    description:
-        "One turn in a conversation: who sent it, what they said, a line above or below.",
+    description: "One turn in a conversation: who sent it, what they said, a line above or below.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'message.dart':
-          r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
+      'message.dart': r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -23365,14 +24451,12 @@ class MessageGroup extends StatelessWidget {
     },
   ),
   'bubble': Component(
-    description:
-        "What was said, in a rounded fill on the sender's side, with reactions.",
-    requires: ["message", "pressable", "theme"],
+    description: "What was said, in a rounded fill on the sender's side, with reactions.",
+    requires: ["message","pressable","theme"],
     packages: [],
     block: false,
     files: {
-      'bubble.dart':
-          r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
+      'bubble.dart': r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -23550,14 +24634,12 @@ class BubbleGroup extends StatelessWidget {
     },
   ),
   'marker': Component(
-    description:
-        "A note in a conversation that nobody said: a day, someone joining, thinking.",
+    description: "A note in a conversation that nobody said: a day, someone joining, thinking.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'marker.dart':
-          r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
+      'marker.dart': r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -23659,14 +24741,12 @@ class Marker extends StatelessWidget {
     },
   ),
   'attachment': Component(
-    description:
-        "A file or picture in a conversation: what it is and how its upload is going.",
-    requires: ["button", "pressable", "spinner", "theme"],
+    description: "A file or picture in a conversation: what it is and how its upload is going.",
+    requires: ["button","pressable","spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'attachment.dart':
-          r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
+      'attachment.dart': r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -24082,14 +25162,12 @@ class _Dashes extends CustomPainter {
     },
   ),
   'message-scroller': Component(
-    description:
-        "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
+    description: "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'message_scroller.dart':
-          r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
+      'message_scroller.dart': r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
 // yours to change.
 //
 // A conversation's scrolling, built on CustomScrollView from Flutter's widgets layer. It
@@ -24714,14 +25792,12 @@ class _EndButton extends StatelessWidget {
     },
   ),
   'questionnaire': Component(
-    description:
-        "Questions one at a time: one choice, several or words, with keys for every answer.",
-    requires: ["button", "input", "kbd", "pressable", "progress", "theme"],
+    description: "Questions one at a time: one choice, several or words, with keys for every answer.",
+    requires: ["button","input","kbd","pressable","progress","theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'questionnaire.dart':
-          r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
+      'questionnaire.dart': r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
 // to change.
 //
 // Questions asked one at a time: a choice, several, or words of your own, each required or

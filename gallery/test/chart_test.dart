@@ -25,7 +25,7 @@ void main() {
         const BarChart(labels: labels, series: series),
         const BarChart(labels: labels, series: series, stacked: true),
         const LineChart(labels: labels, series: series),
-        const LineChart(labels: labels, series: series, curved: false),
+        const LineChart(labels: labels, series: series, curve: ChartCurve.linear),
         const AreaChart(labels: labels, series: series),
         const AreaChart(labels: labels, series: series, stacked: true),
         const PieChart(
