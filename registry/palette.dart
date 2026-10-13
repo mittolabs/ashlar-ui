@@ -86,7 +86,7 @@ final _stoneLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE7E5E4),
   input: const Color(0xFFE7E5E4),
-  ring: const Color(0xFFA6A09B),
+  ring: const Color(0xFF79716B),
   sidebar: const Color(0xFFFAFAF9),
   sidebarForeground: const Color(0xFF0C0A09),
   sidebarPrimary: const Color(0xFF1C1917),
@@ -94,7 +94,7 @@ final _stoneLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF5F5F4),
   sidebarAccentForeground: const Color(0xFF1C1917),
   sidebarBorder: const Color(0xFFE7E5E4),
-  sidebarRing: const Color(0xFFA6A09B),
+  sidebarRing: const Color(0xFF79716B),
 );
 
 /// Stone, dark.
@@ -146,7 +146,7 @@ final _zincLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE4E4E7),
   input: const Color(0xFFE4E4E7),
-  ring: const Color(0xFF9F9FA9),
+  ring: const Color(0xFF71717B),
   sidebar: const Color(0xFFFAFAFA),
   sidebarForeground: const Color(0xFF09090B),
   sidebarPrimary: const Color(0xFF18181B),
@@ -154,7 +154,7 @@ final _zincLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF4F4F5),
   sidebarAccentForeground: const Color(0xFF18181B),
   sidebarBorder: const Color(0xFFE4E4E7),
-  sidebarRing: const Color(0xFF9F9FA9),
+  sidebarRing: const Color(0xFF71717B),
 );
 
 /// Zinc, dark.
@@ -206,7 +206,7 @@ final _mauveLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE7E4E7),
   input: const Color(0xFFE7E4E7),
-  ring: const Color(0xFFA89EA9),
+  ring: const Color(0xFF79697B),
   sidebar: const Color(0xFFFAFAFA),
   sidebarForeground: const Color(0xFF0C090C),
   sidebarPrimary: const Color(0xFF1D161E),
@@ -214,7 +214,7 @@ final _mauveLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF3F1F3),
   sidebarAccentForeground: const Color(0xFF1D161E),
   sidebarBorder: const Color(0xFFE7E4E7),
-  sidebarRing: const Color(0xFFA89EA9),
+  sidebarRing: const Color(0xFF79697B),
 );
 
 /// Mauve, dark.
@@ -266,7 +266,7 @@ final _oliveLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE8E8E3),
   input: const Color(0xFFE8E8E3),
-  ring: const Color(0xFFABAB9C),
+  ring: const Color(0xFF7C7C67),
   sidebar: const Color(0xFFFBFBF9),
   sidebarForeground: const Color(0xFF0C0C09),
   sidebarPrimary: const Color(0xFF1D1D16),
@@ -274,7 +274,7 @@ final _oliveLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF4F4F0),
   sidebarAccentForeground: const Color(0xFF1D1D16),
   sidebarBorder: const Color(0xFFE8E8E3),
-  sidebarRing: const Color(0xFFABAB9C),
+  sidebarRing: const Color(0xFF7C7C67),
 );
 
 /// Olive, dark.
@@ -326,7 +326,7 @@ final _mistLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE3E7E8),
   input: const Color(0xFFE3E7E8),
-  ring: const Color(0xFF9CA8AB),
+  ring: const Color(0xFF67787C),
   sidebar: const Color(0xFFF9FBFB),
   sidebarForeground: const Color(0xFF090B0C),
   sidebarPrimary: const Color(0xFF161B1D),
@@ -334,7 +334,7 @@ final _mistLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF1F3F3),
   sidebarAccentForeground: const Color(0xFF161B1D),
   sidebarBorder: const Color(0xFFE3E7E8),
-  sidebarRing: const Color(0xFF9CA8AB),
+  sidebarRing: const Color(0xFF67787C),
 );
 
 /// Mist, dark.
@@ -386,7 +386,7 @@ final _taupeLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE8E4E3),
   input: const Color(0xFFE8E4E3),
-  ring: const Color(0xFFABA09C),
+  ring: const Color(0xFF7C6D67),
   sidebar: const Color(0xFFFBFAF9),
   sidebarForeground: const Color(0xFF0C0A09),
   sidebarPrimary: const Color(0xFF1D1816),
@@ -394,7 +394,7 @@ final _taupeLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF3F1F1),
   sidebarAccentForeground: const Color(0xFF1D1816),
   sidebarBorder: const Color(0xFFE8E4E3),
-  sidebarRing: const Color(0xFFABA09C),
+  sidebarRing: const Color(0xFF7C6D67),
 );
 
 /// Taupe, dark.

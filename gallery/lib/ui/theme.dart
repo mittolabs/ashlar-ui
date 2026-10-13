@@ -221,7 +221,7 @@ class AshlarColors {
     destructiveForeground: Color(0xFFFFFFFF),
     border: Color(0xFFE5E5E5),
     input: Color(0xFFE5E5E5),
-    ring: Color(0xFFA1A1A1),
+    ring: Color(0xFF737373),
     chart1: Color(0xFFF54A00),
     chart2: Color(0xFF009689),
     chart3: Color(0xFF104E64),
@@ -234,7 +234,7 @@ class AshlarColors {
     sidebarAccent: Color(0xFFF5F5F5),
     sidebarAccentForeground: Color(0xFF171717),
     sidebarBorder: Color(0xFFE5E5E5),
-    sidebarRing: Color(0xFFA1A1A1),
+    sidebarRing: Color(0xFF737373),
   );
 
   /// Neutral, dark.
@@ -254,7 +254,8 @@ class AshlarColors {
     accent: Color(0xFF262626),
     accentForeground: Color(0xFFFAFAFA),
     destructive: Color(0xFFFF6467),
-    destructiveForeground: Color(0xFFFFFFFF),
+    // Red-950: white on this red would be 2.9:1, under the 4.5 text needs.
+    destructiveForeground: Color(0xFF460809),
     border: Color(0x1AFFFFFF),
     input: Color(0x26FFFFFF),
     ring: Color(0xFF737373),

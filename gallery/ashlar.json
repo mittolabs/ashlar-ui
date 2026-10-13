@@ -1,8 +1,8 @@
 {
   "path": "lib/ui",
   "files": {
-    "lib/ui/theme.dart": "381ecedfaed337e9",
-    "lib/ui/palette.dart": "-59bf5dd5f1d17d4b",
+    "lib/ui/theme.dart": "7e63ebce808614ff",
+    "lib/ui/palette.dart": "-551367245d505afb",
     "lib/ui/selection.dart": "02f8489d5ea07429",
     "lib/ui/app.dart": "-35cd3903c9638c50",
     "lib/ui/pressable.dart": "2b1f6ad329d16b24",

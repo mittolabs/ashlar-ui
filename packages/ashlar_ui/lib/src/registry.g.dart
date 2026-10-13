@@ -6,14 +6,12 @@ import 'component.dart';
 /// Every component the ashlar command can add, by name.
 const registry = <String, Component>{
   'theme': Component(
-    description:
-        "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
+    description: "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'theme.dart':
-          r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
+      'theme.dart': r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
 
 import 'package:flutter/foundation.dart'
@@ -236,7 +234,7 @@ class AshlarColors {
     destructiveForeground: Color(0xFFFFFFFF),
     border: Color(0xFFE5E5E5),
     input: Color(0xFFE5E5E5),
-    ring: Color(0xFFA1A1A1),
+    ring: Color(0xFF737373),
     chart1: Color(0xFFF54A00),
     chart2: Color(0xFF009689),
     chart3: Color(0xFF104E64),
@@ -249,7 +247,7 @@ class AshlarColors {
     sidebarAccent: Color(0xFFF5F5F5),
     sidebarAccentForeground: Color(0xFF171717),
     sidebarBorder: Color(0xFFE5E5E5),
-    sidebarRing: Color(0xFFA1A1A1),
+    sidebarRing: Color(0xFF737373),
   );
 
   /// Neutral, dark.
@@ -269,7 +267,8 @@ class AshlarColors {
     accent: Color(0xFF262626),
     accentForeground: Color(0xFFFAFAFA),
     destructive: Color(0xFFFF6467),
-    destructiveForeground: Color(0xFFFFFFFF),
+    // Red-950: white on this red would be 2.9:1, under the 4.5 text needs.
+    destructiveForeground: Color(0xFF460809),
     border: Color(0x1AFFFFFF),
     input: Color(0x26FFFFFF),
     ring: Color(0xFF737373),
@@ -587,8 +586,7 @@ class AboveKeyboard extends StatelessWidget {
   );
 }
 ''',
-      'palette.dart':
-          r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
+      'palette.dart': r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
 //
 // GENERATED from shadcn/ui's themes (registry/themes.ts, oklch converted to sRGB) by the
 // palette tool. Edit the tool, not this file, to change every colour at once.
@@ -676,7 +674,7 @@ final _stoneLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE7E5E4),
   input: const Color(0xFFE7E5E4),
-  ring: const Color(0xFFA6A09B),
+  ring: const Color(0xFF79716B),
   sidebar: const Color(0xFFFAFAF9),
   sidebarForeground: const Color(0xFF0C0A09),
   sidebarPrimary: const Color(0xFF1C1917),
@@ -684,7 +682,7 @@ final _stoneLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF5F5F4),
   sidebarAccentForeground: const Color(0xFF1C1917),
   sidebarBorder: const Color(0xFFE7E5E4),
-  sidebarRing: const Color(0xFFA6A09B),
+  sidebarRing: const Color(0xFF79716B),
 );
 
 /// Stone, dark.
@@ -736,7 +734,7 @@ final _zincLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE4E4E7),
   input: const Color(0xFFE4E4E7),
-  ring: const Color(0xFF9F9FA9),
+  ring: const Color(0xFF71717B),
   sidebar: const Color(0xFFFAFAFA),
   sidebarForeground: const Color(0xFF09090B),
   sidebarPrimary: const Color(0xFF18181B),
@@ -744,7 +742,7 @@ final _zincLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF4F4F5),
   sidebarAccentForeground: const Color(0xFF18181B),
   sidebarBorder: const Color(0xFFE4E4E7),
-  sidebarRing: const Color(0xFF9F9FA9),
+  sidebarRing: const Color(0xFF71717B),
 );
 
 /// Zinc, dark.
@@ -796,7 +794,7 @@ final _mauveLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE7E4E7),
   input: const Color(0xFFE7E4E7),
-  ring: const Color(0xFFA89EA9),
+  ring: const Color(0xFF79697B),
   sidebar: const Color(0xFFFAFAFA),
   sidebarForeground: const Color(0xFF0C090C),
   sidebarPrimary: const Color(0xFF1D161E),
@@ -804,7 +802,7 @@ final _mauveLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF3F1F3),
   sidebarAccentForeground: const Color(0xFF1D161E),
   sidebarBorder: const Color(0xFFE7E4E7),
-  sidebarRing: const Color(0xFFA89EA9),
+  sidebarRing: const Color(0xFF79697B),
 );
 
 /// Mauve, dark.
@@ -856,7 +854,7 @@ final _oliveLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE8E8E3),
   input: const Color(0xFFE8E8E3),
-  ring: const Color(0xFFABAB9C),
+  ring: const Color(0xFF7C7C67),
   sidebar: const Color(0xFFFBFBF9),
   sidebarForeground: const Color(0xFF0C0C09),
   sidebarPrimary: const Color(0xFF1D1D16),
@@ -864,7 +862,7 @@ final _oliveLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF4F4F0),
   sidebarAccentForeground: const Color(0xFF1D1D16),
   sidebarBorder: const Color(0xFFE8E8E3),
-  sidebarRing: const Color(0xFFABAB9C),
+  sidebarRing: const Color(0xFF7C7C67),
 );
 
 /// Olive, dark.
@@ -916,7 +914,7 @@ final _mistLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE3E7E8),
   input: const Color(0xFFE3E7E8),
-  ring: const Color(0xFF9CA8AB),
+  ring: const Color(0xFF67787C),
   sidebar: const Color(0xFFF9FBFB),
   sidebarForeground: const Color(0xFF090B0C),
   sidebarPrimary: const Color(0xFF161B1D),
@@ -924,7 +922,7 @@ final _mistLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF1F3F3),
   sidebarAccentForeground: const Color(0xFF161B1D),
   sidebarBorder: const Color(0xFFE3E7E8),
-  sidebarRing: const Color(0xFF9CA8AB),
+  sidebarRing: const Color(0xFF67787C),
 );
 
 /// Mist, dark.
@@ -976,7 +974,7 @@ final _taupeLight = AshlarColors.light.copyWith(
   destructive: const Color(0xFFE7000B),
   border: const Color(0xFFE8E4E3),
   input: const Color(0xFFE8E4E3),
-  ring: const Color(0xFFABA09C),
+  ring: const Color(0xFF7C6D67),
   sidebar: const Color(0xFFFBFAF9),
   sidebarForeground: const Color(0xFF0C0A09),
   sidebarPrimary: const Color(0xFF1D1816),
@@ -984,7 +982,7 @@ final _taupeLight = AshlarColors.light.copyWith(
   sidebarAccent: const Color(0xFFF3F1F1),
   sidebarAccentForeground: const Color(0xFF1D1816),
   sidebarBorder: const Color(0xFFE8E4E3),
-  sidebarRing: const Color(0xFFABA09C),
+  sidebarRing: const Color(0xFF7C6D67),
 );
 
 /// Taupe, dark.
@@ -1515,14 +1513,12 @@ const _accents = <AshlarAccent, (_Accent, _Accent)>{
     },
   ),
   'app': Component(
-    description:
-        "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
-    requires: ["theme", "selection"],
+    description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
+    requires: ["theme","selection"],
     packages: [],
     block: false,
     files: {
-      'app.dart':
-          r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
+      'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
 
 import 'package:flutter/foundation.dart';
@@ -1739,14 +1735,12 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     },
   ),
   'pressable': Component(
-    description:
-        "Hover, press, keyboard focus and activation, and a press area big enough for a finger, for every control.",
-    requires: ["theme", "group"],
+    description: "Hover, press, keyboard focus and activation, and a press area big enough for a finger, for every control.",
+    requires: ["theme","group"],
     packages: [],
     block: false,
     files: {
-      'pressable.dart':
-          r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
+      'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
@@ -1962,14 +1956,12 @@ class _PressableState extends State<Pressable> {
     },
   ),
   'button': Component(
-    description:
-        "Six variants and four sizes, with leading and trailing icons.",
-    requires: ["theme", "pressable", "group"],
+    description: "Six variants and four sizes, with leading and trailing icons.",
+    requires: ["theme","pressable","group"],
     packages: [],
     block: false,
     files: {
-      'button.dart':
-          r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
+      'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2200,10 +2192,9 @@ class Button extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "theme"],
+    testNeeds: ["app","theme"],
     tests: {
-      'button_test.dart':
-          r'''// Tests for Button. Copied into your app by `ashlar add button` with the component: they
+      'button_test.dart': r'''// Tests for Button. Copied into your app by `ashlar add button` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -2418,8 +2409,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'badge.dart':
-          r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
+      'badge.dart': r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2517,8 +2507,7 @@ class Badge extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'card.dart':
-          r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
+      'card.dart': r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2746,10 +2735,9 @@ class CardFooter extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "badge", "button", "separator", "theme"],
+    testNeeds: ["app","badge","button","separator","theme"],
     tests: {
-      'card_test.dart':
-          r'''// Tests for Card. Copied into your app by `ashlar add card` with the component: they
+      'card_test.dart': r'''// Tests for Card. Copied into your app by `ashlar add card` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/badge.dart';
@@ -2846,8 +2834,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'separator.dart':
-          r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
+      'separator.dart': r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -2880,14 +2867,12 @@ class Separator extends StatelessWidget {
     },
   ),
   'input': Component(
-    description:
-        "A text field with selection handles and a cut, copy and paste menu.",
-    requires: ["theme", "selection"],
+    description: "A text field with selection handles and a cut, copy and paste menu.",
+    requires: ["theme","selection"],
     packages: [],
     block: false,
     files: {
-      'input.dart':
-          r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
+      'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
 // The widgets layer gives EditableText and no field around it: no selection handles, no
 // cut and paste menu, no tap to place the cursor. This file and selection.dart supply them.
@@ -3188,10 +3173,9 @@ class _InputState extends State<Input>
 }
 ''',
     },
-    testNeeds: ["app", "theme"],
+    testNeeds: ["app","theme"],
     tests: {
-      'input_test.dart':
-          r'''// Tests for Input. Copied into your app by `ashlar add input` with the component: they
+      'input_test.dart': r'''// Tests for Input. Copied into your app by `ashlar add input` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show Tristate;
 
@@ -3317,12 +3301,11 @@ void main() {
   ),
   'checkbox': Component(
     description: "A box that is ticked or not.",
-    requires: ["theme", "pressable"],
+    requires: ["theme","pressable"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'checkbox.dart':
-          r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
+      'checkbox.dart': r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -3440,10 +3423,9 @@ class Checkbox extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "switch", "theme"],
+    testNeeds: ["app","switch","theme"],
     tests: {
-      'checkbox_test.dart':
-          r'''// Tests for Checkbox. Copied into your app by `ashlar add checkbox` with the component: they
+      'checkbox_test.dart': r'''// Tests for Checkbox. Copied into your app by `ashlar add checkbox` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show CheckedState;
 
@@ -3611,12 +3593,11 @@ void main() {
   ),
   'switch': Component(
     description: "An on and off switch.",
-    requires: ["theme", "pressable"],
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'switch.dart':
-          r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
+      'switch.dart': r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -3725,14 +3706,12 @@ class Switch extends StatelessWidget {
     },
   ),
   'dialog': Component(
-    description:
-        "A modal panel over a dimmed page, with title, content and actions.",
-    requires: ["theme", "button"],
+    description: "A modal panel over a dimmed page, with title, content and actions.",
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dialog.dart':
-          r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
+      'dialog.dart': r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -3963,10 +3942,9 @@ class Dialog extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button", "input", "theme"],
+    testNeeds: ["app","button","input","theme"],
     tests: {
-      'dialog_test.dart':
-          r'''// Tests for Dialog. Copied into your app by `ashlar add dialog` with the component: they
+      'dialog_test.dart': r'''// Tests for Dialog. Copied into your app by `ashlar add dialog` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -4124,8 +4102,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'label.dart':
-          r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
+      'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4167,14 +4144,12 @@ class Label extends StatelessWidget {
     },
   ),
   'field': Component(
-    description:
-        "A control with its label, description and error, read out together.",
-    requires: ["theme", "label"],
+    description: "A control with its label, description and error, read out together.",
+    requires: ["theme","label"],
     packages: [],
     block: false,
     files: {
-      'field.dart':
-          r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
+      'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -4445,10 +4420,9 @@ class FieldSeparator extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "checkbox", "input"],
+    testNeeds: ["app","checkbox","input"],
     tests: {
-      'field_test.dart':
-          r'''// Tests for Field. Copied into your app by `ashlar add field` with the component: they
+      'field_test.dart': r'''// Tests for Field. Copied into your app by `ashlar add field` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/checkbox.dart';
@@ -4594,14 +4568,12 @@ void main() {
     },
   ),
   'textarea': Component(
-    description:
-        "A text field for several lines that grows with its text and drags taller.",
-    requires: ["input", "theme"],
+    description: "A text field for several lines that grows with its text and drags taller.",
+    requires: ["input","theme"],
     packages: [],
     block: false,
     files: {
-      'textarea.dart':
-          r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
+      'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -4783,8 +4755,7 @@ class _Grip extends CustomPainter {
     },
     testNeeds: ["app"],
     tests: {
-      'textarea_test.dart':
-          r'''// Tests for Textarea. Copied into your app by `ashlar add textarea` with the component: they
+      'textarea_test.dart': r'''// Tests for Textarea. Copied into your app by `ashlar add textarea` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/textarea.dart';
@@ -4882,14 +4853,12 @@ void main() {
     },
   ),
   'avatar': Component(
-    description:
-        "A picture in a circle, with initials while it loads or when it fails.",
+    description: "A picture in a circle, with initials while it loads or when it fails.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'avatar.dart':
-          r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
+      'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -5117,10 +5086,9 @@ class AvatarGroup extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "theme"],
+    testNeeds: ["app","theme"],
     tests: {
-      'avatar_test.dart':
-          r'''// Tests for Avatar. Copied into your app by `ashlar add avatar` with the component: they
+      'avatar_test.dart': r'''// Tests for Avatar. Copied into your app by `ashlar add avatar` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/avatar.dart';
@@ -5175,8 +5143,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'skeleton.dart':
-          r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
+      'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -5256,8 +5223,7 @@ class _SkeletonState extends State<Skeleton>
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'spinner.dart':
-          r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
+      'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -5322,14 +5288,12 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     },
   ),
   'alert': Component(
-    description:
-        "A notice, warning or error in the page, read out when it appears.",
+    description: "A notice, warning or error in the page, read out when it appears.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'alert.dart':
-          r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
+      'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -5444,8 +5408,7 @@ class Alert extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'kbd.dart':
-          r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
+      'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -5514,8 +5477,7 @@ class Kbd extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'radio.dart':
-          r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
+      'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
 //
 // Flutter's widgets layer has the group: RadioGroup holds the chosen value, and moves the
 // choice with the arrow keys. This file draws the radios inside it.
@@ -5705,8 +5667,7 @@ class _RadioState<T> extends State<Radio<T>> {
     },
     testNeeds: ["app"],
     tests: {
-      'radio_test.dart':
-          r'''// Tests for Radio. Copied into your app by `ashlar add radio` with the component: they
+      'radio_test.dart': r'''// Tests for Radio. Copied into your app by `ashlar add radio` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show CheckedState;
 
@@ -5828,14 +5789,12 @@ void main() {
     },
   ),
   'tabs': Component(
-    description:
-        "Views of one thing, one at a time, chosen from a row of tabs.",
-    requires: ["theme", "pressable"],
+    description: "Views of one thing, one at a time, chosen from a row of tabs.",
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'tabs.dart':
-          r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
+      'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -6178,10 +6137,9 @@ class _MoveIntent extends Intent {
 }
 ''',
     },
-    testNeeds: ["app", "button", "theme"],
+    testNeeds: ["app","button","theme"],
     tests: {
-      'tabs_test.dart':
-          r'''// Tests for Tabs. Copied into your app by `ashlar add tabs` with the component: they
+      'tabs_test.dart': r'''// Tests for Tabs. Copied into your app by `ashlar add tabs` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show SemanticsRole, Tristate;
 
@@ -6358,8 +6316,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'popover.dart':
-          r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
+      'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
 //
 // Built on RawMenuAnchor from Flutter's widgets layer, which opens and closes the panel,
 // closes it on Escape, and closes it when the page scrolls. This
@@ -6738,10 +6695,9 @@ class PopoverHeader extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button", "input"],
+    testNeeds: ["app","button","input"],
     tests: {
-      'popover_test.dart':
-          r'''// Tests for Popover. Copied into your app by `ashlar add popover` with the component: they
+      'popover_test.dart': r'''// Tests for Popover. Copied into your app by `ashlar add popover` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -6856,14 +6812,12 @@ void main() {
     },
   ),
   'dropdown-menu': Component(
-    description:
-        "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
-    requires: ["theme", "pressable", "popover"],
+    description: "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'dropdown_menu.dart':
-          r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
+      'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -7601,10 +7555,9 @@ class MenuSeparator extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'dropdown_menu_test.dart':
-          r'''// Tests for Dropdown Menu. Copied into your app by `ashlar add dropdown-menu` with the component: they
+      'dropdown_menu_test.dart': r'''// Tests for Dropdown Menu. Copied into your app by `ashlar add dropdown-menu` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show CheckedState, SemanticsRole;
 
@@ -7850,14 +7803,12 @@ void main() {
     },
   ),
   'select': Component(
-    description:
-        "Picks one value from a list: groups, icons, type to find, and long lists.",
-    requires: ["theme", "pressable", "popover"],
+    description: "Picks one value from a list: groups, icons, type to find, and long lists.",
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'select.dart':
-          r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
+      'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
 
 import 'dart:async';
 
@@ -8418,10 +8369,9 @@ class _Option<T> extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "popover", "theme"],
+    testNeeds: ["app","popover","theme"],
     tests: {
-      'select_test.dart':
-          r'''// Tests for Select. Copied into your app by `ashlar add select` with the component: they
+      'select_test.dart': r'''// Tests for Select. Copied into your app by `ashlar add select` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/popover.dart';
@@ -8679,8 +8629,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'tooltip.dart':
-          r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
+      'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
 //
 // Built on RawTooltip from Flutter's widgets layer, which shows it on hover and on a long
 // press. This file also shows it on keyboard focus and gives screen readers the message.
@@ -8818,10 +8767,9 @@ class _TooltipState extends State<Tooltip> {
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'tooltip_test.dart':
-          r'''// Tests for Tooltip. Copied into your app by `ashlar add tooltip` with the component: they
+      'tooltip_test.dart': r'''// Tests for Tooltip. Copied into your app by `ashlar add tooltip` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -8882,14 +8830,12 @@ void main() {
     },
   ),
   'toast': Component(
-    description:
-        "Short messages that go by themselves: types, promises and a stack.",
+    description: "Short messages that go by themselves: types, promises and a stack.",
     requires: ["theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'toast.dart':
-          r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
+      'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
 
 import 'dart:async';
 
@@ -9430,10 +9376,9 @@ class _TurningState extends State<_Turning>
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'toast_test.dart':
-          r'''// Tests for Toast. Copied into your app by `ashlar add toast` with the component: they
+      'toast_test.dart': r'''// Tests for Toast. Copied into your app by `ashlar add toast` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:async';
 
@@ -9682,14 +9627,12 @@ void main() {
     },
   ),
   'group': Component(
-    description:
-        "Joins controls into one piece: Button Group and Toggle Group use it.",
+    description: "Joins controls into one piece: Button Group and Toggle Group use it.",
     requires: [],
     packages: [],
     block: false,
     files: {
-      'group.dart':
-          r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
+      'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
 // Group; it is yours to change.
 
 import 'package:flutter/widgets.dart';
@@ -9797,14 +9740,12 @@ Border joinedBorder(BuildContext context, Color color) =>
     },
   ),
   'button-group': Component(
-    description:
-        "Buttons joined into one piece, for actions that belong together.",
+    description: "Buttons joined into one piece, for actions that belong together.",
     requires: ["group"],
     packages: [],
     block: false,
     files: {
-      'button_group.dart':
-          r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
+      'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
 // to change.
 
 import 'package:flutter/widgets.dart';
@@ -9855,8 +9796,7 @@ class ButtonGroup extends StatelessWidget {
     packages: [],
     block: false,
     files: {
-      'typography.dart':
-          r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
+      'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -10167,8 +10107,7 @@ class TypographyTable extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'typography_test.dart':
-          r'''// Tests for Typography. Copied into your app by `ashlar add typography` with the component: they
+      'typography_test.dart': r'''// Tests for Typography. Copied into your app by `ashlar add typography` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/typography.dart';
@@ -10259,8 +10198,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'empty.dart':
-          r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
+      'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -10377,10 +10315,9 @@ class Empty extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button", "item"],
+    testNeeds: ["app","button","item"],
     tests: {
-      'empty_test.dart':
-          r'''// Tests for Empty. Copied into your app by `ashlar add empty` with the component: they
+      'empty_test.dart': r'''// Tests for Empty. Copied into your app by `ashlar add empty` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -10453,14 +10390,12 @@ void main() {
     },
   ),
   'item': Component(
-    description:
-        "A row in a list: media, a title and description, and actions.",
-    requires: ["theme", "pressable"],
+    description: "A row in a list: media, a title and description, and actions.",
+    requires: ["theme","pressable"],
     packages: [],
     block: false,
     files: {
-      'item.dart':
-          r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
+      'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -10730,8 +10665,7 @@ class ItemSeparator extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'item_test.dart':
-          r'''// Tests for Item. Copied into your app by `ashlar add item` with the component: they
+      'item_test.dart': r'''// Tests for Item. Copied into your app by `ashlar add item` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:ashlar_ui_gallery/ui/app.dart';
@@ -10820,8 +10754,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'progress.dart':
-          r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
+      'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -10935,8 +10868,7 @@ class _ProgressState extends State<Progress>
     },
     testNeeds: ["app"],
     tests: {
-      'progress_test.dart':
-          r'''// Tests for Progress. Copied into your app by `ashlar add progress` with the component: they
+      'progress_test.dart': r'''// Tests for Progress. Copied into your app by `ashlar add progress` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/progress.dart';
@@ -11005,14 +10937,12 @@ void main() {
     },
   ),
   'breadcrumb': Component(
-    description:
-        "Where a page sits, as links to the pages above it, folding long trails.",
-    requires: ["theme", "pressable", "dropdown-menu"],
+    description: "Where a page sits, as links to the pages above it, folding long trails.",
+    requires: ["theme","pressable","dropdown-menu"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'breadcrumb.dart':
-          r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
+      'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -11171,8 +11101,7 @@ class Breadcrumb extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'breadcrumb_test.dart':
-          r'''// Tests for Breadcrumb. Copied into your app by `ashlar add breadcrumb` with the component: they
+      'breadcrumb_test.dart': r'''// Tests for Breadcrumb. Copied into your app by `ashlar add breadcrumb` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/breadcrumb.dart';
@@ -11254,8 +11183,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'collapsible.dart':
-          r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
+      'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -11379,10 +11307,9 @@ class _CollapsibleState extends State<Collapsible>
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'collapsible_test.dart':
-          r'''// Tests for Collapsible. Copied into your app by `ashlar add collapsible` with the component: they
+      'collapsible_test.dart': r'''// Tests for Collapsible. Copied into your app by `ashlar add collapsible` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -11436,12 +11363,11 @@ void main() {
   ),
   'accordion': Component(
     description: "Sections that open one at a time under their headings.",
-    requires: ["theme", "pressable", "collapsible"],
+    requires: ["theme","pressable","collapsible"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'accordion.dart':
-          r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
+      'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -11611,8 +11537,7 @@ class _AccordionState extends State<Accordion> {
     },
     testNeeds: ["app"],
     tests: {
-      'accordion_test.dart':
-          r'''// Tests for Accordion. Copied into your app by `ashlar add accordion` with the component: they
+      'accordion_test.dart': r'''// Tests for Accordion. Copied into your app by `ashlar add accordion` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show Tristate;
 
@@ -11720,12 +11645,11 @@ void main() {
   ),
   'toggle': Component(
     description: "A button that stays pressed: bold, italic, a filter.",
-    requires: ["theme", "pressable", "group"],
+    requires: ["theme","pressable","group"],
     packages: [],
     block: false,
     files: {
-      'toggle.dart':
-          r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
+      'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -11843,12 +11767,11 @@ class Toggle extends StatelessWidget {
   ),
   'toggle-group': Component(
     description: "Toggles joined into one piece, one or several pressed.",
-    requires: ["toggle", "group"],
+    requires: ["toggle","group"],
     packages: [],
     block: false,
     files: {
-      'toggle_group.dart':
-          r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
+      'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -12007,10 +11930,9 @@ class ToggleGroup<T> extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "theme", "toggle"],
+    testNeeds: ["app","theme","toggle"],
     tests: {
-      'toggle_group_test.dart':
-          r'''// Tests for Toggle Group. Copied into your app by `ashlar add toggle-group` with the component: they
+      'toggle_group_test.dart': r'''// Tests for Toggle Group. Copied into your app by `ashlar add toggle-group` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show Tristate;
 
@@ -12130,14 +12052,12 @@ void main() {
     },
   ),
   'slider': Component(
-    description:
-        "A value picked by dragging along a track, or with the arrow keys.",
+    description: "A value picked by dragging along a track, or with the arrow keys.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'slider.dart':
-          r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
+      'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -12558,10 +12478,9 @@ class _EndIntent extends Intent {
 }
 ''',
     },
-    testNeeds: ["app", "theme"],
+    testNeeds: ["app","theme"],
     tests: {
-      'slider_test.dart':
-          r'''// Tests for Slider. Copied into your app by `ashlar add slider` with the component: they
+      'slider_test.dart': r'''// Tests for Slider. Copied into your app by `ashlar add slider` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/slider.dart';
@@ -12715,12 +12634,11 @@ void main() {
   ),
   'pagination': Component(
     description: "Previous, page numbers and Next, for a long list.",
-    requires: ["theme", "button"],
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'pagination.dart':
-          r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
+      'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -12897,8 +12815,7 @@ class Pagination extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'pagination_test.dart':
-          r'''// Tests for Pagination. Copied into your app by `ashlar add pagination` with the component: they
+      'pagination_test.dart': r'''// Tests for Pagination. Copied into your app by `ashlar add pagination` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/pagination.dart';
@@ -12989,12 +12906,11 @@ void main() {
   ),
   'alert-dialog': Component(
     description: "A question that needs an answer before going on.",
-    requires: ["dialog", "button"],
+    requires: ["dialog","button"],
     packages: [],
     block: false,
     files: {
-      'alert_dialog.dart':
-          r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
+      'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
 // change.
 
 import 'package:flutter/services.dart';
@@ -13106,10 +13022,9 @@ class AlertDialog extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'alert_dialog_test.dart':
-          r'''// Tests for Alert Dialog. Copied into your app by `ashlar add alert-dialog` with the component: they
+      'alert_dialog_test.dart': r'''// Tests for Alert Dialog. Copied into your app by `ashlar add alert-dialog` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:ashlar_ui_gallery/ui/alert_dialog.dart';
@@ -13212,12 +13127,11 @@ void main() {
   ),
   'hover-card': Component(
     description: "A card that appears when the pointer rests on something.",
-    requires: ["theme", "popover"],
+    requires: ["theme","popover"],
     packages: [],
     block: false,
     files: {
-      'hover_card.dart':
-          r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
+      'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
 // change.
 
 import 'dart:async';
@@ -13348,10 +13262,9 @@ class _HoverCardState extends State<HoverCard> {
 }
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'hover_card_test.dart':
-          r'''// Tests for Hover Card. Copied into your app by `ashlar add hover-card` with the component: they
+      'hover_card_test.dart': r'''// Tests for Hover Card. Copied into your app by `ashlar add hover-card` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -13439,14 +13352,12 @@ void main() {
     },
   ),
   'context-menu': Component(
-    description:
-        "A menu that opens where something is right-clicked or long-pressed.",
-    requires: ["popover", "dropdown-menu"],
+    description: "A menu that opens where something is right-clicked or long-pressed.",
+    requires: ["popover","dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'context_menu.dart':
-          r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
+      'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
 // change.
 
 import 'package:flutter/foundation.dart';
@@ -13562,10 +13473,9 @@ class _OpenIntent extends Intent {
 }
 ''',
     },
-    testNeeds: ["app", "button", "dropdown-menu", "popover"],
+    testNeeds: ["app","button","dropdown-menu","popover"],
     tests: {
-      'context_menu_test.dart':
-          r'''// Tests for Context Menu. Copied into your app by `ashlar add context-menu` with the component: they
+      'context_menu_test.dart': r'''// Tests for Context Menu. Copied into your app by `ashlar add context-menu` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -13658,14 +13568,12 @@ void main() {
     },
   ),
   'scroll-area': Component(
-    description:
-        "Scrolling with a thin themed scrollbar; a builder for long lists.",
+    description: "Scrolling with a thin themed scrollbar; a builder for long lists.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'scroll_area.dart':
-          r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
+      'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -13788,8 +13696,7 @@ class _ScrollAreaState extends State<ScrollArea> {
     },
     testNeeds: ["app"],
     tests: {
-      'scroll_area_test.dart':
-          r'''// Tests for Scroll Area. Copied into your app by `ashlar add scroll-area` with the component: they
+      'scroll_area_test.dart': r'''// Tests for Scroll Area. Copied into your app by `ashlar add scroll-area` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/scroll_area.dart';
@@ -13843,14 +13750,12 @@ void main() {
     },
   ),
   'data-table': Component(
-    description:
-        "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
-    requires: ["theme", "pressable", "checkbox"],
+    description: "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
+    requires: ["theme","pressable","checkbox"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'data_table.dart':
-          r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
+      'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
 // change. (Flutter's widgets layer has a Table for layout; this one is for data.)
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -14210,10 +14115,9 @@ class _RowState extends State<_Row> {
 }
 ''',
     },
-    testNeeds: ["app", "checkbox"],
+    testNeeds: ["app","checkbox"],
     tests: {
-      'data_table_test.dart':
-          r'''// Tests for Data Table. Copied into your app by `ashlar add data-table` with the component: they
+      'data_table_test.dart': r'''// Tests for Data Table. Copied into your app by `ashlar add data-table` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/checkbox.dart';
@@ -14407,12 +14311,11 @@ void main() {
   ),
   'sheet': Component(
     description: "A panel that slides in from an edge of the screen.",
-    requires: ["theme", "button"],
+    requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sheet.dart':
-          r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
+      'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -14655,10 +14558,9 @@ class Sheet extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "button", "input"],
+    testNeeds: ["app","button","input"],
     tests: {
-      'sheet_test.dart':
-          r'''// Tests for Sheet. Copied into your app by `ashlar add sheet` with the component: they
+      'sheet_test.dart': r'''// Tests for Sheet. Copied into your app by `ashlar add sheet` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -14837,8 +14739,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'drawer.dart':
-          r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
+      'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -15141,10 +15042,9 @@ class _DrawerState extends State<Drawer> {
 }
 ''',
     },
-    testNeeds: ["app", "button", "input"],
+    testNeeds: ["app","button","input"],
     tests: {
-      'drawer_test.dart':
-          r'''// Tests for Drawer. Copied into your app by `ashlar add drawer` with the component: they
+      'drawer_test.dart': r'''// Tests for Drawer. Copied into your app by `ashlar add drawer` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -15268,14 +15168,12 @@ void main() {
     },
   ),
   'input-group': Component(
-    description:
-        "A text field with text, buttons or a toolbar inside its border.",
-    requires: ["theme", "input"],
+    description: "A text field with text, buttons or a toolbar inside its border.",
+    requires: ["theme","input"],
     packages: [],
     block: false,
     files: {
-      'input_group.dart':
-          r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
+      'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
 // change.
 
 import 'package:flutter/widgets.dart';
@@ -15412,10 +15310,9 @@ class _InputGroupState extends State<InputGroup> {
 }
 ''',
     },
-    testNeeds: ["app", "input"],
+    testNeeds: ["app","input"],
     tests: {
-      'input_group_test.dart':
-          r'''// Tests for Input Group. Copied into your app by `ashlar add input-group` with the component: they
+      'input_group_test.dart': r'''// Tests for Input Group. Copied into your app by `ashlar add input-group` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/input.dart';
@@ -15479,12 +15376,11 @@ void main() {
   ),
   'input-otp': Component(
     description: "A one-time code, one character to a box.",
-    requires: ["theme", "group"],
+    requires: ["theme","group"],
     packages: [],
     block: false,
     files: {
-      'input_otp.dart':
-          r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
+      'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -15735,8 +15631,7 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
     },
     testNeeds: ["app"],
     tests: {
-      'input_otp_test.dart':
-          r'''// Tests for Input Otp. Copied into your app by `ashlar add input-otp` with the component: they
+      'input_otp_test.dart': r'''// Tests for Input Otp. Copied into your app by `ashlar add input-otp` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/input_otp.dart';
@@ -15797,8 +15692,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'resizable.dart':
-          r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
+      'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -16038,8 +15932,7 @@ class _NudgeIntent extends Intent {
     },
     testNeeds: ["app"],
     tests: {
-      'resizable_test.dart':
-          r'''// Tests for Resizable. Copied into your app by `ashlar add resizable` with the component: they
+      'resizable_test.dart': r'''// Tests for Resizable. Copied into your app by `ashlar add resizable` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/resizable.dart';
@@ -16127,14 +16020,12 @@ void main() {
     },
   ),
   'command': Component(
-    description:
-        "A search box over a list of things to do, picked with the keyboard.",
-    requires: ["theme", "input", "dialog"],
+    description: "A search box over a list of things to do, picked with the keyboard.",
+    requires: ["theme","input","dialog"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'command.dart':
-          r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
+      'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -16609,10 +16500,9 @@ Future<void> showCommandDialog({
 );
 ''',
     },
-    testNeeds: ["app", "button"],
+    testNeeds: ["app","button"],
     tests: {
-      'command_test.dart':
-          r'''// Tests for Command. Copied into your app by `ashlar add command` with the component: they
+      'command_test.dart': r'''// Tests for Command. Copied into your app by `ashlar add command` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -16733,14 +16623,12 @@ void main() {
     },
   ),
   'combobox': Component(
-    description:
-        "A select you can search: one pick or several as chips, groups, clearing.",
-    requires: ["theme", "pressable", "popover", "command"],
+    description: "A select you can search: one pick or several as chips, groups, clearing.",
+    requires: ["theme","pressable","popover","command"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'combobox.dart':
-          r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
+      'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -17130,10 +17018,9 @@ class _Clear extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "popover", "theme"],
+    testNeeds: ["app","popover","theme"],
     tests: {
-      'combobox_test.dart':
-          r'''// Tests for Combobox. Copied into your app by `ashlar add combobox` with the component: they
+      'combobox_test.dart': r'''// Tests for Combobox. Copied into your app by `ashlar add combobox` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/combobox.dart';
@@ -17307,12 +17194,11 @@ void main() {
   ),
   'menubar': Component(
     description: "A bar of menus, as at the top of a desktop app.",
-    requires: ["theme", "pressable", "popover", "dropdown-menu"],
+    requires: ["theme","pressable","popover","dropdown-menu"],
     packages: [],
     block: false,
     files: {
-      'menubar.dart':
-          r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
+      'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
 
 import 'dart:ui' show SemanticsRole;
 
@@ -17489,10 +17375,9 @@ class _MenubarState extends State<Menubar> {
 }
 ''',
     },
-    testNeeds: ["app", "dropdown-menu"],
+    testNeeds: ["app","dropdown-menu"],
     tests: {
-      'menubar_test.dart':
-          r'''// Tests for Menubar. Copied into your app by `ashlar add menubar` with the component: they
+      'menubar_test.dart': r'''// Tests for Menubar. Copied into your app by `ashlar add menubar` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
@@ -17586,12 +17471,11 @@ void main() {
   ),
   'navigation-menu': Component(
     description: "A site's main links, with panels that open from headings.",
-    requires: ["theme", "pressable", "popover"],
+    requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'navigation_menu.dart':
-          r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
+      'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
 // yours to change.
 
 import 'dart:async';
@@ -17929,8 +17813,7 @@ class NavigationMenuLink extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'navigation_menu_test.dart':
-          r'''// Tests for Navigation Menu. Copied into your app by `ashlar add navigation-menu` with the component: they
+      'navigation_menu_test.dart': r'''// Tests for Navigation Menu. Copied into your app by `ashlar add navigation-menu` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/navigation_menu.dart';
@@ -18084,14 +17967,12 @@ void main() {
     },
   ),
   'carousel': Component(
-    description:
-        "Slides moved by swiping, buttons, keys, a controller or by themselves.",
+    description: "Slides moved by swiping, buttons, keys, a controller or by themselves.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'carousel.dart':
-          r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
+      'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
 
 import 'dart:async';
 
@@ -18343,8 +18224,7 @@ class _CarouselState extends State<Carousel> {
     },
     testNeeds: ["app"],
     tests: {
-      'carousel_test.dart':
-          r'''// Tests for Carousel. Copied into your app by `ashlar add carousel` with the component: they
+      'carousel_test.dart': r'''// Tests for Carousel. Copied into your app by `ashlar add carousel` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/carousel.dart';
@@ -18438,8 +18318,7 @@ void main() {
     packages: [],
     block: false,
     files: {
-      'selection.dart':
-          r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
+      'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
 // yours to change. The handles and the cut, copy and paste menu, for text fields and for
 // text selected anywhere in the app.
 
@@ -18621,14 +18500,12 @@ class AshlarSelectionMenu extends StatelessWidget {
     },
   ),
   'calendar': Component(
-    description:
-        "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
-    requires: ["theme", "button", "select"],
+    description: "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
+    requires: ["theme","button","select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'calendar.dart':
-          r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
+      'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -19318,8 +19195,7 @@ class _Nav extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'calendar_test.dart':
-          r'''// Tests for Calendar. Copied into your app by `ashlar add calendar` with the component: they
+      'calendar_test.dart': r'''// Tests for Calendar. Copied into your app by `ashlar add calendar` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show Tristate;
 
@@ -19630,14 +19506,12 @@ void main() {
     },
   ),
   'date-picker': Component(
-    description:
-        "A button that shows a date and opens a calendar, with presets.",
-    requires: ["theme", "pressable", "popover", "calendar", "select"],
+    description: "A button that shows a date and opens a calendar, with presets.",
+    requires: ["theme","pressable","popover","calendar","select"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'date_picker.dart':
-          r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
+      'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -19852,10 +19726,9 @@ class _DatePickerState extends State<DatePicker> {
 }
 ''',
     },
-    testNeeds: ["app", "calendar"],
+    testNeeds: ["app","calendar"],
     tests: {
-      'date_picker_test.dart':
-          r'''// Tests for Date Picker. Copied into your app by `ashlar add date-picker` with the component: they
+      'date_picker_test.dart': r'''// Tests for Date Picker. Copied into your app by `ashlar add date-picker` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/calendar.dart';
@@ -19955,14 +19828,12 @@ void main() {
     },
   ),
   'chart': Component(
-    description:
-        "Bar, line, area and pie charts, drawn here with no charting package.",
+    description: "Bar, line, area and pie charts, drawn here with no charting package.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'chart.dart':
-          r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
+      'chart.dart': r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
 //
 // Drawn on the canvas here, with no charting package: bars, lines, areas, pies, radars
 // and radial bars, with a tooltip on hover, the arrow keys stepping through the values, a
@@ -22248,8 +22119,7 @@ class _LegendButtonState extends State<_LegendButton> {
     },
     testNeeds: ["app"],
     tests: {
-      'chart_test.dart':
-          r'''// Tests for Chart. Copied into your app by `ashlar add chart` with the component: they
+      'chart_test.dart': r'''// Tests for Chart. Copied into your app by `ashlar add chart` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/chart.dart';
@@ -22395,14 +22265,12 @@ void main() {
     },
   ),
   'sidebar': Component(
-    description:
-        "An app's navigation down the side: variants, submenus, actions, a rail.",
-    requires: ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"],
+    description: "An app's navigation down the side: variants, submenus, actions, a rail.",
+    requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'sidebar.dart':
-          r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
+      'sidebar.dart': r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -23219,8 +23087,7 @@ class SidebarTrigger extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'sidebar_test.dart':
-          r'''// Tests for Sidebar. Copied into your app by `ashlar add sidebar` with the component: they
+      'sidebar_test.dart': r'''// Tests for Sidebar. Copied into your app by `ashlar add sidebar` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show Tristate;
 
@@ -23482,14 +23349,12 @@ void main() {
     },
   ),
   'form': Component(
-    description:
-        "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
-    requires: ["field", "input"],
+    description: "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
+    requires: ["field","input"],
     packages: [],
     block: false,
     files: {
-      'form.dart':
-          r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
+      'form.dart': r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
 //
 // Built on Form and FormField from Flutter's widgets layer, which keep each field's value
 // and run its checks. This file draws each field as a Field with its error under it, and
@@ -23804,10 +23669,9 @@ extension FormSend on FormState {
 }
 ''',
     },
-    testNeeds: ["app", "button", "checkbox", "input", "select"],
+    testNeeds: ["app","button","checkbox","input","select"],
     tests: {
-      'form_test.dart':
-          r'''// Tests for Form. Copied into your app by `ashlar add form` with the component: they
+      'form_test.dart': r'''// Tests for Form. Copied into your app by `ashlar add form` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -24099,12 +23963,11 @@ void main() {
   ),
   'login-01': Component(
     description: "A sign-in card in the middle of the page.",
-    requires: ["button", "card", "form"],
+    requires: ["button","card","form"],
     packages: [],
     block: true,
     files: {
-      'blocks/login_01.dart':
-          r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
+      'blocks/login_01.dart': r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
 // change. A sign-in card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -24228,12 +24091,11 @@ class _Login01State extends State<Login01> {
   ),
   'login-02': Component(
     description: "Sign in on one side, a picture on the other.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_02.dart':
-          r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
+      'blocks/login_02.dart': r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -24458,12 +24320,11 @@ class _Or extends StatelessWidget {
   ),
   'login-03': Component(
     description: "A sign-in card on a muted page, other accounts first.",
-    requires: ["button", "card", "form", "separator", "theme"],
+    requires: ["button","card","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_03.dart':
-          r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
+      'blocks/login_03.dart': r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
 // change. A sign-in card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -24682,12 +24543,11 @@ class _Or extends StatelessWidget {
   ),
   'login-04': Component(
     description: "A sign-in card in two halves, the form and a picture.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_04.dart':
-          r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
+      'blocks/login_04.dart': r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -24909,12 +24769,11 @@ class _Or extends StatelessWidget {
   ),
   'login-05': Component(
     description: "Sign in with an email address alone.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/login_05.dart':
-          r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
+      'blocks/login_05.dart': r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
 // change. Email only, for a sign-in link sent by mail, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -25078,12 +24937,11 @@ class _Login05State extends State<Login05> {
   ),
   'signup-01': Component(
     description: "A sign-up card in the middle of the page.",
-    requires: ["button", "card", "form"],
+    requires: ["button","card","form"],
     packages: [],
     block: true,
     files: {
-      'blocks/signup_01.dart':
-          r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
+      'blocks/signup_01.dart': r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
 // change. A sign-up card in the middle of the page.
 
 import 'package:flutter/widgets.dart';
@@ -25228,12 +25086,11 @@ class _Signup01State extends State<Signup01> {
   ),
   'signup-02': Component(
     description: "Sign up on one side, a picture on the other.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_02.dart':
-          r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
+      'blocks/signup_02.dart': r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
 // change. Two columns: the form on one side, a picture on the other. On a narrow screen
 // only the form shows.
 
@@ -25485,12 +25342,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-03': Component(
     description: "A sign-up card on a muted page, other accounts first.",
-    requires: ["button", "card", "form", "separator", "theme"],
+    requires: ["button","card","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_03.dart':
-          r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
+      'blocks/signup_03.dart': r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
 // change. A sign-up card on a muted page: other accounts first, then email.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -25735,12 +25591,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-04': Component(
     description: "A sign-up card in two halves, the form and a picture.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_04.dart':
-          r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
+      'blocks/signup_04.dart': r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
 // change. One card in two halves: the form, and a picture beside it on a wide screen.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -25989,12 +25844,11 @@ class _Or extends StatelessWidget {
   ),
   'signup-05': Component(
     description: "A sign-up page under a logo, other accounts below.",
-    requires: ["button", "form", "separator", "theme"],
+    requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/signup_05.dart':
-          r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
+      'blocks/signup_05.dart': r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
 // change. The full sign-up form, with other accounts below.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -26200,29 +26054,12 @@ class _Signup05State extends State<Signup05> {
     },
   ),
   'dashboard-01': Component(
-    description:
-        "An app home: sidebar, header, four figures, a chart over time and a table.",
-    requires: [
-      "avatar",
-      "badge",
-      "button",
-      "card",
-      "chart",
-      "data-table",
-      "dropdown-menu",
-      "popover",
-      "select",
-      "separator",
-      "sidebar",
-      "tabs",
-      "theme",
-      "toggle-group",
-    ],
+    description: "An app home: sidebar, header, four figures, a chart over time and a table.",
+    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/dashboard_01.dart':
-          r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
+      'blocks/dashboard_01.dart': r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
 // yours to change. An app's home: a sidebar, a header, four figures, a chart over time and
 // a table of documents.
 //
@@ -26864,22 +26701,12 @@ class _DocumentsState extends State<_Documents> {
     },
   ),
   'sidebar-01': Component(
-    description:
-        "Documentation navigation grouped by section, with versions and search.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Documentation navigation grouped by section, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_01.dart':
-          r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
+      'blocks/sidebar_01.dart': r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
 // to change. Documentation navigation grouped by section, with a version switcher and a
 // search field at the top.
 
@@ -27135,22 +26962,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-02': Component(
-    description:
-        "Documentation in sections that fold away, with versions and search.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Documentation in sections that fold away, with versions and search.",
+    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_02.dart':
-          r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
+      'blocks/sidebar_02.dart': r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
 // to change. Documentation navigation in sections that fold away, with a version switcher
 // and a search field at the top.
 
@@ -27414,12 +27231,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-03': Component(
     description: "Documentation with each section's pages listed under it.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_03.dart':
-          r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
+      'blocks/sidebar_03.dart': r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
 // to change. Documentation navigation with each section's pages listed under it.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -27641,12 +27457,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-04': Component(
     description: "A floating sidebar, sections with their pages under them.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_04.dart':
-          r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
+      'blocks/sidebar_04.dart': r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
 // to change. A floating sidebar: a rounded panel in from the edge, sections with their pages
 // under them.
 
@@ -27870,12 +27685,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-05': Component(
     description: "Sections that open as you need them, with search.",
-    requires: ["breadcrumb", "input", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","input","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_05.dart':
-          r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
+      'blocks/sidebar_05.dart': r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
 // to change. Documentation navigation whose sections open as you need them, with a search
 // field at the top.
 
@@ -28109,24 +27923,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-06': Component(
-    description:
-        "Sections that open their pages as menus, a newsletter card at the foot.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "card",
-      "dropdown-menu",
-      "input",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "Sections that open their pages as menus, a newsletter card at the foot.",
+    requires: ["breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_06.dart':
-          r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
+      'blocks/sidebar_06.dart': r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
 // to change. Each section opens its pages as a menu beside the sidebar, and a newsletter
 // sign-up sits at the bottom.
 
@@ -28404,23 +28206,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-07': Component(
-    description:
-        "An app sidebar that collapses to icons: teams, sections, projects, user.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "An app sidebar that collapses to icons: teams, sections, projects, user.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_07.dart':
-          r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
+      'blocks/sidebar_07.dart': r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
 // to change. An app's sidebar that collapses to a strip of icons: teams, the main
 // sections with their pages, projects, and who is signed in.
 
@@ -28763,23 +28554,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-08': Component(
-    description:
-        "The page inset as a card, help and feedback at the sidebar's foot.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "The page inset as a card, help and feedback at the sidebar's foot.",
+    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_08.dart':
-          r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
+      'blocks/sidebar_08.dart': r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
 // to change. The page set into the sidebar as a card, with help and feedback kept at the
 // sidebar's foot.
 
@@ -29094,25 +28874,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-09': Component(
-    description:
-        "Two sidebars as a mail app has them: folders, and their messages.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "input",
-      "label",
-      "separator",
-      "sidebar",
-      "switch",
-      "theme",
-      "tooltip",
-    ],
+    description: "Two sidebars as a mail app has them: folders, and their messages.",
+    requires: ["avatar","breadcrumb","button","input","label","separator","sidebar","switch","theme","tooltip"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_09.dart':
-          r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
+      'blocks/sidebar_09.dart': r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
 // to change. Two sidebars side by side, as a mail app has them: a strip of folders that
 // stays, and the folder's messages beside it, which fold away.
 
@@ -29460,20 +29227,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-10': Component(
     description: "A notes app's sidebar, with the page's actions in a popover.",
-    requires: [
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_10.dart':
-          r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
+      'blocks/sidebar_10.dart': r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
 // to change. A notes app: search and the inbox at the top, favourites and workspaces under
 // them, and the page's actions in a panel that opens from its header.
 
@@ -29847,12 +29605,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-11': Component(
     description: "A project's files as a tree, the changed ones above it.",
-    requires: ["breadcrumb", "pressable", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","pressable","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_11.dart':
-          r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
+      'blocks/sidebar_11.dart': r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
 // to change. A project's files as a tree whose folders open and close, with the changed
 // files listed above it.
 
@@ -30148,24 +29905,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-12': Component(
     description: "A calendar app: a month to pick from, and calendars to show.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "calendar",
-      "checkbox",
-      "dropdown-menu",
-      "field",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_12.dart':
-          r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
+      'blocks/sidebar_12.dart': r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
 // to change. A calendar app: who is signed in, a month to pick a day from, and the
 // calendars to show.
 
@@ -30475,12 +30219,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-13': Component(
     description: "Settings in a dialog, their sections down its side.",
-    requires: ["breadcrumb", "button", "dialog", "separator", "theme"],
+    requires: ["breadcrumb","button","dialog","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_13.dart':
-          r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
+      'blocks/sidebar_13.dart': r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
 // to change. Settings in a dialog: their sections down the side, the open one beside them.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -30604,12 +30347,11 @@ class _SettingsState extends State<_Settings> {
   ),
   'sidebar-14': Component(
     description: "A table of contents on the right of the page.",
-    requires: ["breadcrumb", "separator", "sidebar", "theme"],
+    requires: ["breadcrumb","separator","sidebar","theme"],
     packages: [],
     block: true,
     files: {
-      'blocks/sidebar_14.dart':
-          r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
+      'blocks/sidebar_14.dart': r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
 // to change. A table of contents on the right of the page.
 
 import 'package:flutter/widgets.dart';
@@ -30760,26 +30502,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'sidebar-15': Component(
-    description:
-        "A sidebar on each side: pages on the left, a calendar on the right.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "calendar",
-      "checkbox",
-      "dropdown-menu",
-      "field",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    description: "A sidebar on each side: pages on the left, a calendar on the right.",
+    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_15.dart':
-          r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
+      'blocks/sidebar_15.dart': r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
 // to change. A sidebar on each side: pages on the left, folding away; a calendar and the
 // calendars to show on the right, staying put.
 
@@ -31245,22 +30973,11 @@ class _Placeholder extends StatelessWidget {
   ),
   'sidebar-16': Component(
     description: "A site header across the top, the sidebar under it.",
-    requires: [
-      "avatar",
-      "breadcrumb",
-      "button",
-      "dropdown-menu",
-      "input",
-      "popover",
-      "separator",
-      "sidebar",
-      "theme",
-    ],
+    requires: ["avatar","breadcrumb","button","dropdown-menu","input","popover","separator","sidebar","theme"],
     packages: ["ashlar_icons"],
     block: true,
     files: {
-      'blocks/sidebar_16.dart':
-          r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
+      'blocks/sidebar_16.dart': r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
 // to change. A site header across the top that stays as the page scrolls, and the sidebar
 // under it.
 
@@ -31539,14 +31256,12 @@ class _Placeholder extends StatelessWidget {
     },
   ),
   'message': Component(
-    description:
-        "One turn in a conversation: who sent it, what they said, a line above or below.",
+    description: "One turn in a conversation: who sent it, what they said, a line above or below.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'message.dart':
-          r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
+      'message.dart': r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -31680,14 +31395,12 @@ class MessageGroup extends StatelessWidget {
     },
   ),
   'bubble': Component(
-    description:
-        "What was said, in a rounded fill on the sender's side, with reactions.",
-    requires: ["message", "pressable", "theme"],
+    description: "What was said, in a rounded fill on the sender's side, with reactions.",
+    requires: ["message","pressable","theme"],
     packages: [],
     block: false,
     files: {
-      'bubble.dart':
-          r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
+      'bubble.dart': r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -31871,10 +31584,9 @@ class BubbleGroup extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app", "message"],
+    testNeeds: ["app","message"],
     tests: {
-      'bubble_test.dart':
-          r'''// Tests for Bubble. Copied into your app by `ashlar add bubble` with the component: they
+      'bubble_test.dart': r'''// Tests for Bubble. Copied into your app by `ashlar add bubble` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/bubble.dart';
@@ -31998,14 +31710,12 @@ void main() {
     },
   ),
   'marker': Component(
-    description:
-        "A note in a conversation that nobody said: a day, someone joining, thinking.",
+    description: "A note in a conversation that nobody said: a day, someone joining, thinking.",
     requires: ["theme"],
     packages: [],
     block: false,
     files: {
-      'marker.dart':
-          r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
+      'marker.dart': r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
 
 import 'package:flutter/widgets.dart';
 
@@ -32110,8 +31820,7 @@ class Marker extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'marker_test.dart':
-          r'''// Tests for Marker. Copied into your app by `ashlar add marker` with the component: they
+      'marker_test.dart': r'''// Tests for Marker. Copied into your app by `ashlar add marker` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/marker.dart';
@@ -32153,14 +31862,12 @@ void main() {
     },
   ),
   'attachment': Component(
-    description:
-        "A file or picture in a conversation: what it is and how its upload is going.",
-    requires: ["button", "pressable", "spinner", "theme"],
+    description: "A file or picture in a conversation: what it is and how its upload is going.",
+    requires: ["button","pressable","spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'attachment.dart':
-          r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
+      'attachment.dart': r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
 // change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -32582,10 +32289,9 @@ class _Dashes extends CustomPainter {
 }
 ''',
     },
-    testNeeds: ["app", "spinner"],
+    testNeeds: ["app","spinner"],
     tests: {
-      'attachment_test.dart':
-          r'''// Tests for Attachment. Copied into your app by `ashlar add attachment` with the component: they
+      'attachment_test.dart': r'''// Tests for Attachment. Copied into your app by `ashlar add attachment` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:ashlar_ui_gallery/ui/app.dart';
@@ -32693,14 +32399,12 @@ void main() {
     },
   ),
   'message-scroller': Component(
-    description:
-        "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
+    description: "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'message_scroller.dart':
-          r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
+      'message_scroller.dart': r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
 // yours to change.
 //
 // A conversation's scrolling, built on CustomScrollView from Flutter's widgets layer. It
@@ -33336,8 +33040,7 @@ class _EndButton extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'message_scroller_test.dart':
-          r'''// Tests for Message Scroller. Copied into your app by `ashlar add message-scroller` with the component: they
+      'message_scroller_test.dart': r'''// Tests for Message Scroller. Copied into your app by `ashlar add message-scroller` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/message_scroller.dart';
@@ -33520,14 +33223,12 @@ void main() {
     },
   ),
   'questionnaire': Component(
-    description:
-        "Questions one at a time: one choice, several or words, with keys for every answer.",
-    requires: ["button", "input", "kbd", "pressable", "progress", "theme"],
+    description: "Questions one at a time: one choice, several or words, with keys for every answer.",
+    requires: ["button","input","kbd","pressable","progress","theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'questionnaire.dart':
-          r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
+      'questionnaire.dart': r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
 // to change.
 //
 // Questions asked one at a time: a choice, several, or words of your own, each required or
@@ -34270,8 +33971,7 @@ class _Choice extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'questionnaire_test.dart':
-          r'''// Tests for Questionnaire. Copied into your app by `ashlar add questionnaire` with the component: they
+      'questionnaire_test.dart': r'''// Tests for Questionnaire. Copied into your app by `ashlar add questionnaire` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:ui' show CheckedState;
 
@@ -34456,14 +34156,12 @@ void main() {
     },
   ),
   'swipe-actions': Component(
-    description:
-        "A row with actions behind it: swipe it aside to show them, all the way to do the first.",
-    requires: ["pressable", "theme"],
+    description: "A row with actions behind it: swipe it aside to show them, all the way to do the first.",
+    requires: ["pressable","theme"],
     packages: [],
     block: false,
     files: {
-      'swipe_actions.dart':
-          r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
+      'swipe_actions.dart': r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
 // yours to change.
 
 import 'package:flutter/semantics.dart';
@@ -34708,8 +34406,7 @@ class _SwipeActionsState extends State<SwipeActions>
     },
     testNeeds: ["app"],
     tests: {
-      'swipe_actions_test.dart':
-          r'''// Tests for Swipe Actions. Copied into your app by `ashlar add swipe-actions` with the component: they
+      'swipe_actions_test.dart': r'''// Tests for Swipe Actions. Copied into your app by `ashlar add swipe-actions` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/swipe_actions.dart';
@@ -34850,14 +34547,12 @@ void main() {
     },
   ),
   'pull-to-refresh': Component(
-    description:
-        "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.",
-    requires: ["spinner", "theme"],
+    description: "A list that refreshes when pulled down from its top, with a Refresh action for screen readers.",
+    requires: ["spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
     files: {
-      'pull_to_refresh.dart':
-          r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
+      'pull_to_refresh.dart': r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
 // yours to change.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -35079,10 +34774,9 @@ class _PullToRefreshState extends State<PullToRefresh>
 }
 ''',
     },
-    testNeeds: ["app", "spinner"],
+    testNeeds: ["app","spinner"],
     tests: {
-      'pull_to_refresh_test.dart':
-          r'''// Tests for Pull To Refresh. Copied into your app by `ashlar add pull-to-refresh` with the component: they
+      'pull_to_refresh_test.dart': r'''// Tests for Pull To Refresh. Copied into your app by `ashlar add pull-to-refresh` with the component: they
 // check what it promises, so change them as you change it.
 import 'dart:async';
 
@@ -35203,14 +34897,12 @@ void main() {
     },
   ),
   'bottom-bar': Component(
-    description:
-        "An app's main places along the bottom of a phone screen, an icon and a name each.",
-    requires: ["pressable", "theme"],
+    description: "An app's main places along the bottom of a phone screen, an icon and a name each.",
+    requires: ["pressable","theme"],
     packages: [],
     block: false,
     files: {
-      'bottom_bar.dart':
-          r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
+      'bottom_bar.dart': r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
 // change.
 
 import 'dart:ui' show SemanticsRole;
@@ -35402,8 +35094,7 @@ class BottomBar extends StatelessWidget {
     },
     testNeeds: ["app"],
     tests: {
-      'bottom_bar_test.dart':
-          r'''// Tests for Bottom Bar. Copied into your app by `ashlar add bottom-bar` with the component: they
+      'bottom_bar_test.dart': r'''// Tests for Bottom Bar. Copied into your app by `ashlar add bottom-bar` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/bottom_bar.dart';
