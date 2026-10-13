@@ -45,7 +45,7 @@ class AshlarApp extends StatelessWidget {
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
   final TransitionBuilder? builder;
 
-  /// Whether text anywhere in the app can be selected and copied, as on a web page.
+  /// Whether text on the app's pages can be selected and copied, as on a web page.
   /// Controls are left out: dragging over a button never selects its label. Null means
   /// yes on the web and the desktop, and no on iOS and Android, where apps do not do it.
   final bool? selectable;
@@ -99,12 +99,10 @@ class AshlarApp extends StatelessWidget {
                 behavior: const _AshlarScrollBehavior(),
                 child: ColoredBox(
                   color: data.colors.background,
-                  child: _selectable
-                      ? _Selectable(
-                          colors: data.colors,
-                          child: child ?? const SizedBox.shrink(),
-                        )
-                      : child ?? const SizedBox.shrink(),
+                  child: _SelectionDefault(
+                    selectable: _selectable,
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),
@@ -117,73 +115,64 @@ class AshlarApp extends StatelessWidget {
   }
 }
 
-/// Makes the text below selectable. The selection's handles and menu need an Overlay
-/// above the region, and the app's own is inside the Navigator below, so it brings one:
-/// the handles then float over dialogs too.
-class _Selectable extends StatefulWidget {
-  const _Selectable({required this.colors, required this.child});
+/// Whether the app's pages are selectable, for [AshlarPageRoute] to read.
+class _SelectionDefault extends InheritedWidget {
+  const _SelectionDefault({required this.selectable, required super.child});
 
-  final AshlarColors colors;
-  final Widget child;
+  final bool selectable;
 
   @override
-  State<_Selectable> createState() => _SelectableState();
-}
-
-class _SelectableState extends State<_Selectable> {
-  late final _entry = OverlayEntry(
-    builder: (context) => SelectableRegion(
-      selectionControls: AshlarSelectionControls(widget.colors.foreground),
-      contextMenuBuilder: (context, state) => AshlarSelectionMenu(
-        anchors: state.contextMenuAnchors,
-        items: state.contextMenuButtonItems,
-      ),
-      child: widget.child,
-    ),
-  );
-
-  @override
-  void didUpdateWidget(_Selectable old) {
-    super.didUpdateWidget(old);
-    _entry.markNeedsBuild();
-  }
-
-  @override
-  void dispose() {
-    _entry
-      ..remove()
-      ..dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
+  bool updateShouldNotify(_SelectionDefault old) =>
+      old.selectable != selectable;
 }
 
 /// A page that fades and rises a little as it opens.
 class AshlarPageRoute<T> extends PageRouteBuilder<T> {
-  AshlarPageRoute({required WidgetBuilder builder, super.settings})
-    : super(
-        transitionDuration: const Duration(milliseconds: 220),
-        reverseTransitionDuration: const Duration(milliseconds: 180),
-        pageBuilder: (context, animation, secondary) => builder(context),
-        transitionsBuilder: (context, animation, secondary, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-          );
-          return FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween(
-                begin: const Offset(0, .02),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
-            ),
-          );
-        },
-      );
+  /// [selectable] null follows the app: [AshlarApp.selectable].
+  AshlarPageRoute({
+    required WidgetBuilder builder,
+    bool? selectable,
+    super.settings,
+  }) : super(
+         transitionDuration: const Duration(milliseconds: 220),
+         reverseTransitionDuration: const Duration(milliseconds: 180),
+         pageBuilder: (context, animation, secondary) {
+           final on =
+               selectable ??
+               context
+                   .dependOnInheritedWidgetOfExactType<_SelectionDefault>()
+                   ?.selectable ??
+               false;
+           if (!on) return builder(context);
+           // Each page is its own region, inside the Navigator's Overlay that its handles
+           // and menu float in.
+           final colors = AshlarTheme.of(context).colors;
+           return SelectableRegion(
+             selectionControls: AshlarSelectionControls(colors.foreground),
+             contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+               anchors: state.contextMenuAnchors,
+               items: state.contextMenuButtonItems,
+             ),
+             child: Builder(builder: builder),
+           );
+         },
+         transitionsBuilder: (context, animation, secondary, child) {
+           final curved = CurvedAnimation(
+             parent: animation,
+             curve: Curves.easeOutCubic,
+           );
+           return FadeTransition(
+             opacity: curved,
+             child: SlideTransition(
+               position: Tween(
+                 begin: const Offset(0, .02),
+                 end: Offset.zero,
+               ).animate(curved),
+               child: child,
+             ),
+           );
+         },
+       );
 }
 
 /// Scrolling without Material's stretch or glow.
