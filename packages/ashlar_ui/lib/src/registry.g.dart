@@ -21950,4 +21950,1477 @@ class _Placeholder extends StatelessWidget {
 ''',
     },
   ),
+  'message': Component(
+    description: "One turn in a conversation: who sent it, what they said, a line above or below.",
+    requires: ["theme"],
+    packages: [],
+    block: false,
+    files: {
+      'message.dart': r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Which side of the conversation a [Message] sits on: the other party at the start, you
+/// at the end. It follows the reading direction.
+enum MessageAlign { start, end }
+
+/// One turn in a conversation: who sent it, what they said (a [Bubble], an [Attachment],
+/// anything), and a line above or below it, such as a name or a time.
+///
+/// ```dart
+/// Message(
+///   align: MessageAlign.end,
+///   avatar: Avatar(fallback: 'WK'),
+///   footer: Text('Read 09:41'),
+///   child: Bubble(child: Text('Can we meet at ten?')),
+/// )
+/// ```
+class Message extends StatelessWidget {
+  const Message({
+    super.key,
+    required this.child,
+    this.align = MessageAlign.start,
+    this.avatar,
+    this.header,
+    this.footer,
+  });
+
+  /// What was said. Several things go in a [Column], or a [BubbleGroup].
+  final Widget child;
+  final MessageAlign align;
+
+  /// Beside the message, level with its last line.
+  final Widget? avatar;
+
+  /// A small line above it: the sender's name.
+  final Widget? header;
+
+  /// A small line below it: when it was sent, whether it was read.
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final end = align == MessageAlign.end;
+    final cross = end ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    Widget note(Widget w) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: DefaultTextStyle.merge(
+        style: t.text.xs.copyWith(
+          color: t.colors.mutedForeground,
+          fontWeight: FontWeight.w500,
+        ),
+        child: w,
+      ),
+    );
+    final body = Column(
+      crossAxisAlignment: cross,
+      children: [
+        if (header != null) ...[note(header!), const SizedBox(height: 6)],
+        _MessageSide(align: align, child: child),
+        if (footer != null) ...[const SizedBox(height: 6), note(footer!)],
+      ],
+    );
+    if (avatar == null) {
+      return Align(
+        alignment: end
+            ? AlignmentDirectional.centerEnd
+            : AlignmentDirectional.centerStart,
+        child: body,
+      );
+    }
+    final row = [
+      // Level with the last line of what was said, above any footer.
+      Padding(
+        padding: EdgeInsets.only(bottom: footer == null ? 0 : 24),
+        child: avatar,
+      ),
+      const SizedBox(width: 8),
+      Flexible(child: body),
+    ];
+    return Row(
+      mainAxisAlignment: end ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: end ? row.reversed.toList() : row,
+    );
+  }
+}
+
+/// Tells the bubbles inside a [Message] which side they sit on.
+class _MessageSide extends InheritedWidget {
+  const _MessageSide({required this.align, required super.child});
+
+  final MessageAlign align;
+
+  @override
+  bool updateShouldNotify(_MessageSide old) => old.align != align;
+}
+
+/// The side of the [Message] above [context]: the start when there is none.
+MessageAlign messageAlignOf(BuildContext context) =>
+    context.dependOnInheritedWidgetOfExactType<_MessageSide>()?.align ??
+    MessageAlign.start;
+
+/// Messages from one sender in a row, closer together than separate turns.
+class MessageGroup extends StatelessWidget {
+  const MessageGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (i, c) in children.indexed) ...[
+        if (i > 0) const SizedBox(height: 8),
+        c,
+      ],
+    ],
+  );
+}
+''',
+    },
+  ),
+  'bubble': Component(
+    description: "What was said, in a rounded fill on the sender's side, with reactions.",
+    requires: ["message","pressable","theme"],
+    packages: [],
+    block: false,
+    files: {
+      'bubble.dart': r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'message.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// How a [Bubble] is filled.
+enum BubbleVariant {
+  /// Solid in the primary colour: usually what you sent.
+  primary,
+  secondary,
+
+  /// Grey: usually what the other side sent.
+  muted,
+
+  /// A light wash of the primary colour.
+  tinted,
+  outline,
+
+  /// No fill and no padding: an assistant's long answer, read as a page.
+  ghost,
+
+  /// Something went wrong: it was not sent.
+  destructive,
+}
+
+/// Where a [Bubble]'s reactions sit.
+enum BubbleReactionsSide { top, bottom }
+
+/// What was said, in a rounded fill, no wider than four fifths of the room. Inside a
+/// [Message] it sits on the message's side.
+///
+/// ```dart
+/// Bubble(variant: BubbleVariant.muted, child: Text('See you at ten.'))
+/// Bubble(reactions: Text('👍 2'), child: Text('Shipped.'))
+/// ```
+class Bubble extends StatelessWidget {
+  const Bubble({
+    super.key,
+    required this.child,
+    this.variant = BubbleVariant.primary,
+    this.reactions,
+    this.reactionsSide = BubbleReactionsSide.bottom,
+    this.onPressed,
+    this.semanticLabel,
+  });
+
+  final Widget child;
+  final BubbleVariant variant;
+
+  /// A small pill over the bubble's edge: emoji counts, or buttons to react with.
+  final Widget? reactions;
+  final BubbleReactionsSide reactionsSide;
+
+  /// Makes the whole bubble a button: a suggested reply, say.
+  final VoidCallback? onPressed;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final dark = c.background.computeLuminance() < .5;
+    final end = messageAlignOf(context) == MessageAlign.end;
+    final (fill, ink, border) = switch (variant) {
+      BubbleVariant.primary => (c.primary, c.primaryForeground, null),
+      BubbleVariant.secondary => (c.secondary, c.secondaryForeground, null),
+      BubbleVariant.muted => (c.muted, c.foreground, null),
+      BubbleVariant.tinted => (
+        Color.lerp(c.background, c.primary, dark ? .25 : .08)!,
+        c.foreground,
+        null,
+      ),
+      BubbleVariant.outline => (c.background, c.foreground, c.border),
+      BubbleVariant.ghost => (const Color(0x00000000), c.foreground, null),
+      BubbleVariant.destructive => (
+        c.destructive.withValues(alpha: dark ? .2 : .1),
+        c.destructive,
+        null,
+      ),
+    };
+    final ghost = variant == BubbleVariant.ghost;
+    Widget content(bool hovered) => AnimatedContainer(
+      duration: t.duration,
+      padding: ghost
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: hovered && onPressed != null ? Color.lerp(fill, ink, .08) : fill,
+        borderRadius: ghost ? null : BorderRadius.circular(t.radiusXl),
+        border: border == null ? null : Border.all(color: border),
+      ),
+      child: DefaultTextStyle.merge(
+        style: t.text.sm.copyWith(color: ink, height: 1.6),
+        child: IconTheme.merge(
+          data: IconThemeData(color: ink),
+          child: child,
+        ),
+      ),
+    );
+    Widget bubble = onPressed == null
+        ? content(false)
+        : Pressable(
+            onPressed: onPressed,
+            semanticLabel: semanticLabel,
+            builder: (context, states) => content(states.hovered),
+          );
+    if (reactions != null) {
+      final top = reactionsSide == BubbleReactionsSide.top;
+      bubble = Padding(
+        padding: EdgeInsets.only(top: top ? 14 : 0, bottom: top ? 0 : 14),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            bubble,
+            PositionedDirectional(
+              top: top ? -14 : null,
+              bottom: top ? null : -14,
+              end: end ? null : 12,
+              start: end ? 12 : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: c.muted,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: c.background, width: 3),
+                ),
+                child: DefaultTextStyle.merge(
+                  style: t.text.sm.copyWith(color: c.foreground),
+                  child: reactions!,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (ghost) return bubble;
+    return LayoutBuilder(
+      builder: (context, box) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: box.maxWidth.isFinite ? box.maxWidth * .8 : double.infinity,
+        ),
+        child: bubble,
+      ),
+    );
+  }
+}
+
+/// Bubbles sent one after another, close together on the same side.
+class BubbleGroup extends StatelessWidget {
+  const BubbleGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final end = messageAlignOf(context) == MessageAlign.end;
+    return Column(
+      crossAxisAlignment: end
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        for (final (i, c) in children.indexed) ...[
+          if (i > 0) const SizedBox(height: 4),
+          c,
+        ],
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'marker': Component(
+    description: "A note in a conversation that nobody said: a day, someone joining, thinking.",
+    requires: ["theme"],
+    packages: [],
+    block: false,
+    files: {
+      'marker.dart': r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// How a [Marker] sets itself apart.
+enum MarkerVariant {
+  /// Faint text, nothing more.
+  plain,
+
+  /// Centred between two lines: a day changing, someone joining.
+  separator,
+
+  /// A line under it.
+  border,
+}
+
+/// A note in a conversation that nobody said: "Today", "Ama joined", "Thinking…". Faint,
+/// with an optional icon.
+///
+/// ```dart
+/// Marker(variant: MarkerVariant.separator, child: Text('Today'))
+/// Marker(icon: Spinner(size: 16), child: Text('Searching the docs…'))
+/// ```
+class Marker extends StatelessWidget {
+  const Marker({
+    super.key,
+    required this.child,
+    this.variant = MarkerVariant.plain,
+    this.icon,
+  });
+
+  final Widget child;
+  final MarkerVariant variant;
+
+  /// 16 square, before the text. Hidden from screen readers: the text says it.
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final text = DefaultTextStyle.merge(
+      style: t.text.sm.copyWith(color: c.mutedForeground),
+      textAlign: variant == MarkerVariant.separator ? TextAlign.center : null,
+      child: child,
+    );
+    final content = [
+      if (icon != null) ...[
+        ExcludeSemantics(
+          child: IconTheme.merge(
+            data: IconThemeData(color: c.mutedForeground, size: 16),
+            child: SizedBox.square(dimension: 16, child: Center(child: icon)),
+          ),
+        ),
+        const SizedBox(width: 8),
+      ],
+    ];
+    Widget line() => Expanded(child: Container(height: 1, color: c.border));
+    final body = switch (variant) {
+      // The text takes what it needs, up to most of the width; the lines share the rest.
+      MarkerVariant.separator => LayoutBuilder(
+        builder: (context, box) => Row(
+          children: [
+            line(),
+            const SizedBox(width: 12),
+            ...content,
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: box.maxWidth * .7),
+              child: text,
+            ),
+            const SizedBox(width: 12),
+            line(),
+          ],
+        ),
+      ),
+      _ => Row(
+        children: [
+          ...content,
+          Expanded(child: text),
+        ],
+      ),
+    };
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 16),
+      child: variant == MarkerVariant.border
+          ? Container(
+              padding: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: c.border)),
+              ),
+              child: body,
+            )
+          : body,
+    );
+  }
+}
+''',
+    },
+  ),
+  'attachment': Component(
+    description: "A file or picture in a conversation: what it is and how its upload is going.",
+    requires: ["button","pressable","spinner","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'attachment.dart': r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
+// change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'pressable.dart';
+import 'spinner.dart';
+import 'theme.dart';
+
+/// Where an [Attachment] is on its way.
+enum AttachmentState {
+  /// Chosen but not sent: a dashed border.
+  idle,
+
+  /// On its way up: a spinner, and the name shimmers.
+  uploading,
+
+  /// Up, and being read: a spinner, and the name shimmers.
+  processing,
+
+  /// It failed: the destructive colour, and the reason under the name.
+  error,
+  done,
+}
+
+enum AttachmentSize { md, sm, xs }
+
+/// A file or a picture in a conversation or a message being written: what it is, how it
+/// is getting on, and what can be done with it.
+///
+/// ```dart
+/// Attachment(
+///   title: 'quarterly-report.pdf',
+///   description: '2.4 MB',
+///   state: AttachmentState.uploading,
+///   actions: [AttachmentAction(icon: AshlarIconsRoundedStroke.x, label: 'Remove', onPressed: remove)],
+/// )
+/// ```
+class Attachment extends StatelessWidget {
+  const Attachment({
+    super.key,
+    required this.title,
+    this.description,
+    this.icon = AshlarIconsRoundedStroke.file,
+    this.image,
+    this.state = AttachmentState.done,
+    this.size = AttachmentSize.md,
+    this.axis = Axis.horizontal,
+    this.actions = const [],
+    this.onPressed,
+  });
+
+  /// Its name.
+  final String title;
+
+  /// Its size or type, or, in [AttachmentState.error], what went wrong.
+  final String? description;
+
+  /// Shown when there is no [image].
+  final IconData icon;
+
+  /// A picture of it: the image itself, or a preview.
+  final ImageProvider? image;
+  final AttachmentState state;
+  final AttachmentSize size;
+
+  /// Across: the picture beside the name. Upright: a tile, the picture above.
+  final Axis axis;
+
+  /// Small buttons at the end, or over the corner of a tile: remove, retry, download.
+  final List<Widget> actions;
+
+  /// Opens it.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final upright = axis == Axis.vertical;
+    final busy =
+        state == AttachmentState.uploading ||
+        state == AttachmentState.processing;
+    final error = state == AttachmentState.error;
+    final media = switch (size) {
+      AttachmentSize.md => 40.0,
+      AttachmentSize.sm => 32.0,
+      AttachmentSize.xs => 28.0,
+    };
+    final pad = switch (size) {
+      AttachmentSize.md => 8.0,
+      AttachmentSize.sm => 6.0,
+      AttachmentSize.xs => 4.0,
+    };
+    final radius = size == AttachmentSize.xs ? t.radiusLg : t.radiusXl;
+    final picture = Container(
+      width: upright ? null : media,
+      height: upright ? null : media,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: error ? c.destructive.withValues(alpha: .1) : c.muted,
+        borderRadius: BorderRadius.circular(
+          size == AttachmentSize.xs ? t.radiusMd : t.radiusLg,
+        ),
+      ),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (image != null)
+              Opacity(
+                opacity: busy || error ? .6 : 1,
+                child: Image(image: image!, fit: BoxFit.cover),
+              )
+            else if (!busy)
+              Center(
+                child: AshlarIcon(
+                  error ? AshlarIconsRoundedStroke.circleAlert : icon,
+                  size: upright ? 24 : (size == AttachmentSize.xs ? 14 : 16),
+                  color: error ? c.destructive : c.foreground,
+                ),
+              ),
+            if (busy)
+              Center(
+                child: Spinner(size: upright ? 24 : 16, semanticLabel: ''),
+              ),
+          ],
+        ),
+      ),
+    );
+    final text = t.text.xs;
+    final words = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _Shimmer(
+          on: busy,
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: (size == AttachmentSize.md ? t.text.sm : text).copyWith(
+              fontWeight: FontWeight.w500,
+              height: 1.25,
+            ),
+          ),
+        ),
+        if (description != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            description!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.copyWith(
+              color: error
+                  ? c.destructive.withValues(alpha: .8)
+                  : c.mutedForeground,
+            ),
+          ),
+        ],
+      ],
+    );
+    final status = switch (state) {
+      AttachmentState.idle => 'not sent',
+      AttachmentState.uploading => 'uploading',
+      AttachmentState.processing => 'processing',
+      AttachmentState.error => 'failed',
+      AttachmentState.done => null,
+    };
+    final label = [title, ?description, ?status].join(', ');
+    // The card's fill and border: under everything, and the button when it opens.
+    Widget surface(bool hovered, bool focused) => AnimatedContainer(
+      duration: t.duration,
+      decoration: BoxDecoration(
+        color: hovered ? Color.lerp(c.card, c.muted, .5) : c.card,
+        borderRadius: BorderRadius.circular(radius),
+        border: state == AttachmentState.idle
+            ? null
+            : Border.all(
+                color: focused
+                    ? c.ring
+                    : (error ? c.destructive.withValues(alpha: .3) : c.border),
+              ),
+      ),
+    );
+    // The name and picture are said by the label and let presses through to the card;
+    // the actions are buttons of their own, on top.
+    Widget quiet(Widget w) => IgnorePointer(child: ExcludeSemantics(child: w));
+    final content = Container(
+      width: upright ? (size == AttachmentSize.md ? 120 : 96) : null,
+      constraints: upright ? null : const BoxConstraints(minWidth: 160),
+      padding: EdgeInsets.all(pad),
+      child: upright
+          ? Stack(
+              children: [
+                quiet(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      picture,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 8, 4, 2),
+                        child: words,
+                      ),
+                    ],
+                  ),
+                ),
+                if (actions.isNotEmpty)
+                  PositionedDirectional(
+                    top: 4,
+                    end: 4,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: actions,
+                    ),
+                  ),
+              ],
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                quiet(picture),
+                SizedBox(width: size == AttachmentSize.xs ? 6 : 10),
+                Flexible(child: quiet(words)),
+                if (actions.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  ...actions,
+                ],
+              ],
+            ),
+    );
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: CustomPaint(
+        // Dashed while it has not been sent.
+        foregroundPainter: state == AttachmentState.idle
+            ? _Dashes(color: c.border, radius: radius)
+            : null,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: onPressed == null
+                  ? Semantics(label: label, child: surface(false, false))
+                  : Pressable(
+                      onPressed: onPressed,
+                      semanticLabel: label,
+                      builder: (context, states) =>
+                          surface(states.hovered, states.focused),
+                    ),
+            ),
+            content,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A small icon button on an [Attachment]: remove, retry, download.
+class AttachmentAction extends StatelessWidget {
+  const AttachmentAction({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+
+  /// What it does, for screen readers and the tooltip.
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Button(
+    variant: ButtonVariant.ghost,
+    size: ButtonSize.iconXs,
+    semanticLabel: label,
+    onPressed: onPressed,
+    child: AshlarIcon(icon),
+  );
+}
+
+/// Attachments in a row that scrolls sideways when they do not fit.
+class AttachmentGroup extends StatelessWidget {
+  const AttachmentGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final (i, a) in children.indexed) ...[
+          if (i > 0) const SizedBox(width: 12),
+          a,
+        ],
+      ],
+    ),
+  );
+}
+
+/// A light passing over its child while it works.
+class _Shimmer extends StatefulWidget {
+  const _Shimmer({required this.on, required this.child});
+
+  final bool on;
+  final Widget child;
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final _run = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_Shimmer old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    // Still for people who ask for less motion.
+    final still = WidgetsBinding
+        .instance
+        .platformDispatcher
+        .accessibilityFeatures
+        .disableAnimations;
+    if (widget.on && !still) {
+      if (!_run.isAnimating) _run.repeat();
+    } else {
+      _run.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _run.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.on) return widget.child;
+    final c = AshlarTheme.of(context).colors;
+    return AnimatedBuilder(
+      animation: _run,
+      builder: (context, child) => ShaderMask(
+        blendMode: BlendMode.srcIn,
+        shaderCallback: (rect) {
+          final x = -1 + _run.value * 3;
+          return LinearGradient(
+            begin: Alignment(x - 1, 0),
+            end: Alignment(x + 1, 0),
+            colors: [c.mutedForeground, c.foreground, c.mutedForeground],
+          ).createShader(rect);
+        },
+        child: child,
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+/// A dashed rounded border.
+class _Dashes extends CustomPainter {
+  const _Dashes({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outline = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          (Offset.zero & size).deflate(.5),
+          Radius.circular(radius),
+        ),
+      );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke;
+    for (final metric in outline.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 8) {
+        canvas.drawPath(metric.extractPath(d, d + 4), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Dashes old) => old.color != color || old.radius != radius;
+}
+''',
+    },
+  ),
+  'message-scroller': Component(
+    description: "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
+    requires: ["button"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'message_scroller.dart': r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
+// yours to change.
+//
+// A conversation's scrolling, built on CustomScrollView from Flutter's widgets layer. It
+// never moves the reader against their intent: a new turn starts near the top with room
+// below for the answer to grow into, it follows a streamed answer only while the reader is
+// at the end, and older messages loaded above do not move what is on screen.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/rendering.dart'
+    show RenderAbstractViewport, ScrollDirection;
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+
+/// Where a [MessageScroller] opens.
+enum MessageScrollStart {
+  /// At the first message.
+  start,
+
+  /// At the very end.
+  end,
+
+  /// At the last anchored turn, with what came after it below: where a reader left off.
+  /// The end when there is no anchor, or when the last turn fits on screen.
+  lastAnchor,
+}
+
+/// A row of a [MessageScroller]: a message, a marker, a typing indicator.
+@immutable
+class MessageScrollerItem {
+  const MessageScrollerItem({
+    required this.id,
+    required this.child,
+    this.anchor = false,
+  });
+
+  /// Stays the same for the same row, so the scroller can find it and keep its place.
+  final Object id;
+  final Widget child;
+
+  /// Starts a turn: when one is added, it is brought near the top of the view, and the
+  /// rows after it fill in below. Usually what the person sent.
+  final bool anchor;
+}
+
+/// Moves a [MessageScroller] from outside it, and tells what it shows.
+class MessageScrollerController extends ChangeNotifier {
+  _MessageScrollerState? _state;
+
+  /// Whether there is more to see above, or below.
+  bool get canScrollStart => _state?._canStart ?? false;
+  bool get canScrollEnd => _state?._canEnd ?? false;
+
+  /// The anchored turn being read: the last one that has reached the top of the view.
+  Object? get currentAnchor => _state?._currentAnchor;
+
+  /// The rows on screen, top to bottom.
+  List<Object> get visible => _state?._visible ?? const [];
+
+  /// To the latest, and follows from there.
+  void scrollToEnd() => _state?._toEnd(animate: true);
+
+  void scrollToStart() => _state?._toStart();
+
+  /// Brings the row with [id] to the top. False when there is no such row.
+  bool scrollToMessage(Object id) => _state?._toMessage(id) ?? false;
+
+  void _changed() => notifyListeners();
+}
+
+/// A conversation that scrolls the way people expect: [items] top to bottom, newest last.
+///
+/// ```dart
+/// MessageScroller(
+///   busy: streaming,
+///   items: [
+///     for (final m in messages)
+///       MessageScrollerItem(id: m.id, anchor: m.fromMe, child: Message(...)),
+///   ],
+/// )
+/// ```
+class MessageScroller extends StatefulWidget {
+  const MessageScroller({
+    super.key,
+    required this.items,
+    this.controller,
+    this.start = MessageScrollStart.lastAnchor,
+    this.followEnd = true,
+    this.previousPeek = 64,
+    this.busy = false,
+    this.gap = 32,
+    this.padding = const EdgeInsets.all(16),
+    this.showButton = true,
+    this.semanticLabel = 'Messages',
+  });
+
+  final List<MessageScrollerItem> items;
+  final MessageScrollerController? controller;
+  final MessageScrollStart start;
+
+  /// While the reader is at the end, it stays at the end as an answer grows. Scrolling away
+  /// lets go; coming back, or the button, takes hold again.
+  final bool followEnd;
+
+  /// How much of the row before a new turn stays in view above it, so the conversation
+  /// reads on rather than starting over.
+  final double previousPeek;
+
+  /// True while an answer streams in: screen readers hear it once it is finished, not
+  /// word by word.
+  final bool busy;
+
+  /// Space between rows.
+  final double gap;
+  final EdgeInsets padding;
+
+  /// A button to the end, shown when there is more below.
+  final bool showButton;
+  final String semanticLabel;
+
+  @override
+  State<MessageScroller> createState() => _MessageScrollerState();
+}
+
+class _MessageScrollerState extends State<MessageScroller> {
+  final _scroll = ScrollController();
+  final _keys = <Object, GlobalKey>{};
+  final _centre = UniqueKey();
+
+  /// The first row when the scroller opened. Rows put before it later grow upwards, so
+  /// loading older messages leaves the view where it was.
+  late Object? _first = widget.items.firstOrNull?.id;
+
+  var _placed = false;
+  var _following = true;
+
+  /// While a new turn settles near the top: where it scrolls to, and the room kept below.
+  double? _anchorAt;
+  var _room = 0.0;
+
+  var _canStart = false, _canEnd = false;
+  Object? _currentAnchor;
+  var _visible = const <Object>[];
+
+  GlobalKey _key(Object id) => _keys.putIfAbsent(id, GlobalKey.new);
+
+  ScrollPosition? get _position => _scroll.hasClients ? _scroll.position : null;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?._state = this;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _open());
+  }
+
+  @override
+  void didUpdateWidget(MessageScroller old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      if (old.controller?._state == this) old.controller!._state = null;
+      widget.controller?._state = this;
+    }
+    final ids = {for (final i in widget.items) i.id};
+    _keys.removeWhere((id, _) => !ids.contains(id));
+    if (_first == null || !ids.contains(_first)) {
+      _first = widget.items.firstOrNull?.id;
+    }
+    // A turn added at the end: bring it near the top once it is laid out.
+    final before = {for (final i in old.items) i.id};
+    final added = widget.items.where((i) => !before.contains(i.id)).toList();
+    final anchor = added.lastWhere(
+      (i) => i.anchor,
+      orElse: () => const MessageScrollerItem(id: _none, child: SizedBox()),
+    );
+    if (anchor.id != _none &&
+        widget.items.isNotEmpty &&
+        widget.items.indexOf(anchor) >= widget.items.length - added.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _anchor(anchor.id));
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller?._state == this) widget.controller!._state = null;
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// The top of row [id] as a scroll offset, when it is built.
+  double? _offsetOf(Object id) {
+    final box = _keys[id]?.currentContext?.findRenderObject() as RenderBox?;
+    final position = _position;
+    if (box == null || !box.attached || position == null) return null;
+    final viewport = RenderAbstractViewport.maybeOf(box);
+    if (viewport == null) return null;
+    return viewport.getOffsetToReveal(box, 0).offset;
+  }
+
+  double? _heightOf(Object id) =>
+      (_keys[id]?.currentContext?.findRenderObject() as RenderBox?)
+          ?.size
+          .height;
+
+  void _open({bool again = false}) {
+    final position = _position;
+    if (!mounted || position == null) return;
+    switch (widget.start) {
+      case MessageScrollStart.start:
+        position.jumpTo(position.minScrollExtent);
+        _following = position.maxScrollExtent <= position.minScrollExtent;
+      case MessageScrollStart.end:
+        position.jumpTo(position.maxScrollExtent);
+      case MessageScrollStart.lastAnchor:
+        final last = widget.items.lastWhere(
+          (i) => i.anchor,
+          orElse: () => const MessageScrollerItem(id: _none, child: SizedBox()),
+        );
+        if (last.id == _none) {
+          position.jumpTo(position.maxScrollExtent);
+          break;
+        }
+        var at = _offsetOf(last.id);
+        if (at == null && !again) {
+          // Not built where the list starts: go to the end, near it, and look again.
+          position.jumpTo(position.maxScrollExtent);
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _open(again: true),
+          );
+          return;
+        }
+        at ??= position.maxScrollExtent;
+        final fromAnchor =
+            position.maxScrollExtent + position.viewportDimension - at;
+        if (fromAnchor <= position.viewportDimension) {
+          position.jumpTo(position.maxScrollExtent);
+        } else {
+          final index = widget.items.indexOf(last);
+          final before = index > 0
+              ? _heightOf(widget.items[index - 1].id) ?? 0
+              : 0;
+          final peek = before < widget.previousPeek
+              ? before
+              : widget.previousPeek;
+          position.jumpTo(
+            (at - peek - (index > 0 ? widget.gap : 0)).clamp(
+              position.minScrollExtent,
+              position.maxScrollExtent,
+            ),
+          );
+          _following = false;
+        }
+    }
+    setState(() => _placed = true);
+    _measure();
+  }
+
+  /// Brings a new turn near the top, keeping a slice of the row before it in view, and
+  /// keeps room below it for what follows.
+  void _anchor(Object id) {
+    final position = _position;
+    final at = _offsetOf(id);
+    if (!mounted || position == null || at == null) return;
+    final index = widget.items.indexWhere((i) => i.id == id);
+    final before = index > 0 ? _heightOf(widget.items[index - 1].id) ?? 0 : 0;
+    final peek = before < widget.previousPeek ? before : widget.previousPeek;
+    final target = (at - peek - (index > 0 ? widget.gap : 0)).clamp(
+      position.minScrollExtent,
+      double.infinity,
+    );
+    _anchorAt = target;
+    _following = true;
+    _fitRoom();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final p = _position;
+      if (!mounted || p == null || _anchorAt == null) return;
+      p.animateTo(
+        _anchorAt!.clamp(p.minScrollExtent, p.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
+  /// The room below a new turn: enough that it can sit near the top, shrinking as the
+  /// answer fills it, gone once the answer is longer than the view.
+  void _fitRoom() {
+    final position = _position;
+    final at = _anchorAt;
+    if (position == null || at == null) return;
+    final content =
+        position.maxScrollExtent + position.viewportDimension - _room;
+    final room = (at + position.viewportDimension - content).clamp(
+      0.0,
+      double.infinity,
+    );
+    if ((room - _room).abs() > .5) setState(() => _room = room);
+    if (room == 0) _anchorAt = null;
+  }
+
+  bool _atEnd(ScrollMetrics m) => m.pixels >= m.maxScrollExtent - 2;
+
+  bool _onMetrics(ScrollMetricsNotification n) {
+    if (n.depth != 0) return false;
+    _fitRoom();
+    // Still at the end while an answer grows: stay there.
+    if (_placed && widget.followEnd && _following && _anchorAt == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final p = _position;
+        if (mounted && p != null && !_atEnd(p)) p.jumpTo(p.maxScrollExtent);
+      });
+    }
+    _measureSoon();
+    return false;
+  }
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0) return false;
+    // Dragged, wheeled or flung by the reader, not moved by the scroller itself.
+    final byReader =
+        n is UserScrollNotification ||
+        (n is ScrollUpdateNotification &&
+            _position?.userScrollDirection != ScrollDirection.idle);
+    if (byReader) {
+      // The reader moved: follow only if they came back to the end.
+      _following = _atEnd(n.metrics);
+      if (!_following) _anchorAt = null;
+    }
+    if (n is ScrollEndNotification && _atEnd(n.metrics)) _following = true;
+    _measureSoon();
+    return false;
+  }
+
+  var _measuring = false;
+
+  /// Measures once the frame is laid out: rows come and go while it is.
+  void _measureSoon() {
+    if (_measuring) return;
+    _measuring = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measuring = false;
+      if (mounted) _measure();
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  /// What can be scrolled to, which rows show, and which turn is being read.
+  void _measure() {
+    final position = _position;
+    if (position == null || !position.hasContentDimensions) return;
+    final canStart = position.pixels > position.minScrollExtent + 2;
+    final canEnd = position.pixels < position.maxScrollExtent - 8;
+    final visible = <Object>[];
+    Object? anchor;
+    for (final item in widget.items) {
+      final at = _offsetOf(item.id), height = _heightOf(item.id);
+      if (at == null || height == null) continue;
+      if (item.anchor && at <= position.pixels + 1) anchor = item.id;
+      if (at + height > position.pixels &&
+          at < position.pixels + position.viewportDimension) {
+        visible.add(item.id);
+      }
+    }
+    if (canStart != _canStart ||
+        canEnd != _canEnd ||
+        anchor != _currentAnchor ||
+        !_same(visible, _visible)) {
+      final repaint = canEnd != _canEnd;
+      _canStart = canStart;
+      _canEnd = canEnd;
+      _currentAnchor = anchor;
+      _visible = visible;
+      if (repaint && mounted) setState(() {});
+      widget.controller?._changed();
+    }
+  }
+
+  static bool _same(List<Object> a, List<Object> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  void _toEnd({required bool animate}) {
+    final position = _position;
+    if (position == null) return;
+    _following = true;
+    _anchorAt = null;
+    if (_room > 0) setState(() => _room = 0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final p = _position;
+      if (p == null) return;
+      if (animate) {
+        p.animateTo(
+          p.maxScrollExtent,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+        );
+      } else {
+        p.jumpTo(p.maxScrollExtent);
+      }
+    });
+  }
+
+  void _toStart() {
+    final position = _position;
+    if (position == null) return;
+    _following = false;
+    _anchorAt = null;
+    position.animateTo(
+      position.minScrollExtent,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  bool _toMessage(Object id, [int tries = 0]) {
+    final index = widget.items.indexWhere((i) => i.id == id);
+    final position = _position;
+    if (index < 0 || position == null) return false;
+    // An explicit jump lets go of the end.
+    _following = false;
+    _anchorAt = null;
+    final at = _offsetOf(id);
+    if (at != null) {
+      position.animateTo(
+        at.clamp(position.minScrollExtent, position.maxScrollExtent),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+      );
+      return true;
+    }
+    // Not built yet: go about where it is, then again once it is.
+    if (tries < 4) {
+      final firstAt = widget.items.indexWhere((i) => i.id == _first);
+      final share = widget.items.length < 2
+          ? 0.0
+          : index / (widget.items.length - 1);
+      final guess = firstAt <= 0
+          ? position.minScrollExtent +
+                share * (position.maxScrollExtent - position.minScrollExtent)
+          : (index < firstAt
+                ? position.minScrollExtent * (1 - index / firstAt)
+                : position.maxScrollExtent *
+                      ((index - firstAt) /
+                          (widget.items.length - firstAt).clamp(1, 1 << 30)));
+      position.jumpTo(
+        guess.clamp(position.minScrollExtent, position.maxScrollExtent),
+      );
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _toMessage(id, tries + 1),
+      );
+    }
+    return true;
+  }
+
+  Widget _row(MessageScrollerItem item, {required bool last}) => Padding(
+    key: _key(item.id),
+    padding: EdgeInsets.only(bottom: last ? 0 : widget.gap),
+    // The newest row is heard when it arrives, once it has finished streaming.
+    child: last
+        ? Semantics(
+            container: true,
+            liveRegion: !widget.busy,
+            child: item.child,
+          )
+        : item.child,
+  );
+
+  void _keyScroll(double by) {
+    final p = _position;
+    if (p == null) return;
+    _following = false;
+    p.animateTo(
+      (p.pixels + by).clamp(p.minScrollExtent, p.maxScrollExtent),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = widget.items;
+    final split = items.indexWhere((i) => i.id == _first);
+    final older = split <= 0
+        ? const <MessageScrollerItem>[]
+        : items.sublist(0, split);
+    final newer = split <= 0 ? items : items.sublist(split);
+    final page = _position?.viewportDimension ?? 400;
+    final scroller = CustomScrollView(
+      controller: _scroll,
+      center: _centre,
+      slivers: [
+        // Older rows, grown upwards from the first one seen: nearest first.
+        SliverPadding(
+          padding: EdgeInsets.only(
+            left: widget.padding.left,
+            right: widget.padding.right,
+            top: widget.padding.top,
+          ),
+          sliver: SliverList.builder(
+            itemCount: older.length,
+            itemBuilder: (context, i) =>
+                _row(older[older.length - 1 - i], last: false),
+          ),
+        ),
+        SliverPadding(
+          key: _centre,
+          padding: EdgeInsets.only(
+            left: widget.padding.left,
+            right: widget.padding.right,
+            top: older.isEmpty ? widget.padding.top : 0,
+            bottom: widget.padding.bottom,
+          ),
+          sliver: SliverList.builder(
+            itemCount: newer.length,
+            itemBuilder: (context, i) =>
+                _row(newer[i], last: i == newer.length - 1),
+          ),
+        ),
+        SliverToBoxAdapter(child: SizedBox(height: _room)),
+      ],
+    );
+    return Semantics(
+      container: true,
+      label: widget.semanticLabel,
+      explicitChildNodes: true,
+      child: FocusableActionDetector(
+        shortcuts: {
+          const SingleActivator(LogicalKeyboardKey.arrowDown):
+              VoidCallbackIntent(() => _keyScroll(48)),
+          const SingleActivator(LogicalKeyboardKey.arrowUp): VoidCallbackIntent(
+            () => _keyScroll(-48),
+          ),
+          const SingleActivator(LogicalKeyboardKey.pageDown):
+              VoidCallbackIntent(() => _keyScroll(page * .9)),
+          const SingleActivator(LogicalKeyboardKey.pageUp): VoidCallbackIntent(
+            () => _keyScroll(-page * .9),
+          ),
+          const SingleActivator(LogicalKeyboardKey.home): VoidCallbackIntent(
+            _toStart,
+          ),
+          const SingleActivator(LogicalKeyboardKey.end): VoidCallbackIntent(
+            () => _toEnd(animate: true),
+          ),
+        },
+        child: NotificationListener<ScrollMetricsNotification>(
+          onNotification: _onMetrics,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _onScroll,
+            child: Stack(
+              children: [
+                // Hidden until it is at its opening place, so it does not jump.
+                Positioned.fill(
+                  child: Opacity(opacity: _placed ? 1 : 0, child: scroller),
+                ),
+                if (widget.showButton)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 16,
+                    child: Center(
+                      child: _EndButton(
+                        shown: _canEnd,
+                        onPressed: () => _toEnd(animate: true),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const _none = Object();
+
+/// The round button to the end: rises in when there is more below, out of the Tab order
+/// and of what screen readers read when there is not.
+class _EndButton extends StatelessWidget {
+  const _EndButton({required this.shown, required this.onPressed});
+
+  final bool shown;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    ignoring: !shown,
+    child: ExcludeFocus(
+      excluding: !shown,
+      child: ExcludeSemantics(
+        excluding: !shown,
+        child: AnimatedSlide(
+          offset: shown ? Offset.zero : const Offset(0, 1),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          child: AnimatedOpacity(
+            opacity: shown ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: AnimatedScale(
+              scale: shown ? 1 : .95,
+              duration: const Duration(milliseconds: 200),
+              child: Button(
+                variant: ButtonVariant.outline,
+                size: ButtonSize.iconSm,
+                semanticLabel: 'Scroll to end',
+                onPressed: onPressed,
+                child: const AshlarIcon(AshlarIconsRoundedStroke.arrowDown),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
 };

@@ -85,5 +85,10 @@
   "sidebar-13": { "description": "Settings in a dialog, their sections down its side.", "files": ["blocks/sidebar_13.dart"], "requires": ["breadcrumb", "button", "dialog", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
   "sidebar-14": { "description": "A table of contents on the right of the page.", "files": ["blocks/sidebar_14.dart"], "requires": ["breadcrumb", "separator", "sidebar", "theme"], "block": true },
   "sidebar-15": { "description": "A sidebar on each side: pages on the left, a calendar on the right.", "files": ["blocks/sidebar_15.dart"], "requires": ["avatar", "breadcrumb", "button", "calendar", "checkbox", "dropdown-menu", "field", "popover", "separator", "sidebar", "theme"], "packages": ["ashlar_icons"], "block": true },
-  "sidebar-16": { "description": "A site header across the top, the sidebar under it.", "files": ["blocks/sidebar_16.dart"], "requires": ["avatar", "breadcrumb", "button", "dropdown-menu", "input", "popover", "separator", "sidebar", "theme"], "packages": ["ashlar_icons"], "block": true }
+  "sidebar-16": { "description": "A site header across the top, the sidebar under it.", "files": ["blocks/sidebar_16.dart"], "requires": ["avatar", "breadcrumb", "button", "dropdown-menu", "input", "popover", "separator", "sidebar", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "message": { "description": "One turn in a conversation: who sent it, what they said, a line above or below.", "files": ["message.dart"], "requires": ["theme"] },
+  "bubble": { "description": "What was said, in a rounded fill on the sender's side, with reactions.", "files": ["bubble.dart"], "requires": ["message", "pressable", "theme"] },
+  "marker": { "description": "A note in a conversation that nobody said: a day, someone joining, thinking.", "files": ["marker.dart"], "requires": ["theme"] },
+  "attachment": { "description": "A file or picture in a conversation: what it is and how its upload is going.", "files": ["attachment.dart"], "requires": ["button", "pressable", "spinner", "theme"], "packages": ["ashlar_icons"] },
+  "message-scroller": { "description": "A conversation that scrolls as people expect: new turns near the top, following only at the end.", "files": ["message_scroller.dart"], "requires": ["button"], "packages": ["ashlar_icons"] }
 }
