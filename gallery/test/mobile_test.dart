@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/bottom_bar.dart';
 import 'package:ashlar_ui_gallery/ui/pull_to_refresh.dart';
+import 'package:ashlar_ui_gallery/ui/spinner.dart';
 import 'package:ashlar_ui_gallery/ui/swipe_actions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
@@ -187,6 +188,32 @@ void main() {
         }
       });
     }
+
+    testWidgets('a bouncing list is held under the spinner while it turns', (
+      tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        final calls = <int>[];
+        final done = await pumpList(tester, calls);
+        await tester.fling(find.text('Order 2'), const Offset(0, 400), 400);
+        // The bounce back has finished; the refresh has not.
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+        expect(calls, [1]);
+        final spinner = tester.getRect(find.byType(Spinner));
+        expect(
+          tester.getRect(find.text('Order 0')).top,
+          greaterThanOrEqualTo(spinner.bottom),
+        );
+        done.complete();
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.text('Order 0')).top, 0);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
 
     testWidgets('a short pull does not', (tester) async {
       final calls = <int>[];

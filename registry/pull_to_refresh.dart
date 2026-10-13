@@ -51,10 +51,22 @@ class _PullToRefreshState extends State<PullToRefresh>
   // How far it has been pulled past the top.
   double _pulled = 0;
   bool _dragging = false, _working = false;
-  late final AnimationController _back = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 200),
-  )..addListener(() => setState(() => _pulled = _from * (1 - _back.value)));
+
+  // How far the list itself is past its top, when it bounces.
+  double _over = 0;
+  bool _bounced = false;
+
+  /// Holding the list down under the spinner while it turns, as a bouncing list does.
+  bool _holding = false;
+  late final AnimationController _back =
+      AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 200),
+        )
+        ..addListener(() => setState(() => _pulled = _from * (1 - _back.value)))
+        ..addStatusListener((s) {
+          if (s == AnimationStatus.completed) setState(() => _holding = false);
+        });
   double _from = 0;
 
   @override
@@ -67,6 +79,7 @@ class _PullToRefreshState extends State<PullToRefresh>
     if (_working) return;
     setState(() {
       _working = true;
+      _holding = _bounced;
       _pulled = widget.distance;
     });
     try {
@@ -95,8 +108,19 @@ class _PullToRefreshState extends State<PullToRefresh>
   }
 
   bool _onScroll(ScrollNotification n) {
-    if (n.depth != 0 || _working) return false;
-    if (n is ScrollStartNotification && n.dragDetails != null) _dragging = true;
+    if (n.depth != 0) return false;
+    if (n is ScrollUpdateNotification) {
+      final over = (n.metrics.minScrollExtent - n.metrics.pixels).clamp(
+        0.0,
+        double.infinity,
+      );
+      if (over != _over) setState(() => _over = over);
+    }
+    if (_working) return false;
+    if (n is ScrollStartNotification && n.dragDetails != null) {
+      _dragging = true;
+      _bounced = false;
+    }
     if (n is ScrollUpdateNotification && _dragging) {
       if (n.dragDetails == null) {
         // Moving on its own: the finger lifted and a bounce or fling began.
@@ -105,7 +129,10 @@ class _PullToRefreshState extends State<PullToRefresh>
       }
       // Bouncing: the list itself goes past its top.
       if (n.metrics.pixels < n.metrics.minScrollExtent) {
-        setState(() => _pulled = n.metrics.minScrollExtent - n.metrics.pixels);
+        setState(() {
+          _bounced = true;
+          _pulled = n.metrics.minScrollExtent - n.metrics.pixels;
+        });
       } else if (_pulled > 0 && n.scrollDelta! > 0) {
         // Pushed back up while pulled: the mark goes back with it.
         setState(
@@ -140,7 +167,14 @@ class _PullToRefreshState extends State<PullToRefresh>
         onNotification: _onScroll,
         child: Stack(
           children: [
-            widget.child,
+            // What the list has bounced back, made up so the spinner has room.
+            Transform.translate(
+              offset: Offset(
+                0,
+                _holding ? (_pulled - _over).clamp(0, widget.distance) : 0,
+              ),
+              child: widget.child,
+            ),
             if (_pulled > 0 || _working)
               Positioned(
                 top: (_pulled.clamp(0, widget.distance) - 40) / 2 + 8,
