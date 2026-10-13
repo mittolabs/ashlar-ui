@@ -14,8 +14,8 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 
 | | shadcn | Ashlar UI |
 |---|---|---|
-| Components | 62 | 55 |
-| Showcase situations across components | about 480 | 55 (one demo each) |
+| Components | 62 | 62, with the theme, app and helpers besides |
+| Showcase situations across components | about 480 | 168: a demo each and 106 examples |
 | Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 27: the same set |
 | Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 58, across the same seven |
 | Themes | 7 base colours and 17 accent colours | the same 7 and 17, with contrast floors |
@@ -200,6 +200,21 @@ drop separators and take an inner ring. Tooltips: dot, line, dashed or no marks,
 your way, icons, a total. Legends hide and show series by pointer or keyboard. The site's
 Charts page shows 58 variants (shadcn has 71; theirs include several near-identical label
 and colour versions), each live and with its code.
+
+**Step 9, the site: done** (13 October 2026). Each component page has its demo, Examples
+(106 situations across 58 components, each pictured, live on a click, with its code; Chart
+and Sidebar point to their pages) and an API reference read from the source: every public
+type, each parameter's type, default, whether it is positional, and its doc comment (563
+fields were undocumented; 439 now carry docs in the registry, the rest are enum values that
+say what they are, and Flutter's inherited form-field parameters, described from Flutter).
+New pages: Blocks (27 screens, live), Charts (58 variants), Themes (bases, accents and
+styles chosen and seen live, with the `ashlar init` line). The CLI and Theming guides cover
+every command and the themes. Building the gallery found six layout faults in components,
+now fixed with tests: Alert, Field across and Message grew to the height they were given;
+Kbd and Toggle to the width; Switch, Checkbox and Radio stretched in a stretching column.
+
+Where we still trail: shadcn shows about 480 situations to our 168 (62 demos and 106
+examples), and 71 chart variants to our 58.
 
 ## Plan
 
