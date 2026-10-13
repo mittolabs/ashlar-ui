@@ -7321,120 +7321,148 @@ class _CommandState extends State<Command> {
     final lit = pickable.isEmpty
         ? null
         : pickable[_at.clamp(0, pickable.length - 1)];
-    return DefaultTextStyle.merge(
-      style: t.text.sm.copyWith(color: c.popoverForeground),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CallbackShortcuts(
-            bindings: {
-              const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
-                  _move(1),
-              const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
-                  _move(-1),
-              const SingleActivator(
-                LogicalKeyboardKey.home,
-                control: true,
-              ): () =>
-                  _move(-pickable.length),
-              const SingleActivator(
-                LogicalKeyboardKey.end,
-                control: true,
-              ): () =>
-                  _move(pickable.length),
-              const SingleActivator(LogicalKeyboardKey.enter): _pick,
-            },
-            child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: c.border)),
-              ),
-              child: Row(
-                children: [
-                  AshlarIcon(
-                    AshlarIconsRoundedStroke.search,
-                    size: 16,
-                    color: c.mutedForeground.withValues(alpha: .5),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Input(
-                      decorated: false,
-                      controller: _query,
-                      autofocus: widget.autofocus,
-                      placeholder: widget.placeholder,
-                      textInputAction: TextInputAction.go,
-                      onSubmitted: (_) => _pick(),
+    return LayoutBuilder(
+      builder: (context, box) => DefaultTextStyle.merge(
+        style: t.text.sm.copyWith(color: c.popoverForeground),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                    _move(1),
+                const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                    _move(-1),
+                const SingleActivator(
+                  LogicalKeyboardKey.home,
+                  control: true,
+                ): () =>
+                    _move(-pickable.length),
+                const SingleActivator(
+                  LogicalKeyboardKey.end,
+                  control: true,
+                ): () =>
+                    _move(pickable.length),
+                const SingleActivator(LogicalKeyboardKey.enter): _pick,
+              },
+              child: Container(
+                height: 44,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: c.border)),
+                ),
+                child: Row(
+                  children: [
+                    AshlarIcon(
+                      AshlarIconsRoundedStroke.search,
+                      size: 16,
+                      color: c.mutedForeground.withValues(alpha: .5),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Input(
+                        decorated: false,
+                        controller: _query,
+                        autofocus: widget.autofocus,
+                        placeholder: widget.placeholder,
+                        textInputAction: TextInputAction.go,
+                        onSubmitted: (_) => _pick(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          // The highlighted item, read out as it changes: the typing stays in the box.
-          Semantics(
-            liveRegion: true,
-            label: lit?.label ?? (shown.isEmpty ? widget.emptyText : ''),
-            child: const SizedBox(),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: widget.maxHeight),
-            child: shown.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      widget.emptyText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: c.mutedForeground),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (gi, g) in shown.indexed) ...[
-                          if (gi > 0)
-                            Container(
-                              height: 1,
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              color: c.border,
-                            ),
-                          if (g.heading != null)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-                              child: Semantics(
-                                header: true,
-                                child: Text(
-                                  g.heading!,
-                                  style: t.text.xs.copyWith(
-                                    color: c.mutedForeground,
-                                    fontWeight: FontWeight.w500,
+            // The highlighted item, read out as it changes: the typing stays in the box.
+            Semantics(
+              liveRegion: true,
+              label: lit?.label ?? (shown.isEmpty ? widget.emptyText : ''),
+              child: const SizedBox(),
+            ),
+            // In a bounded height (a popover near the screen's edge) the list gives way to
+            // the search box; in a scrolling page it keeps its own height.
+            _GiveWay(
+              bounded: box.maxHeight.isFinite,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: widget.maxHeight),
+                child: shown.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          widget.emptyText,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: c.mutedForeground),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final (gi, g) in shown.indexed) ...[
+                              if (gi > 0)
+                                Container(
+                                  height: 1,
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  color: c.border,
+                                ),
+                              if (g.heading != null)
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    8,
+                                    6,
+                                    8,
+                                    6,
+                                  ),
+                                  child: Semantics(
+                                    header: true,
+                                    child: Text(
+                                      g.heading!,
+                                      style: t.text.xs.copyWith(
+                                        color: c.mutedForeground,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          for (final item in g.items)
-                            _Row(
-                              key: _keys.putIfAbsent(item, GlobalKey.new),
-                              item: item,
-                              lit: identical(item, lit),
-                              onHover: () {
-                                final i = pickable.indexOf(item);
-                                if (i >= 0 && i != _at) setState(() => _at = i);
-                              },
-                            ),
-                        ],
-                      ],
-                    ),
-                  ),
-          ),
-        ],
+                              for (final item in g.items)
+                                _Row(
+                                  key: _keys.putIfAbsent(item, GlobalKey.new),
+                                  item: item,
+                                  lit: identical(item, lit),
+                                  onHover: () {
+                                    final i = pickable.indexOf(item);
+                                    if (i >= 0 && i != _at) {
+                                      setState(() => _at = i);
+                                    }
+                                  },
+                                ),
+                            ],
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// Flexible in a bounded column, as it is otherwise.
+class _GiveWay extends StatelessWidget {
+  const _GiveWay({required this.bounded, required this.child});
+
+  final bool bounded;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      bounded ? Flexible(child: child) : child;
 }
 
 class _Row extends StatelessWidget {

@@ -120,6 +120,33 @@ void main() {
     });
   });
 
+  testWidgets(
+    'near the bottom of the screen, its list shrinks rather than overflow',
+    (tester) async {
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Align(
+            alignment: const Alignment(0, .5),
+            child: SizedBox(
+              width: 240,
+              child: Combobox<int>(
+                value: null,
+                options: [
+                  for (var i = 0; i < 40; i++) ComboboxOption(i, 'Option $i'),
+                ],
+                onChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(Combobox<int>));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Option 0'), findsOneWidget);
+    },
+  );
+
   testWidgets('a combobox searches, picks and says what it holds', (
     tester,
   ) async {
