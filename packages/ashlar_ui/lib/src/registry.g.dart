@@ -1074,6 +1074,7 @@ class Input extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.semanticLabel,
+    this.decorated = true,
   });
 
   final TextEditingController? controller;
@@ -1107,6 +1108,10 @@ class Input extends StatefulWidget {
 
   /// Read out by screen readers; defaults to the placeholder.
   final String? semanticLabel;
+
+  /// False draws the bare text, with no border, fill or ring: for an InputGroup, which
+  /// draws those round the field and its addons together.
+  final bool decorated;
 
   @override
   State<Input> createState() => _InputState();
@@ -1206,38 +1211,40 @@ class _InputState extends State<Input>
               duration: t.duration,
               constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
               padding: EdgeInsets.symmetric(
-                horizontal: 12,
+                horizontal: widget.decorated ? 12 : 0,
                 vertical: multiline ? 8 : 0,
               ),
-              decoration: BoxDecoration(
-                // Opaque, so the shadow beneath does not show through.
-                color: t.brightness == Brightness.dark
-                    ? Color.alphaBlend(
-                        c.input.withValues(alpha: c.input.a * .3),
-                        c.background,
-                      )
-                    : c.background,
-                borderRadius: BorderRadius.circular(t.radiusMd),
-                border: Border.all(
-                  color: widget.error
-                      ? c.destructive
-                      : (focused
-                            ? c.ring
-                            : (_hovered
-                                  ? c.ring.withValues(alpha: .6)
-                                  : c.input)),
-                ),
-                boxShadow: [
-                  if (focused)
-                    BoxShadow(
-                      color: ringColor.withValues(
-                        alpha: widget.error ? .2 : .5,
+              decoration: !widget.decorated
+                  ? null
+                  : BoxDecoration(
+                      // Opaque, so the shadow beneath does not show through.
+                      color: t.brightness == Brightness.dark
+                          ? Color.alphaBlend(
+                              c.input.withValues(alpha: c.input.a * .3),
+                              c.background,
+                            )
+                          : c.background,
+                      borderRadius: BorderRadius.circular(t.radiusMd),
+                      border: Border.all(
+                        color: widget.error
+                            ? c.destructive
+                            : (focused
+                                  ? c.ring
+                                  : (_hovered
+                                        ? c.ring.withValues(alpha: .6)
+                                        : c.input)),
                       ),
-                      spreadRadius: 3,
+                      boxShadow: [
+                        if (focused)
+                          BoxShadow(
+                            color: ringColor.withValues(
+                              alpha: widget.error ? .2 : .5,
+                            ),
+                            spreadRadius: 3,
+                          ),
+                        ...t.shadowXs,
+                      ],
                     ),
-                  ...t.shadowXs,
-                ],
-              ),
               child: IconTheme.merge(
                 data: IconThemeData(color: c.mutedForeground, size: 16),
                 child: Row(
@@ -1965,6 +1972,7 @@ class Textarea extends StatelessWidget {
     this.inputFormatters,
     this.onChanged,
     this.semanticLabel,
+    this.decorated = true,
   });
 
   final TextEditingController? controller;
@@ -1979,6 +1987,9 @@ class Textarea extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
   final String? semanticLabel;
+
+  /// False draws the bare text, for an InputGroup.
+  final bool decorated;
 
   @override
   Widget build(BuildContext context) => Input(
@@ -1996,6 +2007,7 @@ class Textarea extends StatelessWidget {
     inputFormatters: inputFormatters,
     onChanged: onChanged,
     semanticLabel: semanticLabel,
+    decorated: decorated,
   );
 }
 ''',
@@ -6101,6 +6113,1065 @@ class _RowState extends State<_Row> {
     }
     return MergeSemantics(child: row);
   }
+}
+''',
+    },
+  ),
+  'sheet': Component(
+    description: "A panel that slides in from an edge of the screen.",
+    requires: ["theme","button"],
+    packages: ["ashlar_icons"],
+    files: {
+      'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'theme.dart';
+
+/// The edge a sheet slides in from.
+enum SheetSide { left, right, top, bottom }
+
+/// Slides a panel in from an edge of the screen over a dimmed page, for settings, filters
+/// or details beside the work. A tap outside or Escape closes it, and it returns what it
+/// was closed with.
+///
+/// ```dart
+/// showSheet(
+///   context: context,
+///   builder: (context) => Sheet(
+///     title: Text('Edit profile'),
+///     description: Text('Changes are saved when you press Save.'),
+///     content: ProfileForm(),
+///     footer: [Button(onPressed: () => Navigator.pop(context), child: Text('Save'))],
+///   ),
+/// );
+/// ```
+Future<T?> showSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  SheetSide side = SheetSide.right,
+}) {
+  final theme = AshlarTheme.of(context);
+  return Navigator.of(context).push<T>(
+    RawDialogRoute<T>(
+      barrierDismissible: true,
+      barrierLabel: 'Close',
+      barrierColor: const Color(0x80000000),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondary) => AshlarTheme(
+        data: theme,
+        child: _SheetSide(
+          side: side,
+          child: Builder(builder: builder),
+        ),
+      ),
+      transitionBuilder: (context, animation, secondary, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        final from = switch (side) {
+          SheetSide.left => const Offset(-1, 0),
+          SheetSide.right => const Offset(1, 0),
+          SheetSide.top => const Offset(0, -1),
+          SheetSide.bottom => const Offset(0, 1),
+        };
+        return SlideTransition(
+          position: Tween(begin: from, end: Offset.zero).animate(curved),
+          child: child,
+        );
+      },
+    ),
+  );
+}
+
+/// Which edge the panel is on, for [Sheet] to lay itself out against.
+class _SheetSide extends InheritedWidget {
+  const _SheetSide({required this.side, required super.child});
+
+  final SheetSide side;
+
+  @override
+  bool updateShouldNotify(_SheetSide old) => old.side != side;
+}
+
+/// The panel [showSheet] slides in: a header, its [content], and a [footer] of actions,
+/// with a close button at the top right.
+class Sheet extends StatelessWidget {
+  const Sheet({
+    super.key,
+    this.title,
+    this.description,
+    this.content,
+    this.footer = const [],
+    this.width = 384,
+  });
+
+  final Widget? title;
+  final Widget? description;
+  final Widget? content;
+  final List<Widget> footer;
+
+  /// For a left or right sheet; it is never more than three quarters of the screen.
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final side =
+        context.dependOnInheritedWidgetOfExactType<_SheetSide>()?.side ??
+        SheetSide.right;
+    final vertical = side == SheetSide.left || side == SheetSide.right;
+    final screen = MediaQuery.sizeOf(context);
+    final edge = BorderSide(color: c.border);
+    final panel = Container(
+      width: vertical
+          ? (width < screen.width * .75 ? width : screen.width * .75)
+          : double.infinity,
+      height: vertical ? double.infinity : null,
+      decoration: BoxDecoration(
+        color: c.background,
+        boxShadow: t.shadowLg,
+        border: Border(
+          left: side == SheetSide.right ? edge : BorderSide.none,
+          right: side == SheetSide.left ? edge : BorderSide.none,
+          top: side == SheetSide.bottom ? edge : BorderSide.none,
+          bottom: side == SheetSide.top ? edge : BorderSide.none,
+        ),
+      ),
+      child: SafeArea(
+        left: side != SheetSide.right,
+        right: side != SheetSide.left,
+        top: side != SheetSide.bottom,
+        bottom: side != SheetSide.top,
+        child: DefaultTextStyle(
+          style: t.text.sm.copyWith(color: c.foreground),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: vertical ? MainAxisSize.max : MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 48, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (title != null)
+                          Semantics(
+                            header: true,
+                            child: DefaultTextStyle.merge(
+                              style: t.text.base.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: c.foreground,
+                              ),
+                              child: title!,
+                            ),
+                          ),
+                        if (description != null) ...[
+                          const SizedBox(height: 6),
+                          DefaultTextStyle.merge(
+                            style: TextStyle(color: c.mutedForeground),
+                            child: description!,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (content != null)
+                    vertical
+                        ? Expanded(
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: content,
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: content,
+                          ),
+                  if (footer.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, f) in footer.indexed) ...[
+                            if (i > 0) const SizedBox(height: 8),
+                            f,
+                          ],
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.icon,
+                  semanticLabel: 'Close',
+                  onPressed: () => Navigator.maybePop(context),
+                  child: AshlarIcon(
+                    AshlarIconsRoundedStroke.x,
+                    color: c.mutedForeground,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    return Align(
+      alignment: switch (side) {
+        SheetSide.left => Alignment.centerLeft,
+        SheetSide.right => Alignment.centerRight,
+        SheetSide.top => Alignment.topCenter,
+        SheetSide.bottom => Alignment.bottomCenter,
+      },
+      child: Semantics(
+        scopesRoute: true,
+        namesRoute: true,
+        explicitChildNodes: true,
+        child: panel,
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'drawer': Component(
+    description: "A panel that comes up from the bottom and drags away.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Brings a panel up from the bottom of the screen, the way phones show choices and
+/// short forms. Drag it down, tap outside or press Escape to close it.
+///
+/// ```dart
+/// showDrawer(
+///   context: context,
+///   builder: (context) => Drawer(
+///     title: Text('Move goal'),
+///     description: Text('Set your daily steps.'),
+///     content: StepsPicker(),
+///     footer: [Button(onPressed: () => Navigator.pop(context), child: Text('Done'))],
+///   ),
+/// );
+/// ```
+Future<T?> showDrawer<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) {
+  final theme = AshlarTheme.of(context);
+  return Navigator.of(context).push<T>(
+    RawDialogRoute<T>(
+      barrierDismissible: true,
+      barrierLabel: 'Close',
+      barrierColor: const Color(0x80000000),
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondary) => AshlarTheme(
+        data: theme,
+        child: Builder(builder: builder),
+      ),
+      transitionBuilder: (context, animation, secondary, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return SlideTransition(
+          position: Tween(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(curved),
+          child: child,
+        );
+      },
+    ),
+  );
+}
+
+/// The panel [showDrawer] brings up: a handle to drag, a header, [content] and a [footer].
+class Drawer extends StatefulWidget {
+  const Drawer({
+    super.key,
+    this.title,
+    this.description,
+    this.content,
+    this.footer = const [],
+    this.maxWidth = 512,
+  });
+
+  final Widget? title;
+  final Widget? description;
+  final Widget? content;
+  final List<Widget> footer;
+
+  /// On a wide screen the content is kept to this width, centred.
+  final double maxWidth;
+
+  @override
+  State<Drawer> createState() => _DrawerState();
+}
+
+class _DrawerState extends State<Drawer> {
+  /// How far it has been dragged down.
+  double _drag = 0;
+  double _height = 1;
+
+  void _end(DragEndDetails d) {
+    // Down far enough, or flicked down: close. Otherwise it springs back.
+    if (_drag > _height * .3 || (d.primaryVelocity ?? 0) > 700) {
+      Navigator.maybePop(context);
+    } else {
+      setState(() => _drag = 0);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final radius = Radius.circular(t.radiusLg);
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: GestureDetector(
+        onVerticalDragUpdate: (d) => setState(
+          () => _drag = (_drag + d.delta.dy).clamp(0, double.infinity),
+        ),
+        onVerticalDragEnd: _end,
+        child: AnimatedContainer(
+          duration: _drag == 0 ? t.duration : Duration.zero,
+          transform: Matrix4.translationValues(0, _drag, 0),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * .8,
+          ),
+          decoration: BoxDecoration(
+            color: c.background,
+            borderRadius: BorderRadius.vertical(top: radius),
+            border: Border(top: BorderSide(color: c.border)),
+            boxShadow: t.shadowLg,
+          ),
+          child: LayoutBuilder(
+            builder: (context, box) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final size = context.size;
+                if (size != null) _height = size.height;
+              });
+              return SafeArea(
+                top: false,
+                child: Semantics(
+                  scopesRoute: true,
+                  namesRoute: true,
+                  explicitChildNodes: true,
+                  child: DefaultTextStyle(
+                    style: t.text.sm.copyWith(color: c.foreground),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // The handle: a reminder it can be dragged, not a control.
+                        Container(
+                          margin: const EdgeInsets.only(top: 16),
+                          width: 100,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: c.muted,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        Flexible(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: widget.maxWidth,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    children: [
+                                      if (widget.title != null)
+                                        Semantics(
+                                          header: true,
+                                          child: DefaultTextStyle.merge(
+                                            style: t.text.base.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            child: widget.title!,
+                                          ),
+                                        ),
+                                      if (widget.description != null) ...[
+                                        const SizedBox(height: 6),
+                                        DefaultTextStyle.merge(
+                                          style: TextStyle(
+                                            color: c.mutedForeground,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          child: widget.description!,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                if (widget.content != null)
+                                  Flexible(
+                                    child: SingleChildScrollView(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                      ),
+                                      child: widget.content,
+                                    ),
+                                  ),
+                                if (widget.footer.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        for (final (i, f)
+                                            in widget.footer.indexed) ...[
+                                          if (i > 0) const SizedBox(height: 8),
+                                          f,
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'input-group': Component(
+    description: "A text field with text, buttons or a toolbar inside its border.",
+    requires: ["theme","input"],
+    packages: [],
+    files: {
+      'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
+// change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A text field and the things that belong with it inside one border: text before it
+/// ("https://"), a button after it, a toolbar under a text area. Give it an Input or a
+/// Textarea with `decorated: false`; the group draws the border, the fill and the focus
+/// ring round them all.
+///
+/// ```dart
+/// InputGroup(
+///   start: Text('https://'),
+///   end: Text('.co.ke'),
+///   child: Input(decorated: false, placeholder: 'example'),
+/// )
+/// InputGroup(
+///   bottom: Row(children: [Text('120 characters left'), Spacer(), Button(size: ButtonSize.sm, onPressed: send, child: Text('Send'))]),
+///   child: Textarea(decorated: false, placeholder: 'Write a reply'),
+/// )
+/// ```
+class InputGroup extends StatefulWidget {
+  const InputGroup({
+    super.key,
+    required this.child,
+    this.start,
+    this.end,
+    this.top,
+    this.bottom,
+    this.error = false,
+  });
+
+  final Widget child;
+
+  /// Before the field and after it, on its line.
+  final Widget? start, end;
+
+  /// Above the field and under it, across the whole width.
+  final Widget? top, bottom;
+
+  /// Draws the group as invalid.
+  final bool error;
+
+  @override
+  State<InputGroup> createState() => _InputGroupState();
+}
+
+class _InputGroupState extends State<InputGroup> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget addon(Widget w, EdgeInsets padding) => Padding(
+      padding: padding,
+      child: DefaultTextStyle.merge(
+        style: t.text.sm.copyWith(color: c.mutedForeground),
+        child: IconTheme.merge(
+          data: IconThemeData(color: c.mutedForeground, size: 16),
+          child: w,
+        ),
+      ),
+    );
+    final ring = widget.error ? c.destructive : c.ring;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      // The ring shows while the field, or anything in the group, has focus.
+      onFocusChange: (f) => setState(() => _focused = f),
+      child: AnimatedContainer(
+        duration: t.duration,
+        decoration: BoxDecoration(
+          color: t.brightness == Brightness.dark
+              ? Color.alphaBlend(
+                  c.input.withValues(alpha: c.input.a * .3),
+                  c.background,
+                )
+              : c.background,
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: Border.all(
+            color: widget.error ? c.destructive : (_focused ? c.ring : c.input),
+          ),
+          boxShadow: [
+            if (_focused)
+              BoxShadow(
+                color: ring.withValues(alpha: widget.error ? .2 : .5),
+                spreadRadius: 3,
+              ),
+            ...t.shadowXs,
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.top != null)
+              addon(widget.top!, const EdgeInsets.fromLTRB(12, 10, 12, 0)),
+            Row(
+              children: [
+                if (widget.start != null)
+                  addon(
+                    widget.start!,
+                    const EdgeInsets.only(left: 12, right: 2),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: widget.start == null ? 12 : 4,
+                      right: widget.end == null ? 12 : 4,
+                    ),
+                    child: widget.child,
+                  ),
+                ),
+                if (widget.end != null)
+                  addon(widget.end!, const EdgeInsets.only(left: 2, right: 8)),
+              ],
+            ),
+            if (widget.bottom != null)
+              addon(widget.bottom!, const EdgeInsets.fromLTRB(12, 0, 8, 8)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'input-otp': Component(
+    description: "A one-time code, one character to a box.",
+    requires: ["theme","group"],
+    packages: [],
+    files: {
+      'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'group.dart';
+import 'theme.dart';
+
+/// A one-time code, one character to a box: typed, pasted whole, or filled in by the
+/// phone from a text message. [onCompleted] runs when every box is full.
+///
+/// ```dart
+/// InputOtp(length: 6, groups: [3, 3], onCompleted: (code) => verify(code))
+/// ```
+class InputOtp extends StatefulWidget {
+  const InputOtp({
+    super.key,
+    this.length = 6,
+    this.groups,
+    this.onChanged,
+    this.onCompleted,
+    this.digitsOnly = true,
+    this.controller,
+    this.focusNode,
+    this.autofocus = false,
+    this.enabled = true,
+    this.error = false,
+    this.semanticLabel = 'One-time code',
+  });
+
+  final int length;
+
+  /// How the boxes are split, with a dash between groups: [3, 3]. Null keeps them together.
+  final List<int>? groups;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onCompleted;
+  final bool digitsOnly;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final bool enabled;
+  final bool error;
+  final String semanticLabel;
+
+  @override
+  State<InputOtp> createState() => _InputOtpState();
+}
+
+class _InputOtpState extends State<InputOtp> {
+  TextEditingController? _ownController;
+  FocusNode? _ownFocus;
+  TextEditingController get _controller =>
+      widget.controller ?? (_ownController ??= TextEditingController());
+  FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refresh);
+    _focus.addListener(_refresh);
+  }
+
+  void _refresh() => setState(() {});
+
+  @override
+  void dispose() {
+    _controller.removeListener(_refresh);
+    _focus.removeListener(_refresh);
+    _ownController?.dispose();
+    _ownFocus?.dispose();
+    super.dispose();
+  }
+
+  void _changed(String v) {
+    widget.onChanged?.call(v);
+    if (v.length == widget.length) widget.onCompleted?.call(v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final text = _controller.text;
+    final focused = _focus.hasFocus;
+    // The box being typed into: the next empty one, or the last when all are full.
+    final active = text.length < widget.length
+        ? text.length
+        : widget.length - 1;
+    Widget slot(int i) {
+      final on = focused && i == active;
+      final ring = widget.error ? c.destructive : c.ring;
+      return Builder(
+        builder: (context) => AnimatedContainer(
+          duration: t.duration,
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: t.brightness == Brightness.dark
+                ? Color.alphaBlend(
+                    c.input.withValues(alpha: c.input.a * .3),
+                    c.background,
+                  )
+                : c.background,
+            borderRadius: joinedRadius(context, t.radiusMd),
+            border: on
+                ? Border.all(color: ring)
+                : joinedBorder(context, widget.error ? c.destructive : c.input),
+            boxShadow: [
+              if (on)
+                BoxShadow(
+                  color: ring.withValues(alpha: widget.error ? .2 : .5),
+                  spreadRadius: 3,
+                ),
+            ],
+          ),
+          child: i < text.length
+              ? Text(text[i], style: t.text.sm.copyWith(color: c.foreground))
+              : (on ? _Caret(color: c.foreground) : null),
+        ),
+      );
+    }
+
+    final groups = widget.groups ?? [widget.length];
+    var start = 0;
+    final rows = <Widget>[];
+    for (final (g, size) in groups.indexed) {
+      if (g > 0) {
+        rows.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Container(width: 8, height: 2, color: c.mutedForeground),
+          ),
+        );
+      }
+      rows.add(
+        JoinedGroup(
+          children: [for (var i = start; i < start + size; i++) slot(i)],
+        ),
+      );
+      start += size;
+    }
+    // One real text field over the boxes takes the typing, pasting and the phone's
+    // autofill; it draws nothing itself.
+    final field = EditableText(
+      controller: _controller,
+      focusNode: _focus,
+      autofocus: widget.autofocus,
+      readOnly: !widget.enabled,
+      style: const TextStyle(color: Color(0x00000000), fontSize: 1),
+      cursorColor: const Color(0x00000000),
+      backgroundCursorColor: const Color(0x00000000),
+      showCursor: false,
+      enableInteractiveSelection: false,
+      keyboardType: widget.digitsOnly
+          ? TextInputType.number
+          : TextInputType.text,
+      autofillHints: const [AutofillHints.oneTimeCode],
+      inputFormatters: [
+        if (widget.digitsOnly) FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(widget.length),
+      ],
+      onChanged: _changed,
+    );
+    return Opacity(
+      opacity: widget.enabled ? 1 : .5,
+      child: MergeSemantics(
+        child: Semantics(
+          label: widget.semanticLabel,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.enabled ? _focus.requestFocus : null,
+            child: Stack(
+              children: [
+                Positioned.fill(child: field),
+                ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: IntrinsicHeight(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: rows,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A blinking caret in the empty box being typed into.
+class _Caret extends StatefulWidget {
+  const _Caret({required this.color});
+
+  final Color color;
+
+  @override
+  State<_Caret> createState() => _CaretState();
+}
+
+class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
+  late final _blink = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _blink.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _blink,
+    builder: (context, _) => Opacity(
+      opacity: _blink.value < .5 ? 1 : 0,
+      child: Container(width: 1, height: 16, color: widget.color),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'resizable': Component(
+    description: "Panels with handles between them that drag to resize.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// One panel of a [Resizable]: what it shows, the share of the room it starts with, and
+/// the least it may shrink to.
+@immutable
+class ResizablePanel {
+  const ResizablePanel({required this.child, this.size = 1, this.minSize = .1});
+
+  final Widget child;
+
+  /// A share of the room, compared with the other panels' shares.
+  final double size;
+
+  /// A fraction of the room, from 0 to 1.
+  final double minSize;
+}
+
+/// Panels side by side, or one above the other, with handles between them that drag to
+/// share the room differently. Each handle also takes focus: the arrow keys move it.
+///
+/// ```dart
+/// Resizable(panels: [
+///   ResizablePanel(size: 1, child: Sidebar()),
+///   ResizablePanel(size: 3, child: Editor()),
+/// ])
+/// ```
+class Resizable extends StatefulWidget {
+  const Resizable({
+    super.key,
+    required this.panels,
+    this.axis = Axis.horizontal,
+    this.withHandle = false,
+  });
+
+  final List<ResizablePanel> panels;
+  final Axis axis;
+
+  /// Draws a grip on each handle, to show it can be dragged.
+  final bool withHandle;
+
+  @override
+  State<Resizable> createState() => _ResizableState();
+}
+
+class _ResizableState extends State<Resizable> {
+  late List<double> _sizes = _initial();
+
+  List<double> _initial() {
+    final total = widget.panels.fold<double>(0, (s, p) => s + p.size);
+    return [for (final p in widget.panels) p.size / total];
+  }
+
+  @override
+  void didUpdateWidget(Resizable old) {
+    super.didUpdateWidget(old);
+    if (old.panels.length != widget.panels.length) _sizes = _initial();
+  }
+
+  /// Moves the line after panel [i] by [delta], a fraction of the room.
+  void _move(int i, double delta) {
+    final a = widget.panels[i], b = widget.panels[i + 1];
+    final pair = _sizes[i] + _sizes[i + 1];
+    final next = (_sizes[i] + delta).clamp(a.minSize, pair - b.minSize);
+    setState(() {
+      _sizes[i] = next;
+      _sizes[i + 1] = pair - next;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final horizontal = widget.axis == Axis.horizontal;
+      final room =
+          (horizontal ? box.maxWidth : box.maxHeight) -
+          (widget.panels.length - 1);
+      final children = <Widget>[];
+      for (var i = 0; i < widget.panels.length; i++) {
+        if (i > 0) {
+          children.add(
+            _Handle(
+              axis: widget.axis,
+              grip: widget.withHandle,
+              share: _sizes[i - 1],
+              room: room,
+              onDrag: (px) => _move(i - 1, px / room),
+            ),
+          );
+        }
+        final extent = _sizes[i] * room;
+        children.add(
+          SizedBox(
+            width: horizontal ? extent : null,
+            height: horizontal ? null : extent,
+            child: ClipRect(child: widget.panels[i].child),
+          ),
+        );
+      }
+      return Flex(
+        direction: widget.axis,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      );
+    },
+  );
+}
+
+class _Handle extends StatefulWidget {
+  const _Handle({
+    required this.axis,
+    required this.grip,
+    required this.share,
+    required this.room,
+    required this.onDrag,
+  });
+
+  final Axis axis;
+  final bool grip;
+
+  /// The share of the panel before it, read out as the handle's value.
+  final double share;
+
+  /// The room the panels share, in pixels.
+  final double room;
+  final ValueChanged<double> onDrag;
+
+  @override
+  State<_Handle> createState() => _HandleState();
+}
+
+class _HandleState extends State<_Handle> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final horizontal = widget.axis == Axis.horizontal;
+    const step = 16.0;
+    return Semantics(
+      slider: true,
+      label: 'Resize',
+      value: '${(widget.share * 100).round()}%',
+      increasedValue:
+          '${((widget.share + step / widget.room).clamp(0, 1) * 100).round()}%',
+      decreasedValue:
+          '${((widget.share - step / widget.room).clamp(0, 1) * 100).round()}%',
+      onIncrease: () => widget.onDrag(step),
+      onDecrease: () => widget.onDrag(-step),
+      child: FocusableActionDetector(
+        mouseCursor: horizontal
+            ? SystemMouseCursors.resizeColumn
+            : SystemMouseCursors.resizeRow,
+        onShowFocusHighlight: (v) => setState(() => _focused = v),
+        shortcuts: {
+          SingleActivator(
+            horizontal
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowDown,
+          ): const _NudgeIntent(
+            step,
+          ),
+          SingleActivator(
+            horizontal
+                ? LogicalKeyboardKey.arrowLeft
+                : LogicalKeyboardKey.arrowUp,
+          ): const _NudgeIntent(
+            -step,
+          ),
+        },
+        actions: {
+          _NudgeIntent: CallbackAction<_NudgeIntent>(
+            onInvoke: (i) => widget.onDrag(i.px),
+          ),
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragUpdate: horizontal
+              ? (d) => widget.onDrag(d.delta.dx)
+              : null,
+          onVerticalDragUpdate: horizontal
+              ? null
+              : (d) => widget.onDrag(d.delta.dy),
+          child: Container(
+            width: horizontal ? 1 : null,
+            height: horizontal ? null : 1,
+            color: _focused ? c.ring : c.border,
+            child: OverflowBox(
+              // A wider strip than the line, so it is easy to grab.
+              minWidth: horizontal ? 9 : null,
+              maxWidth: horizontal ? 9 : null,
+              minHeight: horizontal ? null : 9,
+              maxHeight: horizontal ? null : 9,
+              child: Center(
+                child: widget.grip
+                    ? Container(
+                        width: horizontal ? 12 : 16,
+                        height: horizontal ? 16 : 12,
+                        decoration: BoxDecoration(
+                          color: c.border,
+                          borderRadius: BorderRadius.circular(t.radiusSm / 2),
+                          border: Border.all(color: c.border),
+                        ),
+                      )
+                    : const SizedBox.expand(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NudgeIntent extends Intent {
+  const _NudgeIntent(this.px);
+
+  final double px;
 }
 ''',
     },

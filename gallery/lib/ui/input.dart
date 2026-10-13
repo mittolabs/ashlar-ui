@@ -38,6 +38,7 @@ class Input extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.semanticLabel,
+    this.decorated = true,
   });
 
   final TextEditingController? controller;
@@ -71,6 +72,10 @@ class Input extends StatefulWidget {
 
   /// Read out by screen readers; defaults to the placeholder.
   final String? semanticLabel;
+
+  /// False draws the bare text, with no border, fill or ring: for an InputGroup, which
+  /// draws those round the field and its addons together.
+  final bool decorated;
 
   @override
   State<Input> createState() => _InputState();
@@ -170,38 +175,40 @@ class _InputState extends State<Input>
               duration: t.duration,
               constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
               padding: EdgeInsets.symmetric(
-                horizontal: 12,
+                horizontal: widget.decorated ? 12 : 0,
                 vertical: multiline ? 8 : 0,
               ),
-              decoration: BoxDecoration(
-                // Opaque, so the shadow beneath does not show through.
-                color: t.brightness == Brightness.dark
-                    ? Color.alphaBlend(
-                        c.input.withValues(alpha: c.input.a * .3),
-                        c.background,
-                      )
-                    : c.background,
-                borderRadius: BorderRadius.circular(t.radiusMd),
-                border: Border.all(
-                  color: widget.error
-                      ? c.destructive
-                      : (focused
-                            ? c.ring
-                            : (_hovered
-                                  ? c.ring.withValues(alpha: .6)
-                                  : c.input)),
-                ),
-                boxShadow: [
-                  if (focused)
-                    BoxShadow(
-                      color: ringColor.withValues(
-                        alpha: widget.error ? .2 : .5,
+              decoration: !widget.decorated
+                  ? null
+                  : BoxDecoration(
+                      // Opaque, so the shadow beneath does not show through.
+                      color: t.brightness == Brightness.dark
+                          ? Color.alphaBlend(
+                              c.input.withValues(alpha: c.input.a * .3),
+                              c.background,
+                            )
+                          : c.background,
+                      borderRadius: BorderRadius.circular(t.radiusMd),
+                      border: Border.all(
+                        color: widget.error
+                            ? c.destructive
+                            : (focused
+                                  ? c.ring
+                                  : (_hovered
+                                        ? c.ring.withValues(alpha: .6)
+                                        : c.input)),
                       ),
-                      spreadRadius: 3,
+                      boxShadow: [
+                        if (focused)
+                          BoxShadow(
+                            color: ringColor.withValues(
+                              alpha: widget.error ? .2 : .5,
+                            ),
+                            spreadRadius: 3,
+                          ),
+                        ...t.shadowXs,
+                      ],
                     ),
-                  ...t.shadowXs,
-                ],
-              ),
               child: IconTheme.merge(
                 data: IconThemeData(color: c.mutedForeground, size: 16),
                 child: Row(

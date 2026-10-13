@@ -26,6 +26,7 @@ class Textarea extends StatelessWidget {
     this.inputFormatters,
     this.onChanged,
     this.semanticLabel,
+    this.decorated = true,
   });
 
   final TextEditingController? controller;
@@ -40,6 +41,9 @@ class Textarea extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
   final String? semanticLabel;
+
+  /// False draws the bare text, for an InputGroup.
+  final bool decorated;
 
   @override
   Widget build(BuildContext context) => Input(
@@ -57,5 +61,6 @@ class Textarea extends StatelessWidget {
     inputFormatters: inputFormatters,
     onChanged: onChanged,
     semanticLabel: semanticLabel,
+    decorated: decorated,
   );
 }
