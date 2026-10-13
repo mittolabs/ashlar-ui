@@ -8,9 +8,9 @@ import 'package:flutter/widgets.dart';
 import 'popover.dart';
 import 'theme.dart';
 
-/// A card that appears when the pointer rests on [child] or the keyboard focuses it: a
-/// preview of a profile or a link. It is extra: anything a person needs should be
-/// reachable without it, since touch screens have no hover.
+/// A card that appears when the pointer rests on [child], the keyboard focuses it, or a
+/// finger long presses it: a preview of a profile or a link. It is extra: anything a
+/// person needs should be reachable without it.
 ///
 /// ```dart
 /// HoverCard(
@@ -113,7 +113,15 @@ class _HoverCardState extends State<HoverCard> {
               _show();
             }
           },
-          child: widget.child,
+          // Where there is no hover, as on a touch screen, a long press opens it; a tap
+          // stays with what it is on. Screen readers get the long press as an action.
+          child: GestureDetector(
+            onLongPress: () {
+              _timer?.cancel();
+              _menu.open();
+            },
+            child: widget.child,
+          ),
         ),
       ),
     );
