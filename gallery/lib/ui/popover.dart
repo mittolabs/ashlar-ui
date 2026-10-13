@@ -63,7 +63,8 @@ class _PopoverState extends State<Popover> {
         width: widget.width,
         child: FocusScope(
           autofocus: true,
-          child: Padding(
+          // Scrolls when the room beside the trigger is shorter than the content.
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: DefaultTextStyle.merge(
               style: t.text.sm,

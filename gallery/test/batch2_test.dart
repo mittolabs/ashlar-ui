@@ -451,6 +451,27 @@ void main() {
       expect(find.text('Width'), findsNothing);
     });
 
+    testWidgets('scrolls when its content is taller than the room', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Center(
+            child: Popover(
+              builder: (context, menu) =>
+                  Button(onPressed: menu.open, child: const Text('Open')),
+              content: (context) =>
+                  const SizedBox(height: 2000, child: Text('Tall')),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(tester.getRect(panel()).bottom, lessThanOrEqualTo(600));
+    });
+
     testWidgets('flips above when there is no room below', (tester) async {
       await tester.pumpWidget(
         AshlarApp(
