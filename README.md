@@ -26,11 +26,14 @@ Button(onPressed: save, child: Text('Save'))
 
 ## Components
 
-- **Foundation:** theme, app, pressable.
-- **Actions:** button, dropdown-menu.
-- **Forms:** label, field, input, textarea, select, checkbox, radio, switch.
-- **Overlays:** dialog, popover, tooltip, toast.
-- **Layout and display:** card, separator, tabs, badge, alert, avatar, skeleton, spinner, kbd.
+- **Foundation:** theme, app, pressable, group.
+- **Actions:** button, button-group, toggle, toggle-group, dropdown-menu, context-menu.
+- **Forms:** label, field, input, textarea, select, checkbox, radio, switch, slider.
+- **Overlays:** dialog, alert-dialog, popover, hover-card, tooltip, toast.
+- **Layout:** card, tabs, accordion, collapsible, item, separator, scroll-area.
+- **Data and navigation:** data-table, pagination, breadcrumb.
+- **Feedback:** alert, progress, spinner, skeleton, empty.
+- **Display:** typography, badge, avatar, kbd.
 
 Radio works inside Flutter's own `RadioGroup`, and Popover, Dropdown Menu, Select and
 Tooltip are built on Flutter's `RawMenuAnchor` and `RawTooltip`. The keyboard handling

@@ -52,14 +52,16 @@ class _ContextMenuState extends State<ContextMenu> {
     super.initState();
     // Flutter embedded in a page (a view, not the whole page) cannot turn the browser's
     // menu off and says so with an error; the menu still opens, so the error is dropped.
-    if (kIsWeb && _shown++ == 0)
+    if (kIsWeb && _shown++ == 0) {
       BrowserContextMenu.disableContextMenu().catchError((Object _) {});
+    }
   }
 
   @override
   void dispose() {
-    if (kIsWeb && --_shown == 0)
+    if (kIsWeb && --_shown == 0) {
       BrowserContextMenu.enableContextMenu().catchError((Object _) {});
+    }
     super.dispose();
   }
 
