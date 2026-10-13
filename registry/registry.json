@@ -42,7 +42,7 @@
   "hover-card": { "description": "A card that appears when the pointer rests on something.", "files": ["hover_card.dart"], "requires": ["theme", "popover"] },
   "context-menu": { "description": "A menu that opens where something is right-clicked or long-pressed.", "files": ["context_menu.dart"], "requires": ["popover", "dropdown-menu"] },
   "scroll-area": { "description": "Scrolling with a thin themed scrollbar; a builder for long lists.", "files": ["scroll_area.dart"], "requires": ["theme"] },
-  "data-table": { "description": "Rows of data under column headings, with a footer and a caption.", "files": ["data_table.dart"], "requires": ["theme"] },
+  "data-table": { "description": "Rows of data under headings: sorting, row selection, and long data built as it scrolls.", "files": ["data_table.dart"], "requires": ["theme", "pressable", "checkbox"], "packages": ["ashlar_icons"] },
   "sheet": { "description": "A panel that slides in from an edge of the screen.", "files": ["sheet.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
   "drawer": { "description": "A panel that comes up from the bottom and drags away.", "files": ["drawer.dart"], "requires": ["theme"] },
   "input-group": { "description": "A text field with text, buttons or a toolbar inside its border.", "files": ["input_group.dart"], "requires": ["theme", "input"] },
