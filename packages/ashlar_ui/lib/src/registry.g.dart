@@ -3414,6 +3414,7 @@ class Field extends StatelessWidget {
       children: [
         Expanded(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ?label,
@@ -3471,6 +3472,7 @@ class Field extends StatelessWidget {
       const SizedBox(width: 12),
       Expanded(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Lines the label up with the middle of a 16 tall control.
@@ -4244,6 +4246,7 @@ class Alert extends StatelessWidget {
               ],
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (title != null)
@@ -25183,6 +25186,7 @@ class Message extends StatelessWidget {
       ),
     );
     final body = Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: cross,
       children: [
         if (header != null) ...[note(header!), const SizedBox(height: 6)],
@@ -25192,6 +25196,8 @@ class Message extends StatelessWidget {
     );
     if (avatar == null) {
       return Align(
+        // As tall as what was said, as wide as the conversation.
+        heightFactor: 1,
         alignment: end
             ? AlignmentDirectional.centerEnd
             : AlignmentDirectional.centerStart,

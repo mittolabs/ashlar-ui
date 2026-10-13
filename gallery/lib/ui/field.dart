@@ -89,6 +89,7 @@ class Field extends StatelessWidget {
       children: [
         Expanded(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ?label,
@@ -146,6 +147,7 @@ class Field extends StatelessWidget {
       const SizedBox(width: 12),
       Expanded(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Lines the label up with the middle of a 16 tall control.

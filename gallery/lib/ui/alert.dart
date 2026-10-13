@@ -71,6 +71,7 @@ class Alert extends StatelessWidget {
               ],
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (title != null)
