@@ -10,7 +10,9 @@ import 'popover.dart';
 
 /// A menu that opens where [child] is right-clicked or long-pressed, or from the keyboard
 /// with the menu key or Shift+F10 while something inside it has focus. Takes the same
-/// items as a DropdownMenu. On the web it turns the browser's own menu off while shown.
+/// items as a DropdownMenu. On the web it turns the browser's own menu off while shown,
+/// when the app fills the page; a page that embeds Flutter in part of it must turn the
+/// browser's menu off itself there.
 ///
 /// ```dart
 /// ContextMenu(
@@ -48,12 +50,16 @@ class _ContextMenuState extends State<ContextMenu> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb && _shown++ == 0) BrowserContextMenu.disableContextMenu();
+    // Flutter embedded in a page (a view, not the whole page) cannot turn the browser's
+    // menu off and says so with an error; the menu still opens, so the error is dropped.
+    if (kIsWeb && _shown++ == 0)
+      BrowserContextMenu.disableContextMenu().catchError((Object _) {});
   }
 
   @override
   void dispose() {
-    if (kIsWeb && --_shown == 0) BrowserContextMenu.enableContextMenu();
+    if (kIsWeb && --_shown == 0)
+      BrowserContextMenu.enableContextMenu().catchError((Object _) {});
     super.dispose();
   }
 
