@@ -500,7 +500,7 @@ class _CalendarState extends State<Calendar> {
                           ? c.accent
                           : ((hovered || isToday) && !off
                                 ? c.accent
-                                : const Color(0x00000000))),
+                                : c.accent.withValues(alpha: 0))),
                 borderRadius: middle || picked
                     ? band
                     : BorderRadius.all(radius),

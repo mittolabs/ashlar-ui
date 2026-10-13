@@ -518,7 +518,7 @@ class _Option<T> extends StatelessWidget {
               decoration: BoxDecoration(
                 color: lit && option.enabled
                     ? c.accent
-                    : const Color(0x00000000),
+                    : c.accent.withValues(alpha: 0),
                 borderRadius: BorderRadius.circular(t.radiusSm),
               ),
               child: IconTheme.merge(

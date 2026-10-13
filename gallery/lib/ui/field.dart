@@ -119,7 +119,7 @@ class Field extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? c.primary.withValues(alpha: .05)
-                : const Color(0x00000000),
+                : c.primary.withValues(alpha: 0),
             borderRadius: BorderRadius.circular(t.radiusMd),
             border: Border.all(color: selected ? c.primary : c.border),
           ),

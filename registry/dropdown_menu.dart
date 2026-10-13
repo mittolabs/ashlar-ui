@@ -611,7 +611,9 @@ class _MenuRowState extends State<_MenuRow> {
                   ? (widget.destructive
                         ? c.destructive.withValues(alpha: .1)
                         : c.accent)
-                  : const Color(0x00000000);
+                  : (widget.destructive ? c.destructive : c.accent).withValues(
+                      alpha: 0,
+                    );
               return Opacity(
                 opacity: state.enabled ? 1 : .5,
                 child: Container(

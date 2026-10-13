@@ -133,10 +133,8 @@ void main() {
                   .decoration!
               as BoxDecoration;
       expect((deco('One').border! as Border).bottom.width, 2);
-      expect(
-        (deco('Two').border! as Border).bottom.color,
-        const Color(0x00000000),
-      );
+      // The others have no underline to see.
+      expect((deco('Two').border! as Border).bottom.color.a, 0);
     });
 
     testWidgets(

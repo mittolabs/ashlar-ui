@@ -343,7 +343,7 @@ class SidebarLayoutState extends State<SidebarLayout> {
         child: ColoredBox(
           color: widget.variant == SidebarVariant.inset
               ? c.sidebar
-              : const Color(0x00000000),
+              : c.sidebar.withValues(alpha: 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: widget.side == SidebarSide.start
@@ -394,7 +394,9 @@ class _RailState extends State<_Rail> {
             child: Center(
               child: Container(
                 width: 2,
-                color: _hovered ? c.sidebarBorder : const Color(0x00000000),
+                color: _hovered
+                    ? c.sidebarBorder
+                    : c.sidebarBorder.withValues(alpha: 0),
               ),
             ),
           ),
@@ -618,7 +620,7 @@ class _ItemState extends State<_Item> {
               ? Alignment.center
               : AlignmentDirectional.centerStart,
           decoration: BoxDecoration(
-            color: lit ? c.sidebarAccent : const Color(0x00000000),
+            color: lit ? c.sidebarAccent : c.sidebarAccent.withValues(alpha: 0),
             borderRadius: BorderRadius.circular(t.radiusMd),
             boxShadow: [
               if (state.focused)
@@ -776,7 +778,9 @@ class _ActionButton extends StatelessWidget {
           height: 20,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: state.hovered ? c.sidebarAccent : const Color(0x00000000),
+            color: state.hovered
+                ? c.sidebarAccent
+                : c.sidebarAccent.withValues(alpha: 0),
             borderRadius: BorderRadius.circular(t.radiusSm),
             boxShadow: [
               if (state.focused)

@@ -381,7 +381,7 @@ class _Row extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
-                color: lit ? c.accent : const Color(0x00000000),
+                color: lit ? c.accent : c.accent.withValues(alpha: 0),
                 borderRadius: BorderRadius.circular(t.radiusSm),
               ),
               child: IconTheme.merge(

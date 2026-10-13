@@ -99,7 +99,7 @@ class Item extends StatelessWidget {
             ? c.accent.withValues(alpha: c.accent.a * .5)
             : (variant == ItemVariant.muted
                   ? c.muted.withValues(alpha: c.muted.a * .5)
-                  : const Color(0x00000000)),
+                  : c.muted.withValues(alpha: 0)),
         borderRadius: grouped ? null : BorderRadius.circular(t.radiusMd),
         border: variant == ItemVariant.outline && !grouped
             ? Border.all(color: c.border)

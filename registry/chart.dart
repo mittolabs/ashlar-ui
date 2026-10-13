@@ -2273,7 +2273,9 @@ class _LegendButtonState extends State<_LegendButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(t.radiusSm),
             border: Border.all(
-              color: _focused ? t.colors.ring : const Color(0x00000000),
+              color: _focused
+                  ? t.colors.ring
+                  : t.colors.ring.withValues(alpha: 0),
             ),
           ),
           child: widget.child,

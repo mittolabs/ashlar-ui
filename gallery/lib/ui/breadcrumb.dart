@@ -121,7 +121,9 @@ class Breadcrumb extends StatelessWidget {
                   height: 24,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: state.hovered ? c.accent : const Color(0x00000000),
+                    color: state.hovered
+                        ? c.accent
+                        : c.accent.withValues(alpha: 0),
                     borderRadius: BorderRadius.circular(t.radiusSm),
                     boxShadow: [if (state.focused) ...t.focusRing],
                   ),

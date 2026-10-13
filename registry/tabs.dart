@@ -145,7 +145,9 @@ class _TabsState extends State<Tabs> {
             if (line) {
               // A word, underlined when chosen: along the bottom, or down the start side.
               final mark = BorderSide(
-                color: active ? c.foreground : const Color(0x00000000),
+                color: active
+                    ? c.foreground
+                    : c.foreground.withValues(alpha: 0),
                 width: 2,
               );
               return Opacity(
@@ -200,10 +202,12 @@ class _TabsState extends State<Tabs> {
                       ? (dark
                             ? c.input.withValues(alpha: c.input.a * .3)
                             : c.background)
-                      : const Color(0x00000000),
+                      : (dark ? c.input : c.background).withValues(alpha: 0),
                   borderRadius: BorderRadius.circular(t.radiusMd),
                   border: Border.all(
-                    color: active && dark ? c.input : const Color(0x00000000),
+                    color: active && dark
+                        ? c.input
+                        : c.input.withValues(alpha: 0),
                   ),
                   boxShadow: [
                     if (state.focused) ...t.focusRing,

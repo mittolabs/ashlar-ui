@@ -339,7 +339,7 @@ class _Chip extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: state.hovered
                       ? c.background.withValues(alpha: .6)
-                      : const Color(0x00000000),
+                      : c.background.withValues(alpha: 0),
                   borderRadius: BorderRadius.circular(t.radiusSm),
                 ),
                 child: AshlarIcon(
@@ -374,7 +374,7 @@ class _Clear extends StatelessWidget {
         height: 20,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: state.hovered ? c.accent : const Color(0x00000000),
+          color: state.hovered ? c.accent : c.accent.withValues(alpha: 0),
           borderRadius: BorderRadius.circular(t.radiusSm),
         ),
         child: AshlarIcon(

@@ -89,7 +89,7 @@ class _AccordionState extends State<Accordion> {
             decoration: BoxDecoration(
               color: widget.bordered && _open.contains(i)
                   ? c.muted.withValues(alpha: c.muted.a * .5)
-                  : const Color(0x00000000),
+                  : c.muted.withValues(alpha: 0),
               border: Border(
                 bottom: BorderSide(
                   color: i == widget.items.length - 1

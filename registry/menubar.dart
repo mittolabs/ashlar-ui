@@ -149,7 +149,7 @@ class _MenubarState extends State<Menubar> {
                           decoration: BoxDecoration(
                             color: _open == i || state.hovered || state.focused
                                 ? c.accent
-                                : const Color(0x00000000),
+                                : c.accent.withValues(alpha: 0),
                             borderRadius: BorderRadius.circular(t.radiusSm),
                           ),
                           child: Text(

@@ -174,7 +174,7 @@ class DataTable extends StatelessWidget {
         builder: (context, state) => Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
-            color: state.hovered ? c.accent : const Color(0x00000000),
+            color: state.hovered ? c.accent : c.accent.withValues(alpha: 0),
             borderRadius: BorderRadius.circular(t.radiusSm),
             boxShadow: [if (state.focused) ...t.focusRing],
           ),
@@ -332,7 +332,7 @@ class _RowState extends State<_Row> {
               ? c.muted
               : (_hovered
                     ? c.muted.withValues(alpha: c.muted.a * .5)
-                    : const Color(0x00000000)),
+                    : c.muted.withValues(alpha: 0)),
           border: Border(
             bottom: BorderSide(
               color: widget.last ? const Color(0x00000000) : c.border,

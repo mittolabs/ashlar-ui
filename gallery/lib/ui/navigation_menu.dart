@@ -127,7 +127,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: open || state.hovered ? c.accent : const Color(0x00000000),
+              color: open || state.hovered
+                  ? c.accent
+                  : c.accent.withValues(alpha: 0),
               borderRadius: BorderRadius.circular(t.radiusMd),
               boxShadow: [if (state.focused) ...t.focusRing],
             ),
@@ -303,7 +305,7 @@ class NavigationMenuLink extends StatelessWidget {
         decoration: BoxDecoration(
           color: state.hovered || state.focused
               ? c.accent
-              : const Color(0x00000000),
+              : c.accent.withValues(alpha: 0),
           borderRadius: BorderRadius.circular(t.radiusSm),
         ),
         child: Column(

@@ -80,7 +80,7 @@ class Toggle extends StatelessWidget {
             decoration: BoxDecoration(
               color: pressed
                   ? c.accent
-                  : (state.hovered ? c.muted : const Color(0x00000000)),
+                  : (state.hovered ? c.muted : c.muted.withValues(alpha: 0)),
               borderRadius: joinedRadius(context, t.radiusMd),
               border: variant == ToggleVariant.outline
                   ? joinedBorder(context, state.focused ? c.ring : c.input)

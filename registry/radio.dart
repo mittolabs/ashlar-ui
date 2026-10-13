@@ -172,7 +172,7 @@ class _RadioState<T> extends State<Radio<T>> {
                   decoration: BoxDecoration(
                     color: chosen
                         ? c.primary.withValues(alpha: .05)
-                        : const Color(0x00000000),
+                        : c.primary.withValues(alpha: 0),
                     borderRadius: BorderRadius.circular(t.radiusMd),
                     border: Border.all(color: chosen ? c.primary : c.border),
                   ),

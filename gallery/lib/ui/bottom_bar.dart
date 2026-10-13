@@ -105,7 +105,7 @@ class BottomBar extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: state.hovered
                                   ? c.muted
-                                  : const Color(0x00000000),
+                                  : c.muted.withValues(alpha: 0),
                               borderRadius: BorderRadius.circular(t.radiusMd),
                               border: state.focused
                                   ? Border.all(color: c.ring, width: 2)

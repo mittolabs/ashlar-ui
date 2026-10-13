@@ -145,7 +145,7 @@ class Button extends StatelessWidget {
             c.input,
           ),
           ButtonVariant.ghost => (
-            state.hovered ? c.accent : const Color(0x00000000),
+            state.hovered ? c.accent : c.accent.withValues(alpha: 0),
             state.hovered ? c.accentForeground : c.foreground,
             null,
           ),
