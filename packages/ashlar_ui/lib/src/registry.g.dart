@@ -1195,7 +1195,7 @@ class _InputState extends State<Input>
                 // Opaque, so the shadow beneath does not show through.
                 color: t.brightness == Brightness.dark
                     ? Color.alphaBlend(
-                        c.input.withValues(alpha: .3),
+                        c.input.withValues(alpha: c.input.a * .3),
                         c.background,
                       )
                     : c.background,
@@ -2642,7 +2642,9 @@ class _TabsState extends State<Tabs> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: active
-                      ? (dark ? c.input.withValues(alpha: .3) : c.background)
+                      ? (dark
+                            ? c.input.withValues(alpha: c.input.a * .3)
+                            : c.background)
                       : const Color(0x00000000),
                   borderRadius: BorderRadius.circular(t.radiusMd),
                   border: Border.all(
@@ -3419,7 +3421,9 @@ class _SelectState<T> extends State<Select<T>> {
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
                       ? Color.alphaBlend(
-                          c.input.withValues(alpha: state.hovered ? .5 : .3),
+                          c.input.withValues(
+                            alpha: c.input.a * (state.hovered ? .5 : .3),
+                          ),
                           c.background,
                         )
                       : c.background,

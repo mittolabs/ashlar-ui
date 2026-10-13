@@ -177,7 +177,7 @@ class _InputState extends State<Input>
                 // Opaque, so the shadow beneath does not show through.
                 color: t.brightness == Brightness.dark
                     ? Color.alphaBlend(
-                        c.input.withValues(alpha: .3),
+                        c.input.withValues(alpha: c.input.a * .3),
                         c.background,
                       )
                     : c.background,

@@ -131,7 +131,9 @@ class _SelectState<T> extends State<Select<T>> {
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
                       ? Color.alphaBlend(
-                          c.input.withValues(alpha: state.hovered ? .5 : .3),
+                          c.input.withValues(
+                            alpha: c.input.a * (state.hovered ? .5 : .3),
+                          ),
                           c.background,
                         )
                       : c.background,

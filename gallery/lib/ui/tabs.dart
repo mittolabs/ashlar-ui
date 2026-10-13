@@ -121,7 +121,9 @@ class _TabsState extends State<Tabs> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: active
-                      ? (dark ? c.input.withValues(alpha: .3) : c.background)
+                      ? (dark
+                            ? c.input.withValues(alpha: c.input.a * .3)
+                            : c.background)
                       : const Color(0x00000000),
                   borderRadius: BorderRadius.circular(t.radiusMd),
                   border: Border.all(
