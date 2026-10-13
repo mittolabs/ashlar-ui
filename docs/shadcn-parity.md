@@ -235,3 +235,30 @@ In order of what makes Ashlar UI feel complete soonest:
 8. **Charts**: radar and radial, tooltip and legend styles, then the variant gallery.
 9. **The site**: a gallery of situations per component, API references, and blocks, charts
    and themes pages.
+
+All nine are done.
+
+## Past parity
+
+Three bets for being better than shadcn rather than a copy of it, in order:
+
+1. **Updates that keep your edits.** Done. `ashlar update` keeps a copy of each file as
+   written in `.ashlar/base/`, replaces what you have not changed and merges what you have,
+   three ways. Where both sides changed the same lines, both are kept between markers.
+2. **Fitting the device, without swapping components.** A dialog stays a dialog on a phone.
+   What changes is input, not the component. Done:
+   - Tap targets: 44 on iOS and 48 on Android around every pressable, with the visual size
+     unchanged (`AshlarThemeData.tapTarget`).
+   - The keyboard: dialogs, sheets and drawers rise above it (`AboveKeyboard`).
+   - Touch: a long press opens a hover card; the select list matches its trigger's width.
+   - Phone patterns, each reachable without its gesture: Swipe Actions, Pull to Refresh
+     (holds a bouncing list under the spinner) and Bottom Bar (above the home indicator).
+3. **Quality you can check.** Next:
+   - `ashlar add` copies each component's tests along with it, so your edits are checked
+     against what the component promised.
+   - `ashlar check` reads your app and reports what it can prove: theme contrast below
+     WCAG AA, controls without a label, targets below the platform minimum, and left and
+     right where start and end belong.
+
+Later: an MCP server, so coding agents can search, view and add components with the same
+API reference the site shows.
