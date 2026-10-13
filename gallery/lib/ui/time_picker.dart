@@ -419,8 +419,14 @@ class _ColumnState extends State<_Column> {
             margin: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(t.radiusMd),
+              // Outlined only for the keyboard: a click focuses the column too.
               border: Border.all(
-                color: _focused ? c.ring : c.ring.withValues(alpha: 0),
+                color:
+                    _focused &&
+                        FocusManager.instance.highlightMode ==
+                            FocusHighlightMode.traditional
+                    ? c.ring
+                    : c.ring.withValues(alpha: 0),
               ),
             ),
             child: ScrollConfiguration(
