@@ -3,6 +3,7 @@
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/calendar.dart';
 import 'package:ashlar_ui_gallery/ui/date_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -58,6 +59,21 @@ void main() {
       // The calendar and the panel's padding, on an 800 wide screen.
       expect(panel.width, lessThan(calendar.width + 40));
       expect(panel.width, lessThan(400));
+    });
+
+    testWidgets('the keys move through the days as soon as it opens', (
+      tester,
+    ) async {
+      final got = <DateTime>[];
+      await tester.pumpWidget(
+        app(DatePicker(value: DateTime(2026, 10, 13), onChanged: got.add)),
+      );
+      await tester.tap(find.text('13 October 2026'));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(got, [DateTime(2026, 10, 14)]);
     });
 
     testWidgets('a range stays open until both ends are picked', (

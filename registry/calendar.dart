@@ -266,6 +266,18 @@ class _CalendarState extends State<Calendar> {
   static DateTime _monthOf(DateTime d) => DateTime(d.year, d.month);
 
   @override
+  void initState() {
+    super.initState();
+    // In a menu's panel (a date picker's) the menu takes focus itself; the calendar then
+    // takes it, so the first arrow pressed moves through the days.
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _node.requestFocus();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _node.dispose();
     super.dispose();
