@@ -31,8 +31,8 @@ class ToggleGroupItem<T> {
 ///   values: {align},
 ///   onChanged: (v) => setState(() => align = v.firstOrNull ?? TextAlign.left),
 ///   items: [
-///     ToggleGroupItem(TextAlign.left, AshlarIcon(AshlarIconsRoundedStroke.alignLeft), semanticLabel: 'Align left'),
-///     ToggleGroupItem(TextAlign.center, AshlarIcon(AshlarIconsRoundedStroke.alignCenter), semanticLabel: 'Centre'),
+///     ToggleGroupItem(TextAlign.left, AshlarIcon(AshlarIconsRoundedStroke.textAlignStart), semanticLabel: 'Align left'),
+///     ToggleGroupItem(TextAlign.center, AshlarIcon(AshlarIconsRoundedStroke.textAlignCenter), semanticLabel: 'Centre'),
 ///   ],
 /// )
 /// ```
