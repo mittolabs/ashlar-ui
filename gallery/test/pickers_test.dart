@@ -1,12 +1,15 @@
 // Select's groups, type-to-find and long lists; Combobox's many picks, clearing and groups.
 import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
 import 'package:ashlar_ui_gallery/ui/combobox.dart';
 import 'package:ashlar_ui_gallery/ui/select.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// Without the room a finger's press area takes on a phone: these measure looks.
 Widget app(Widget child) => AshlarApp(
+  theme: AshlarThemeData.light().copyWith(tapTarget: 0),
   home: Center(child: SizedBox(width: 260, child: child)),
 );
 

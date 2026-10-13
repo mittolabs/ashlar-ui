@@ -1,6 +1,8 @@
 // Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 
 import 'palette.dart';
@@ -359,6 +361,7 @@ class AshlarThemeData {
     this.density = 0,
     this.spacing = 1,
     this.flat = false,
+    this.tapTarget,
   });
 
   /// A theme from its parts: the greys it is built on, a colour for its main actions, and
@@ -418,6 +421,21 @@ class AshlarThemeData {
 
   /// No shadows: cards, menus and dialogs sit flat, set apart by their borders.
   final bool flat;
+
+  /// The smallest a control's press area may be, in logical pixels; null follows the
+  /// platform ([minTapTarget]).
+  final double? tapTarget;
+
+  /// The smallest a control's press area is: 44 on iOS and 48 on Android, as each asks
+  /// for a finger, and none on the desktop, where a pointer is precise. The control looks
+  /// the same; the room it takes and answers presses in grows.
+  double get minTapTarget =>
+      tapTarget ??
+      switch (defaultTargetPlatform) {
+        TargetPlatform.iOS => 44,
+        TargetPlatform.android || TargetPlatform.fuchsia => 48,
+        _ => 0,
+      };
 
   /// A control's height at this density, from its standard height.
   double control(double standard) => standard + density * 4;
@@ -490,6 +508,7 @@ class AshlarThemeData {
     double? density,
     double? spacing,
     bool? flat,
+    double? tapTarget,
   }) => AshlarThemeData(
     brightness: brightness,
     colors: colors ?? this.colors,
@@ -499,6 +518,7 @@ class AshlarThemeData {
     density: density ?? this.density,
     spacing: spacing ?? this.spacing,
     flat: flat ?? this.flat,
+    tapTarget: tapTarget ?? this.tapTarget,
   );
 
   /// This theme spaced and shaped as [style], its colours and text kept.

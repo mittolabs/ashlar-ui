@@ -17,8 +17,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// These tests measure how controls look, so without the room a finger's press area
+/// takes on a phone (tap_target_test.dart covers that).
 Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
     AshlarApp(
+      theme: AshlarThemeData.light().copyWith(tapTarget: 0),
+      darkTheme: AshlarThemeData.dark().copyWith(tapTarget: 0),
       themeMode: mode,
       home: Center(child: child),
     );

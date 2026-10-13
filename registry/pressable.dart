@@ -6,6 +6,9 @@ import 'dart:ui' show SemanticsRole;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'group.dart';
+import 'theme.dart';
+
 /// The states a control draws.
 @immutable
 class PressableState {
@@ -103,6 +106,19 @@ class Pressable extends StatefulWidget {
 }
 
 class _PressableState extends State<Pressable> {
+  /// [child] in a press area at least the theme's [AshlarThemeData.minTapTarget] square,
+  /// centred: for a finger on a phone. In a joined group only the height grows, so the
+  /// group stays joined.
+  Widget _target(BuildContext context, Widget child) {
+    final size = AshlarTheme.of(context).minTapTarget;
+    if (size <= 0) return child;
+    final joined = JoinedPosition.maybeOf(context) != null;
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: joined ? 0 : size, minHeight: size),
+      child: Center(widthFactor: 1, heightFactor: 1, child: child),
+    );
+  }
+
   bool _hovered = false, _pressed = false, _focused = false;
 
   bool get _enabled => widget.onPressed != null;
@@ -168,18 +184,21 @@ class _PressableState extends State<Pressable> {
                   ? () => setState(() => _pressed = false)
                   : null,
               onTap: _enabled ? _activate : null,
-              // A label replaces what the control shows, rather than adding to it. And a
-              // control's text is never selected: a drag over a button is not a selection.
-              child: SelectionContainer.disabled(
-                child: ExcludeSemantics(
-                  excluding: widget.semanticLabel != null,
-                  child: widget.builder(
-                    context,
-                    PressableState(
-                      hovered: _hovered && _enabled,
-                      pressed: _pressed,
-                      focused: _focused,
-                      enabled: _enabled,
+              child: _target(
+                context,
+                // A label replaces what the control shows, rather than adding to it. And a
+                // control's text is never selected: a drag over a button is not a selection.
+                SelectionContainer.disabled(
+                  child: ExcludeSemantics(
+                    excluding: widget.semanticLabel != null,
+                    child: widget.builder(
+                      context,
+                      PressableState(
+                        hovered: _hovered && _enabled,
+                        pressed: _pressed,
+                        focused: _focused,
+                        enabled: _enabled,
+                      ),
                     ),
                   ),
                 ),

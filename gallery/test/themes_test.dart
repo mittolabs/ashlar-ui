@@ -75,7 +75,7 @@ void main() {
     Future<(double, double)> measure(AshlarStyle style) async {
       await tester.pumpWidget(
         AshlarApp(
-          theme: AshlarThemeData.from(style: style),
+          theme: AshlarThemeData.from(style: style).copyWith(tapTarget: 0),
           home: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,

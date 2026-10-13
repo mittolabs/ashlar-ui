@@ -3,6 +3,7 @@ import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:ashlar_ui_gallery/ui/accordion.dart';
 import 'package:ashlar_ui_gallery/ui/alert.dart';
 import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
 import 'package:ashlar_ui_gallery/ui/attachment.dart';
 import 'package:ashlar_ui_gallery/ui/bubble.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
@@ -103,6 +104,7 @@ void main() {
       ];
       await tester.pumpWidget(
         AshlarApp(
+          theme: AshlarThemeData.light().copyWith(tapTarget: 0),
           home: Center(
             child: SizedBox(
               width: 300,
