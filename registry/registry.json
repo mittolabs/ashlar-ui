@@ -55,5 +55,6 @@
   "carousel": { "description": "Slides in a row, moved by swiping, buttons or the arrow keys.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
   "selection": { "description": "Selection handles and the cut, copy and paste menu.", "files": ["selection.dart"], "requires": ["theme"] },
   "calendar": { "description": "A month of days to pick one from, or a range.", "files": ["calendar.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
-  "date-picker": { "description": "A button that shows a date and opens a calendar to change it.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar"], "packages": ["ashlar_icons"] }
+  "date-picker": { "description": "A button that shows a date and opens a calendar to change it.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar"], "packages": ["ashlar_icons"] },
+  "chart": { "description": "Bar, line, area and pie charts, drawn here with no charting package.", "files": ["chart.dart"], "requires": ["theme"] }
 }
