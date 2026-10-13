@@ -276,4 +276,30 @@ void main() {
     expect(find.text('1,260'), findsOneWidget);
     semantics.dispose();
   });
+
+  testWidgets('a pie writes its labels once it has grown', (tester) async {
+    await tester.pumpWidget(
+      app(
+        const PieChart(
+          slices: slices,
+          labels: PieLabels.amounts,
+          legend: ChartLegend.none,
+        ),
+      ),
+    );
+    expect(find.text('275'), findsNothing);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('275'), findsOneWidget);
+    await tester.pumpWidget(
+      app(
+        const PieChart(
+          slices: slices,
+          labels: PieLabels.titles,
+          legend: ChartLegend.none,
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Safari'), findsOneWidget);
+  });
 }

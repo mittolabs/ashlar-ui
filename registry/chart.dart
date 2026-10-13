@@ -1054,7 +1054,6 @@ class _PieChartState extends State<PieChart>
       return null;
     }
 
-    final sweep = Curves.easeOutCubic.transform(_grow.value);
     // Where each slice's middle points, clockwise from the top.
     final middles = <double>[];
     var run = -math.pi / 2;
@@ -1121,7 +1120,7 @@ class _PieChartState extends State<PieChart>
                           ),
                         ),
                       ),
-                      if (sweep == 1 && widget.labels != PieLabels.none)
+                      if (_grow.value == 1 && widget.labels != PieLabels.none)
                         for (final (i, s) in widget.slices.indexed)
                           _PieLabel(
                             at:
