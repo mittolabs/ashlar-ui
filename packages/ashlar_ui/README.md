@@ -24,7 +24,13 @@ Run it in the root of a Flutter project.
 | `ashlar view <item>...` | Shows what an item is, what it needs and its files, before you add it. |
 | `ashlar search [words]` | Finds items by name or description. `ashlar list` lists them all, ticking the ones you have. |
 | `ashlar diff [item...]` | For each item you have: whether your copy is as it was written, changed by you, or older than this version. Name items to see the lines. |
+| `ashlar update [item...]` | Takes what is newer in this version and keeps your changes: a file you have not changed is replaced; one you have is merged, line by line, from the copy ashlar wrote. Where you and this version changed the same lines, both are kept between `<<<<<<< yours` and `>>>>>>> ashlar` for you to choose. `--dry-run` says what it would do. |
 | `ashlar build [registry.json]` | Makes the files of a registry of your own, in `public/r` unless `--out` says otherwise. |
+
+## Keeping your changes through updates
+
+Each file ashlar writes is also copied to `.ashlar/base/`, so `ashlar update` knows what you
+started from. Commit that folder with your code, so your whole team can update.
 
 ## Registries of your own
 

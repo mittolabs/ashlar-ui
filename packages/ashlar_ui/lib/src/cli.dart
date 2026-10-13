@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'component.dart';
 import 'diff.dart';
+import 'merge.dart';
 import 'registry.g.dart';
 import 'remote.dart';
 
@@ -50,6 +51,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
   ashlar search [words] [@registry...]  find items by name or description
   ashlar list                           what there is, and what you have
   ashlar diff [item...]                 what changed in your copies, and what is newer
+  ashlar update [item...] [--dry-run]   take what is newer, keeping your changes
   ashlar build [registry.json]          make your own registry's files to host
              [--out public/r]
 
@@ -239,6 +241,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       return 0;
     case 'diff':
       return project.diff(words, o);
+    case 'update':
+      return project.update(words, dryRun: rest.contains('--dry-run'), out: o);
     case 'build':
       final file = words.firstOrNull ?? 'registry.json';
       return build(
@@ -494,6 +498,7 @@ class Project {
         f.parent.createSync(recursive: true);
         f.writeAsStringSync(text);
         fingerprints[at] = fingerprint(text);
+        _keep(at, text);
         out.writeln('  wrote  $at');
       }
     }
@@ -535,6 +540,96 @@ class Project {
       return 1;
     }
     return 0;
+  }
+
+  /// A copy of [at] as ashlar wrote it, for [update] to merge from.
+  File _base(String at) => File('${root.path}/.ashlar/base/$at');
+
+  void _keep(String at, String text) => _base(at)
+    ..parent.createSync(recursive: true)
+    ..writeAsStringSync(text);
+
+  /// Brings the items you have (or those named) up to this version: a file you have not
+  /// changed is replaced; one you have is merged with this version's, line by line, from
+  /// the copy ashlar wrote; where you and this version changed the same lines, both are
+  /// kept between conflict markers for you to choose. Items they now need are added.
+  Future<int> update(
+    List<String> names, {
+    required bool dryRun,
+    required StringSink out,
+  }) async {
+    final unknown = names.where((n) => !registry.containsKey(n)).toList();
+    if (unknown.isNotEmpty) {
+      out.writeln('No component named ${unknown.join(', ')}.');
+      return 64;
+    }
+    final chosen = names.isEmpty
+        ? registry.keys.where((n) => has(registry[n]!)).toList()
+        : names;
+    final fingerprints = Map<String, String>.of(_written);
+    var took = 0, merged = 0, conflicts = 0, kept = 0;
+    for (final name in chosen) {
+      final c = registry[name]!;
+      for (final MapEntry(key: file, value: source) in c.files.entries) {
+        final at = target(c, file);
+        final f = File('${root.path}/$at');
+        if (!f.existsSync()) continue;
+        final yours = f.readAsStringSync(), latest = written(c, source);
+        if (yours == latest) continue;
+        // What ashlar wrote: kept since this version of ashlar; before that, the file
+        // itself if it is as written.
+        final base = _base(at).existsSync()
+            ? _base(at).readAsStringSync()
+            : (fingerprint(yours) == _written[at] ? yours : null);
+        if (base == null) {
+          out.writeln(
+            '  kept   $at: changed by you, and there is no copy of what ashlar wrote to merge from. ashlar diff $name shows the lines.',
+          );
+          kept++;
+          continue;
+        }
+        if (base == latest) continue;
+        final String text;
+        if (yours == base) {
+          text = latest;
+          took++;
+          out.writeln('  took   $at');
+        } else {
+          final m = merge3(base, yours, latest);
+          text = m.text;
+          if (m.conflicts > 0) {
+            conflicts += m.conflicts;
+            out.writeln(
+              '  merged $at, ${m.conflicts} place${m.conflicts == 1 ? '' : 's'} to choose: between <<<<<<< yours and >>>>>>> ashlar',
+            );
+          } else {
+            merged++;
+            out.writeln('  merged $at, your changes kept');
+          }
+        }
+        if (dryRun) continue;
+        f.writeAsStringSync(text);
+        fingerprints[at] = fingerprint(latest);
+        _keep(at, latest);
+      }
+    }
+    if (!dryRun) {
+      save({...config, 'files': fingerprints});
+      // What the updated items need now and the project does not have.
+      final needed = resolve(chosen).where((n) => !has(registry[n]!)).toList();
+      if (needed.isNotEmpty) {
+        out.writeln('  adding what they now need: ${needed.join(', ')}');
+        final code = await add(needed, overwrite: false, out: out);
+        if (code != 0) return code;
+      }
+    }
+    final changed = took + merged + conflicts;
+    out.writeln(
+      changed == 0 && kept == 0
+          ? 'Everything is up to date.'
+          : '${dryRun ? 'Would update' : 'Updated'}: $took taken, $merged merged, $conflicts to choose, $kept kept as they were.',
+    );
+    return conflicts > 0 ? 1 : 0;
   }
 
   /// For each item you have (or each named), whether your copy is as it was written,
