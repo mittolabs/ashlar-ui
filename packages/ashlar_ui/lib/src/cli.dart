@@ -661,6 +661,38 @@ class Project {
     }
   }
 
+  /// [texts] (Dart sources, by a name ending in .dart) as dart format lays them out in
+  /// this app, with its analysis_options.yaml: its line length and style. Formatted in a
+  /// folder inside the app so its settings apply; as they were if dart format cannot run.
+  Future<Map<String, String>> _inYourStyle(Map<String, String> texts) async {
+    if (texts.isEmpty) return texts;
+    final dir = Directory('${root.path}/.ashlar/format');
+    try {
+      for (final MapEntry(key: name, value: text) in texts.entries) {
+        File('${dir.path}/$name')
+          ..createSync(recursive: true)
+          ..writeAsStringSync(text);
+      }
+      final fvm = File('${root.path}/.fvmrc').existsSync();
+      final cmd = [if (fvm) 'fvm', 'dart', 'format', '.ashlar/format'];
+      final result = await Process.run(
+        cmd.first,
+        cmd.skip(1).toList(),
+        workingDirectory: root.path,
+        runInShell: true,
+      );
+      if (result.exitCode != 0) return texts;
+      return {
+        for (final name in texts.keys)
+          name: File('${dir.path}/$name').readAsStringSync(),
+      };
+    } on ProcessException {
+      return texts;
+    } finally {
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    }
+  }
+
   /// A copy of [at] as ashlar wrote it, for [update] to merge from.
   File _base(String at) => File('${root.path}/.ashlar/base/$at');
 
@@ -687,6 +719,8 @@ class Project {
         : names;
     final fingerprints = Map<String, String>.of(_written);
     var took = 0, merged = 0, conflicts = 0, kept = 0;
+    // What each file needs merged from: what ashlar wrote, and what it writes now.
+    final pending = <({String at, String yours, String base, String latest})>[];
     for (final name in chosen) {
       final c = registry[name]!;
       for (final (:at, text: latest, test: _) in _placed(c)) {
@@ -707,29 +741,45 @@ class Project {
           continue;
         }
         if (base == latest) continue;
-        final String text;
-        if (yours == base) {
-          text = latest;
-          took++;
-          out.writeln('  took   $at');
-        } else {
-          final m = merge3(base, yours, latest);
-          text = m.text;
-          if (m.conflicts > 0) {
-            conflicts += m.conflicts;
-            out.writeln(
-              '  merged $at, ${m.conflicts} place${m.conflicts == 1 ? '' : 's'} to choose: between <<<<<<< yours and >>>>>>> ashlar',
-            );
-          } else {
-            merged++;
-            out.writeln('  merged $at, your changes kept');
-          }
-        }
-        if (dryRun) continue;
-        f.writeAsStringSync(text);
-        fingerprints[at] = fingerprint(latest);
-        _keep(at, latest);
+        pending.add((at: at, yours: yours, base: base, latest: latest));
       }
+    }
+    // Both laid out as the app lays out its code, so a different line length or style is
+    // not taken for a change of yours.
+    final styled = await _inYourStyle({
+      for (final p in pending) ...{
+        'base/${p.at}': p.base,
+        'latest/${p.at}': p.latest,
+      },
+    });
+    for (final p in pending) {
+      final at = p.at, yours = p.yours, latest = p.latest;
+      final base = styled['base/$at']!, now = styled['latest/$at']!;
+      final String text;
+      if (yours == now) {
+        // Already as this version writes it, in your layout.
+        text = yours;
+      } else if (yours == base) {
+        text = now;
+        took++;
+        out.writeln('  took   $at');
+      } else {
+        final m = merge3(base, yours, now);
+        text = m.text;
+        if (m.conflicts > 0) {
+          conflicts += m.conflicts;
+          out.writeln(
+            '  merged $at, ${m.conflicts} place${m.conflicts == 1 ? '' : 's'} to choose: between <<<<<<< yours and >>>>>>> ashlar',
+          );
+        } else {
+          merged++;
+          out.writeln('  merged $at, your changes kept');
+        }
+      }
+      if (dryRun) continue;
+      if (text != yours) File('${root.path}/$at').writeAsStringSync(text);
+      fingerprints[at] = fingerprint(latest);
+      _keep(at, latest);
     }
     if (!dryRun) {
       save({...config, 'files': fingerprints});

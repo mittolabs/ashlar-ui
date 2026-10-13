@@ -26,6 +26,7 @@ void olderVersion(Directory dir, String at, String old) {
 }
 
 void main() {
+  formattedApp();
   group('merge3', () {
     test('changes to different lines both come through', () {
       final m = merge3('a\nb\nc\nd', 'A\nb\nc\nd', 'a\nb\nc\nD');
@@ -153,6 +154,81 @@ void main() {
           startsWith('// Mine alone.'),
         );
         expect(out.toString(), contains('no copy of what ashlar wrote'));
+      },
+    );
+  });
+}
+
+void formattedApp() {
+  group('ashlar update in an app with its own layout', () {
+    late Directory dir;
+    late String old;
+    const at = 'lib/ui/toggle.dart';
+
+    // The app's code at 120 columns, as its formatter left it.
+    String atWidth120(String text) {
+      final f = File('${dir.path}/.layout/x.dart')
+        ..createSync(recursive: true)
+        ..writeAsStringSync(text);
+      Process.runSync(
+        'dart',
+        ['format', f.path],
+        workingDirectory: dir.path,
+        runInShell: true,
+      );
+      final out = f.readAsStringSync();
+      Directory('${dir.path}/.layout').deleteSync(recursive: true);
+      return out;
+    }
+
+    setUp(() async {
+      dir = project();
+      File(
+        '${dir.path}/analysis_options.yaml',
+      ).writeAsStringSync('formatter:\n  page_width: 120\n');
+      await run(['add', 'toggle'], dir: dir, out: StringBuffer());
+      final latest = File('${dir.path}/$at').readAsStringSync();
+      old = [
+        '// An older first line.',
+        ...latest.split('\n').skip(1),
+      ].join('\n');
+      olderVersion(dir, at, old);
+    });
+
+    test(
+      'a file only laid out again takes the new version, in your layout',
+      () async {
+        File('${dir.path}/$at').writeAsStringSync(atWidth120(old));
+        expect(
+          File('${dir.path}/$at').readAsStringSync(),
+          isNot(old),
+          reason: 'the layout differs',
+        );
+        final out = StringBuffer();
+        expect(await run(['update'], dir: dir, out: out), 0);
+        expect(out.toString(), contains('took   $at'));
+        final text = File('${dir.path}/$at').readAsStringSync();
+        expect(text, isNot(contains('<<<<<<<')));
+        expect(text, isNot(contains('An older first line')));
+        expect(text, atWidth120(text), reason: 'still laid out at 120');
+      },
+    );
+
+    test(
+      'a real change of yours is kept, with no conflicts from the layout',
+      () async {
+        File('${dir.path}/$at').writeAsStringSync(
+          atWidth120(
+            old,
+          ).replaceFirst('class Toggle ', '// Ours.\nclass Toggle '),
+        );
+        final out = StringBuffer();
+        expect(await run(['update'], dir: dir, out: out), 0);
+        expect(out.toString(), contains('merged $at, your changes kept'));
+        final text = File('${dir.path}/$at').readAsStringSync();
+        expect(text, contains('// Ours.\nclass Toggle '));
+        expect(text, isNot(contains('An older first line')));
+        expect(text, isNot(contains('<<<<<<<')));
       },
     );
   });
