@@ -74,4 +74,41 @@ void main() {
       greaterThan(text.indexOf('Blocks, whole screens:')),
     );
   });
+
+  test('init writes the chosen base, accent and style', () async {
+    final dir = project();
+    final out = StringBuffer();
+    expect(
+      await run(
+        ['init', '--base', 'zinc', '--accent', 'blue', '--style', 'compact'],
+        dir: dir,
+        out: out,
+      ),
+      0,
+    );
+    final theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
+    expect(theme, contains('base: AshlarBase.zinc'));
+    expect(theme, contains('accent: AshlarAccent.blue'));
+    expect(theme, contains('style: AshlarStyle.compact'));
+    expect(theme, contains('brightness: Brightness.dark'));
+    expect(File('${dir.path}/lib/ui/palette.dart').existsSync(), isTrue);
+    expect(
+      File('${dir.path}/ashlar.json').readAsStringSync(),
+      contains('"accent": "blue"'),
+    );
+  });
+
+  test(
+    'init turns down a choice it does not know, and says what there is',
+    () async {
+      final dir = project();
+      final out = StringBuffer();
+      expect(
+        await run(['init', '--accent', 'chartreuse'], dir: dir, out: out),
+        64,
+      );
+      expect(out.toString(), contains('No accent named chartreuse'));
+      expect(out.toString(), contains('violet'));
+    },
+  );
 }

@@ -176,7 +176,9 @@ class _InputState extends State<Input>
             behavior: HitTestBehavior.translucent,
             child: AnimatedContainer(
               duration: t.duration,
-              constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
+              constraints: BoxConstraints(
+                minHeight: multiline ? 64 : t.control(36),
+              ),
               padding: EdgeInsets.symmetric(
                 horizontal: widget.decorated ? 12 : 0,
                 vertical: multiline ? 8 : 0,

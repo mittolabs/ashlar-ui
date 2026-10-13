@@ -194,7 +194,7 @@ class _ComboboxState<T> extends State<Combobox<T>> {
             opacity: state.enabled ? 1 : .5,
             child: AnimatedContainer(
               duration: t.duration,
-              constraints: const BoxConstraints(minHeight: 36),
+              constraints: BoxConstraints(minHeight: t.control(36)),
               padding: EdgeInsetsDirectional.only(
                 start: _many && chosen.isNotEmpty ? 4 : 12,
                 end: 10,

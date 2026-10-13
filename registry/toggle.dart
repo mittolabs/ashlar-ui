@@ -46,11 +46,11 @@ class Toggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final height = switch (size) {
+    final height = t.control(switch (size) {
       ToggleSize.sm => 32.0,
       ToggleSize.md => 36.0,
       ToggleSize.lg => 40.0,
-    };
+    });
     return Pressable(
       onPressed: onChanged == null ? null : () => onChanged!(!pressed),
       toggled: pressed,

@@ -139,7 +139,7 @@ class _TabsState extends State<Tabs> {
                 opacity: state.enabled ? 1 : .5,
                 child: AnimatedContainer(
                   duration: t.duration,
-                  height: 36,
+                  height: t.control(36),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: across
                       ? Alignment.center
@@ -248,7 +248,7 @@ class _TabsState extends State<Tabs> {
           ),
         },
         child: Container(
-          height: across ? 36 : null,
+          height: across ? t.control(36) : null,
           padding: line ? EdgeInsets.zero : const EdgeInsets.all(3),
           decoration: line
               ? BoxDecoration(

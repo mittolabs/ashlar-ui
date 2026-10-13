@@ -100,7 +100,7 @@ class Dialog extends StatelessWidget {
               namesRoute: true,
               explicitChildNodes: true,
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(t.space(24)),
                 decoration: BoxDecoration(
                   color: c.background,
                   borderRadius: BorderRadius.circular(t.radiusLg),

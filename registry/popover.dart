@@ -65,7 +65,7 @@ class _PopoverState extends State<Popover> {
           autofocus: true,
           // Scrolls when the room beside the trigger is shorter than the content.
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(t.space(16)),
             child: DefaultTextStyle.merge(
               style: t.text.sm,
               child: Builder(builder: widget.content),

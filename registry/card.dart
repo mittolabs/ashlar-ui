@@ -31,7 +31,7 @@ class Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    final pad = size == CardSize.sm ? 16.0 : 24.0;
+    final pad = AshlarTheme.of(context).space(size == CardSize.sm ? 16 : 24);
     // An image at the top or the foot runs to the card's edges.
     final topImage = children.isNotEmpty && children.first is CardImage;
     final footImage = children.isNotEmpty && children.last is CardImage;

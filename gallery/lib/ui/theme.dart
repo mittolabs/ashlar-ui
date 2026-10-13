@@ -3,6 +3,8 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'palette.dart';
+
 /// The colours of a theme, by role. Each `...Foreground` is the colour for text and
 /// icons drawn on the colour it is named after.
 @immutable
@@ -179,7 +181,7 @@ class AshlarColors {
     secondary: Color(0xFFF5F5F5),
     secondaryForeground: Color(0xFF171717),
     muted: Color(0xFFF5F5F5),
-    mutedForeground: Color(0xFF737373),
+    mutedForeground: Color(0xFF707070),
     accent: Color(0xFFF5F5F5),
     accentForeground: Color(0xFF171717),
     destructive: Color(0xFFE7000B),
@@ -282,6 +284,38 @@ class AshlarText {
   TextStyle get xxl => _size(24, 32, FontWeight.w600);
 }
 
+/// How a theme spaces and shapes its components: corners, the size of controls, the room
+/// inside panels, and whether things cast shadows. Chosen at `ashlar init --style`.
+enum AshlarStyle {
+  /// Clean and familiar.
+  standard(radius: 10, density: 0, spacing: 1, flat: false),
+
+  /// Less room inside, smaller controls.
+  compact(radius: 8, density: -1, spacing: .85, flat: false),
+
+  /// Round, with room to breathe.
+  rounded(radius: 16, density: 1, spacing: 1.15, flat: false),
+
+  /// Square corners and no shadows: boxy, and at home with a mono font.
+  sharp(radius: 2, density: 0, spacing: 1, flat: true),
+
+  /// For screens full of data: the smallest controls and the least room.
+  dense(radius: 6, density: -2, spacing: .75, flat: false),
+
+  /// Round corners and soft light.
+  soft(radius: 14, density: 0, spacing: 1.05, flat: false);
+
+  const AshlarStyle({
+    required this.radius,
+    required this.density,
+    required this.spacing,
+    required this.flat,
+  });
+
+  final double radius, density, spacing;
+  final bool flat;
+}
+
 /// A whole theme: colours, corners, text, motion.
 @immutable
 class AshlarThemeData {
@@ -291,7 +325,35 @@ class AshlarThemeData {
     this.radius = 10,
     this.text = const AshlarText(),
     this.duration = const Duration(milliseconds: 150),
+    this.density = 0,
+    this.spacing = 1,
+    this.flat = false,
   });
+
+  /// A theme from its parts: the greys it is built on, a colour for its main actions, and
+  /// how it spaces and shapes things.
+  ///
+  /// ```dart
+  /// AshlarApp(
+  ///   theme: AshlarThemeData.from(base: AshlarBase.zinc, accent: AshlarAccent.blue),
+  ///   darkTheme: AshlarThemeData.from(brightness: Brightness.dark, base: AshlarBase.zinc, accent: AshlarAccent.blue),
+  /// )
+  /// ```
+  factory AshlarThemeData.from({
+    Brightness brightness = Brightness.light,
+    AshlarBase base = AshlarBase.neutral,
+    AshlarAccent? accent,
+    AshlarStyle style = AshlarStyle.standard,
+    AshlarText text = const AshlarText(),
+  }) => AshlarThemeData(
+    brightness: brightness,
+    colors: ashlarColors(base, brightness, accent),
+    radius: style.radius,
+    density: style.density,
+    spacing: style.spacing,
+    flat: style.flat,
+    text: text,
+  );
 
   /// Neutral, light.
   const AshlarThemeData.light()
@@ -311,8 +373,25 @@ class AshlarThemeData {
   /// How long a hover, press or open takes.
   final Duration duration;
 
-  double get radiusSm => radius - 4;
-  double get radiusMd => radius - 2;
+  /// Controls are 4 taller for each step up, 4 shorter for each step down: 0 is a 36
+  /// tall button, -1 a 32, 1 a 40.
+  final double density;
+
+  /// The room inside panels, cards and dialogs, as a share of the standard.
+  final double spacing;
+
+  /// No shadows: cards, menus and dialogs sit flat, set apart by their borders.
+  final bool flat;
+
+  /// A control's height at this density, from its standard height.
+  double control(double standard) => standard + density * 4;
+
+  /// Room inside a panel at this spacing, from the standard room.
+  double space(double standard) => (standard * spacing).roundToDouble();
+
+  // Never below square, for a sharp style.
+  double get radiusSm => radius > 4 ? radius - 4 : 0;
+  double get radiusMd => radius > 2 ? radius - 2 : 0;
   double get radiusLg => radius;
   double get radiusXl => radius + 4;
 
@@ -322,48 +401,76 @@ class AshlarThemeData {
   ];
 
   /// The faint shadow under a control.
-  List<BoxShadow> get shadowXs => const [
-    BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2),
-  ];
+  List<BoxShadow> get shadowXs => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ];
 
   /// The shadow under a card.
-  List<BoxShadow> get shadowSm => const [
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 3),
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 1),
-      blurRadius: 2,
-      spreadRadius: -1,
-    ),
-  ];
+  List<BoxShadow> get shadowSm => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 1),
+            blurRadius: 3,
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+            spreadRadius: -1,
+          ),
+        ];
 
   /// The shadow under a dialog or a menu.
-  List<BoxShadow> get shadowLg => const [
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 10),
-      blurRadius: 15,
-      spreadRadius: -3,
-    ),
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 4),
-      blurRadius: 6,
-      spreadRadius: -4,
-    ),
-  ];
+  List<BoxShadow> get shadowLg => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 10),
+            blurRadius: 15,
+            spreadRadius: -3,
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 4),
+            blurRadius: 6,
+            spreadRadius: -4,
+          ),
+        ];
 
   AshlarThemeData copyWith({
     AshlarColors? colors,
     double? radius,
     AshlarText? text,
     Duration? duration,
+    double? density,
+    double? spacing,
+    bool? flat,
   }) => AshlarThemeData(
     brightness: brightness,
     colors: colors ?? this.colors,
     radius: radius ?? this.radius,
     text: text ?? this.text,
     duration: duration ?? this.duration,
+    density: density ?? this.density,
+    spacing: spacing ?? this.spacing,
+    flat: flat ?? this.flat,
+  );
+
+  /// This theme spaced and shaped as [style], its colours and text kept.
+  AshlarThemeData withStyle(AshlarStyle style) => copyWith(
+    radius: style.radius,
+    density: style.density,
+    spacing: style.spacing,
+    flat: style.flat,
   );
 }
 

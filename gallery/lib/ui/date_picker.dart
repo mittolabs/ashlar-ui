@@ -160,7 +160,7 @@ class _DatePickerState extends State<DatePicker> {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            height: 36,
+            height: t.control(36),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: state.hovered ? c.accent : c.background,

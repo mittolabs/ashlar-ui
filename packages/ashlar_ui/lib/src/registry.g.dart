@@ -6,7 +6,7 @@ import 'component.dart';
 /// Every component the ashlar command can add, by name.
 const registry = <String, Component>{
   'theme': Component(
-    description: "Colours, corners, text and motion, light and dark.",
+    description: "Colours, corners, text and motion: seven bases, seventeen accents, six styles.",
     requires: [],
     packages: [],
     block: false,
@@ -15,6 +15,8 @@ const registry = <String, Component>{
 // Every colour, radius and text style the components use comes from here.
 
 import 'package:flutter/widgets.dart';
+
+import 'palette.dart';
 
 /// The colours of a theme, by role. Each `...Foreground` is the colour for text and
 /// icons drawn on the colour it is named after.
@@ -192,7 +194,7 @@ class AshlarColors {
     secondary: Color(0xFFF5F5F5),
     secondaryForeground: Color(0xFF171717),
     muted: Color(0xFFF5F5F5),
-    mutedForeground: Color(0xFF737373),
+    mutedForeground: Color(0xFF707070),
     accent: Color(0xFFF5F5F5),
     accentForeground: Color(0xFF171717),
     destructive: Color(0xFFE7000B),
@@ -295,6 +297,38 @@ class AshlarText {
   TextStyle get xxl => _size(24, 32, FontWeight.w600);
 }
 
+/// How a theme spaces and shapes its components: corners, the size of controls, the room
+/// inside panels, and whether things cast shadows. Chosen at `ashlar init --style`.
+enum AshlarStyle {
+  /// Clean and familiar.
+  standard(radius: 10, density: 0, spacing: 1, flat: false),
+
+  /// Less room inside, smaller controls.
+  compact(radius: 8, density: -1, spacing: .85, flat: false),
+
+  /// Round, with room to breathe.
+  rounded(radius: 16, density: 1, spacing: 1.15, flat: false),
+
+  /// Square corners and no shadows: boxy, and at home with a mono font.
+  sharp(radius: 2, density: 0, spacing: 1, flat: true),
+
+  /// For screens full of data: the smallest controls and the least room.
+  dense(radius: 6, density: -2, spacing: .75, flat: false),
+
+  /// Round corners and soft light.
+  soft(radius: 14, density: 0, spacing: 1.05, flat: false);
+
+  const AshlarStyle({
+    required this.radius,
+    required this.density,
+    required this.spacing,
+    required this.flat,
+  });
+
+  final double radius, density, spacing;
+  final bool flat;
+}
+
 /// A whole theme: colours, corners, text, motion.
 @immutable
 class AshlarThemeData {
@@ -304,7 +338,35 @@ class AshlarThemeData {
     this.radius = 10,
     this.text = const AshlarText(),
     this.duration = const Duration(milliseconds: 150),
+    this.density = 0,
+    this.spacing = 1,
+    this.flat = false,
   });
+
+  /// A theme from its parts: the greys it is built on, a colour for its main actions, and
+  /// how it spaces and shapes things.
+  ///
+  /// ```dart
+  /// AshlarApp(
+  ///   theme: AshlarThemeData.from(base: AshlarBase.zinc, accent: AshlarAccent.blue),
+  ///   darkTheme: AshlarThemeData.from(brightness: Brightness.dark, base: AshlarBase.zinc, accent: AshlarAccent.blue),
+  /// )
+  /// ```
+  factory AshlarThemeData.from({
+    Brightness brightness = Brightness.light,
+    AshlarBase base = AshlarBase.neutral,
+    AshlarAccent? accent,
+    AshlarStyle style = AshlarStyle.standard,
+    AshlarText text = const AshlarText(),
+  }) => AshlarThemeData(
+    brightness: brightness,
+    colors: ashlarColors(base, brightness, accent),
+    radius: style.radius,
+    density: style.density,
+    spacing: style.spacing,
+    flat: style.flat,
+    text: text,
+  );
 
   /// Neutral, light.
   const AshlarThemeData.light()
@@ -324,8 +386,25 @@ class AshlarThemeData {
   /// How long a hover, press or open takes.
   final Duration duration;
 
-  double get radiusSm => radius - 4;
-  double get radiusMd => radius - 2;
+  /// Controls are 4 taller for each step up, 4 shorter for each step down: 0 is a 36
+  /// tall button, -1 a 32, 1 a 40.
+  final double density;
+
+  /// The room inside panels, cards and dialogs, as a share of the standard.
+  final double spacing;
+
+  /// No shadows: cards, menus and dialogs sit flat, set apart by their borders.
+  final bool flat;
+
+  /// A control's height at this density, from its standard height.
+  double control(double standard) => standard + density * 4;
+
+  /// Room inside a panel at this spacing, from the standard room.
+  double space(double standard) => (standard * spacing).roundToDouble();
+
+  // Never below square, for a sharp style.
+  double get radiusSm => radius > 4 ? radius - 4 : 0;
+  double get radiusMd => radius > 2 ? radius - 2 : 0;
   double get radiusLg => radius;
   double get radiusXl => radius + 4;
 
@@ -335,48 +414,76 @@ class AshlarThemeData {
   ];
 
   /// The faint shadow under a control.
-  List<BoxShadow> get shadowXs => const [
-    BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2),
-  ];
+  List<BoxShadow> get shadowXs => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ];
 
   /// The shadow under a card.
-  List<BoxShadow> get shadowSm => const [
-    BoxShadow(color: Color(0x1A000000), offset: Offset(0, 1), blurRadius: 3),
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 1),
-      blurRadius: 2,
-      spreadRadius: -1,
-    ),
-  ];
+  List<BoxShadow> get shadowSm => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 1),
+            blurRadius: 3,
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+            spreadRadius: -1,
+          ),
+        ];
 
   /// The shadow under a dialog or a menu.
-  List<BoxShadow> get shadowLg => const [
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 10),
-      blurRadius: 15,
-      spreadRadius: -3,
-    ),
-    BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 4),
-      blurRadius: 6,
-      spreadRadius: -4,
-    ),
-  ];
+  List<BoxShadow> get shadowLg => flat
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 10),
+            blurRadius: 15,
+            spreadRadius: -3,
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            offset: Offset(0, 4),
+            blurRadius: 6,
+            spreadRadius: -4,
+          ),
+        ];
 
   AshlarThemeData copyWith({
     AshlarColors? colors,
     double? radius,
     AshlarText? text,
     Duration? duration,
+    double? density,
+    double? spacing,
+    bool? flat,
   }) => AshlarThemeData(
     brightness: brightness,
     colors: colors ?? this.colors,
     radius: radius ?? this.radius,
     text: text ?? this.text,
     duration: duration ?? this.duration,
+    density: density ?? this.density,
+    spacing: spacing ?? this.spacing,
+    flat: flat ?? this.flat,
+  );
+
+  /// This theme spaced and shaped as [style], its colours and text kept.
+  AshlarThemeData withStyle(AshlarStyle style) => copyWith(
+    radius: style.radius,
+    density: style.density,
+    spacing: style.spacing,
+    flat: style.flat,
   );
 }
 
@@ -399,6 +506,930 @@ class AshlarTheme extends InheritedWidget {
 /// the line, which turn round with it.
 bool isRtl(BuildContext context) =>
     Directionality.maybeOf(context) == TextDirection.rtl;
+''',
+      'palette.dart': r'''// Ashlar UI: the palette. Copied into your app with the theme; it is yours to change.
+//
+// GENERATED from shadcn/ui's themes (registry/themes.ts, oklch converted to sRGB) by the
+// palette tool. Edit the tool, not this file, to change every colour at once.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// The greys a theme is built on: neutral, or tinted warm, cool or green.
+enum AshlarBase { neutral, stone, zinc, mauve, olive, mist, taupe }
+
+/// A colour for the main actions, the charts and the sidebar's chosen item, over a base.
+enum AshlarAccent {
+  amber,
+  blue,
+  cyan,
+  emerald,
+  fuchsia,
+  green,
+  indigo,
+  lime,
+  orange,
+  pink,
+  purple,
+  red,
+  rose,
+  sky,
+  teal,
+  violet,
+  yellow,
+}
+
+/// The colours for [base] in [brightness], with [accent] over them when given. Neutral
+/// is [AshlarColors.light] and [AshlarColors.dark]; the charts keep their colours unless an
+/// accent sets them.
+AshlarColors ashlarColors(
+  AshlarBase base,
+  Brightness brightness, [
+  AshlarAccent? accent,
+]) {
+  final dark = brightness == Brightness.dark;
+  final colors = switch (base) {
+    AshlarBase.neutral => dark ? AshlarColors.dark : AshlarColors.light,
+    AshlarBase.stone => dark ? _stoneDark : _stoneLight,
+    AshlarBase.zinc => dark ? _zincDark : _zincLight,
+    AshlarBase.mauve => dark ? _mauveDark : _mauveLight,
+    AshlarBase.olive => dark ? _oliveDark : _oliveLight,
+    AshlarBase.mist => dark ? _mistDark : _mistLight,
+    AshlarBase.taupe => dark ? _taupeDark : _taupeLight,
+  };
+  if (accent == null) return colors;
+  final a = _accents[accent]!;
+  final (p, pf, s, sf, c1, c2, c3, c4, c5, sp, spf) = dark ? a.$2 : a.$1;
+  return colors.copyWith(
+    primary: p,
+    primaryForeground: pf,
+    secondary: s,
+    secondaryForeground: sf,
+    chart1: c1,
+    chart2: c2,
+    chart3: c3,
+    chart4: c4,
+    chart5: c5,
+    sidebarPrimary: sp,
+    sidebarPrimaryForeground: spf,
+  );
+}
+
+/// Stone, light.
+final _stoneLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF0C0A09),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF0C0A09),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF0C0A09),
+  primary: const Color(0xFF1C1917),
+  primaryForeground: const Color(0xFFFAFAF9),
+  secondary: const Color(0xFFF5F5F4),
+  secondaryForeground: const Color(0xFF1C1917),
+  muted: const Color(0xFFF5F5F4),
+  mutedForeground: const Color(0xFF776F6A),
+  accent: const Color(0xFFF5F5F4),
+  accentForeground: const Color(0xFF1C1917),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE7E5E4),
+  input: const Color(0xFFE7E5E4),
+  ring: const Color(0xFFA6A09B),
+  sidebar: const Color(0xFFFAFAF9),
+  sidebarForeground: const Color(0xFF0C0A09),
+  sidebarPrimary: const Color(0xFF1C1917),
+  sidebarPrimaryForeground: const Color(0xFFFAFAF9),
+  sidebarAccent: const Color(0xFFF5F5F4),
+  sidebarAccentForeground: const Color(0xFF1C1917),
+  sidebarBorder: const Color(0xFFE7E5E4),
+  sidebarRing: const Color(0xFFA6A09B),
+);
+
+/// Stone, dark.
+final _stoneDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF0C0A09),
+  foreground: const Color(0xFFFAFAF9),
+  card: const Color(0xFF1C1917),
+  cardForeground: const Color(0xFFFAFAF9),
+  popover: const Color(0xFF1C1917),
+  popoverForeground: const Color(0xFFFAFAF9),
+  primary: const Color(0xFFE7E5E4),
+  primaryForeground: const Color(0xFF1C1917),
+  secondary: const Color(0xFF292524),
+  secondaryForeground: const Color(0xFFFAFAF9),
+  muted: const Color(0xFF292524),
+  mutedForeground: const Color(0xFFA6A09B),
+  accent: const Color(0xFF292524),
+  accentForeground: const Color(0xFFFAFAF9),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF79716B),
+  sidebar: const Color(0xFF1C1917),
+  sidebarForeground: const Color(0xFFFAFAF9),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFFAFAF9),
+  sidebarAccent: const Color(0xFF292524),
+  sidebarAccentForeground: const Color(0xFFFAFAF9),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF79716B),
+);
+
+/// Zinc, light.
+final _zincLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF09090B),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF09090B),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF09090B),
+  primary: const Color(0xFF18181B),
+  primaryForeground: const Color(0xFFFAFAFA),
+  secondary: const Color(0xFFF4F4F5),
+  secondaryForeground: const Color(0xFF18181B),
+  muted: const Color(0xFFF4F4F5),
+  mutedForeground: const Color(0xFF6E6E78),
+  accent: const Color(0xFFF4F4F5),
+  accentForeground: const Color(0xFF18181B),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE4E4E7),
+  input: const Color(0xFFE4E4E7),
+  ring: const Color(0xFF9F9FA9),
+  sidebar: const Color(0xFFFAFAFA),
+  sidebarForeground: const Color(0xFF09090B),
+  sidebarPrimary: const Color(0xFF18181B),
+  sidebarPrimaryForeground: const Color(0xFFFAFAFA),
+  sidebarAccent: const Color(0xFFF4F4F5),
+  sidebarAccentForeground: const Color(0xFF18181B),
+  sidebarBorder: const Color(0xFFE4E4E7),
+  sidebarRing: const Color(0xFF9F9FA9),
+);
+
+/// Zinc, dark.
+final _zincDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF09090B),
+  foreground: const Color(0xFFFAFAFA),
+  card: const Color(0xFF18181B),
+  cardForeground: const Color(0xFFFAFAFA),
+  popover: const Color(0xFF18181B),
+  popoverForeground: const Color(0xFFFAFAFA),
+  primary: const Color(0xFFE4E4E7),
+  primaryForeground: const Color(0xFF18181B),
+  secondary: const Color(0xFF27272A),
+  secondaryForeground: const Color(0xFFFAFAFA),
+  muted: const Color(0xFF27272A),
+  mutedForeground: const Color(0xFF9F9FA9),
+  accent: const Color(0xFF27272A),
+  accentForeground: const Color(0xFFFAFAFA),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF71717B),
+  sidebar: const Color(0xFF18181B),
+  sidebarForeground: const Color(0xFFFAFAFA),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFFAFAFA),
+  sidebarAccent: const Color(0xFF27272A),
+  sidebarAccentForeground: const Color(0xFFFAFAFA),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF71717B),
+);
+
+/// Mauve, light.
+final _mauveLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF0C090C),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF0C090C),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF0C090C),
+  primary: const Color(0xFF1D161E),
+  primaryForeground: const Color(0xFFFAFAFA),
+  secondary: const Color(0xFFF3F1F3),
+  secondaryForeground: const Color(0xFF1D161E),
+  muted: const Color(0xFFF3F1F3),
+  mutedForeground: const Color(0xFF79697B),
+  accent: const Color(0xFFF3F1F3),
+  accentForeground: const Color(0xFF1D161E),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE7E4E7),
+  input: const Color(0xFFE7E4E7),
+  ring: const Color(0xFFA89EA9),
+  sidebar: const Color(0xFFFAFAFA),
+  sidebarForeground: const Color(0xFF0C090C),
+  sidebarPrimary: const Color(0xFF1D161E),
+  sidebarPrimaryForeground: const Color(0xFFFAFAFA),
+  sidebarAccent: const Color(0xFFF3F1F3),
+  sidebarAccentForeground: const Color(0xFF1D161E),
+  sidebarBorder: const Color(0xFFE7E4E7),
+  sidebarRing: const Color(0xFFA89EA9),
+);
+
+/// Mauve, dark.
+final _mauveDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF0C090C),
+  foreground: const Color(0xFFFAFAFA),
+  card: const Color(0xFF1D161E),
+  cardForeground: const Color(0xFFFAFAFA),
+  popover: const Color(0xFF1D161E),
+  popoverForeground: const Color(0xFFFAFAFA),
+  primary: const Color(0xFFE7E4E7),
+  primaryForeground: const Color(0xFF1D161E),
+  secondary: const Color(0xFF2A212C),
+  secondaryForeground: const Color(0xFFFAFAFA),
+  muted: const Color(0xFF2A212C),
+  mutedForeground: const Color(0xFFA89EA9),
+  accent: const Color(0xFF2A212C),
+  accentForeground: const Color(0xFFFAFAFA),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF79697B),
+  sidebar: const Color(0xFF1D161E),
+  sidebarForeground: const Color(0xFFFAFAFA),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFFAFAFA),
+  sidebarAccent: const Color(0xFF2A212C),
+  sidebarAccentForeground: const Color(0xFFFAFAFA),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF79697B),
+);
+
+/// Olive, light.
+final _oliveLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF0C0C09),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF0C0C09),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF0C0C09),
+  primary: const Color(0xFF1D1D16),
+  primaryForeground: const Color(0xFFFBFBF9),
+  secondary: const Color(0xFFF4F4F0),
+  secondaryForeground: const Color(0xFF1D1D16),
+  muted: const Color(0xFFF4F4F0),
+  mutedForeground: const Color(0xFF70705C),
+  accent: const Color(0xFFF4F4F0),
+  accentForeground: const Color(0xFF1D1D16),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE8E8E3),
+  input: const Color(0xFFE8E8E3),
+  ring: const Color(0xFFABAB9C),
+  sidebar: const Color(0xFFFBFBF9),
+  sidebarForeground: const Color(0xFF0C0C09),
+  sidebarPrimary: const Color(0xFF1D1D16),
+  sidebarPrimaryForeground: const Color(0xFFFBFBF9),
+  sidebarAccent: const Color(0xFFF4F4F0),
+  sidebarAccentForeground: const Color(0xFF1D1D16),
+  sidebarBorder: const Color(0xFFE8E8E3),
+  sidebarRing: const Color(0xFFABAB9C),
+);
+
+/// Olive, dark.
+final _oliveDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF0C0C09),
+  foreground: const Color(0xFFFBFBF9),
+  card: const Color(0xFF1D1D16),
+  cardForeground: const Color(0xFFFBFBF9),
+  popover: const Color(0xFF1D1D16),
+  popoverForeground: const Color(0xFFFBFBF9),
+  primary: const Color(0xFFE8E8E3),
+  primaryForeground: const Color(0xFF1D1D16),
+  secondary: const Color(0xFF2B2B22),
+  secondaryForeground: const Color(0xFFFBFBF9),
+  muted: const Color(0xFF2B2B22),
+  mutedForeground: const Color(0xFFABAB9C),
+  accent: const Color(0xFF2B2B22),
+  accentForeground: const Color(0xFFFBFBF9),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF7C7C67),
+  sidebar: const Color(0xFF1D1D16),
+  sidebarForeground: const Color(0xFFFBFBF9),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFFBFBF9),
+  sidebarAccent: const Color(0xFF2B2B22),
+  sidebarAccentForeground: const Color(0xFFFBFBF9),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF7C7C67),
+);
+
+/// Mist, light.
+final _mistLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF090B0C),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF090B0C),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF090B0C),
+  primary: const Color(0xFF161B1D),
+  primaryForeground: const Color(0xFFF9FBFB),
+  secondary: const Color(0xFFF1F3F3),
+  secondaryForeground: const Color(0xFF161B1D),
+  muted: const Color(0xFFF1F3F3),
+  mutedForeground: const Color(0xFF617276),
+  accent: const Color(0xFFF1F3F3),
+  accentForeground: const Color(0xFF161B1D),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE3E7E8),
+  input: const Color(0xFFE3E7E8),
+  ring: const Color(0xFF9CA8AB),
+  sidebar: const Color(0xFFF9FBFB),
+  sidebarForeground: const Color(0xFF090B0C),
+  sidebarPrimary: const Color(0xFF161B1D),
+  sidebarPrimaryForeground: const Color(0xFFF9FBFB),
+  sidebarAccent: const Color(0xFFF1F3F3),
+  sidebarAccentForeground: const Color(0xFF161B1D),
+  sidebarBorder: const Color(0xFFE3E7E8),
+  sidebarRing: const Color(0xFF9CA8AB),
+);
+
+/// Mist, dark.
+final _mistDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF090B0C),
+  foreground: const Color(0xFFF9FBFB),
+  card: const Color(0xFF161B1D),
+  cardForeground: const Color(0xFFF9FBFB),
+  popover: const Color(0xFF161B1D),
+  popoverForeground: const Color(0xFFF9FBFB),
+  primary: const Color(0xFFE3E7E8),
+  primaryForeground: const Color(0xFF161B1D),
+  secondary: const Color(0xFF22292B),
+  secondaryForeground: const Color(0xFFF9FBFB),
+  muted: const Color(0xFF22292B),
+  mutedForeground: const Color(0xFF9CA8AB),
+  accent: const Color(0xFF22292B),
+  accentForeground: const Color(0xFFF9FBFB),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF67787C),
+  sidebar: const Color(0xFF161B1D),
+  sidebarForeground: const Color(0xFFF9FBFB),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFF9FBFB),
+  sidebarAccent: const Color(0xFF22292B),
+  sidebarAccentForeground: const Color(0xFFF9FBFB),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF67787C),
+);
+
+/// Taupe, light.
+final _taupeLight = AshlarColors.light.copyWith(
+  background: const Color(0xFFFFFFFF),
+  foreground: const Color(0xFF0C0A09),
+  card: const Color(0xFFFFFFFF),
+  cardForeground: const Color(0xFF0C0A09),
+  popover: const Color(0xFFFFFFFF),
+  popoverForeground: const Color(0xFF0C0A09),
+  primary: const Color(0xFF1D1816),
+  primaryForeground: const Color(0xFFFBFAF9),
+  secondary: const Color(0xFFF3F1F1),
+  secondaryForeground: const Color(0xFF1D1816),
+  muted: const Color(0xFFF3F1F1),
+  mutedForeground: const Color(0xFF796A64),
+  accent: const Color(0xFFF3F1F1),
+  accentForeground: const Color(0xFF1D1816),
+  destructive: const Color(0xFFE7000B),
+  border: const Color(0xFFE8E4E3),
+  input: const Color(0xFFE8E4E3),
+  ring: const Color(0xFFABA09C),
+  sidebar: const Color(0xFFFBFAF9),
+  sidebarForeground: const Color(0xFF0C0A09),
+  sidebarPrimary: const Color(0xFF1D1816),
+  sidebarPrimaryForeground: const Color(0xFFFBFAF9),
+  sidebarAccent: const Color(0xFFF3F1F1),
+  sidebarAccentForeground: const Color(0xFF1D1816),
+  sidebarBorder: const Color(0xFFE8E4E3),
+  sidebarRing: const Color(0xFFABA09C),
+);
+
+/// Taupe, dark.
+final _taupeDark = AshlarColors.dark.copyWith(
+  background: const Color(0xFF0C0A09),
+  foreground: const Color(0xFFFBFAF9),
+  card: const Color(0xFF1D1816),
+  cardForeground: const Color(0xFFFBFAF9),
+  popover: const Color(0xFF1D1816),
+  popoverForeground: const Color(0xFFFBFAF9),
+  primary: const Color(0xFFE8E4E3),
+  primaryForeground: const Color(0xFF1D1816),
+  secondary: const Color(0xFF2B2422),
+  secondaryForeground: const Color(0xFFFBFAF9),
+  muted: const Color(0xFF2B2422),
+  mutedForeground: const Color(0xFFABA09C),
+  accent: const Color(0xFF2B2422),
+  accentForeground: const Color(0xFFFBFAF9),
+  destructive: const Color(0xFFFF6467),
+  border: const Color(0x1AFFFFFF),
+  input: const Color(0x26FFFFFF),
+  ring: const Color(0xFF7C6D67),
+  sidebar: const Color(0xFF1D1816),
+  sidebarForeground: const Color(0xFFFBFAF9),
+  sidebarPrimary: const Color(0xFF1447E6),
+  sidebarPrimaryForeground: const Color(0xFFFBFAF9),
+  sidebarAccent: const Color(0xFF2B2422),
+  sidebarAccentForeground: const Color(0xFFFBFAF9),
+  sidebarBorder: const Color(0x1AFFFFFF),
+  sidebarRing: const Color(0xFF7C6D67),
+);
+
+typedef _Accent = (
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+  Color,
+);
+
+/// Each accent, light then dark: primary and its foreground, secondary and its foreground,
+/// the five chart colours, and the sidebar's primary and its foreground.
+const _accents = <AshlarAccent, (_Accent, _Accent)>{
+  AshlarAccent.amber: (
+    (
+      Color(0xFFBB4D00),
+      Color(0xFFFFFBEB),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFFD230),
+      Color(0xFFFE9A00),
+      Color(0xFFE17100),
+      Color(0xFFBB4D00),
+      Color(0xFF973C00),
+      Color(0xFFE17100),
+      Color(0xFF2D291D),
+    ),
+    (
+      Color(0xFF973C00),
+      Color(0xFFFFFBEB),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFFD230),
+      Color(0xFFFE9A00),
+      Color(0xFFE17100),
+      Color(0xFFBB4D00),
+      Color(0xFF973C00),
+      Color(0xFFFE9A00),
+      Color(0xFF461901),
+    ),
+  ),
+  AshlarAccent.blue: (
+    (
+      Color(0xFF1447E6),
+      Color(0xFFEFF6FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF8EC5FF),
+      Color(0xFF2B7FFF),
+      Color(0xFF155DFC),
+      Color(0xFF1447E6),
+      Color(0xFF193CB8),
+      Color(0xFF155DFC),
+      Color(0xFFEFF6FF),
+    ),
+    (
+      Color(0xFF193CB8),
+      Color(0xFFEFF6FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF8EC5FF),
+      Color(0xFF2B7FFF),
+      Color(0xFF155DFC),
+      Color(0xFF1447E6),
+      Color(0xFF193CB8),
+      Color(0xFF2B7FFF),
+      Color(0xFF181D24),
+    ),
+  ),
+  AshlarAccent.cyan: (
+    (
+      Color(0xFF007595),
+      Color(0xFFECFEFF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF53EAFD),
+      Color(0xFF00B8DB),
+      Color(0xFF0092B8),
+      Color(0xFF007595),
+      Color(0xFF005F78),
+      Color(0xFF0092B8),
+      Color(0xFF142223),
+    ),
+    (
+      Color(0xFF005F78),
+      Color(0xFFECFEFF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF53EAFD),
+      Color(0xFF00B8DB),
+      Color(0xFF0092B8),
+      Color(0xFF007595),
+      Color(0xFF005F78),
+      Color(0xFF00B8DB),
+      Color(0xFF053345),
+    ),
+  ),
+  AshlarAccent.emerald: (
+    (
+      Color(0xFF007A55),
+      Color(0xFFECFDF5),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF5EE9B5),
+      Color(0xFF00BC7D),
+      Color(0xFF009966),
+      Color(0xFF007A55),
+      Color(0xFF006045),
+      Color(0xFF009966),
+      Color(0xFF14211C),
+    ),
+    (
+      Color(0xFF006045),
+      Color(0xFFECFDF5),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF5EE9B5),
+      Color(0xFF00BC7D),
+      Color(0xFF009966),
+      Color(0xFF007A55),
+      Color(0xFF006045),
+      Color(0xFF00BC7D),
+      Color(0xFF002C22),
+    ),
+  ),
+  AshlarAccent.fuchsia: (
+    (
+      Color(0xFFA800B7),
+      Color(0xFFFDF4FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFF4A8FF),
+      Color(0xFFE12AFB),
+      Color(0xFFC800DE),
+      Color(0xFFA800B7),
+      Color(0xFF8A0194),
+      Color(0xFFC800DE),
+      Color(0xFFFFFBFF),
+    ),
+    (
+      Color(0xFF8A0194),
+      Color(0xFFFDF4FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFF4A8FF),
+      Color(0xFFE12AFB),
+      Color(0xFFC800DE),
+      Color(0xFFA800B7),
+      Color(0xFF8A0194),
+      Color(0xFFE12AFB),
+      Color(0xFF251E26),
+    ),
+  ),
+  AshlarAccent.green: (
+    (
+      Color(0xFF008236),
+      Color(0xFFF0FDF4),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF7BF1A8),
+      Color(0xFF00C950),
+      Color(0xFF00A63E),
+      Color(0xFF008236),
+      Color(0xFF016630),
+      Color(0xFF00A63E),
+      Color(0xFF212B24),
+    ),
+    (
+      Color(0xFF016630),
+      Color(0xFFF0FDF4),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF7BF1A8),
+      Color(0xFF00C950),
+      Color(0xFF00A63E),
+      Color(0xFF008236),
+      Color(0xFF016630),
+      Color(0xFF00C950),
+      Color(0xFF3A453E),
+    ),
+  ),
+  AshlarAccent.indigo: (
+    (
+      Color(0xFF432DD7),
+      Color(0xFFEEF2FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFA3B3FF),
+      Color(0xFF615FFF),
+      Color(0xFF4F39F6),
+      Color(0xFF432DD7),
+      Color(0xFF372AAC),
+      Color(0xFF4F39F6),
+      Color(0xFFEEF2FF),
+    ),
+    (
+      Color(0xFF372AAC),
+      Color(0xFFEEF2FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFA3B3FF),
+      Color(0xFF615FFF),
+      Color(0xFF4F39F6),
+      Color(0xFF432DD7),
+      Color(0xFF372AAC),
+      Color(0xFF615FFF),
+      Color(0xFF020308),
+    ),
+  ),
+  AshlarAccent.lime: (
+    (
+      Color(0xFF9AE600),
+      Color(0xFF35530E),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFBBF451),
+      Color(0xFF7CCF00),
+      Color(0xFF5EA500),
+      Color(0xFF497D00),
+      Color(0xFF3C6300),
+      Color(0xFF5EA500),
+      Color(0xFF2A2F1E),
+    ),
+    (
+      Color(0xFF7CCF00),
+      Color(0xFF35530E),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFBBF451),
+      Color(0xFF7CCF00),
+      Color(0xFF5EA500),
+      Color(0xFF497D00),
+      Color(0xFF3C6300),
+      Color(0xFF7CCF00),
+      Color(0xFF192E03),
+    ),
+  ),
+  AshlarAccent.orange: (
+    (
+      Color(0xFFCA3500),
+      Color(0xFFFFF7ED),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFFB86A),
+      Color(0xFFFF6900),
+      Color(0xFFF54900),
+      Color(0xFFCA3500),
+      Color(0xFF9F2D00),
+      Color(0xFFF54900),
+      Color(0xFF251F18),
+    ),
+    (
+      Color(0xFF9F2D00),
+      Color(0xFFFFF7ED),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFFB86A),
+      Color(0xFFFF6900),
+      Color(0xFFF54900),
+      Color(0xFFCA3500),
+      Color(0xFF9F2D00),
+      Color(0xFFFF6900),
+      Color(0xFF352F28),
+    ),
+  ),
+  AshlarAccent.pink: (
+    (
+      Color(0xFFC6005C),
+      Color(0xFFFDF2F8),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFDA5D5),
+      Color(0xFFF6339A),
+      Color(0xFFE60076),
+      Color(0xFFC6005C),
+      Color(0xFFA3004C),
+      Color(0xFFE60076),
+      Color(0xFF070305),
+    ),
+    (
+      Color(0xFFA3004C),
+      Color(0xFFFDF2F8),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFDA5D5),
+      Color(0xFFF6339A),
+      Color(0xFFE60076),
+      Color(0xFFC6005C),
+      Color(0xFFA3004C),
+      Color(0xFFF6339A),
+      Color(0xFF261E22),
+    ),
+  ),
+  AshlarAccent.purple: (
+    (
+      Color(0xFF8200DB),
+      Color(0xFFFAF5FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFDAB2FF),
+      Color(0xFFAD46FF),
+      Color(0xFF9810FA),
+      Color(0xFF8200DB),
+      Color(0xFF6E11B0),
+      Color(0xFF9810FA),
+      Color(0xFFFAF5FF),
+    ),
+    (
+      Color(0xFF6E11B0),
+      Color(0xFFFAF5FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFDAB2FF),
+      Color(0xFFAD46FF),
+      Color(0xFF9810FA),
+      Color(0xFF8200DB),
+      Color(0xFF6E11B0),
+      Color(0xFFAD46FF),
+      Color(0xFF151118),
+    ),
+  ),
+  AshlarAccent.red: (
+    (
+      Color(0xFFC10007),
+      Color(0xFFFEF2F2),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFFA2A2),
+      Color(0xFFFB2C36),
+      Color(0xFFE7000B),
+      Color(0xFFC10007),
+      Color(0xFF9F0712),
+      Color(0xFFE7000B),
+      Color(0xFFFFF7F7),
+    ),
+    (
+      Color(0xFF9F0712),
+      Color(0xFFFEF2F2),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFFA2A2),
+      Color(0xFFFB2C36),
+      Color(0xFFE7000B),
+      Color(0xFFC10007),
+      Color(0xFF9F0712),
+      Color(0xFFFB2C36),
+      Color(0xFF211819),
+    ),
+  ),
+  AshlarAccent.rose: (
+    (
+      Color(0xFFC70036),
+      Color(0xFFFFF1F2),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFFA1AD),
+      Color(0xFFFF2056),
+      Color(0xFFEC003F),
+      Color(0xFFC70036),
+      Color(0xFFA50036),
+      Color(0xFFEC003F),
+      Color(0xFF090304),
+    ),
+    (
+      Color(0xFFA50036),
+      Color(0xFFFFF1F2),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFFA1AD),
+      Color(0xFFFF2056),
+      Color(0xFFEC003F),
+      Color(0xFFC70036),
+      Color(0xFFA50036),
+      Color(0xFFFF2056),
+      Color(0xFF231A1B),
+    ),
+  ),
+  AshlarAccent.sky: (
+    (
+      Color(0xFF0069A8),
+      Color(0xFFF0F9FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF74D4FF),
+      Color(0xFF00A6F4),
+      Color(0xFF0084D1),
+      Color(0xFF0069A8),
+      Color(0xFF00598A),
+      Color(0xFF0084D1),
+      Color(0xFF10161B),
+    ),
+    (
+      Color(0xFF00598A),
+      Color(0xFFF0F9FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF74D4FF),
+      Color(0xFF00A6F4),
+      Color(0xFF0084D1),
+      Color(0xFF0069A8),
+      Color(0xFF00598A),
+      Color(0xFF00A6F4),
+      Color(0xFF052F4A),
+    ),
+  ),
+  AshlarAccent.teal: (
+    (
+      Color(0xFF00786F),
+      Color(0xFFF0FDFA),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFF46ECD5),
+      Color(0xFF00BBA7),
+      Color(0xFF009689),
+      Color(0xFF00786F),
+      Color(0xFF005F5A),
+      Color(0xFF009689),
+      Color(0xFF17201E),
+    ),
+    (
+      Color(0xFF005F5A),
+      Color(0xFFF0FDFA),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFF46ECD5),
+      Color(0xFF00BBA7),
+      Color(0xFF009689),
+      Color(0xFF00786F),
+      Color(0xFF005F5A),
+      Color(0xFF00BBA7),
+      Color(0xFF022F2E),
+    ),
+  ),
+  AshlarAccent.violet: (
+    (
+      Color(0xFF7008E7),
+      Color(0xFFF5F3FF),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFC4B4FF),
+      Color(0xFF8E51FF),
+      Color(0xFF7F22FE),
+      Color(0xFF7008E7),
+      Color(0xFF5D0EC0),
+      Color(0xFF7F22FE),
+      Color(0xFFF5F3FF),
+    ),
+    (
+      Color(0xFF5D0EC0),
+      Color(0xFFF5F3FF),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFC4B4FF),
+      Color(0xFF8E51FF),
+      Color(0xFF7F22FE),
+      Color(0xFF7008E7),
+      Color(0xFF5D0EC0),
+      Color(0xFF8E51FF),
+      Color(0xFF0A0910),
+    ),
+  ),
+  AshlarAccent.yellow: (
+    (
+      Color(0xFFFDC700),
+      Color(0xFF733E0A),
+      Color(0xFFF4F4F5),
+      Color(0xFF18181B),
+      Color(0xFFFFDF20),
+      Color(0xFFF0B100),
+      Color(0xFFD08700),
+      Color(0xFFA65F00),
+      Color(0xFF894B00),
+      Color(0xFFD08700),
+      Color(0xFF323021),
+    ),
+    (
+      Color(0xFFF0B100),
+      Color(0xFF733E0A),
+      Color(0xFF27272A),
+      Color(0xFFFAFAFA),
+      Color(0xFFFFDF20),
+      Color(0xFFF0B100),
+      Color(0xFFD08700),
+      Color(0xFFA65F00),
+      Color(0xFF894B00),
+      Color(0xFFF0B100),
+      Color(0xFF4D4C3B),
+    ),
+  ),
+};
 ''',
     },
   ),
@@ -932,7 +1963,7 @@ class Button extends StatelessWidget {
           ),
           ButtonVariant.link => (const Color(0x00000000), c.primary, null),
         };
-        final (double height, double padding, double gap) = switch (size) {
+        final (double standard, double padding, double gap) = switch (size) {
           ButtonSize.sm => (32.0, 12.0, 6.0),
           ButtonSize.md => (36.0, 16.0, 8.0),
           ButtonSize.lg => (40.0, 24.0, 8.0),
@@ -942,6 +1973,8 @@ class Button extends StatelessWidget {
           ButtonSize.iconSm => (32.0, 0.0, 0.0),
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
         };
+        // Taller or shorter with the theme's density.
+        final height = t.control(standard);
         final label = DefaultTextStyle.merge(
           style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
             color: fg,
@@ -1141,7 +2174,7 @@ class Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
-    final pad = size == CardSize.sm ? 16.0 : 24.0;
+    final pad = AshlarTheme.of(context).space(size == CardSize.sm ? 16 : 24);
     // An image at the top or the foot runs to the card's edges.
     final topImage = children.isNotEmpty && children.first is CardImage;
     final footImage = children.isNotEmpty && children.last is CardImage;
@@ -1540,7 +2573,9 @@ class _InputState extends State<Input>
             behavior: HitTestBehavior.translucent,
             child: AnimatedContainer(
               duration: t.duration,
-              constraints: BoxConstraints(minHeight: multiline ? 64 : 36),
+              constraints: BoxConstraints(
+                minHeight: multiline ? 64 : t.control(36),
+              ),
               padding: EdgeInsets.symmetric(
                 horizontal: widget.decorated ? 12 : 0,
                 vertical: multiline ? 8 : 0,
@@ -1945,7 +2980,7 @@ class Dialog extends StatelessWidget {
               namesRoute: true,
               explicitChildNodes: true,
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(t.space(24)),
                 decoration: BoxDecoration(
                   color: c.background,
                   borderRadius: BorderRadius.circular(t.radiusLg),
@@ -3386,7 +4421,7 @@ class _TabsState extends State<Tabs> {
                 opacity: state.enabled ? 1 : .5,
                 child: AnimatedContainer(
                   duration: t.duration,
-                  height: 36,
+                  height: t.control(36),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: across
                       ? Alignment.center
@@ -3495,7 +4530,7 @@ class _TabsState extends State<Tabs> {
           ),
         },
         child: Container(
-          height: across ? 36 : null,
+          height: across ? t.control(36) : null,
           padding: line ? EdgeInsets.zero : const EdgeInsets.all(3),
           decoration: line
               ? BoxDecoration(
@@ -3649,7 +4684,7 @@ class _PopoverState extends State<Popover> {
           autofocus: true,
           // Scrolls when the room beside the trigger is shorter than the content.
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(t.space(16)),
             child: DefaultTextStyle.merge(
               style: t.text.sm,
               child: Builder(builder: widget.content),
@@ -4793,7 +5828,7 @@ class _SelectState<T> extends State<Select<T>> {
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
-                height: widget.size == SelectSize.sm ? 32 : 36,
+                height: t.control(widget.size == SelectSize.sm ? 32 : 36),
                 padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
@@ -7329,11 +8364,11 @@ class Toggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final height = switch (size) {
+    final height = t.control(switch (size) {
       ToggleSize.sm => 32.0,
       ToggleSize.md => 36.0,
       ToggleSize.lg => 40.0,
-    };
+    });
     return Pressable(
       onPressed: onChanged == null ? null : () => onChanged!(!pressed),
       toggled: pressed,
@@ -8313,7 +9348,7 @@ class _HoverCardState extends State<HoverCard> {
           onExit: (_) => _hide(),
           // Sized to its content, scrolling if the room is shorter than that.
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(t.space(16)),
             child: DefaultTextStyle.merge(
               style: t.text.sm,
               child: Builder(builder: widget.content),
@@ -9713,8 +10748,8 @@ class _InputOtpState extends State<InputOtp> {
       return Builder(
         builder: (context) => AnimatedContainer(
           duration: t.duration,
-          width: 36,
-          height: 36,
+          width: t.control(36),
+          height: t.control(36),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: t.brightness == Brightness.dark
@@ -10751,7 +11786,7 @@ class _ComboboxState<T> extends State<Combobox<T>> {
             opacity: state.enabled ? 1 : .5,
             child: AnimatedContainer(
               duration: t.duration,
-              constraints: const BoxConstraints(minHeight: 36),
+              constraints: BoxConstraints(minHeight: t.control(36)),
               padding: EdgeInsetsDirectional.only(
                 start: _many && chosen.isNotEmpty ? 4 : 12,
                 end: 10,
@@ -11002,7 +12037,7 @@ class _MenubarState extends State<Menubar> {
       container: true,
       explicitChildNodes: true,
       child: Container(
-        height: 36,
+        height: t.control(36),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: c.background,
@@ -11208,7 +12243,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
               item.onPressed ?? () => open ? _menus[i].close() : _show(i),
           builder: (context, state) => AnimatedContainer(
             duration: t.duration,
-            height: 36,
+            height: t.control(36),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -12628,7 +13663,7 @@ class _DatePickerState extends State<DatePicker> {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            height: 36,
+            height: t.control(36),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: state.hovered ? c.accent : c.background,

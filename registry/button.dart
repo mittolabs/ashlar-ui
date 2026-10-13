@@ -132,7 +132,7 @@ class Button extends StatelessWidget {
           ),
           ButtonVariant.link => (const Color(0x00000000), c.primary, null),
         };
-        final (double height, double padding, double gap) = switch (size) {
+        final (double standard, double padding, double gap) = switch (size) {
           ButtonSize.sm => (32.0, 12.0, 6.0),
           ButtonSize.md => (36.0, 16.0, 8.0),
           ButtonSize.lg => (40.0, 24.0, 8.0),
@@ -142,6 +142,8 @@ class Button extends StatelessWidget {
           ButtonSize.iconSm => (32.0, 0.0, 0.0),
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
         };
+        // Taller or shorter with the theme's density.
+        final height = t.control(standard);
         final label = DefaultTextStyle.merge(
           style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
             color: fg,

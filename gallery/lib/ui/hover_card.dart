@@ -77,7 +77,7 @@ class _HoverCardState extends State<HoverCard> {
           onExit: (_) => _hide(),
           // Sized to its content, scrolling if the room is shorter than that.
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(t.space(16)),
             child: DefaultTextStyle.merge(
               style: t.text.sm,
               child: Builder(builder: widget.content),

@@ -101,7 +101,7 @@ class _NavigationMenuState extends State<NavigationMenu> {
               item.onPressed ?? () => open ? _menus[i].close() : _show(i),
           builder: (context, state) => AnimatedContainer(
             duration: t.duration,
-            height: 36,
+            height: t.control(36),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
