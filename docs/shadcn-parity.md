@@ -267,3 +267,22 @@ Three bets for being better than shadcn rather than a copy of it, in order:
 
 Then, done: `ashlar mcp`, the commands for coding agents over MCP (search, view, add,
 update, check), each running what a person would run. Checked with the MCP Inspector.
+
+## Past Widgetbook
+
+What a component catalog does, built into the site and the command, all done:
+
+- **Try its options**: 38 component pages have controls generated from the constructor,
+  with the code for what is chosen to copy. The other 27 are menus and popovers built
+  around their trigger, or not one widget; each is left out with its reason.
+- **How it is used**: each demo has switches for text at 200%, right to left and what a
+  screen reader is told. The last found that Input could not be opened by a screen reader;
+  the first, that 34 components cut their text at 200%. Both are fixed, and the site's
+  `make test` keeps every demo's text whole at 200%.
+- **`ashlar update --preview`** draws each component an update would change, in the app's
+  theme, before and after, changing nothing.
+- **`ashlar book`** writes a catalog of the app's own components, in its theme, to run
+  on any device.
+
+Not done: writing the catalog as Widgetbook use-cases, which needs the widgetbook package
+in the app; and a font choice at `ashlar init` (the theme's `AshlarText` sets it today).
