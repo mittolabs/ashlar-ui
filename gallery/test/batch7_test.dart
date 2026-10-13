@@ -121,12 +121,12 @@ void main() {
   });
 
   testWidgets(
-    'near the bottom of the screen, its list shrinks rather than overflow',
+    'in a short space, its list shrinks rather than overflow',
     (tester) async {
       await tester.pumpWidget(
         AshlarApp(
           home: Align(
-            alignment: const Alignment(0, .5),
+            alignment: Alignment.center,
             child: SizedBox(
               width: 240,
               child: Combobox<int>(
