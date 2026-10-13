@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'component.dart';
 import 'registry.g.dart';
 
 /// The version each pub.dev package a component needs is added at.
@@ -11,6 +12,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
 
   ashlar init [--path lib/ui]          set up the theme and AshlarApp
   ashlar add <component>... [--all]     copy components, with what they need
+             [--blocks]                 every block: whole screens, in lib/blocks
              [--overwrite]              replace files you already have
   ashlar list                           what there is, and what you have
 
@@ -40,7 +42,11 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       o.writeln('ashlar.json: components go in $path');
       return _add(root, ['theme', 'app'], overwrite: rest.contains('--overwrite'), out: o);
     case 'add':
-      final names = rest.contains('--all') ? registry.keys.toList() : rest.where((a) => !a.startsWith('--')).toList();
+      final names = [
+        if (rest.contains('--all')) ...registry.keys.where((n) => !registry[n]!.block),
+        if (rest.contains('--blocks')) ...registry.keys.where((n) => registry[n]!.block),
+        ...rest.where((a) => !a.startsWith('--')),
+      ];
       if (names.isEmpty) {
         o.writeln('Name a component to add, or --all. ashlar list shows them.');
         return 64;
@@ -52,10 +58,12 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       }
       return _add(root, names, overwrite: rest.contains('--overwrite'), out: o);
     case 'list':
-      final path = _path(root);
-      for (final MapEntry(key: name, value: c) in registry.entries) {
-        final have = c.files.keys.every((f) => File('${root.path}/$path/$f').existsSync());
-        o.writeln('${have ? '✓' : ' '} ${name.padRight(12)} ${c.description}');
+      for (final block in [false, true]) {
+        o.writeln(block ? '\nBlocks, whole screens:' : 'Components:');
+        for (final MapEntry(key: name, value: c) in registry.entries.where((e) => e.value.block == block)) {
+          final have = c.files.keys.every((f) => File('${root.path}/${_target(root, c, f)}').existsSync());
+          o.writeln('${have ? '✓' : ' '} ${name.padRight(14)} ${c.description}');
+        }
       }
       return 0;
     default:
@@ -64,10 +72,34 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
   }
 }
 
-String _path(Directory root) {
+Map<String, dynamic> _config(Directory root) {
   final config = File('${root.path}/ashlar.json');
-  if (!config.existsSync()) return 'lib/ui';
-  return (jsonDecode(config.readAsStringSync()) as Map<String, dynamic>)['path'] as String? ?? 'lib/ui';
+  return config.existsSync() ? jsonDecode(config.readAsStringSync()) as Map<String, dynamic> : const {};
+}
+
+/// Where components go, from the project root.
+String _path(Directory root) => _config(root)['path'] as String? ?? 'lib/ui';
+
+/// Where blocks go: ashlar.json's "blocks", or a blocks folder beside the components.
+String _blocks(Directory root) {
+  final set = _config(root)['blocks'] as String?;
+  if (set != null) return set;
+  final ui = _path(root).split('/')..removeLast();
+  return [...ui, 'blocks'].join('/');
+}
+
+/// Where [file] of [c] lands, from the project root.
+String _target(Directory root, Component c, String file) =>
+    c.block ? '${_blocks(root)}/${file.split('/').last}' : '${_path(root)}/$file';
+
+/// The way from folder [from] to folder [to], both from the project root.
+String _relative(String from, String to) {
+  final a = from.split('/'), b = to.split('/');
+  var same = 0;
+  while (same < a.length && same < b.length && a[same] == b[same]) {
+    same++;
+  }
+  return [for (var i = same; i < a.length; i++) '..', ...b.skip(same)].join('/');
 }
 
 /// The components named and every one they need, needed ones first.
@@ -87,19 +119,22 @@ List<String> resolve(List<String> names) {
 
 Future<int> _add(Directory root, List<String> names, {required bool overwrite, required StringSink out}) async {
   final path = _path(root);
-  Directory('${root.path}/$path').createSync(recursive: true);
+  // Blocks import components as '../ui/name.dart'; point them at where the components are.
+  final toUi = _relative(_blocks(root), path);
   final packages = <String>{};
   for (final name in resolve(names)) {
     final c = registry[name]!;
     packages.addAll(c.packages);
     for (final MapEntry(key: file, value: source) in c.files.entries) {
-      final target = File('${root.path}/$path/$file');
+      final at = _target(root, c, file);
+      final target = File('${root.path}/$at');
       if (target.existsSync() && !overwrite) {
-        out.writeln('  kept   $path/$file (yours; --overwrite replaces it)');
+        out.writeln('  kept   $at (yours; --overwrite replaces it)');
         continue;
       }
-      target.writeAsStringSync(source);
-      out.writeln('  wrote  $path/$file');
+      target.parent.createSync(recursive: true);
+      target.writeAsStringSync(c.block ? source.replaceAll("import '../ui/", "import '$toUi/") : source);
+      out.writeln('  wrote  $at');
     }
   }
   final pubspec = File('${root.path}/pubspec.yaml').readAsStringSync();

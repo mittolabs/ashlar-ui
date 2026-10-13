@@ -58,5 +58,16 @@
   "date-picker": { "description": "A button that shows a date and opens a calendar, with presets.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar", "select"], "packages": ["ashlar_icons"] },
   "chart": { "description": "Bar, line, area and pie charts, drawn here with no charting package.", "files": ["chart.dart"], "requires": ["theme"] },
   "sidebar": { "description": "An app's navigation down the side: variants, submenus, actions, a rail.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"], "packages": ["ashlar_icons"] },
-  "form": { "description": "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.", "files": ["form.dart"], "requires": ["field", "input"] }
+  "form": { "description": "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.", "files": ["form.dart"], "requires": ["field", "input"] },
+  "login-01": { "description": "A sign-in card in the middle of the page.", "files": ["blocks/login_01.dart"], "requires": ["button", "card", "form"], "block": true },
+  "login-02": { "description": "Sign in on one side, a picture on the other.", "files": ["blocks/login_02.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "login-03": { "description": "A sign-in card on a muted page, other accounts first.", "files": ["blocks/login_03.dart"], "requires": ["button", "card", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "login-04": { "description": "A sign-in card in two halves, the form and a picture.", "files": ["blocks/login_04.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "login-05": { "description": "Sign in with an email address alone.", "files": ["blocks/login_05.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "signup-01": { "description": "A sign-up card in the middle of the page.", "files": ["blocks/signup_01.dart"], "requires": ["button", "card", "form"], "block": true },
+  "signup-02": { "description": "Sign up on one side, a picture on the other.", "files": ["blocks/signup_02.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "signup-03": { "description": "A sign-up card on a muted page, other accounts first.", "files": ["blocks/signup_03.dart"], "requires": ["button", "card", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "signup-04": { "description": "A sign-up card in two halves, the form and a picture.", "files": ["blocks/signup_04.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "signup-05": { "description": "A sign-up page under a logo, other accounts below.", "files": ["blocks/signup_05.dart"], "requires": ["button", "form", "separator", "theme"], "packages": ["ashlar_icons"], "block": true },
+  "dashboard-01": { "description": "An app home: sidebar, header, four figures, a chart over time and a table.", "files": ["blocks/dashboard_01.dart"], "requires": ["avatar", "badge", "button", "card", "chart", "data-table", "dropdown-menu", "popover", "select", "separator", "sidebar", "tabs", "theme", "toggle-group"], "packages": ["ashlar_icons"], "block": true }
 }

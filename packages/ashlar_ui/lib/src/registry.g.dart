@@ -9,6 +9,7 @@ const registry = <String, Component>{
     description: "Colours, corners, text and motion, light and dark.",
     requires: [],
     packages: [],
+    block: false,
     files: {
       'theme.dart': r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
@@ -405,6 +406,7 @@ bool isRtl(BuildContext context) =>
     description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
     requires: ["theme","selection"],
     packages: [],
+    block: false,
     files: {
       'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
@@ -601,6 +603,7 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     description: "Hover, press, keyboard focus and activation, for every control.",
     requires: [],
     packages: [],
+    block: false,
     files: {
       'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
@@ -788,6 +791,7 @@ class _PressableState extends State<Pressable> {
     description: "Six variants and four sizes, with leading and trailing icons.",
     requires: ["theme","pressable","group"],
     packages: [],
+    block: false,
     files: {
       'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
@@ -1004,6 +1008,7 @@ class Button extends StatelessWidget {
     description: "A small label: a status, a count, a tag.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'badge.dart': r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
 
@@ -1096,6 +1101,7 @@ class Badge extends StatelessWidget {
     description: "A panel with a header, content and a footer.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'card.dart': r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
 
@@ -1312,6 +1318,7 @@ class CardFooter extends StatelessWidget {
     description: "A one-pixel line, across or down.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'separator.dart': r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
 
@@ -1348,6 +1355,7 @@ class Separator extends StatelessWidget {
     description: "A text field with selection handles and a cut, copy and paste menu.",
     requires: ["theme","selection"],
     packages: [],
+    block: false,
     files: {
       'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
@@ -1627,6 +1635,7 @@ class _InputState extends State<Input>
     description: "A box that is ticked or not.",
     requires: ["theme","pressable"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'checkbox.dart': r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
 
@@ -1733,6 +1742,7 @@ class Checkbox extends StatelessWidget {
     description: "An on and off switch.",
     requires: ["theme","pressable"],
     packages: [],
+    block: false,
     files: {
       'switch.dart': r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
 
@@ -1826,6 +1836,7 @@ class Switch extends StatelessWidget {
     description: "A modal panel over a dimmed page, with title, content and actions.",
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'dialog.dart': r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
 
@@ -2052,6 +2063,7 @@ class Dialog extends StatelessWidget {
     description: "The name of a control, above it or beside it.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
 
@@ -2097,6 +2109,7 @@ class Label extends StatelessWidget {
     description: "A control with its label, description and error, read out together.",
     requires: ["theme","label"],
     packages: [],
+    block: false,
     files: {
       'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
@@ -2351,6 +2364,7 @@ class FieldSeparator extends StatelessWidget {
     description: "A text field for several lines that grows with its text and drags taller.",
     requires: ["input","theme"],
     packages: [],
+    block: false,
     files: {
       'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
 
@@ -2511,6 +2525,7 @@ class _Grip extends CustomPainter {
     description: "A picture in a circle, with initials while it loads or when it fails.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
 
@@ -2736,6 +2751,7 @@ class AvatarGroup extends StatelessWidget {
     description: "A pulsing placeholder in the shape of content still loading.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
 
@@ -2811,6 +2827,7 @@ class _SkeletonState extends State<Skeleton>
     description: "A turning ring that says something is working.",
     requires: [],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
 
@@ -2874,6 +2891,7 @@ class _SpinnerState extends State<Spinner> with SingleTickerProviderStateMixin {
     description: "A notice, warning or error in the page, read out when it appears.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
 
@@ -2982,6 +3000,7 @@ class Alert extends StatelessWidget {
     description: "A keyboard key, for showing shortcuts.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
 
@@ -3047,6 +3066,7 @@ class Kbd extends StatelessWidget {
     description: "A choice of one, in Flutter's RadioGroup, with labels.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
 //
@@ -3218,6 +3238,7 @@ class _RadioState<T> extends State<Radio<T>> {
     description: "Views of one thing, one at a time, chosen from a row of tabs.",
     requires: ["theme","pressable"],
     packages: [],
+    block: false,
     files: {
       'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
 
@@ -3445,6 +3466,12 @@ class _TabsState extends State<Tabs> {
     ];
     final across = widget.axis == Axis.horizontal,
         line = widget.variant == TabsVariant.line;
+    Widget bar(Widget child) => Semantics(
+      role: SemanticsRole.tabBar,
+      container: true,
+      explicitChildNodes: true,
+      child: child,
+    );
     final list = Shortcuts(
       includeSemantics: false,
       shortcuts: widget.axis == Axis.horizontal
@@ -3475,33 +3502,36 @@ class _TabsState extends State<Tabs> {
                   color: c.muted,
                   borderRadius: BorderRadius.circular(t.radiusLg),
                 ),
-          child: Semantics(
-            role: SemanticsRole.tabBar,
-            container: true,
-            explicitChildNodes: true,
-            child: across
-                ? Row(
-                    mainAxisSize: widget.expand
-                        ? MainAxisSize.max
-                        : MainAxisSize.min,
-                    children: [
-                      for (final trigger in triggers)
-                        widget.expand ? Expanded(child: trigger) : trigger,
-                    ],
-                  )
-                : IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (i, trigger) in triggers.indexed) ...[
-                          if (i > 0 && !line) const SizedBox(height: 2),
-                          trigger,
-                        ],
-                      ],
-                    ),
+          // Tabs wider than the room scroll sideways, on a phone say; the tab bar sits
+          // inside the scrolling, so its tabs stay its own children.
+          child: across && !widget.expand
+              ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: bar(
+                    Row(mainAxisSize: MainAxisSize.min, children: triggers),
                   ),
-          ),
+                )
+              : bar(
+                  across
+                      ? Row(
+                          children: [
+                            for (final trigger in triggers)
+                              Expanded(child: trigger),
+                          ],
+                        )
+                      : IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (final (i, trigger) in triggers.indexed) ...[
+                                if (i > 0 && !line) const SizedBox(height: 2),
+                                trigger,
+                              ],
+                            ],
+                          ),
+                        ),
+                ),
         ),
       ),
     );
@@ -3545,6 +3575,7 @@ class _MoveIntent extends Intent {
     description: "A panel that opens from a trigger and floats over the page.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
 //
@@ -3905,6 +3936,7 @@ class PopoverHeader extends StatelessWidget {
     description: "A menu of actions from a trigger: checkbox and radio items, groups and submenus.",
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
@@ -4612,6 +4644,7 @@ class MenuSeparator extends StatelessWidget {
     description: "Picks one value from a list: groups, icons, type to find, and long lists.",
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
 
@@ -5164,6 +5197,7 @@ class _Option<T> extends StatelessWidget {
     description: "A short label over a control on hover, focus or long press.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
 //
@@ -5306,6 +5340,7 @@ class _TooltipState extends State<Tooltip> {
     description: "Short messages that go by themselves: types, promises and a stack.",
     requires: ["theme"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
 
@@ -5853,6 +5888,7 @@ class _TurningState extends State<_Turning>
     description: "Joins controls into one piece: Button Group and Toggle Group use it.",
     requires: [],
     packages: [],
+    block: false,
     files: {
       'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
 // Group; it is yours to change.
@@ -5956,6 +5992,7 @@ Border joinedBorder(BuildContext context, Color color) =>
     description: "Buttons joined into one piece, for actions that belong together.",
     requires: ["group"],
     packages: [],
+    block: false,
     files: {
       'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
 // to change.
@@ -6003,6 +6040,7 @@ class ButtonGroup extends StatelessWidget {
     description: "Headings, paragraphs, quotes and lists in the theme's type.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
 // change.
@@ -6291,6 +6329,7 @@ class TypographyTable extends StatelessWidget {
     description: "What to show when there is nothing here yet.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
 
@@ -6408,6 +6447,7 @@ class Empty extends StatelessWidget {
     description: "A row in a list: media, a title and description, and actions.",
     requires: ["theme","pressable"],
     packages: [],
+    block: false,
     files: {
       'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
 
@@ -6667,6 +6707,7 @@ class ItemSeparator extends StatelessWidget {
     description: "How far along something is, as a bar.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
 
@@ -6782,6 +6823,7 @@ class _ProgressState extends State<Progress>
     description: "Where a page sits, as links to the pages above it, folding long trails.",
     requires: ["theme","pressable","dropdown-menu"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
 // change.
@@ -6941,6 +6983,7 @@ class Breadcrumb extends StatelessWidget {
     description: "Content that opens and closes under a trigger.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
 // change.
@@ -7062,6 +7105,7 @@ class _CollapsibleState extends State<Collapsible>
     description: "Sections that open one at a time under their headings.",
     requires: ["theme","pressable","collapsible"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
 
@@ -7230,6 +7274,7 @@ class _AccordionState extends State<Accordion> {
     description: "A button that stays pressed: bold, italic, a filter.",
     requires: ["theme","pressable","group"],
     packages: [],
+    block: false,
     files: {
       'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
 
@@ -7336,6 +7381,7 @@ class Toggle extends StatelessWidget {
     description: "Toggles joined into one piece, one or several pressed.",
     requires: ["toggle","group"],
     packages: [],
+    block: false,
     files: {
       'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
 // change.
@@ -7486,6 +7532,7 @@ class ToggleGroup<T> extends StatelessWidget {
     description: "A value picked by dragging along a track, or with the arrow keys.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
 
@@ -7894,6 +7941,7 @@ class _EndIntent extends Intent {
     description: "Previous, page numbers and Next, for a long list.",
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
 // change.
@@ -8070,6 +8118,7 @@ class Pagination extends StatelessWidget {
     description: "A question that needs an answer before going on.",
     requires: ["dialog","button"],
     packages: [],
+    block: false,
     files: {
       'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
 // change.
@@ -8178,6 +8227,7 @@ class AlertDialog extends StatelessWidget {
     description: "A card that appears when the pointer rests on something.",
     requires: ["theme","popover"],
     packages: [],
+    block: false,
     files: {
       'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
 // change.
@@ -8293,6 +8343,7 @@ class _HoverCardState extends State<HoverCard> {
     description: "A menu that opens where something is right-clicked or long-pressed.",
     requires: ["popover","dropdown-menu"],
     packages: [],
+    block: false,
     files: {
       'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
 // change.
@@ -8412,6 +8463,7 @@ class _OpenIntent extends Intent {
     description: "Scrolling with a thin themed scrollbar; a builder for long lists.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
 // change.
@@ -8526,6 +8578,7 @@ class _ScrollAreaState extends State<ScrollArea> {
     description: "Rows of data under headings: sorting, row selection, and long data built as it scrolls.",
     requires: ["theme","pressable","checkbox"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
 // change. (Flutter's widgets layer has a Table for layout; this one is for data.)
@@ -8870,6 +8923,7 @@ class _RowState extends State<_Row> {
     description: "A panel that slides in from an edge of the screen.",
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
 
@@ -9112,6 +9166,7 @@ class Sheet extends StatelessWidget {
     description: "A panel that comes up from the bottom and drags away.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
 
@@ -9414,6 +9469,7 @@ class _DrawerState extends State<Drawer> {
     description: "A text field with text, buttons or a toolbar inside its border.",
     requires: ["theme","input"],
     packages: [],
+    block: false,
     files: {
       'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
 // change.
@@ -9556,6 +9612,7 @@ class _InputGroupState extends State<InputGroup> {
     description: "A one-time code, one character to a box.",
     requires: ["theme","group"],
     packages: [],
+    block: false,
     files: {
       'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
 
@@ -9789,6 +9846,7 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
     description: "Panels with handles between them that drag to resize.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
 
@@ -10029,6 +10087,7 @@ class _NudgeIntent extends Intent {
     description: "A search box over a list of things to do, picked with the keyboard.",
     requires: ["theme","input","dialog"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
@@ -10489,6 +10548,7 @@ Future<void> showCommandDialog({
     description: "A select you can search: one pick or several as chips, groups, clearing.",
     requires: ["theme","pressable","popover","command"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
 
@@ -10856,6 +10916,7 @@ class _Clear extends StatelessWidget {
     description: "A bar of menus, as at the top of a desktop app.",
     requires: ["theme","pressable","popover","dropdown-menu"],
     packages: [],
+    block: false,
     files: {
       'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
 
@@ -11037,6 +11098,7 @@ class _MenubarState extends State<Menubar> {
     description: "A site's main links, with panels that open from headings.",
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
 // yours to change.
@@ -11285,6 +11347,7 @@ class NavigationMenuLink extends StatelessWidget {
     description: "Slides moved by swiping, buttons, keys, a controller or by themselves.",
     requires: ["button"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
 
@@ -11532,6 +11595,7 @@ class _CarouselState extends State<Carousel> {
     description: "Selection handles and the cut, copy and paste menu.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
 // yours to change. The handles and the cut, copy and paste menu, for text fields and for
@@ -11715,6 +11779,7 @@ class AshlarSelectionMenu extends StatelessWidget {
     description: "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
     requires: ["theme","button","select"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
@@ -12394,6 +12459,7 @@ class _Nav extends StatelessWidget {
     description: "A button that shows a date and opens a calendar, with presets.",
     requires: ["theme","pressable","popover","calendar","select"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
 // change.
@@ -12599,6 +12665,7 @@ class _DatePickerState extends State<DatePicker> {
     description: "Bar, line, area and pie charts, drawn here with no charting package.",
     requires: ["theme"],
     packages: [],
+    block: false,
     files: {
       'chart.dart': r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
 //
@@ -13488,6 +13555,7 @@ class _Legend extends StatelessWidget {
     description: "An app's navigation down the side: variants, submenus, actions, a rail.",
     requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
     packages: ["ashlar_icons"],
+    block: false,
     files: {
       'sidebar.dart': r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
 
@@ -13553,18 +13621,36 @@ class SidebarItem {
 /// A titled run of [SidebarItem]s.
 @immutable
 class SidebarGroup {
-  const SidebarGroup(this.items, {this.label, this.action}) : loading = 0;
+  const SidebarGroup(this.items, {this.label, this.action, this.atEnd = false})
+    : loading = 0,
+      child = null;
 
   /// Rows still loading: [rows] placeholders in their place.
   const SidebarGroup.loading({this.label, int rows = 5})
     : items = const [],
       action = null,
+      atEnd = false,
+      child = null,
       loading = rows;
+
+  /// Anything else the sidebar holds: a calendar, a file tree, a card. Hidden while the
+  /// sidebar is collapsed to icons.
+  const SidebarGroup.custom(
+    Widget this.child, {
+    this.label,
+    this.action,
+    this.atEnd = false,
+  }) : items = const [],
+       loading = 0;
 
   final String? label;
   final List<SidebarItem> items;
   final SidebarAction? action;
   final int loading;
+  final Widget? child;
+
+  /// Kept at the bottom of the sidebar, above the footer, where help and settings go.
+  final bool atEnd;
 }
 
 /// How a sidebar gets out of the way.
@@ -13574,6 +13660,10 @@ enum SidebarCollapse {
 
   /// Off the side of the screen entirely.
   offcanvas,
+
+  /// It stays where it is beside the page: no rail, no shortcut. On a narrow screen it
+  /// is still hidden, and a [SidebarTrigger] slides it in.
+  none,
 }
 
 /// How a sidebar sits beside the page.
@@ -13655,7 +13745,8 @@ class SidebarLayoutState extends State<SidebarLayout> {
   late bool _own = widget.initiallyOpen;
   bool _narrow = false;
 
-  bool get open => widget.open ?? _own;
+  bool get open =>
+      widget.collapse == SidebarCollapse.none || (widget.open ?? _own);
 
   /// Opens or closes it; on a narrow screen, slides it in over the page.
   void toggle() {
@@ -13686,6 +13777,7 @@ class SidebarLayoutState extends State<SidebarLayout> {
       );
       return;
     }
+    if (widget.collapse == SidebarCollapse.none) return;
     if (widget.open == null) setState(() => _own = !_own);
     widget.onOpenChanged?.call(!open);
   }
@@ -13739,7 +13831,8 @@ class SidebarLayoutState extends State<SidebarLayout> {
               child: widget.child,
             )
           : widget.child;
-      final rail = widget.rail && !_narrow
+      final fixed = widget.collapse == SidebarCollapse.none;
+      final rail = widget.rail && !_narrow && !fixed
           ? _Rail(onPressed: toggle, start: widget.side == SidebarSide.start)
           : null;
       final row = [
@@ -13748,8 +13841,11 @@ class SidebarLayoutState extends State<SidebarLayout> {
       ];
       return CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.keyB, meta: true): toggle,
-          const SingleActivator(LogicalKeyboardKey.keyB, control: true): toggle,
+          if (!fixed) ...{
+            const SingleActivator(LogicalKeyboardKey.keyB, meta: true): toggle,
+            const SingleActivator(LogicalKeyboardKey.keyB, control: true):
+                toggle,
+          },
         },
         child: ColoredBox(
           color: widget.variant == SidebarVariant.inset
@@ -13866,28 +13962,20 @@ class _Panel extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (gi, g) in layout.groups.indexed) ...[
-                          if (gi > 0) const SizedBox(height: 16),
-                          if (g.label != null && !collapsed)
-                            _GroupLabel(group: g),
-                          if (g.loading > 0)
-                            for (var i = 0; i < g.loading; i++)
-                              _SkeletonRow(index: i, collapsed: collapsed)
-                          else
-                            for (final item in g.items)
-                              _Item(
-                                item: item,
-                                collapsed: collapsed,
-                                onPicked: onPicked,
-                              ),
-                        ],
-                      ],
+                    child: _groups(
+                      layout.groups.where((g) => !g.atEnd),
+                      collapsed,
                     ),
                   ),
                 ),
+                if (layout.groups.any((g) => g.atEnd))
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: _groups(
+                      layout.groups.where((g) => g.atEnd),
+                      collapsed,
+                    ),
+                  ),
                 if (layout.footer != null && !collapsed)
                   Padding(
                     padding: const EdgeInsets.all(8),
@@ -13900,6 +13988,27 @@ class _Panel extends StatelessWidget {
       ),
     );
   }
+}
+
+extension on _Panel {
+  Widget _groups(Iterable<SidebarGroup> groups, bool collapsed) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (gi, g) in groups.indexed)
+        if (g.child == null || !collapsed) ...[
+          if (gi > 0) const SizedBox(height: 16),
+          if (g.label != null && !collapsed) _GroupLabel(group: g),
+          if (g.child case final child?)
+            child
+          else if (g.loading > 0)
+            for (var i = 0; i < g.loading; i++)
+              _SkeletonRow(index: i, collapsed: collapsed)
+          else
+            for (final item in g.items)
+              _Item(item: item, collapsed: collapsed, onPicked: onPicked),
+        ],
+    ],
+  );
 }
 
 class _GroupLabel extends StatelessWidget {
@@ -14208,6 +14317,7 @@ class SidebarTrigger extends StatelessWidget {
     description: "Fields of a form drawn with their labels and errors, checked when it is sent, focus on the first wrong one.",
     requires: ["field","input"],
     packages: [],
+    block: false,
     files: {
       'form.dart': r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
 //
@@ -14517,6 +14627,2741 @@ extension FormSend on FormState {
             .firstOrNull;
     first?.focus();
     return false;
+  }
+}
+''',
+    },
+  ),
+  'login-01': Component(
+    description: "A sign-in card in the middle of the page.",
+    requires: ["button","card","form"],
+    packages: [],
+    block: true,
+    files: {
+      'blocks/login_01.dart': r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
+// change. A sign-in card in the middle of the page.
+
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/form.dart';
+
+/// A sign-in card: email and password, checked when sent.
+class Login01 extends StatefulWidget {
+  const Login01({
+    super.key,
+    this.onLogin,
+    this.onForgot,
+    this.onSignUp,
+    this.onGoogle,
+  });
+
+  /// Told the email and password once both are right.
+  final void Function(String email, String password)? onLogin;
+  final VoidCallback? onForgot, onSignUp, onGoogle;
+
+  @override
+  State<Login01> createState() => _Login01State();
+}
+
+class _Login01State extends State<Login01> {
+  final _form = GlobalKey<FormState>();
+  var _email = '', _password = '';
+
+  void _send() {
+    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 384),
+        child: Card(
+          children: [
+            const CardHeader(
+              title: Text('Login to your account'),
+              description: Text(
+                'Enter your email below to login to your account',
+              ),
+            ),
+            CardContent(
+              child: Form(
+                key: _form,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FormText(
+                      label: const Text('Email'),
+                      placeholder: 'you@solutech.co.ke',
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      validator: Validate.all([
+                        Validate.required('Enter your email.'),
+                        Validate.email(),
+                      ]),
+                      onSaved: (v) => _email = v!,
+                    ),
+                    const SizedBox(height: 24),
+                    FormText(
+                      label: const Text('Password'),
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      onSubmitted: (_) => _send(),
+                      validator: Validate.required('Enter your password.'),
+                      onSaved: (v) => _password = v!,
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Button(
+                        variant: ButtonVariant.link,
+                        onPressed: widget.onForgot,
+                        child: const Text('Forgot your password?'),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Button(
+                      expand: true,
+                      onPressed: _send,
+                      child: const Text('Login'),
+                    ),
+                    const SizedBox(height: 12),
+                    Button(
+                      expand: true,
+                      variant: ButtonVariant.outline,
+                      onPressed: widget.onGoogle,
+                      child: const Text('Login with Google'),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text("Don't have an account?"),
+                        Button(
+                          variant: ButtonVariant.link,
+                          onPressed: widget.onSignUp,
+                          child: const Text('Sign up'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'login-02': Component(
+    description: "Sign in on one side, a picture on the other.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/login_02.dart': r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
+// change. Two columns: the form on one side, a picture on the other. On a narrow screen
+// only the form shows.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-in page beside a picture.
+class Login02 extends StatefulWidget {
+  const Login02({
+    super.key,
+    this.picture,
+    this.onLogin,
+    this.onForgot,
+    this.onSignUp,
+    this.onGoogle,
+  });
+
+  /// Shown beside the form on a wide screen: `Image.asset('assets/login.jpg', fit: BoxFit.cover)`.
+  final Widget? picture;
+
+  /// Told the email and password once both are right.
+  final void Function(String email, String password)? onLogin;
+  final VoidCallback? onForgot, onSignUp, onGoogle;
+
+  @override
+  State<Login02> createState() => _Login02State();
+}
+
+class _Login02State extends State<Login02> {
+  final _form = GlobalKey<FormState>();
+  var _email = '', _password = '';
+
+  void _send() {
+    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final form = Form(
+      key: _form,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Login to your account',
+            textAlign: TextAlign.center,
+            style: t.text.xxl,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Enter your email below to login to your account',
+            textAlign: TextAlign.center,
+            style: t.text.sm.copyWith(color: c.mutedForeground),
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            label: const Text('Email'),
+            placeholder: 'you@solutech.co.ke',
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            validator: Validate.all([
+              Validate.required('Enter your email.'),
+              Validate.email(),
+            ]),
+            onSaved: (v) => _email = v!,
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            label: const Text('Password'),
+            obscureText: true,
+            autofillHints: const [AutofillHints.password],
+            onSubmitted: (_) => _send(),
+            validator: Validate.required('Enter your password.'),
+            onSaved: (v) => _password = v!,
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Button(
+              variant: ButtonVariant.link,
+              onPressed: widget.onForgot,
+              child: const Text('Forgot your password?'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Button(expand: true, onPressed: _send, child: const Text('Login')),
+          const SizedBox(height: 24),
+          const _Or(),
+          const SizedBox(height: 24),
+          Button(
+            expand: true,
+            variant: ButtonVariant.outline,
+            onPressed: widget.onGoogle,
+            child: const Text('Login with Google'),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text("Don't have an account?"),
+              Button(
+                variant: ButtonVariant.link,
+                onPressed: widget.onSignUp,
+                child: const Text('Sign up'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+    final side = Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _Logo(),
+          Expanded(
+            child: Center(
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: form,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth < 1024
+          ? side
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: side),
+                Expanded(
+                  child: ColoredBox(
+                    color: c.muted,
+                    child:
+                        widget.picture ??
+                        Center(
+                          child: AshlarIcon(
+                            AshlarIconsRoundedStroke.image,
+                            size: 48,
+                            color: c.mutedForeground,
+                          ),
+                        ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: c.primary,
+            borderRadius: BorderRadius.circular(t.radiusMd),
+          ),
+          child: AshlarIcon(
+            AshlarIconsRoundedStroke.galleryVerticalEnd,
+            size: 16,
+            color: c.primaryForeground,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Acme Inc.',
+          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'login-03': Component(
+    description: "A sign-in card on a muted page, other accounts first.",
+    requires: ["button","card","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/login_03.dart': r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
+// change. A sign-in card on a muted page: other accounts first, then email.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-in card with Apple and Google above the email form.
+class Login03 extends StatefulWidget {
+  const Login03({
+    super.key,
+    this.onLogin,
+    this.onForgot,
+    this.onSignUp,
+    this.onApple,
+    this.onGoogle,
+  });
+
+  /// Told the email and password once both are right.
+  final void Function(String email, String password)? onLogin;
+  final VoidCallback? onForgot, onSignUp, onApple, onGoogle;
+
+  @override
+  State<Login03> createState() => _Login03State();
+}
+
+class _Login03State extends State<Login03> {
+  final _form = GlobalKey<FormState>();
+  var _email = '', _password = '';
+
+  void _send() {
+    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return ColoredBox(
+      color: c.muted,
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 384),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(child: _Logo()),
+                const SizedBox(height: 24),
+                Card(
+                  children: [
+                    const CardHeader(
+                      title: Center(child: Text('Welcome back')),
+                      description: Center(
+                        child: Text('Login with your Apple or Google account'),
+                      ),
+                    ),
+                    CardContent(
+                      child: Form(
+                        key: _form,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Button(
+                              expand: true,
+                              variant: ButtonVariant.outline,
+                              leading: const AshlarIcon(
+                                AshlarIconsRoundedStroke.apple,
+                              ),
+                              onPressed: widget.onApple,
+                              child: const Text('Login with Apple'),
+                            ),
+                            const SizedBox(height: 12),
+                            Button(
+                              expand: true,
+                              variant: ButtonVariant.outline,
+                              onPressed: widget.onGoogle,
+                              child: const Text('Login with Google'),
+                            ),
+                            const SizedBox(height: 24),
+                            const _Or(),
+                            const SizedBox(height: 24),
+                            FormText(
+                              label: const Text('Email'),
+                              placeholder: 'you@solutech.co.ke',
+                              keyboardType: TextInputType.emailAddress,
+                              autofillHints: const [AutofillHints.email],
+                              validator: Validate.all([
+                                Validate.required('Enter your email.'),
+                                Validate.email(),
+                              ]),
+                              onSaved: (v) => _email = v!,
+                            ),
+                            const SizedBox(height: 24),
+                            FormText(
+                              label: const Text('Password'),
+                              obscureText: true,
+                              autofillHints: const [AutofillHints.password],
+                              onSubmitted: (_) => _send(),
+                              validator: Validate.required(
+                                'Enter your password.',
+                              ),
+                              onSaved: (v) => _password = v!,
+                            ),
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: Button(
+                                variant: ButtonVariant.link,
+                                onPressed: widget.onForgot,
+                                child: const Text('Forgot your password?'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Button(
+                              expand: true,
+                              onPressed: _send,
+                              child: const Text('Login'),
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                const Text("Don't have an account?"),
+                                Button(
+                                  variant: ButtonVariant.link,
+                                  onPressed: widget.onSignUp,
+                                  child: const Text('Sign up'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'By clicking continue, you agree to our Terms of Service and '
+                  'Privacy Policy.',
+                  textAlign: TextAlign.center,
+                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: c.primary,
+            borderRadius: BorderRadius.circular(t.radiusMd),
+          ),
+          child: AshlarIcon(
+            AshlarIconsRoundedStroke.galleryVerticalEnd,
+            size: 16,
+            color: c.primaryForeground,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Acme Inc.',
+          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'login-04': Component(
+    description: "A sign-in card in two halves, the form and a picture.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/login_04.dart': r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
+// change. One card in two halves: the form, and a picture beside it on a wide screen.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-in card with a picture in its second half.
+class Login04 extends StatefulWidget {
+  const Login04({
+    super.key,
+    this.picture,
+    this.onLogin,
+    this.onForgot,
+    this.onSignUp,
+    this.onApple,
+    this.onGoogle,
+    this.onMeta,
+  });
+
+  /// Shown in the card's second half on a wide screen.
+  final Widget? picture;
+
+  /// Told the email and password once both are right.
+  final void Function(String email, String password)? onLogin;
+  final VoidCallback? onForgot, onSignUp, onApple, onGoogle, onMeta;
+
+  @override
+  State<Login04> createState() => _Login04State();
+}
+
+class _Login04State extends State<Login04> {
+  final _form = GlobalKey<FormState>();
+  var _email = '', _password = '';
+
+  void _send() {
+    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final form = Padding(
+      padding: const EdgeInsets.all(32),
+      child: Form(
+        key: _form,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Welcome back',
+              textAlign: TextAlign.center,
+              style: t.text.xxl,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Login to your Acme Inc account',
+              textAlign: TextAlign.center,
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              label: const Text('Email'),
+              placeholder: 'you@solutech.co.ke',
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              validator: Validate.all([
+                Validate.required('Enter your email.'),
+                Validate.email(),
+              ]),
+              onSaved: (v) => _email = v!,
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              label: const Text('Password'),
+              obscureText: true,
+              autofillHints: const [AutofillHints.password],
+              onSubmitted: (_) => _send(),
+              validator: Validate.required('Enter your password.'),
+              onSaved: (v) => _password = v!,
+            ),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Button(
+                variant: ButtonVariant.link,
+                onPressed: widget.onForgot,
+                child: const Text('Forgot your password?'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Button(expand: true, onPressed: _send, child: const Text('Login')),
+            const SizedBox(height: 24),
+            const _Or(),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                for (final (i, (label, onPressed)) in [
+                  ('Apple', widget.onApple),
+                  ('Google', widget.onGoogle),
+                  ('Meta', widget.onMeta),
+                ].indexed) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  Expanded(
+                    child: Button(
+                      expand: true,
+                      variant: ButtonVariant.outline,
+                      semanticLabel: 'Login with $label',
+                      onPressed: onPressed,
+                      child: Text(label),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const Text("Don't have an account?"),
+                Button(
+                  variant: ButtonVariant.link,
+                  onPressed: widget.onSignUp,
+                  child: const Text('Sign up'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 768),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: c.card,
+                  borderRadius: BorderRadius.circular(t.radiusXl),
+                  border: Border.all(color: c.border),
+                  boxShadow: t.shadowSm,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, box) => box.maxWidth < 640
+                      ? form
+                      : IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(child: form),
+                              Expanded(
+                                child: ColoredBox(
+                                  color: c.muted,
+                                  child:
+                                      widget.picture ??
+                                      Center(
+                                        child: AshlarIcon(
+                                          AshlarIconsRoundedStroke.image,
+                                          size: 48,
+                                          color: c.mutedForeground,
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'By clicking continue, you agree to our Terms of Service and '
+                'Privacy Policy.',
+                textAlign: TextAlign.center,
+                style: t.text.xs.copyWith(color: c.mutedForeground),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'login-05': Component(
+    description: "Sign in with an email address alone.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/login_05.dart': r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
+// change. Email only, for a sign-in link sent by mail, with other accounts below.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-in page that asks only for an email address.
+class Login05 extends StatefulWidget {
+  const Login05({
+    super.key,
+    this.onLogin,
+    this.onSignUp,
+    this.onApple,
+    this.onGoogle,
+  });
+
+  /// Told the email once it is right: send the sign-in link to it.
+  final ValueChanged<String>? onLogin;
+  final VoidCallback? onSignUp, onApple, onGoogle;
+
+  @override
+  State<Login05> createState() => _Login05State();
+}
+
+class _Login05State extends State<Login05> {
+  final _form = GlobalKey<FormState>();
+  var _email = '';
+
+  void _send() {
+    if (_form.currentState!.submit()) widget.onLogin?.call(_email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 384),
+          child: Form(
+            key: _form,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: c.primary,
+                      borderRadius: BorderRadius.circular(t.radiusMd),
+                    ),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.galleryVerticalEnd,
+                      size: 20,
+                      color: c.primaryForeground,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Welcome to Acme Inc.',
+                  textAlign: TextAlign.center,
+                  style: t.text.xl.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    Button(
+                      variant: ButtonVariant.link,
+                      onPressed: widget.onSignUp,
+                      child: const Text('Sign up'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                FormText(
+                  label: const Text('Email'),
+                  placeholder: 'you@solutech.co.ke',
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  onSubmitted: (_) => _send(),
+                  validator: Validate.all([
+                    Validate.required('Enter your email.'),
+                    Validate.email(),
+                  ]),
+                  onSaved: (v) => _email = v!,
+                ),
+                const SizedBox(height: 24),
+                Button(
+                  expand: true,
+                  onPressed: _send,
+                  child: const Text('Login'),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    const Expanded(child: Separator()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        'Or',
+                        style: t.text.sm.copyWith(color: c.mutedForeground),
+                      ),
+                    ),
+                    const Expanded(child: Separator()),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Button(
+                        expand: true,
+                        variant: ButtonVariant.outline,
+                        leading: const AshlarIcon(
+                          AshlarIconsRoundedStroke.apple,
+                        ),
+                        onPressed: widget.onApple,
+                        child: const Text('Continue with Apple'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Button(
+                        expand: true,
+                        variant: ButtonVariant.outline,
+                        onPressed: widget.onGoogle,
+                        child: const Text('Continue with Google'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'By clicking continue, you agree to our Terms of Service and '
+                  'Privacy Policy.',
+                  textAlign: TextAlign.center,
+                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'signup-01': Component(
+    description: "A sign-up card in the middle of the page.",
+    requires: ["button","card","form"],
+    packages: [],
+    block: true,
+    files: {
+      'blocks/signup_01.dart': r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
+// change. A sign-up card in the middle of the page.
+
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/form.dart';
+
+/// A sign-up card: email and password, checked when sent.
+class Signup01 extends StatefulWidget {
+  const Signup01({super.key, this.onSignUp, this.onLogin, this.onGoogle});
+
+  /// Told the name, email and password once all are right.
+  final void Function(String name, String email, String password)? onSignUp;
+  final VoidCallback? onLogin, onGoogle;
+
+  @override
+  State<Signup01> createState() => _Signup01State();
+}
+
+class _Signup01State extends State<Signup01> {
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  var _name = '', _email = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (_form.currentState!.submit()) {
+      widget.onSignUp?.call(_name, _email, _password.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 384),
+        child: Card(
+          children: [
+            const CardHeader(
+              title: Text('Create your account'),
+              description: Text(
+                'Enter your details below to create your account',
+              ),
+            ),
+            CardContent(
+              child: Form(
+                key: _form,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FormText(
+                      label: const Text('Full Name'),
+                      placeholder: 'Wanjiru Kamau',
+                      autofillHints: const [AutofillHints.name],
+                      validator: Validate.required('Enter your name.'),
+                      onSaved: (v) => _name = v!,
+                    ),
+                    const SizedBox(height: 24),
+                    FormText(
+                      label: const Text('Email'),
+                      description: const Text(
+                        "We'll use this to contact you. We will not share your email with anyone else.",
+                      ),
+                      placeholder: 'you@solutech.co.ke',
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [AutofillHints.email],
+                      validator: Validate.all([
+                        Validate.required('Enter your email.'),
+                        Validate.email(),
+                      ]),
+                      onSaved: (v) => _email = v!,
+                    ),
+                    const SizedBox(height: 24),
+                    FormText(
+                      controller: _password,
+                      label: const Text('Password'),
+                      description: const Text(
+                        'Must be at least 8 characters long.',
+                      ),
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.newPassword],
+                      validator: Validate.all([
+                        Validate.required('Choose a password.'),
+                        Validate.minLength(8),
+                      ]),
+                    ),
+                    const SizedBox(height: 24),
+                    FormText(
+                      label: const Text('Confirm Password'),
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.newPassword],
+                      onSubmitted: (_) => _send(),
+                      validator: (v) => v == _password.text
+                          ? null
+                          : 'The passwords do not match.',
+                    ),
+                    const SizedBox(height: 24),
+                    Button(
+                      expand: true,
+                      onPressed: _send,
+                      child: const Text('Create Account'),
+                    ),
+                    const SizedBox(height: 12),
+                    Button(
+                      expand: true,
+                      variant: ButtonVariant.outline,
+                      onPressed: widget.onGoogle,
+                      child: const Text('Sign up with Google'),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text('Already have an account?'),
+                        Button(
+                          variant: ButtonVariant.link,
+                          onPressed: widget.onLogin,
+                          child: const Text('Sign in'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+''',
+    },
+  ),
+  'signup-02': Component(
+    description: "Sign up on one side, a picture on the other.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/signup_02.dart': r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
+// change. Two columns: the form on one side, a picture on the other. On a narrow screen
+// only the form shows.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-up page beside a picture.
+class Signup02 extends StatefulWidget {
+  const Signup02({
+    super.key,
+    this.picture,
+    this.onSignUp,
+    this.onLogin,
+    this.onGoogle,
+  });
+
+  /// Shown beside the form on a wide screen: `Image.asset('assets/signup.jpg', fit: BoxFit.cover)`.
+  final Widget? picture;
+
+  /// Told the name, email and password once all are right.
+  final void Function(String name, String email, String password)? onSignUp;
+  final VoidCallback? onLogin, onGoogle;
+
+  @override
+  State<Signup02> createState() => _Signup02State();
+}
+
+class _Signup02State extends State<Signup02> {
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  var _name = '', _email = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (_form.currentState!.submit()) {
+      widget.onSignUp?.call(_name, _email, _password.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final form = Form(
+      key: _form,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Create your account',
+            textAlign: TextAlign.center,
+            style: t.text.xxl,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Enter your details below to create your account',
+            textAlign: TextAlign.center,
+            style: t.text.sm.copyWith(color: c.mutedForeground),
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            label: const Text('Full Name'),
+            placeholder: 'Wanjiru Kamau',
+            autofillHints: const [AutofillHints.name],
+            validator: Validate.required('Enter your name.'),
+            onSaved: (v) => _name = v!,
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            label: const Text('Email'),
+            description: const Text(
+              "We'll use this to contact you. We will not share your email with anyone else.",
+            ),
+            placeholder: 'you@solutech.co.ke',
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            validator: Validate.all([
+              Validate.required('Enter your email.'),
+              Validate.email(),
+            ]),
+            onSaved: (v) => _email = v!,
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            controller: _password,
+            label: const Text('Password'),
+            description: const Text('Must be at least 8 characters long.'),
+            obscureText: true,
+            autofillHints: const [AutofillHints.newPassword],
+            validator: Validate.all([
+              Validate.required('Choose a password.'),
+              Validate.minLength(8),
+            ]),
+          ),
+          const SizedBox(height: 24),
+          FormText(
+            label: const Text('Confirm Password'),
+            obscureText: true,
+            autofillHints: const [AutofillHints.newPassword],
+            onSubmitted: (_) => _send(),
+            validator: (v) =>
+                v == _password.text ? null : 'The passwords do not match.',
+          ),
+          const SizedBox(height: 24),
+          Button(
+            expand: true,
+            onPressed: _send,
+            child: const Text('Create Account'),
+          ),
+          const SizedBox(height: 24),
+          const _Or(),
+          const SizedBox(height: 24),
+          Button(
+            expand: true,
+            variant: ButtonVariant.outline,
+            onPressed: widget.onGoogle,
+            child: const Text('Sign up with Google'),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text('Already have an account?'),
+              Button(
+                variant: ButtonVariant.link,
+                onPressed: widget.onLogin,
+                child: const Text('Sign in'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+    final side = Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _Logo(),
+          Expanded(
+            child: Center(
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: form,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, box) => box.maxWidth < 1024
+          ? side
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: side),
+                Expanded(
+                  child: ColoredBox(
+                    color: c.muted,
+                    child:
+                        widget.picture ??
+                        Center(
+                          child: AshlarIcon(
+                            AshlarIconsRoundedStroke.image,
+                            size: 48,
+                            color: c.mutedForeground,
+                          ),
+                        ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: c.primary,
+            borderRadius: BorderRadius.circular(t.radiusMd),
+          ),
+          child: AshlarIcon(
+            AshlarIconsRoundedStroke.galleryVerticalEnd,
+            size: 16,
+            color: c.primaryForeground,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Acme Inc.',
+          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'signup-03': Component(
+    description: "A sign-up card on a muted page, other accounts first.",
+    requires: ["button","card","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/signup_03.dart': r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
+// change. A sign-up card on a muted page: other accounts first, then email.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-up card with Apple and Google above the email form.
+class Signup03 extends StatefulWidget {
+  const Signup03({
+    super.key,
+    this.onSignUp,
+    this.onLogin,
+    this.onApple,
+    this.onGoogle,
+  });
+
+  /// Told the name, email and password once all are right.
+  final void Function(String name, String email, String password)? onSignUp;
+  final VoidCallback? onLogin, onApple, onGoogle;
+
+  @override
+  State<Signup03> createState() => _Signup03State();
+}
+
+class _Signup03State extends State<Signup03> {
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  var _name = '', _email = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (_form.currentState!.submit()) {
+      widget.onSignUp?.call(_name, _email, _password.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return ColoredBox(
+      color: c.muted,
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 384),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Center(child: _Logo()),
+                const SizedBox(height: 24),
+                Card(
+                  children: [
+                    const CardHeader(
+                      title: Center(child: Text('Create your account')),
+                      description: Center(
+                        child: Text(
+                          'Enter your details below to create your account',
+                        ),
+                      ),
+                    ),
+                    CardContent(
+                      child: Form(
+                        key: _form,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Button(
+                              expand: true,
+                              variant: ButtonVariant.outline,
+                              leading: const AshlarIcon(
+                                AshlarIconsRoundedStroke.apple,
+                              ),
+                              onPressed: widget.onApple,
+                              child: const Text('Sign up with Apple'),
+                            ),
+                            const SizedBox(height: 12),
+                            Button(
+                              expand: true,
+                              variant: ButtonVariant.outline,
+                              onPressed: widget.onGoogle,
+                              child: const Text('Sign up with Google'),
+                            ),
+                            const SizedBox(height: 24),
+                            const _Or(),
+                            const SizedBox(height: 24),
+                            FormText(
+                              label: const Text('Full Name'),
+                              placeholder: 'Wanjiru Kamau',
+                              autofillHints: const [AutofillHints.name],
+                              validator: Validate.required('Enter your name.'),
+                              onSaved: (v) => _name = v!,
+                            ),
+                            const SizedBox(height: 24),
+                            FormText(
+                              label: const Text('Email'),
+                              description: const Text(
+                                "We'll use this to contact you. We will not share your email with anyone else.",
+                              ),
+                              placeholder: 'you@solutech.co.ke',
+                              keyboardType: TextInputType.emailAddress,
+                              autofillHints: const [AutofillHints.email],
+                              validator: Validate.all([
+                                Validate.required('Enter your email.'),
+                                Validate.email(),
+                              ]),
+                              onSaved: (v) => _email = v!,
+                            ),
+                            const SizedBox(height: 24),
+                            FormText(
+                              controller: _password,
+                              label: const Text('Password'),
+                              description: const Text(
+                                'Must be at least 8 characters long.',
+                              ),
+                              obscureText: true,
+                              autofillHints: const [AutofillHints.newPassword],
+                              validator: Validate.all([
+                                Validate.required('Choose a password.'),
+                                Validate.minLength(8),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            FormText(
+                              label: const Text('Confirm Password'),
+                              obscureText: true,
+                              autofillHints: const [AutofillHints.newPassword],
+                              onSubmitted: (_) => _send(),
+                              validator: (v) => v == _password.text
+                                  ? null
+                                  : 'The passwords do not match.',
+                            ),
+                            const SizedBox(height: 24),
+                            Button(
+                              expand: true,
+                              onPressed: _send,
+                              child: const Text('Create Account'),
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                const Text('Already have an account?'),
+                                Button(
+                                  variant: ButtonVariant.link,
+                                  onPressed: widget.onLogin,
+                                  child: const Text('Sign in'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'By clicking continue, you agree to our Terms of Service and '
+                  'Privacy Policy.',
+                  textAlign: TextAlign.center,
+                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: c.primary,
+            borderRadius: BorderRadius.circular(t.radiusMd),
+          ),
+          child: AshlarIcon(
+            AshlarIconsRoundedStroke.galleryVerticalEnd,
+            size: 16,
+            color: c.primaryForeground,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Acme Inc.',
+          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'signup-04': Component(
+    description: "A sign-up card in two halves, the form and a picture.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/signup_04.dart': r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
+// change. One card in two halves: the form, and a picture beside it on a wide screen.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-up card with a picture in its second half.
+class Signup04 extends StatefulWidget {
+  const Signup04({
+    super.key,
+    this.picture,
+    this.onSignUp,
+    this.onLogin,
+    this.onApple,
+    this.onGoogle,
+    this.onMeta,
+  });
+
+  /// Shown in the card's second half on a wide screen.
+  final Widget? picture;
+
+  /// Told the name, email and password once all are right.
+  final void Function(String name, String email, String password)? onSignUp;
+  final VoidCallback? onLogin, onApple, onGoogle, onMeta;
+
+  @override
+  State<Signup04> createState() => _Signup04State();
+}
+
+class _Signup04State extends State<Signup04> {
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  var _name = '', _email = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (_form.currentState!.submit()) {
+      widget.onSignUp?.call(_name, _email, _password.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final form = Padding(
+      padding: const EdgeInsets.all(32),
+      child: Form(
+        key: _form,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Create your account',
+              textAlign: TextAlign.center,
+              style: t.text.xxl,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Enter your details below to create your account',
+              textAlign: TextAlign.center,
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              label: const Text('Full Name'),
+              placeholder: 'Wanjiru Kamau',
+              autofillHints: const [AutofillHints.name],
+              validator: Validate.required('Enter your name.'),
+              onSaved: (v) => _name = v!,
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              label: const Text('Email'),
+              description: const Text(
+                "We'll use this to contact you. We will not share your email with anyone else.",
+              ),
+              placeholder: 'you@solutech.co.ke',
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              validator: Validate.all([
+                Validate.required('Enter your email.'),
+                Validate.email(),
+              ]),
+              onSaved: (v) => _email = v!,
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              controller: _password,
+              label: const Text('Password'),
+              description: const Text('Must be at least 8 characters long.'),
+              obscureText: true,
+              autofillHints: const [AutofillHints.newPassword],
+              validator: Validate.all([
+                Validate.required('Choose a password.'),
+                Validate.minLength(8),
+              ]),
+            ),
+            const SizedBox(height: 24),
+            FormText(
+              label: const Text('Confirm Password'),
+              obscureText: true,
+              autofillHints: const [AutofillHints.newPassword],
+              onSubmitted: (_) => _send(),
+              validator: (v) =>
+                  v == _password.text ? null : 'The passwords do not match.',
+            ),
+            const SizedBox(height: 24),
+            Button(
+              expand: true,
+              onPressed: _send,
+              child: const Text('Create Account'),
+            ),
+            const SizedBox(height: 24),
+            const _Or(),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                for (final (i, (label, onPressed)) in [
+                  ('Apple', widget.onApple),
+                  ('Google', widget.onGoogle),
+                  ('Meta', widget.onMeta),
+                ].indexed) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  Expanded(
+                    child: Button(
+                      expand: true,
+                      variant: ButtonVariant.outline,
+                      semanticLabel: 'Sign up with $label',
+                      onPressed: onPressed,
+                      child: Text(label),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const Text('Already have an account?'),
+                Button(
+                  variant: ButtonVariant.link,
+                  onPressed: widget.onLogin,
+                  child: const Text('Sign in'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 768),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: c.card,
+                  borderRadius: BorderRadius.circular(t.radiusXl),
+                  border: Border.all(color: c.border),
+                  boxShadow: t.shadowSm,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, box) => box.maxWidth < 640
+                      ? form
+                      : IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(child: form),
+                              Expanded(
+                                child: ColoredBox(
+                                  color: c.muted,
+                                  child:
+                                      widget.picture ??
+                                      Center(
+                                        child: AshlarIcon(
+                                          AshlarIconsRoundedStroke.image,
+                                          size: 48,
+                                          color: c.mutedForeground,
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'By clicking continue, you agree to our Terms of Service and '
+                'Privacy Policy.',
+                textAlign: TextAlign.center,
+                style: t.text.xs.copyWith(color: c.mutedForeground),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A line with "Or continue with" across its middle.
+class _Or extends StatelessWidget {
+  const _Or();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Separator()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            'Or continue with',
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+          ),
+        ),
+        const Expanded(child: Separator()),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'signup-05': Component(
+    description: "A sign-up page under a logo, other accounts below.",
+    requires: ["button","form","separator","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/signup_05.dart': r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
+// change. The full sign-up form, with other accounts below.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/form.dart';
+import '../ui/separator.dart';
+import '../ui/theme.dart';
+
+/// A sign-up page under a logo, with other accounts below.
+class Signup05 extends StatefulWidget {
+  const Signup05({
+    super.key,
+    this.onSignUp,
+    this.onLogin,
+    this.onApple,
+    this.onGoogle,
+  });
+
+  /// Told the name, email and password once all are right.
+  final void Function(String name, String email, String password)? onSignUp;
+  final VoidCallback? onLogin, onApple, onGoogle;
+
+  @override
+  State<Signup05> createState() => _Signup05State();
+}
+
+class _Signup05State extends State<Signup05> {
+  final _form = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  var _name = '', _email = '';
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (_form.currentState!.submit()) {
+      widget.onSignUp?.call(_name, _email, _password.text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 384),
+          child: Form(
+            key: _form,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: c.primary,
+                      borderRadius: BorderRadius.circular(t.radiusMd),
+                    ),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.galleryVerticalEnd,
+                      size: 20,
+                      color: c.primaryForeground,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Create your account',
+                  textAlign: TextAlign.center,
+                  style: t.text.xl.copyWith(fontWeight: FontWeight.w700),
+                ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text('Already have an account?'),
+                    Button(
+                      variant: ButtonVariant.link,
+                      onPressed: widget.onLogin,
+                      child: const Text('Sign in'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                FormText(
+                  label: const Text('Full Name'),
+                  placeholder: 'Wanjiru Kamau',
+                  autofillHints: const [AutofillHints.name],
+                  validator: Validate.required('Enter your name.'),
+                  onSaved: (v) => _name = v!,
+                ),
+                const SizedBox(height: 24),
+                FormText(
+                  label: const Text('Email'),
+                  description: const Text(
+                    "We'll use this to contact you. We will not share your email with anyone else.",
+                  ),
+                  placeholder: 'you@solutech.co.ke',
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  validator: Validate.all([
+                    Validate.required('Enter your email.'),
+                    Validate.email(),
+                  ]),
+                  onSaved: (v) => _email = v!,
+                ),
+                const SizedBox(height: 24),
+                FormText(
+                  controller: _password,
+                  label: const Text('Password'),
+                  description: const Text(
+                    'Must be at least 8 characters long.',
+                  ),
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.newPassword],
+                  validator: Validate.all([
+                    Validate.required('Choose a password.'),
+                    Validate.minLength(8),
+                  ]),
+                ),
+                const SizedBox(height: 24),
+                FormText(
+                  label: const Text('Confirm Password'),
+                  obscureText: true,
+                  autofillHints: const [AutofillHints.newPassword],
+                  onSubmitted: (_) => _send(),
+                  validator: (v) => v == _password.text
+                      ? null
+                      : 'The passwords do not match.',
+                ),
+                const SizedBox(height: 24),
+                Button(
+                  expand: true,
+                  onPressed: _send,
+                  child: const Text('Create Account'),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    const Expanded(child: Separator()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        'Or',
+                        style: t.text.sm.copyWith(color: c.mutedForeground),
+                      ),
+                    ),
+                    const Expanded(child: Separator()),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Button(
+                        expand: true,
+                        variant: ButtonVariant.outline,
+                        leading: const AshlarIcon(
+                          AshlarIconsRoundedStroke.apple,
+                        ),
+                        onPressed: widget.onApple,
+                        child: const Text('Continue with Apple'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Button(
+                        expand: true,
+                        variant: ButtonVariant.outline,
+                        onPressed: widget.onGoogle,
+                        child: const Text('Continue with Google'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'By clicking continue, you agree to our Terms of Service and '
+                  'Privacy Policy.',
+                  textAlign: TextAlign.center,
+                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'dashboard-01': Component(
+    description: "An app home: sidebar, header, four figures, a chart over time and a table.",
+    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/dashboard_01.dart': r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
+// yours to change. An app's home: a sidebar, a header, four figures, a chart over time and
+// a table of documents.
+//
+// The figures, chart and rows are sample data, there to be replaced with yours.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/chart.dart';
+import '../ui/data_table.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/select.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/tabs.dart';
+import '../ui/theme.dart';
+import '../ui/toggle_group.dart';
+
+/// A dashboard: navigation down the side, the page set into it as a card.
+class Dashboard01 extends StatelessWidget {
+  const Dashboard01({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    variant: SidebarVariant.inset,
+    collapse: SidebarCollapse.offcanvas,
+    header: const _Brand(),
+    groups: [
+      const SidebarGroup.custom(_QuickCreate()),
+      SidebarGroup([
+        SidebarItem(
+          'Dashboard',
+          icon: AshlarIconsRoundedStroke.layoutDashboard,
+          active: true,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Lifecycle',
+          icon: AshlarIconsRoundedStroke.listChecks,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Analytics',
+          icon: AshlarIconsRoundedStroke.chartBar,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Projects',
+          icon: AshlarIconsRoundedStroke.folder,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Team',
+          icon: AshlarIconsRoundedStroke.users,
+          onPressed: () {},
+        ),
+      ]),
+      SidebarGroup(label: 'Documents', [
+        for (final (label, icon) in [
+          ('Data Library', AshlarIconsRoundedStroke.database),
+          ('Reports', AshlarIconsRoundedStroke.fileText),
+          ('Word Assistant', AshlarIconsRoundedStroke.file),
+        ])
+          SidebarItem(
+            label,
+            icon: icon,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $label',
+              onPressed: () {},
+            ),
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Settings',
+          icon: AshlarIconsRoundedStroke.settings,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Get Help',
+          icon: AshlarIconsRoundedStroke.circleQuestionMark,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Search',
+          icon: AshlarIconsRoundedStroke.search,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    footer: const _User(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _Header(title: 'Documents'),
+        const Separator(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: const [
+                _Figures(),
+                SizedBox(height: 24),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: _Visitors(),
+                ),
+                SizedBox(height: 24),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: _Documents(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _Brand extends StatelessWidget {
+  const _Brand();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          const AshlarIcon(AshlarIconsRoundedStroke.command, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Acme Inc.',
+            style: t.text.base.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickCreate extends StatelessWidget {
+  const _QuickCreate();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Button(
+          expand: true,
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circlePlus),
+          onPressed: () {},
+          child: const Text('Quick Create'),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Button(
+        variant: ButtonVariant.outline,
+        size: ButtonSize.icon,
+        semanticLabel: 'Inbox',
+        onPressed: () {},
+        child: const AshlarIcon(AshlarIconsRoundedStroke.inbox),
+      ),
+    ],
+  );
+}
+
+class _User extends StatelessWidget {
+  const _User();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Wanjiru Kamau',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'WK'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Wanjiru Kamau',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'wanjiru@solutech.co.ke',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
+          onPressed: () {},
+          child: const Text('Account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
+          onPressed: () {},
+          child: const Text('Billing'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return SizedBox(
+      height: 48,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          children: [
+            const SidebarTrigger(),
+            const SizedBox(width: 8),
+            const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: t.text.base.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Four figures, each with how it moved: four across, two, or one, as there is room.
+class _Figures extends StatelessWidget {
+  const _Figures();
+
+  static const _figures = [
+    (
+      'Total Revenue',
+      r'$1,250.00',
+      '+12.5%',
+      true,
+      'Trending up this month',
+      'Visitors for the last 6 months',
+    ),
+    (
+      'New Customers',
+      '1,234',
+      '-20%',
+      false,
+      'Down 20% this period',
+      'Acquisition needs attention',
+    ),
+    (
+      'Active Accounts',
+      '45,678',
+      '+12.5%',
+      true,
+      'Strong user retention',
+      'Engagement exceeds targets',
+    ),
+    (
+      'Growth Rate',
+      '4.5%',
+      '+4.5%',
+      true,
+      'Steady performance increase',
+      'Meets growth projections',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final across = box.maxWidth >= 1100 ? 4 : (box.maxWidth >= 640 ? 2 : 1);
+        const gap = 16.0;
+        final width = (box.maxWidth - 48 - gap * (across - 1)) / across;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final (label, value, change, up, line, note) in _figures)
+                SizedBox(
+                  width: width,
+                  child: Card(
+                    children: [
+                      CardHeader(
+                        description: Text(label),
+                        title: Text(value, style: t.text.xxl),
+                        action: Badge(
+                          variant: BadgeVariant.outline,
+                          leading: AshlarIcon(
+                            up
+                                ? AshlarIconsRoundedStroke.trendingUp
+                                : AshlarIconsRoundedStroke.trendingDown,
+                          ),
+                          child: Text(change),
+                        ),
+                      ),
+                      CardFooter(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        line,
+                                        style: t.text.sm.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    AshlarIcon(
+                                      up
+                                          ? AshlarIconsRoundedStroke.trendingUp
+                                          : AshlarIconsRoundedStroke
+                                                .trendingDown,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  note,
+                                  style: t.text.sm.copyWith(
+                                    color: c.mutedForeground,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Visitors over time, on desktop and mobile, for a range picked at the top.
+class _Visitors extends StatefulWidget {
+  const _Visitors();
+
+  @override
+  State<_Visitors> createState() => _VisitorsState();
+}
+
+class _VisitorsState extends State<_Visitors> {
+  var _range = 90;
+
+  static const _ranges = [
+    (90, 'Last 3 months'),
+    (30, 'Last 30 days'),
+    (7, 'Last 7 days'),
+  ];
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+
+  // Sample visits: a day's count for each of the last 91 days, ending 30 June.
+  static int _desktop(int day) =>
+      160 + (day * 53) % 240 + (day % 7 == 5 ? 90 : 0);
+  static int _mobile(int day) =>
+      110 + (day * 37) % 200 + (day % 7 == 6 ? 60 : 0);
+
+  @override
+  Widget build(BuildContext context) {
+    final end = DateTime(2026, 6, 30);
+    // A point a week for three months, every other day for 30 days, daily for 7.
+    final step = switch (_range) {
+      90 => 7,
+      30 => 2,
+      _ => 1,
+    };
+    final days = [
+      for (var back = _range - 1; back >= 0; back -= step)
+        end.subtract(Duration(days: back)),
+    ];
+    int sum(int Function(int) count, DateTime d) =>
+        [for (var i = 0; i < step; i++) count(d.day + d.month * 31 + i)]
+            .fold(0, (a, b) => a + b);
+    final narrow = MediaQuery.sizeOf(context).width < 640;
+    return Card(
+      children: [
+        CardHeader(
+          title: const Text('Total Visitors'),
+          description: Text(switch (_range) {
+            90 => 'Total for the last 3 months',
+            30 => 'Total for the last 30 days',
+            _ => 'Total for the last 7 days',
+          }),
+          // Buttons where there is room, a select where there is not.
+          action: narrow
+              ? SizedBox(
+                  width: 150,
+                  child: Select<int>(
+                    value: _range,
+                    size: SelectSize.sm,
+                    semanticLabel: 'Range',
+                    options: [for (final (v, l) in _ranges) SelectOption(v, l)],
+                    onChanged: (v) => setState(() => _range = v),
+                  ),
+                )
+              : ToggleGroup<int>(
+                  values: {_range},
+                  semanticLabel: 'Range',
+                  onChanged: (v) {
+                    if (v.isNotEmpty) setState(() => _range = v.first);
+                  },
+                  items: [
+                    for (final (v, l) in _ranges) ToggleGroupItem(v, Text(l)),
+                  ],
+                ),
+        ),
+        CardContent(
+          child: AreaChart(
+            semanticLabel: 'Visitors by day',
+            stacked: true,
+            labels: [for (final d in days) '${_months[d.month - 1]} ${d.day}'],
+            series: [
+              ChartSeries('Desktop', [
+                for (final d in days) sum(_desktop, d).toDouble(),
+              ]),
+              ChartSeries('Mobile', [
+                for (final d in days) sum(_mobile, d).toDouble(),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The documents, by tab: the outline as a table, the rest waiting for content.
+class _Documents extends StatefulWidget {
+  const _Documents();
+
+  @override
+  State<_Documents> createState() => _DocumentsState();
+}
+
+class _DocumentsState extends State<_Documents> {
+  var _picked = <int>{};
+
+  static const _rows = [
+    ('Cover page', 'Cover page', 'In Process', 18, 5, 'Eddie Lake'),
+    ('Table of contents', 'Table of contents', 'Done', 29, 24, 'Eddie Lake'),
+    ('Executive summary', 'Narrative', 'Done', 10, 13, 'Eddie Lake'),
+    ('Technical approach', 'Narrative', 'Done', 27, 23, 'Jamik Tashpulatov'),
+    ('Design', 'Narrative', 'In Process', 2, 16, 'Jamik Tashpulatov'),
+    ('Capabilities', 'Narrative', 'In Process', 20, 8, 'Jamik Tashpulatov'),
+    (
+      'Integration with existing systems',
+      'Narrative',
+      'In Process',
+      19,
+      21,
+      'Jamik Tashpulatov',
+    ),
+    (
+      'Innovation and advantages',
+      'Narrative',
+      'Done',
+      25,
+      26,
+      'Assign reviewer',
+    ),
+    (
+      'Overview of EMR system',
+      'Technical content',
+      'Done',
+      7,
+      23,
+      'Assign reviewer',
+    ),
+    ('Risk management plan', 'Narrative', 'Done', 22, 15, 'Assign reviewer'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget waiting(String what) => Container(
+      height: 240,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Text(
+        'No $what yet.',
+        style: t.text.sm.copyWith(color: c.mutedForeground),
+      ),
+    );
+    return Tabs(
+      variant: TabsVariant.line,
+      tabs: [
+        TabItem(
+          label: const Text('Outline'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: DataTable(
+              selected: _picked,
+              onSelectChanged: (s) => setState(() => _picked = s),
+              columns: const [
+                DataColumn(Text('Header'), flex: 3),
+                DataColumn(Text('Section Type'), flex: 2),
+                DataColumn(Text('Status'), flex: 2),
+                DataColumn(Text('Target'), numeric: true),
+                DataColumn(Text('Limit'), numeric: true),
+                DataColumn(Text('Reviewer'), flex: 2),
+              ],
+              rows: [
+                for (final (header, type, status, target, limit, reviewer)
+                    in _rows)
+                  [
+                    Text(
+                      header,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Badge(
+                        variant: BadgeVariant.outline,
+                        child: Text(type, overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Badge(
+                        variant: BadgeVariant.outline,
+                        leading: AshlarIcon(
+                          status == 'Done'
+                              ? AshlarIconsRoundedStroke.check
+                              : AshlarIconsRoundedStroke.clock,
+                        ),
+                        child: Text(status),
+                      ),
+                    ),
+                    Text('$target'),
+                    Text('$limit'),
+                    Text(
+                      reviewer,
+                      overflow: TextOverflow.ellipsis,
+                      style: reviewer == 'Assign reviewer'
+                          ? t.text.sm.copyWith(color: c.mutedForeground)
+                          : null,
+                    ),
+                  ],
+              ],
+            ),
+          ),
+        ),
+        TabItem(
+          label: const Text('Past Performance'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: waiting('past performance'),
+          ),
+        ),
+        TabItem(
+          label: const Text('Key Personnel'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: waiting('key personnel'),
+          ),
+        ),
+        TabItem(
+          label: const Text('Focus Documents'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: waiting('focus documents'),
+          ),
+        ),
+      ],
+    );
   }
 }
 ''',

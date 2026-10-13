@@ -1,0 +1,13 @@
+{
+  "dashboard-01": "An app home: sidebar, header, four figures, a chart over time and a table.",
+  "login-01": "A sign-in card in the middle of the page.",
+  "login-02": "Sign in on one side, a picture on the other.",
+  "login-03": "A sign-in card on a muted page, other accounts first.",
+  "login-04": "A sign-in card in two halves, the form and a picture.",
+  "login-05": "Sign in with an email address alone.",
+  "signup-01": "A sign-up card in the middle of the page.",
+  "signup-02": "Sign up on one side, a picture on the other.",
+  "signup-03": "A sign-up card on a muted page, other accounts first.",
+  "signup-04": "A sign-up card in two halves, the form and a picture.",
+  "signup-05": "A sign-up page under a logo, other accounts below."
+}

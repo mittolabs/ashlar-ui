@@ -224,6 +224,12 @@ class _TabsState extends State<Tabs> {
     ];
     final across = widget.axis == Axis.horizontal,
         line = widget.variant == TabsVariant.line;
+    Widget bar(Widget child) => Semantics(
+      role: SemanticsRole.tabBar,
+      container: true,
+      explicitChildNodes: true,
+      child: child,
+    );
     final list = Shortcuts(
       includeSemantics: false,
       shortcuts: widget.axis == Axis.horizontal
@@ -254,33 +260,36 @@ class _TabsState extends State<Tabs> {
                   color: c.muted,
                   borderRadius: BorderRadius.circular(t.radiusLg),
                 ),
-          child: Semantics(
-            role: SemanticsRole.tabBar,
-            container: true,
-            explicitChildNodes: true,
-            child: across
-                ? Row(
-                    mainAxisSize: widget.expand
-                        ? MainAxisSize.max
-                        : MainAxisSize.min,
-                    children: [
-                      for (final trigger in triggers)
-                        widget.expand ? Expanded(child: trigger) : trigger,
-                    ],
-                  )
-                : IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (i, trigger) in triggers.indexed) ...[
-                          if (i > 0 && !line) const SizedBox(height: 2),
-                          trigger,
-                        ],
-                      ],
-                    ),
+          // Tabs wider than the room scroll sideways, on a phone say; the tab bar sits
+          // inside the scrolling, so its tabs stay its own children.
+          child: across && !widget.expand
+              ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: bar(
+                    Row(mainAxisSize: MainAxisSize.min, children: triggers),
                   ),
-          ),
+                )
+              : bar(
+                  across
+                      ? Row(
+                          children: [
+                            for (final trigger in triggers)
+                              Expanded(child: trigger),
+                          ],
+                        )
+                      : IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (final (i, trigger) in triggers.indexed) ...[
+                                if (i > 0 && !line) const SizedBox(height: 2),
+                                trigger,
+                              ],
+                            ],
+                          ),
+                        ),
+                ),
         ),
       ),
     );

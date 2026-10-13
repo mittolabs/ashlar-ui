@@ -62,18 +62,36 @@ class SidebarItem {
 /// A titled run of [SidebarItem]s.
 @immutable
 class SidebarGroup {
-  const SidebarGroup(this.items, {this.label, this.action}) : loading = 0;
+  const SidebarGroup(this.items, {this.label, this.action, this.atEnd = false})
+    : loading = 0,
+      child = null;
 
   /// Rows still loading: [rows] placeholders in their place.
   const SidebarGroup.loading({this.label, int rows = 5})
     : items = const [],
       action = null,
+      atEnd = false,
+      child = null,
       loading = rows;
+
+  /// Anything else the sidebar holds: a calendar, a file tree, a card. Hidden while the
+  /// sidebar is collapsed to icons.
+  const SidebarGroup.custom(
+    Widget this.child, {
+    this.label,
+    this.action,
+    this.atEnd = false,
+  }) : items = const [],
+       loading = 0;
 
   final String? label;
   final List<SidebarItem> items;
   final SidebarAction? action;
   final int loading;
+  final Widget? child;
+
+  /// Kept at the bottom of the sidebar, above the footer, where help and settings go.
+  final bool atEnd;
 }
 
 /// How a sidebar gets out of the way.
@@ -83,6 +101,10 @@ enum SidebarCollapse {
 
   /// Off the side of the screen entirely.
   offcanvas,
+
+  /// It stays where it is beside the page: no rail, no shortcut. On a narrow screen it
+  /// is still hidden, and a [SidebarTrigger] slides it in.
+  none,
 }
 
 /// How a sidebar sits beside the page.
@@ -164,7 +186,8 @@ class SidebarLayoutState extends State<SidebarLayout> {
   late bool _own = widget.initiallyOpen;
   bool _narrow = false;
 
-  bool get open => widget.open ?? _own;
+  bool get open =>
+      widget.collapse == SidebarCollapse.none || (widget.open ?? _own);
 
   /// Opens or closes it; on a narrow screen, slides it in over the page.
   void toggle() {
@@ -195,6 +218,7 @@ class SidebarLayoutState extends State<SidebarLayout> {
       );
       return;
     }
+    if (widget.collapse == SidebarCollapse.none) return;
     if (widget.open == null) setState(() => _own = !_own);
     widget.onOpenChanged?.call(!open);
   }
@@ -248,7 +272,8 @@ class SidebarLayoutState extends State<SidebarLayout> {
               child: widget.child,
             )
           : widget.child;
-      final rail = widget.rail && !_narrow
+      final fixed = widget.collapse == SidebarCollapse.none;
+      final rail = widget.rail && !_narrow && !fixed
           ? _Rail(onPressed: toggle, start: widget.side == SidebarSide.start)
           : null;
       final row = [
@@ -257,8 +282,11 @@ class SidebarLayoutState extends State<SidebarLayout> {
       ];
       return CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.keyB, meta: true): toggle,
-          const SingleActivator(LogicalKeyboardKey.keyB, control: true): toggle,
+          if (!fixed) ...{
+            const SingleActivator(LogicalKeyboardKey.keyB, meta: true): toggle,
+            const SingleActivator(LogicalKeyboardKey.keyB, control: true):
+                toggle,
+          },
         },
         child: ColoredBox(
           color: widget.variant == SidebarVariant.inset
@@ -375,28 +403,20 @@ class _Panel extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (gi, g) in layout.groups.indexed) ...[
-                          if (gi > 0) const SizedBox(height: 16),
-                          if (g.label != null && !collapsed)
-                            _GroupLabel(group: g),
-                          if (g.loading > 0)
-                            for (var i = 0; i < g.loading; i++)
-                              _SkeletonRow(index: i, collapsed: collapsed)
-                          else
-                            for (final item in g.items)
-                              _Item(
-                                item: item,
-                                collapsed: collapsed,
-                                onPicked: onPicked,
-                              ),
-                        ],
-                      ],
+                    child: _groups(
+                      layout.groups.where((g) => !g.atEnd),
+                      collapsed,
                     ),
                   ),
                 ),
+                if (layout.groups.any((g) => g.atEnd))
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: _groups(
+                      layout.groups.where((g) => g.atEnd),
+                      collapsed,
+                    ),
+                  ),
                 if (layout.footer != null && !collapsed)
                   Padding(
                     padding: const EdgeInsets.all(8),
@@ -409,6 +429,27 @@ class _Panel extends StatelessWidget {
       ),
     );
   }
+}
+
+extension on _Panel {
+  Widget _groups(Iterable<SidebarGroup> groups, bool collapsed) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final (gi, g) in groups.indexed)
+        if (g.child == null || !collapsed) ...[
+          if (gi > 0) const SizedBox(height: 16),
+          if (g.label != null && !collapsed) _GroupLabel(group: g),
+          if (g.child case final child?)
+            child
+          else if (g.loading > 0)
+            for (var i = 0; i < g.loading; i++)
+              _SkeletonRow(index: i, collapsed: collapsed)
+          else
+            for (final item in g.items)
+              _Item(item: item, collapsed: collapsed, onPicked: onPicked),
+        ],
+    ],
+  );
 }
 
 class _GroupLabel extends StatelessWidget {

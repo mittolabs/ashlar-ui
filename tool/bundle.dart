@@ -20,6 +20,7 @@ void main() {
       ..writeln('    description: ${jsonEncode(spec['description'])},')
       ..writeln('    requires: ${jsonEncode(spec['requires'] ?? [])},')
       ..writeln('    packages: ${jsonEncode(spec['packages'] ?? [])},')
+      ..writeln('    block: ${spec['block'] == true},')
       ..writeln('    files: {');
     for (final file in (spec['files'] as List).cast<String>()) {
       final source = File('registry/$file').readAsStringSync();
@@ -31,7 +32,8 @@ void main() {
   }
   out.writeln('};');
   File('packages/ashlar_ui/lib/src/registry.g.dart').writeAsStringSync(out.toString());
-  stdout.writeln('bundled ${manifest.length} components');
+  final blocks = manifest.values.where((s) => (s as Map)['block'] == true).length;
+  stdout.writeln('bundled ${manifest.length - blocks} components and $blocks blocks');
 }
 
 // A raw string that can hold any source: triple quotes cannot appear in our sources.
