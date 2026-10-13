@@ -253,12 +253,17 @@ Three bets for being better than shadcn rather than a copy of it, in order:
    - Touch: a long press opens a hover card; the select list matches its trigger's width.
    - Phone patterns, each reachable without its gesture: Swipe Actions, Pull to Refresh
      (holds a bouncing list under the spinner) and Bottom Bar (above the home indicator).
-3. **Quality you can check.** Next:
-   - `ashlar add` copies each component's tests along with it, so your edits are checked
-     against what the component promised.
-   - `ashlar check` reads your app and reports what it can prove: theme contrast below
-     WCAG AA, controls without a label, targets below the platform minimum, and left and
-     right where start and end belong.
+3. **Quality you can check.** Done:
+   - `ashlar add` writes each component's tests to `test/ashlar`, importing it from the
+     app: 53 components carry 207 tests. A change that breaks a promise fails its test.
+   - `ashlar check` measures the app's theme for contrast in a flutter test and finds in
+     its source icon-only controls without a label, physical left and right where start
+     and end belong, and touch targets turned off. It says what it cannot check.
+   - Measuring found two failures in every one of our 252 themes, now fixed and held by a
+     test: white on the dark destructive red (2.89:1) and the light focus ring (2.3 to
+     2.6:1). It found two right-to-left mistakes in the site's data table demo, fixed.
+   - Open: field borders are 1.2 to 1.5:1 in every theme, as shadcn's are, under the 3:1
+     WCAG 1.4.11 asks of a field's outline. Darker borders change the look; undecided.
 
 Later: an MCP server, so coding agents can search, view and add components with the same
 API reference the site shows.
