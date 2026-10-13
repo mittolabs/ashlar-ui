@@ -30,13 +30,24 @@ class Switch extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Whether it is on.
   final bool value;
 
   /// Null disables the switch.
   final ValueChanged<bool>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
+
+  /// Medium, or small to sit in a dense row.
   final SwitchSize size;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override

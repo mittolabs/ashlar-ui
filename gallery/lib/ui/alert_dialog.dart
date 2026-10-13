@@ -54,9 +54,19 @@ class AlertDialog extends StatelessWidget {
     this.small = false,
   });
 
+  /// The question or warning.
   final String title;
+
+  /// What happens next, in a line or two.
   final String? description;
-  final String cancel, action;
+
+  /// The button that does not.
+  final String cancel;
+
+  /// The button that does it.
+  final String action;
+
+  /// Draws the action in the destructive colour, for what cannot be undone.
   final bool destructive;
 
   /// An icon above the title, on a muted circle.

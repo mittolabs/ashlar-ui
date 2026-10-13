@@ -30,11 +30,25 @@ class HoverCard extends StatefulWidget {
     this.width = 256,
   });
 
+  /// What is hovered or focused to open it.
   final Widget child;
+
+  /// What the card shows.
   final WidgetBuilder content;
-  final Duration openDelay, closeDelay;
+
+  /// How long the pointer rests before it opens.
+  final Duration openDelay;
+
+  /// How long it stays after the pointer leaves, so the pointer can reach it.
+  final Duration closeDelay;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
+
+  /// Its width, in logical pixels.
   final double width;
 
   @override

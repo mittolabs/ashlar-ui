@@ -35,12 +35,23 @@ class Popover extends StatefulWidget {
     this.width = 288,
   });
 
+  /// Builds what opens it, given a controller to open and close it with.
   final Widget Function(BuildContext context, MenuController controller)
   builder;
+
+  /// Builds what the panel shows.
   final WidgetBuilder content;
+
+  /// Opens and closes it from outside; one is made when not given.
   final MenuController? controller;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
+
+  /// How wide the panel is.
   final double width;
 
   @override
@@ -92,13 +103,22 @@ class PopoverPanel extends StatelessWidget {
     this.gap = 4,
   });
 
+  /// Where it opens: the rectangle of what opened it, and the room around.
   final RawMenuOverlayInfo info;
+
+  /// What the panel shows.
   final Widget child;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
 
   /// Null sizes the panel to its content.
   final double? width;
+
+  /// The narrowest it is; as wide as what opened it, at least, when not given.
   final double minWidth;
 
   /// At least as wide as the trigger.
@@ -319,7 +339,10 @@ class _Entrance extends StatelessWidget {
 class PopoverHeader extends StatelessWidget {
   const PopoverHeader({super.key, required this.title, this.description});
 
+  /// The panel's title.
   final Widget title;
+
+  /// A line under the title.
   final Widget? description;
 
   @override

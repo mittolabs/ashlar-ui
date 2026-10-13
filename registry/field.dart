@@ -30,12 +30,20 @@ class Field extends StatelessWidget {
     this.onPressed,
   });
 
+  /// The control: an Input, a Select, a Checkbox.
   final Widget child;
+
+  /// Names the control: above it, or beside it when across.
   final Widget? label;
+
+  /// Under the control: what it is for.
   final Widget? description;
 
   /// Shown under the description in the destructive colour, and read out with the field.
   final Widget? error;
+
+  /// Vertical puts the label above; horizontal puts the control first and the label
+  /// beside it.
   final Axis axis;
 
   /// False fades the label and description with the control.
@@ -47,7 +55,11 @@ class Field extends StatelessWidget {
   /// Drawn as a card to choose: a border round label and control, marked when [selected].
   /// Give it [onPressed] to make the whole card a target, as the control is.
   final bool card;
+
+  /// Marks a card as chosen.
   final bool selected;
+
+  /// Makes the whole card a target, pressing the control, for a field drawn as a card.
   final VoidCallback? onPressed;
 
   @override
@@ -157,8 +169,13 @@ class FieldSet extends StatelessWidget {
     this.description,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Its title, read before its fields.
   final Widget? legend;
+
+  /// A line under the legend.
   final Widget? description;
 
   @override
@@ -202,7 +219,10 @@ class FieldSet extends StatelessWidget {
 class FieldGroup extends StatelessWidget {
   const FieldGroup({super.key, required this.children, this.spacing = 24});
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Space between its fields.
   final double spacing;
 
   @override
@@ -222,6 +242,7 @@ class FieldGroup extends StatelessWidget {
 class FieldSeparator extends StatelessWidget {
   const FieldSeparator({super.key, this.child});
 
+  /// Words on the line, such as Text('Or'); a plain line when there are none.
   final Widget? child;
 
   @override

@@ -87,9 +87,16 @@ class Sheet extends StatelessWidget {
     this.showClose = true,
   });
 
+  /// The sheet's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom: usually buttons.
   final List<Widget> footer;
 
   /// For a left or right sheet; it is never more than three quarters of the screen.

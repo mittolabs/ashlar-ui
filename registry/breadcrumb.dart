@@ -13,7 +13,10 @@ import 'theme.dart';
 class BreadcrumbItem {
   const BreadcrumbItem(this.label, {this.onPressed});
 
+  /// The page's name.
   final String label;
+
+  /// Goes to the page. Null for the page you are on.
   final VoidCallback? onPressed;
 }
 
@@ -36,6 +39,7 @@ class Breadcrumb extends StatelessWidget {
     this.maxItems,
   });
 
+  /// The pages, from the top down to this one.
   final List<BreadcrumbItem> items;
 
   /// Between steps; a chevron unless given: a slash, a dot.

@@ -12,7 +12,10 @@ class JoinedGroup extends StatelessWidget {
     this.axis = Axis.horizontal,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   @override
@@ -42,7 +45,13 @@ class JoinedPosition extends InheritedWidget {
     required super.child,
   });
 
-  final bool first, last;
+  /// Whether it starts the group, which rounds its leading corners.
+  final bool first;
+
+  /// Whether it ends the group, which rounds its trailing corners.
+  final bool last;
+
+  /// The direction the group runs.
   final Axis axis;
 
   static JoinedPosition? maybeOf(BuildContext context) =>

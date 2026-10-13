@@ -27,6 +27,8 @@ class Tooltip extends StatefulWidget {
 
   /// What it says, and what a screen reader hears.
   final String message;
+
+  /// What it describes: hovered, focused or long pressed to show it.
   final Widget child;
 
   /// Which side of the child it shows on. It flips when there is no room.

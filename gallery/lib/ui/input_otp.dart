@@ -28,18 +28,40 @@ class InputOtp extends StatefulWidget {
     this.semanticLabel = 'One-time code',
   });
 
+  /// How many characters the code has.
   final int length;
 
   /// How the boxes are split, with a dash between groups: [3, 3]. Null keeps them together.
   final List<int>? groups;
+
+  /// Told each new value as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// Told the code once every box is filled.
   final ValueChanged<String>? onCompleted;
+
+  /// Takes digits alone.
   final bool digitsOnly;
+
+  /// Holds its state, to read and change from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
+
+  /// Marks it as wrong, in the destructive colour. Inside a FormItem, a screen reader
+  /// also hears that it is invalid.
   final bool error;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String semanticLabel;
 
   @override

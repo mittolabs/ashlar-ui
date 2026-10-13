@@ -18,11 +18,16 @@ class TabItem {
     this.enabled = true,
   });
 
+  /// The tab's name.
   final Widget label;
+
+  /// What shows when the tab is chosen.
   final Widget content;
 
   /// A 16px icon before the label.
   final Widget? icon;
+
+  /// False fades the tab and stops it being chosen.
   final bool enabled;
 }
 
@@ -54,14 +59,22 @@ class Tabs extends StatefulWidget {
     this.axis = Axis.horizontal,
   });
 
+  /// The tabs, in order.
   final List<TabItem> tabs;
+
+  /// Which tab is chosen, when you hold its state.
   final int? index;
+
+  /// Told the tab chosen.
   final ValueChanged<int>? onChanged;
+
+  /// Which tab is chosen first, when nothing holds its state.
   final int initialIndex;
 
   /// Stretches the row of tabs across the width it is given.
   final bool expand;
 
+  /// A pill on a muted track, or a line under the chosen tab.
   final TabsVariant variant;
 
   /// Vertical sets the tabs in a column beside the panel; the up and down arrows move.

@@ -44,12 +44,28 @@ class DatePicker extends StatefulWidget {
        value = null,
        onChanged = null;
 
+  /// The day picked, or null.
   final DateTime? value;
+
+  /// Told each new value as it changes.
   final ValueChanged<DateTime>? onChanged;
+
+  /// The days picked, for a picker that takes a span.
   final DateRange? range;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<DateRange>? onRangeChanged;
+
+  /// Faint text shown while it is empty.
   final String placeholder;
-  final DateTime? firstDate, lastDate;
+
+  /// The earliest day that can be picked.
+  final DateTime? firstDate;
+
+  /// The latest day that can be picked.
+  final DateTime? lastDate;
+
+  /// Days that cannot be picked: weekends, booked days.
   final bool Function(DateTime day)? isDisabled;
 
   /// What the date is for, read out before it: 'Due date'.

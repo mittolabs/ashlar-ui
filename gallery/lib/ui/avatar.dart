@@ -23,10 +23,13 @@ class Avatar extends StatelessWidget {
   /// A small mark at the bottom right: a dot for online, or a 12px icon in a circle.
   final Widget? badge;
 
+  /// The picture. The fallback shows until it loads, or when it fails.
   final ImageProvider? image;
 
   /// Usually initials: one or two letters.
   final String fallback;
+
+  /// Its width and height.
   final double size;
 
   /// Who it is, for screen readers. Without it the avatar is left out of what they read.
@@ -109,7 +112,10 @@ class AvatarDot extends StatelessWidget {
     this.size = 8,
   });
 
+  /// Its colour: green, for online, unless you say.
   final Color color;
+
+  /// Its width and height.
   final double size;
 
   @override
@@ -135,10 +141,13 @@ class AvatarGroup extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// The avatars, first in front.
   final List<Avatar> children;
 
   /// How many to show before "+n".
   final int? max;
+
+  /// Each avatar's width and height.
   final double size;
 
   /// Who they are, together: 'Design team, 5 people'.

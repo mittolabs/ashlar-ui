@@ -20,11 +20,22 @@ class ComboboxOption<T> {
     this.icon,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// What the option says.
   final String label;
+
+  /// Other words that find it when typed.
   final List<String> keywords;
+
+  /// False fades it and stops it being picked.
   final bool enabled;
+
+  /// The heading it sits under.
   final String? group;
+
+  /// Before the label.
   final Widget? icon;
 }
 
@@ -70,20 +81,38 @@ class Combobox<T> extends StatefulWidget {
        onChanged = null,
        onCleared = null;
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// The values chosen, for a combobox that takes several.
   final Set<T>? values;
+
+  /// What can be chosen, in order.
   final List<ComboboxOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
+
+  /// Told the new values whenever one changes.
   final ValueChanged<Set<T>>? onValuesChanged;
 
   /// Shows a button that clears the choice, and is called by it.
   final VoidCallback? onCleared;
-  final String placeholder, searchPlaceholder, emptyText;
+
+  /// Faint text shown while it is empty.
+  final String placeholder;
+
+  /// Faint text in the search field.
+  final String searchPlaceholder;
+
+  /// Shown when nothing matches what was typed.
+  final String emptyText;
 
   /// Draws it as invalid.
   final bool error;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override

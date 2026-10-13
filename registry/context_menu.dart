@@ -32,10 +32,13 @@ class ContextMenu extends StatefulWidget {
     this.width = 224,
   });
 
+  /// What is right-clicked or long pressed to open the menu.
   final Widget child;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
   final List<Widget> items;
+
+  /// Its width, in logical pixels.
   final double width;
 
   @override

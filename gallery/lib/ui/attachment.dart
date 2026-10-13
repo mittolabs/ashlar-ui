@@ -63,7 +63,11 @@ class Attachment extends StatelessWidget {
 
   /// A picture of it: the image itself, or a preview.
   final ImageProvider? image;
+
+  /// Where it is on its way: idle, uploading, processing, failed or done.
   final AttachmentState state;
+
+  /// Medium, small or extra small.
   final AttachmentSize size;
 
   /// Across: the picture beside the name. Upright: a tile, the picture above.
@@ -270,10 +274,13 @@ class AttachmentAction extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// Its icon.
   final IconData icon;
 
   /// What it does, for screen readers and the tooltip.
   final String label;
+
+  /// Called when it is pressed. Null disables it.
   final VoidCallback? onPressed;
 
   @override
@@ -290,6 +297,7 @@ class AttachmentAction extends StatelessWidget {
 class AttachmentGroup extends StatelessWidget {
   const AttachmentGroup({super.key, required this.children});
 
+  /// The attachments, in order.
   final List<Widget> children;
 
   @override

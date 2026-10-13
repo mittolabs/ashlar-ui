@@ -31,7 +31,10 @@ class Marker extends StatelessWidget {
     this.icon,
   });
 
+  /// The note: Text('Today').
   final Widget child;
+
+  /// Faint text, between two lines, or with a line under it.
   final MarkerVariant variant;
 
   /// 16 square, before the text. Hidden from screen readers: the text says it.

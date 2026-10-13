@@ -54,17 +54,28 @@ class Item extends StatelessWidget {
     this.onPressed,
   });
 
+  /// The item's name.
   final Widget title;
+
+  /// A line under the title.
   final Widget? description;
 
   /// Usually an [ItemMedia].
   final Widget? leading;
+
+  /// After the label: usually an icon.
   final Widget? trailing;
 
   /// Across the top and the foot of the item: an image, a row of tags.
   final Widget? header, footer;
+
+  /// How it is set apart: plainly, with a border, or on a muted fill.
   final ItemVariant variant;
+
+  /// Medium, small or extra small: how much room it has.
   final ItemSize size;
+
+  /// Called when it is pressed. Null disables it.
   final VoidCallback? onPressed;
 
   @override
@@ -154,6 +165,7 @@ class ItemMedia extends StatelessWidget {
   /// A picture, cropped to a rounded square.
   const ItemMedia.image(this.child, {super.key}) : _kind = 2;
 
+  /// The icon, picture or avatar.
   final Widget child;
   final int _kind;
 
@@ -190,7 +202,10 @@ class ItemGroup extends StatelessWidget {
     this.separated = true,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// How its items are set apart.
   final ItemVariant variant;
 
   /// A line between items.

@@ -41,8 +41,14 @@ class Input extends StatefulWidget {
     this.decorated = true,
   });
 
+  /// Its text, to read and set from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
 
   /// An icon or text before the text, inside the field.
@@ -50,12 +56,20 @@ class Input extends StatefulWidget {
 
   /// An icon or button after the text, inside the field.
   final Widget? trailing;
+
+  /// Hides what is typed, as for a password.
   final bool obscureText;
+
+  /// False fades it and stops it taking focus or typing.
   final bool enabled;
+
+  /// Shows its text, selectable, but takes no typing.
   final bool readOnly;
 
   /// Draws the field as invalid.
   final bool error;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// More than 1 makes a text area that grows to that many lines.
@@ -63,11 +77,23 @@ class Input extends StatefulWidget {
 
   /// How tall a text area starts, in lines. Defaults to [maxLines], up to 3.
   final int? minLines;
+
+  /// The on-screen keyboard to show: numbers, an email address, a phone number.
   final TextInputType? keyboardType;
+
+  /// What the on-screen keyboard's action key says and does: next, done, search.
   final TextInputAction? textInputAction;
+
+  /// What the platform may fill in here from saved details: an email, a password.
   final Iterable<String>? autofillHints;
+
+  /// Rules for what can be typed, such as digits only.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// Told the text as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// Told the text when the keyboard's action key is pressed.
   final ValueChanged<String>? onSubmitted;
 
   /// Read out by screen readers; defaults to the placeholder.

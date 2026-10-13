@@ -16,7 +16,10 @@ class AccordionItem {
     this.enabled = true,
   });
 
+  /// The heading that opens and closes it.
   final Widget title;
+
+  /// What shows when it is open.
   final Widget content;
 
   /// False keeps it shut, its heading faded.
@@ -42,7 +45,10 @@ class Accordion extends StatefulWidget {
     this.bordered = false,
   });
 
+  /// The items, top to bottom.
   final List<AccordionItem> items;
+
+  /// Several may be open at once, not one.
   final bool multiple;
 
   /// The sections open at first, by index.

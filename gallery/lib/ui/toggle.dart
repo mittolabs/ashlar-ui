@@ -33,13 +33,22 @@ class Toggle extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// Whether it is on.
   final bool pressed;
 
   /// Null disables it.
   final ValueChanged<bool>? onChanged;
+
+  /// Its label or icon.
   final Widget child;
+
+  /// Plain, or with a border all the time.
   final ToggleVariant variant;
+
+  /// Small, medium or large.
   final ToggleSize size;
+
+  /// What a screen reader calls it, for a toggle that shows an icon alone.
   final String? semanticLabel;
 
   @override

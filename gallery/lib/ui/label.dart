@@ -12,6 +12,7 @@ import 'theme.dart';
 class Label extends StatelessWidget {
   const Label({super.key, required this.child, this.enabled = true});
 
+  /// The words.
   final Widget child;
 
   /// False fades it with the control it names.

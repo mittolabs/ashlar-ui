@@ -15,6 +15,9 @@ class Progress extends StatefulWidget {
 
   /// From 0 to 1, or null when it is not known.
   final double? value;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override

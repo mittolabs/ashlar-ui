@@ -31,8 +31,13 @@ class Badge extends StatelessWidget {
     this.leading,
   });
 
+  /// Its text.
   final Widget child;
+
+  /// Its fill: primary, secondary, destructive, outline, ghost or link.
   final BadgeVariant variant;
+
+  /// Before its text: usually an icon.
   final Widget? leading;
 
   @override

@@ -47,15 +47,22 @@ class Bubble extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// What was said.
   final Widget child;
+
+  /// Its fill: primary, secondary, muted, tinted, outline, ghost or destructive.
   final BubbleVariant variant;
 
   /// A small pill over the bubble's edge: emoji counts, or buttons to react with.
   final Widget? reactions;
+
+  /// Whether the reactions sit over the top edge or the bottom.
   final BubbleReactionsSide reactionsSide;
 
   /// Makes the whole bubble a button: a suggested reply, say.
   final VoidCallback? onPressed;
+
+  /// What a screen reader calls it when it is a button and its text does not say.
   final String? semanticLabel;
 
   @override
@@ -154,6 +161,7 @@ class Bubble extends StatelessWidget {
 class BubbleGroup extends StatelessWidget {
   const BubbleGroup({super.key, required this.children});
 
+  /// The bubbles, in the order they were sent.
   final List<Widget> children;
 
   @override

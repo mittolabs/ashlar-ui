@@ -113,7 +113,10 @@ class FormItem<T> extends FormField<T> {
          },
        );
 
+  /// Above the control, or beside it when across.
   final Widget? label;
+
+  /// Under the control: what the field is for.
   final Widget? description;
 
   /// Vertical puts the label above (inputs, selects); horizontal puts the control first

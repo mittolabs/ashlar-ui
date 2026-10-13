@@ -23,8 +23,13 @@ class Pagination extends StatelessWidget {
     this.simple = false,
   });
 
+  /// The page shown, from 1.
   final int page;
+
+  /// How many pages there are.
   final int pageCount;
+
+  /// Told the page chosen.
   final ValueChanged<int> onChanged;
 
   /// How many pages either side of this one are shown by number.

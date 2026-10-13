@@ -33,11 +33,23 @@ class Radio<T> extends StatefulWidget {
     this.error = false,
   });
 
+  /// The value it stands for, given back when it is chosen.
   final T value;
+
+  /// Beside the radio button.
   final Widget? label;
+
+  /// A line under the label.
   final Widget? description;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// Drawn as a card to choose: a border round it, marked when chosen.

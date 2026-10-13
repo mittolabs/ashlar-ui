@@ -32,6 +32,7 @@ class InputGroup extends StatefulWidget {
     this.error = false,
   });
 
+  /// The field: an Input with its decoration off, or a Textarea.
   final Widget child;
 
   /// Before the field and after it, on its line.

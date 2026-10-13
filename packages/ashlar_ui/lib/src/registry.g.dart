@@ -59,34 +59,50 @@ class AshlarColors {
 
   /// The page.
   final Color background;
+
+  /// Text and icons on the page.
   final Color foreground;
 
   /// Cards and panels on the page.
   final Color card;
+
+  /// Text and icons on a card.
   final Color cardForeground;
 
   /// Menus, popovers and dialogs, which float above the page.
   final Color popover;
+
+  /// Text and icons in a menu, popover or dialog.
   final Color popoverForeground;
 
   /// The main action: a primary button, a checked box.
   final Color primary;
+
+  /// Text and icons on the primary colour.
   final Color primaryForeground;
 
   /// A quieter action.
   final Color secondary;
+
+  /// Text and icons on the secondary colour.
   final Color secondaryForeground;
 
   /// Backgrounds and text that recede: hints, descriptions, placeholders.
   final Color muted;
+
+  /// Text that recedes: hints, descriptions, placeholders.
   final Color mutedForeground;
 
   /// What is under the pointer or chosen in a list.
   final Color accent;
+
+  /// Text and icons on the accent colour.
   final Color accentForeground;
 
   /// Actions that destroy or warn.
   final Color destructive;
+
+  /// Text and icons on the destructive colour.
   final Color destructiveForeground;
 
   /// Lines between things.
@@ -103,9 +119,24 @@ class AshlarColors {
 
   /// A Sidebar's own surface, text, chosen item, hovered item, lines and focus ring.
   final Color sidebar, sidebarForeground;
-  final Color sidebarPrimary, sidebarPrimaryForeground;
-  final Color sidebarAccent, sidebarAccentForeground;
-  final Color sidebarBorder, sidebarRing;
+
+  /// The sidebar's chosen item and its mark.
+  final Color sidebarPrimary;
+
+  /// Text and icons on the sidebar's primary colour.
+  final Color sidebarPrimaryForeground;
+
+  /// A hovered or chosen sidebar item's fill.
+  final Color sidebarAccent;
+
+  /// Text and icons on the sidebar's accent colour.
+  final Color sidebarAccentForeground;
+
+  /// Lines in and around the sidebar.
+  final Color sidebarBorder;
+
+  /// The focus ring inside the sidebar.
+  final Color sidebarRing;
 
   /// The chart colours as a list, for drawing series in turn.
   List<Color> get charts => [chart1, chart2, chart3, chart4, chart5];
@@ -376,11 +407,16 @@ class AshlarThemeData {
   const AshlarThemeData.dark()
     : this(brightness: Brightness.dark, colors: AshlarColors.dark);
 
+  /// Light or dark: what the colours were made for.
   final Brightness brightness;
+
+  /// Every colour the components use, by role.
   final AshlarColors colors;
 
   /// The base corner radius. Controls use [radiusMd]; cards and dialogs [radiusXl].
   final double radius;
+
+  /// The text styles, by size.
   final AshlarText text;
 
   /// How long a hover, press or open takes.
@@ -491,6 +527,7 @@ class AshlarThemeData {
 class AshlarTheme extends InheritedWidget {
   const AshlarTheme({super.key, required this.data, required super.child});
 
+  /// The theme for everything below it.
   final AshlarThemeData data;
 
   /// The nearest theme, or the light one when there is none.
@@ -1472,18 +1509,43 @@ class AshlarApp extends StatelessWidget {
     this.selectable,
   });
 
+  /// The first page, at '/'.
   final Widget? home;
+
+  /// Pages by name, for Navigator.pushNamed.
   final Map<String, WidgetBuilder> routes;
+
+  /// The page to open on, by name, instead of home.
   final String? initialRoute;
+
+  /// Makes a page for a name not in routes.
   final RouteFactory? onGenerateRoute;
+
+  /// The navigator's key, to push pages from outside the widget tree.
   final GlobalKey<NavigatorState>? navigatorKey;
+
+  /// The app's name, for the task switcher and the browser tab.
   final String title;
+
+  /// The light theme.
   final AshlarThemeData theme;
+
+  /// The dark theme.
   final AshlarThemeData darkTheme;
+
+  /// Light, dark, or as the device is set.
   final AshlarThemeMode themeMode;
+
+  /// The app's language and region, when not the device's.
   final Locale? locale;
+
+  /// The languages and regions the app is written for.
   final Iterable<Locale> supportedLocales;
+
+  /// Where translated words come from.
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+
+  /// Wraps every page: for providers the whole app needs.
   final TransitionBuilder? builder;
 
   /// Whether text on the app's pages can be selected and copied, as on a web page.
@@ -1662,6 +1724,8 @@ class PressableState {
 
   /// It has focus that came from the keyboard: the time to show a focus ring.
   final bool focused;
+
+  /// Whether it takes presses.
   final bool enabled;
 }
 
@@ -1690,8 +1754,15 @@ class Pressable extends StatefulWidget {
 
   /// Null disables it.
   final VoidCallback? onPressed;
+
+  /// Builds how it looks, given whether it is hovered, pressed, focused or disabled.
   final Widget Function(BuildContext context, PressableState state) builder;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// Read out in place of the visible content.
@@ -1904,13 +1975,32 @@ class Button extends StatelessWidget {
 
   /// Null disables the button.
   final VoidCallback? onPressed;
+
+  /// What it shows: usually a Text, an icon, or both.
   final Widget child;
+
+  /// Its fill: primary for the main action, then secondary, outline, ghost, destructive
+  /// or link.
   final ButtonVariant variant;
+
+  /// Its height and room, or a square for an icon alone.
   final ButtonSize size;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// After the label: usually an icon.
   final Widget? trailing;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// Fills the width it is given.
@@ -2081,8 +2171,13 @@ class Badge extends StatelessWidget {
     this.leading,
   });
 
+  /// Its text.
   final Widget child;
+
+  /// Its fill: primary, secondary, destructive, outline, ghost or link.
   final BadgeVariant variant;
+
+  /// Before its text: usually an icon.
   final Widget? leading;
 
   @override
@@ -2168,7 +2263,10 @@ enum CardSize {
 class Card extends StatelessWidget {
   const Card({super.key, required this.children, this.size = CardSize.md});
 
+  /// Its parts, top to bottom: CardImage, CardHeader, CardContent, CardFooter.
   final List<Widget> children;
+
+  /// Small cards have less room inside.
   final CardSize size;
 
   @override
@@ -2229,6 +2327,8 @@ class CardImage extends StatelessWidget {
 
   /// Usually an Image with BoxFit.cover.
   final Widget child;
+
+  /// How tall the picture is.
   final double height;
 
   @override
@@ -2246,9 +2346,16 @@ class CardHeader extends StatelessWidget {
     this.border = false,
   });
 
+  /// The card's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// At the end of the header: a button or a menu.
   final Widget? action;
+
+  /// A line under the header.
   final bool border;
 
   @override
@@ -2303,6 +2410,7 @@ class CardHeader extends StatelessWidget {
 class CardContent extends StatelessWidget {
   const CardContent({super.key, required this.child});
 
+  /// The card's body.
   final Widget child;
 
   @override
@@ -2321,8 +2429,13 @@ class CardFooter extends StatelessWidget {
     this.border = false,
   });
 
+  /// Along the bottom: usually buttons.
   final List<Widget> children;
+
+  /// How the footer's children line up along it.
   final MainAxisAlignment alignment;
+
+  /// A line over the footer.
   final bool border;
 
   @override
@@ -2368,6 +2481,7 @@ import 'theme.dart';
 class Separator extends StatelessWidget {
   const Separator({super.key, this.axis = Axis.horizontal});
 
+  /// Horizontal draws a line across; vertical, down.
   final Axis axis;
 
   @override
@@ -2438,8 +2552,14 @@ class Input extends StatefulWidget {
     this.decorated = true,
   });
 
+  /// Its text, to read and set from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
 
   /// An icon or text before the text, inside the field.
@@ -2447,12 +2567,20 @@ class Input extends StatefulWidget {
 
   /// An icon or button after the text, inside the field.
   final Widget? trailing;
+
+  /// Hides what is typed, as for a password.
   final bool obscureText;
+
+  /// False fades it and stops it taking focus or typing.
   final bool enabled;
+
+  /// Shows its text, selectable, but takes no typing.
   final bool readOnly;
 
   /// Draws the field as invalid.
   final bool error;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// More than 1 makes a text area that grows to that many lines.
@@ -2460,11 +2588,23 @@ class Input extends StatefulWidget {
 
   /// How tall a text area starts, in lines. Defaults to [maxLines], up to 3.
   final int? minLines;
+
+  /// The on-screen keyboard to show: numbers, an email address, a phone number.
   final TextInputType? keyboardType;
+
+  /// What the on-screen keyboard's action key says and does: next, done, search.
   final TextInputAction? textInputAction;
+
+  /// What the platform may fill in here from saved details: an email, a password.
   final Iterable<String>? autofillHints;
+
+  /// Rules for what can be typed, such as digits only.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// Told the text as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// Told the text when the keyboard's action key is pressed.
   final ValueChanged<String>? onSubmitted;
 
   /// Read out by screen readers; defaults to the placeholder.
@@ -2702,10 +2842,14 @@ class Checkbox extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Whether it is ticked.
   final bool value;
 
   /// Null disables the checkbox.
   final ValueChanged<bool>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// Neither ticked nor not, as over a list where some are: a dash. A tap ticks it.
@@ -2713,7 +2857,12 @@ class Checkbox extends StatelessWidget {
 
   /// Draws it as invalid.
   final bool error;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override
@@ -2816,13 +2965,24 @@ class Switch extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Whether it is on.
   final bool value;
 
   /// Null disables the switch.
   final ValueChanged<bool>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
+
+  /// Medium, or small to sit in a dense row.
   final SwitchSize size;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override
@@ -2951,11 +3111,22 @@ class Dialog extends StatelessWidget {
     this.centered = false,
   });
 
+  /// The dialog's title, read first by a screen reader.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom, the main one last: usually buttons.
   final List<Widget> actions;
+
+  /// A close button in the corner.
   final bool showClose;
+
+  /// The widest it grows.
   final double maxWidth;
 
   /// Above the title: an icon on a muted circle, or an image.
@@ -3119,6 +3290,7 @@ import 'theme.dart';
 class Label extends StatelessWidget {
   const Label({super.key, required this.child, this.enabled = true});
 
+  /// The words.
   final Widget child;
 
   /// False fades it with the control it names.
@@ -3183,12 +3355,20 @@ class Field extends StatelessWidget {
     this.onPressed,
   });
 
+  /// The control: an Input, a Select, a Checkbox.
   final Widget child;
+
+  /// Names the control: above it, or beside it when across.
   final Widget? label;
+
+  /// Under the control: what it is for.
   final Widget? description;
 
   /// Shown under the description in the destructive colour, and read out with the field.
   final Widget? error;
+
+  /// Vertical puts the label above; horizontal puts the control first and the label
+  /// beside it.
   final Axis axis;
 
   /// False fades the label and description with the control.
@@ -3200,7 +3380,11 @@ class Field extends StatelessWidget {
   /// Drawn as a card to choose: a border round label and control, marked when [selected].
   /// Give it [onPressed] to make the whole card a target, as the control is.
   final bool card;
+
+  /// Marks a card as chosen.
   final bool selected;
+
+  /// Makes the whole card a target, pressing the control, for a field drawn as a card.
   final VoidCallback? onPressed;
 
   @override
@@ -3310,8 +3494,13 @@ class FieldSet extends StatelessWidget {
     this.description,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Its title, read before its fields.
   final Widget? legend;
+
+  /// A line under the legend.
   final Widget? description;
 
   @override
@@ -3355,7 +3544,10 @@ class FieldSet extends StatelessWidget {
 class FieldGroup extends StatelessWidget {
   const FieldGroup({super.key, required this.children, this.spacing = 24});
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Space between its fields.
   final double spacing;
 
   @override
@@ -3375,6 +3567,7 @@ class FieldGroup extends StatelessWidget {
 class FieldSeparator extends StatelessWidget {
   const FieldSeparator({super.key, this.child});
 
+  /// Words on the line, such as Text('Or'); a plain line when there are none.
   final Widget? child;
 
   @override
@@ -3440,20 +3633,46 @@ class Textarea extends StatefulWidget {
     this.decorated = true,
   });
 
+  /// Its text, to read and set from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
+
+  /// False fades it and stops it taking focus or typing.
   final bool enabled;
+
+  /// Shows its text, selectable, but takes no typing.
   final bool readOnly;
+
+  /// Marks it as wrong, in the destructive colour. Inside a FormItem, a screen reader
+  /// also hears that it is invalid.
   final bool error;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// The fewest lines it shows, even when empty.
   final int minLines;
+
+  /// The most lines it grows to before scrolling.
   final int maxLines;
 
   /// Shows the grip that drags it taller or shorter.
   final bool resizable;
+
+  /// Rules for what can be typed, such as digits only.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// Told the text as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// False draws the bare text, for an InputGroup.
@@ -3592,10 +3811,13 @@ class Avatar extends StatelessWidget {
   /// A small mark at the bottom right: a dot for online, or a 12px icon in a circle.
   final Widget? badge;
 
+  /// The picture. The fallback shows until it loads, or when it fails.
   final ImageProvider? image;
 
   /// Usually initials: one or two letters.
   final String fallback;
+
+  /// Its width and height.
   final double size;
 
   /// Who it is, for screen readers. Without it the avatar is left out of what they read.
@@ -3678,7 +3900,10 @@ class AvatarDot extends StatelessWidget {
     this.size = 8,
   });
 
+  /// Its colour: green, for online, unless you say.
   final Color color;
+
+  /// Its width and height.
   final double size;
 
   @override
@@ -3704,10 +3929,13 @@ class AvatarGroup extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// The avatars, first in front.
   final List<Avatar> children;
 
   /// How many to show before "+n".
   final int? max;
+
+  /// Each avatar's width and height.
   final double size;
 
   /// Who they are, together: 'Design team, 5 people'.
@@ -3815,7 +4043,11 @@ class Skeleton extends StatefulWidget {
 
   /// Null fills the width it is given.
   final double? width;
+
+  /// Its height.
   final double height;
+
+  /// Round, for where an avatar will be.
   final bool circle;
 
   @override
@@ -3888,8 +4120,14 @@ class Spinner extends StatefulWidget {
     this.semanticLabel = 'Loading',
   });
 
+  /// Its width and height; the icon size around it when not given.
   final double? size;
+
+  /// Its colour; the icon colour around it when not given.
   final Color? color;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String semanticLabel;
 
   @override
@@ -3964,11 +4202,16 @@ class Alert extends StatelessWidget {
     this.action,
   });
 
+  /// The alert's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
 
   /// A 16px icon at the top left.
   final Widget? icon;
+
+  /// Plain, or in the destructive colour for something wrong.
   final AlertVariant variant;
 
   /// A button at the top right.
@@ -4057,6 +4300,7 @@ import 'theme.dart';
 class Kbd extends StatelessWidget {
   const Kbd({super.key, required this.child});
 
+  /// The key's name or symbol: Text('⌘'), Text('Enter').
   final Widget child;
 
   /// Keys pressed together, with a small gap between them.
@@ -4143,11 +4387,23 @@ class Radio<T> extends StatefulWidget {
     this.error = false,
   });
 
+  /// The value it stands for, given back when it is chosen.
   final T value;
+
+  /// Beside the radio button.
   final Widget? label;
+
+  /// A line under the label.
   final Widget? description;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// Drawn as a card to choose: a border round it, marked when chosen.
@@ -4300,11 +4556,16 @@ class TabItem {
     this.enabled = true,
   });
 
+  /// The tab's name.
   final Widget label;
+
+  /// What shows when the tab is chosen.
   final Widget content;
 
   /// A 16px icon before the label.
   final Widget? icon;
+
+  /// False fades the tab and stops it being chosen.
   final bool enabled;
 }
 
@@ -4336,14 +4597,22 @@ class Tabs extends StatefulWidget {
     this.axis = Axis.horizontal,
   });
 
+  /// The tabs, in order.
   final List<TabItem> tabs;
+
+  /// Which tab is chosen, when you hold its state.
   final int? index;
+
+  /// Told the tab chosen.
   final ValueChanged<int>? onChanged;
+
+  /// Which tab is chosen first, when nothing holds its state.
   final int initialIndex;
 
   /// Stretches the row of tabs across the width it is given.
   final bool expand;
 
+  /// A pill on a muted track, or a line under the chosen tab.
   final TabsVariant variant;
 
   /// Vertical sets the tabs in a column beside the panel; the up and down arrows move.
@@ -4654,12 +4923,23 @@ class Popover extends StatefulWidget {
     this.width = 288,
   });
 
+  /// Builds what opens it, given a controller to open and close it with.
   final Widget Function(BuildContext context, MenuController controller)
   builder;
+
+  /// Builds what the panel shows.
   final WidgetBuilder content;
+
+  /// Opens and closes it from outside; one is made when not given.
   final MenuController? controller;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
+
+  /// How wide the panel is.
   final double width;
 
   @override
@@ -4711,13 +4991,22 @@ class PopoverPanel extends StatelessWidget {
     this.gap = 4,
   });
 
+  /// Where it opens: the rectangle of what opened it, and the room around.
   final RawMenuOverlayInfo info;
+
+  /// What the panel shows.
   final Widget child;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
 
   /// Null sizes the panel to its content.
   final double? width;
+
+  /// The narrowest it is; as wide as what opened it, at least, when not given.
   final double minWidth;
 
   /// At least as wide as the trigger.
@@ -4938,7 +5227,10 @@ class _Entrance extends StatelessWidget {
 class PopoverHeader extends StatelessWidget {
   const PopoverHeader({super.key, required this.title, this.description});
 
+  /// The panel's title.
   final Widget title;
+
+  /// A line under the title.
   final Widget? description;
 
   @override
@@ -5018,13 +5310,20 @@ class DropdownMenu extends StatefulWidget {
     this.width,
   });
 
+  /// Builds what opens it, given a controller to open and close it with.
   final Widget Function(BuildContext context, MenuController controller)
   builder;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
   final List<Widget> items;
+
+  /// Opens and closes it from outside; one is made when not given.
   final MenuController? controller;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
 
   /// Null sizes the menu to its widest item.
@@ -5056,6 +5355,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
 class MenuList extends StatefulWidget {
   const MenuList({super.key, required this.children, this.focusFirst = false});
 
+  /// The menu's rows.
   final List<Widget> children;
 
   /// Puts focus on the first item as it opens, as a submenu does.
@@ -5174,6 +5474,7 @@ class MenuItem extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Its label.
   final Widget child;
 
   /// Null disables the item.
@@ -5196,6 +5497,8 @@ class MenuItem extends StatelessWidget {
 
   /// Set in, to line up with checkbox and radio items beside it.
   final bool inset;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override
@@ -5229,11 +5532,16 @@ class MenuCheckboxItem extends StatelessWidget {
     this.closeOnPress = true,
   });
 
+  /// Whether it is ticked.
   final bool checked;
 
   /// Null disables the item.
   final ValueChanged<bool>? onChanged;
+
+  /// Its label.
   final Widget child;
+
+  /// A key combination, shown faint at the end: Text('⌘K').
   final Widget? shortcut;
 
   /// False keeps the menu open, for setting several in a row.
@@ -5270,8 +5578,13 @@ class MenuRadioGroup<T> extends StatelessWidget {
     required this.children,
   });
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// Told each new value as it changes.
   final ValueChanged<T>? onChanged;
+
+  /// The radio items.
   final List<Widget> children;
 
   @override
@@ -5306,8 +5619,13 @@ class MenuRadioItem<T> extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// Its label.
   final Widget child;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
 
   @override
@@ -5340,6 +5658,7 @@ class MenuRadioItem<T> extends StatelessWidget {
 class MenuGroup extends StatelessWidget {
   const MenuGroup({super.key, required this.children});
 
+  /// The group's rows.
   final List<Widget> children;
 
   @override
@@ -5369,10 +5688,19 @@ class MenuSub extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// Its label.
   final Widget child;
+
+  /// The submenu's rows.
   final List<Widget> items;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// Lines its label up with items that have a mark before them.
   final bool inset;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
 
   @override
@@ -5639,6 +5967,7 @@ class _MenuRowState extends State<_MenuRow> {
 class MenuLabel extends StatelessWidget {
   const MenuLabel({super.key, required this.child, this.inset = false});
 
+  /// The label's words.
   final Widget child;
 
   /// Set in, to line up with checkbox and radio items under it.
@@ -5709,8 +6038,13 @@ class SelectOption<T> {
     this.group,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// What the option says.
   final String label;
+
+  /// False fades it and stops it being chosen.
   final bool enabled;
 
   /// A 16px icon before the label, in the list and in the trigger.
@@ -5754,16 +6088,26 @@ class Select<T> extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// What can be chosen, in order.
   final List<SelectOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
 
   /// Draws it as invalid.
   final bool error;
+
+  /// Small fits beside small buttons.
   final SelectSize size;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
 
   /// What it chooses, for screen readers: 'County'. The chosen option is read after it.
@@ -6268,6 +6612,8 @@ class Tooltip extends StatefulWidget {
 
   /// What it says, and what a screen reader hears.
   final String message;
+
+  /// What it describes: hovered, focused or long pressed to show it.
   final Widget child;
 
   /// Which side of the child it shows on. It flips when there is no room.
@@ -6944,7 +7290,10 @@ class JoinedGroup extends StatelessWidget {
     this.axis = Axis.horizontal,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   @override
@@ -6974,7 +7323,13 @@ class JoinedPosition extends InheritedWidget {
     required super.child,
   });
 
-  final bool first, last;
+  /// Whether it starts the group, which rounds its leading corners.
+  final bool first;
+
+  /// Whether it ends the group, which rounds its trailing corners.
+  final bool last;
+
+  /// The direction the group runs.
   final Axis axis;
 
   static JoinedPosition? maybeOf(BuildContext context) =>
@@ -7058,7 +7413,10 @@ class ButtonGroup extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// What the buttons are for, read before them: 'Text alignment'.
@@ -7110,6 +7468,8 @@ Widget _heading(BuildContext context, String text, TextStyle style) =>
 /// The page's title: 36, bold.
 class H1 extends StatelessWidget {
   const H1(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7128,6 +7488,8 @@ class H1 extends StatelessWidget {
 /// A section: 30, semibold.
 class H2 extends StatelessWidget {
   const H2(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7146,6 +7508,8 @@ class H2 extends StatelessWidget {
 /// A part of a section: 24, semibold.
 class H3 extends StatelessWidget {
   const H3(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7159,6 +7523,8 @@ class H3 extends StatelessWidget {
 /// A small heading: 20, semibold.
 class H4 extends StatelessWidget {
   const H4(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7172,6 +7538,8 @@ class H4 extends StatelessWidget {
 /// A paragraph of reading text: 16, with room between lines.
 class P extends StatelessWidget {
   const P(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7184,6 +7552,8 @@ class P extends StatelessWidget {
 /// The opening paragraph, larger and quieter: 20, muted.
 class Lead extends StatelessWidget {
   const Lead(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7200,6 +7570,8 @@ class Lead extends StatelessWidget {
 /// Text that stands out a little: 18, semibold.
 class Large extends StatelessWidget {
   const Large(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7210,6 +7582,8 @@ class Large extends StatelessWidget {
 /// A small note: 14, medium.
 class Small extends StatelessWidget {
   const Small(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7220,6 +7594,8 @@ class Small extends StatelessWidget {
 /// Text that recedes: 14, muted.
 class Muted extends StatelessWidget {
   const Muted(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7236,6 +7612,8 @@ class Muted extends StatelessWidget {
 /// A quotation, set in from a line at its left.
 class Blockquote extends StatelessWidget {
   const Blockquote(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7262,6 +7640,8 @@ class Blockquote extends StatelessWidget {
 /// A word of code inside a sentence.
 class InlineCode extends StatelessWidget {
   const InlineCode(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -7288,6 +7668,8 @@ class InlineCode extends StatelessWidget {
 /// A bulleted list.
 class BulletList extends StatelessWidget {
   const BulletList(this.items, {super.key});
+
+  /// The points, in order.
   final List<String> items;
 
   @override
@@ -7320,7 +7702,10 @@ class TypographyTable extends StatelessWidget {
     required this.rows,
   });
 
+  /// The column headings.
   final List<String> headings;
+
+  /// The rows, each a list of cells.
   final List<List<String>> rows;
 
   @override
@@ -7400,8 +7785,14 @@ class Empty extends StatelessWidget {
 
   /// Drawn in a small muted square above the title.
   final Widget? icon;
+
+  /// What is empty.
   final Widget title;
+
+  /// What to do about it.
   final Widget? description;
+
+  /// Buttons to do it.
   final List<Widget> actions;
 
   /// On a muted ground, filling the width it is given.
@@ -7545,17 +7936,28 @@ class Item extends StatelessWidget {
     this.onPressed,
   });
 
+  /// The item's name.
   final Widget title;
+
+  /// A line under the title.
   final Widget? description;
 
   /// Usually an [ItemMedia].
   final Widget? leading;
+
+  /// After the label: usually an icon.
   final Widget? trailing;
 
   /// Across the top and the foot of the item: an image, a row of tags.
   final Widget? header, footer;
+
+  /// How it is set apart: plainly, with a border, or on a muted fill.
   final ItemVariant variant;
+
+  /// Medium, small or extra small: how much room it has.
   final ItemSize size;
+
+  /// Called when it is pressed. Null disables it.
   final VoidCallback? onPressed;
 
   @override
@@ -7645,6 +8047,7 @@ class ItemMedia extends StatelessWidget {
   /// A picture, cropped to a rounded square.
   const ItemMedia.image(this.child, {super.key}) : _kind = 2;
 
+  /// The icon, picture or avatar.
   final Widget child;
   final int _kind;
 
@@ -7681,7 +8084,10 @@ class ItemGroup extends StatelessWidget {
     this.separated = true,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// How its items are set apart.
   final ItemVariant variant;
 
   /// A line between items.
@@ -7766,6 +8172,9 @@ class Progress extends StatefulWidget {
 
   /// From 0 to 1, or null when it is not known.
   final double? value;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -7880,7 +8289,10 @@ import 'theme.dart';
 class BreadcrumbItem {
   const BreadcrumbItem(this.label, {this.onPressed});
 
+  /// The page's name.
   final String label;
+
+  /// Goes to the page. Null for the page you are on.
   final VoidCallback? onPressed;
 }
 
@@ -7903,6 +8315,7 @@ class Breadcrumb extends StatelessWidget {
     this.maxItems,
   });
 
+  /// The pages, from the top down to this one.
   final List<BreadcrumbItem> items;
 
   /// Between steps; a chevron unless given: a slash, a dot.
@@ -8055,11 +8468,20 @@ class Collapsible extends StatefulWidget {
     this.initiallyOpen = false,
   });
 
+  /// Builds what opens and closes it, given whether it is open and a way to toggle it.
   final Widget Function(BuildContext context, bool open, VoidCallback toggle)
   builder;
+
+  /// What shows when it is open.
   final Widget child;
+
+  /// Whether it is open, when you hold its state.
   final bool? open;
+
+  /// Told when it opens or closes.
   final ValueChanged<bool>? onChanged;
+
+  /// Whether it starts open, when nothing holds its state from outside.
   final bool initiallyOpen;
 
   @override
@@ -8165,7 +8587,10 @@ class AccordionItem {
     this.enabled = true,
   });
 
+  /// The heading that opens and closes it.
   final Widget title;
+
+  /// What shows when it is open.
   final Widget content;
 
   /// False keeps it shut, its heading faded.
@@ -8191,7 +8616,10 @@ class Accordion extends StatefulWidget {
     this.bordered = false,
   });
 
+  /// The items, top to bottom.
   final List<AccordionItem> items;
+
+  /// Several may be open at once, not one.
   final bool multiple;
 
   /// The sections open at first, by index.
@@ -8351,13 +8779,22 @@ class Toggle extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// Whether it is on.
   final bool pressed;
 
   /// Null disables it.
   final ValueChanged<bool>? onChanged;
+
+  /// Its label or icon.
   final Widget child;
+
+  /// Plain, or with a border all the time.
   final ToggleVariant variant;
+
+  /// Small, medium or large.
   final ToggleSize size;
+
+  /// What a screen reader calls it, for a toggle that shows an icon alone.
   final String? semanticLabel;
 
   @override
@@ -8443,9 +8880,16 @@ class ToggleGroupItem<T> {
     this.enabled = true,
   });
 
+  /// The value it stands for, given back when it is pressed.
   final T value;
+
+  /// Its label or icon.
   final Widget child;
+
+  /// What a screen reader calls it, for an item that shows an icon alone.
   final String? semanticLabel;
+
+  /// False fades it and leaves it out of the group's choices.
   final bool enabled;
 }
 
@@ -8481,9 +8925,17 @@ class ToggleGroup<T> extends StatelessWidget {
 
   /// Null disables the group.
   final ValueChanged<Set<T>>? onChanged;
+
+  /// The toggles, in order.
   final List<ToggleGroupItem<T>> items;
+
+  /// Several may be on at once, not one.
   final bool multiple;
+
+  /// Plain, or with borders all the time.
   final ToggleVariant variant;
+
+  /// Small, medium or large.
   final ToggleSize size;
 
   /// What the group sets, read before it: 'Text alignment'.
@@ -8643,23 +9095,42 @@ class Slider extends StatefulWidget {
        onChangeEnd = null,
        onRangeChanged = null;
 
+  /// The value, between min and max.
   final double? value;
   final (double, double)? range;
+
+  /// The values of a slider with several thumbs, in order.
   final List<double>? values;
 
   /// Null disables it.
   final ValueChanged<double>? onChanged;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<(double, double)>? onRangeChanged;
+
+  /// Told the new values whenever one changes.
   final ValueChanged<List<double>>? onValuesChanged;
+
+  /// Told the value when a drag or a key press ends: for saving.
   final ValueChanged<double>? onChangeEnd;
-  final double min, max;
+
+  /// The value at the start.
+  final double min;
+
+  /// The value at the end.
+  final double max;
 
   /// What the value snaps to. Null moves freely; the keys then move a hundredth.
   final double? step;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// How a screen reader reads a value. Defaults to a percentage of the way along.
   final String Function(double value)? semanticFormat;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Upright, how tall it is; across, it fills the width it is given.
@@ -9008,8 +9479,13 @@ class Pagination extends StatelessWidget {
     this.simple = false,
   });
 
+  /// The page shown, from 1.
   final int page;
+
+  /// How many pages there are.
   final int pageCount;
+
+  /// Told the page chosen.
   final ValueChanged<int> onChanged;
 
   /// How many pages either side of this one are shown by number.
@@ -9216,9 +9692,19 @@ class AlertDialog extends StatelessWidget {
     this.small = false,
   });
 
+  /// The question or warning.
   final String title;
+
+  /// What happens next, in a line or two.
   final String? description;
-  final String cancel, action;
+
+  /// The button that does not.
+  final String cancel;
+
+  /// The button that does it.
+  final String action;
+
+  /// Draws the action in the destructive colour, for what cannot be undone.
   final bool destructive;
 
   /// An icon above the title, on a muted circle.
@@ -9301,11 +9787,25 @@ class HoverCard extends StatefulWidget {
     this.width = 256,
   });
 
+  /// What is hovered or focused to open it.
   final Widget child;
+
+  /// What the card shows.
   final WidgetBuilder content;
-  final Duration openDelay, closeDelay;
+
+  /// How long the pointer rests before it opens.
+  final Duration openDelay;
+
+  /// How long it stays after the pointer leaves, so the pointer can reach it.
+  final Duration closeDelay;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
+
+  /// Its width, in logical pixels.
   final double width;
 
   @override
@@ -9419,10 +9919,13 @@ class ContextMenu extends StatefulWidget {
     this.width = 224,
   });
 
+  /// What is right-clicked or long pressed to open the menu.
   final Widget child;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
   final List<Widget> items;
+
+  /// Its width, in logical pixels.
   final double width;
 
   @override
@@ -9549,12 +10052,25 @@ class ScrollArea extends StatefulWidget {
     this.padding,
   }) : child = null;
 
+  /// What scrolls.
   final Widget? child;
+
+  /// How many items there are, for a list built as it scrolls.
   final int? itemCount;
+
+  /// Builds an item, by its number.
   final IndexedWidgetBuilder? itemBuilder;
+
+  /// Each item's height, when they are all the same: faster to scroll.
   final double? itemExtent;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
+
+  /// Its scroll position, to read or move from outside.
   final ScrollController? controller;
+
+  /// Room around the content, inside the scrolling.
   final EdgeInsetsGeometry? padding;
 
   @override
@@ -9641,8 +10157,13 @@ class DataColumn {
     this.sortable = false,
   });
 
+  /// The column's heading.
   final Widget label;
+
+  /// Its share of the width, against the other columns'.
   final int flex;
+
+  /// Its values line up at the end, as numbers do.
   final bool numeric;
 
   /// Its heading is a button that asks for the table sorted by it ([DataTable.onSort]).
@@ -9703,15 +10224,28 @@ class DataTable extends StatelessWidget {
     this.onSelectChanged,
   }) : rows = null;
 
+  /// The columns, in order.
   final List<DataColumn> columns;
 
   /// One widget per column in each row.
   final List<List<Widget>>? rows;
+
+  /// How many rows there are.
   final int? rowCount;
+
+  /// Builds a row's cells, by its number.
   final List<Widget> Function(int index)? rowBuilder;
+
+  /// The table's height; it scrolls inside it.
   final double? height;
+
+  /// Each row's height.
   final double rowHeight;
+
+  /// Under the last row: totals, a pager.
   final List<Widget>? footer;
+
+  /// Under the table, centred: what it holds.
   final Widget? caption;
 
   /// Makes each row a button.
@@ -9719,6 +10253,8 @@ class DataTable extends StatelessWidget {
 
   /// The column the rows are sorted by, and which way, for its heading to show.
   final int? sortColumn;
+
+  /// Whether the sorted column runs low to high.
   final bool sortAscending;
 
   /// Asks for the rows sorted by a column: sort them, and pass them back in.
@@ -9726,6 +10262,8 @@ class DataTable extends StatelessWidget {
 
   /// The rows picked, by index; null leaves the checkboxes out.
   final Set<int>? selected;
+
+  /// Told the rows picked; with it, each row has a box to pick it.
   final ValueChanged<Set<int>>? onSelectChanged;
 
   int get _count => rows?.length ?? rowCount!;
@@ -10054,9 +10592,16 @@ class Sheet extends StatelessWidget {
     this.showClose = true,
   });
 
+  /// The sheet's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom: usually buttons.
   final List<Widget> footer;
 
   /// For a left or right sheet; it is never more than three quarters of the screen.
@@ -10293,9 +10838,16 @@ class Drawer extends StatefulWidget {
     this.maxWidth = 512,
   });
 
+  /// The drawer's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom: usually buttons.
   final List<Widget> footer;
 
   /// From the top or the bottom of a wide screen, the content is kept to this width,
@@ -10545,6 +11097,7 @@ class InputGroup extends StatefulWidget {
     this.error = false,
   });
 
+  /// The field: an Input with its decoration off, or a Textarea.
   final Widget child;
 
   /// Before the field and after it, on its line.
@@ -10684,18 +11237,40 @@ class InputOtp extends StatefulWidget {
     this.semanticLabel = 'One-time code',
   });
 
+  /// How many characters the code has.
   final int length;
 
   /// How the boxes are split, with a dash between groups: [3, 3]. Null keeps them together.
   final List<int>? groups;
+
+  /// Told each new value as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// Told the code once every box is filled.
   final ValueChanged<String>? onCompleted;
+
+  /// Takes digits alone.
   final bool digitsOnly;
+
+  /// Holds its state, to read and change from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
+
+  /// Marks it as wrong, in the destructive colour. Inside a FormItem, a screen reader
+  /// also hears that it is invalid.
   final bool error;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String semanticLabel;
 
   @override
@@ -10901,6 +11476,7 @@ import 'theme.dart';
 class ResizablePanel {
   const ResizablePanel({required this.child, this.size = 1, this.minSize = .1});
 
+  /// What the panel shows.
   final Widget child;
 
   /// A share of the room, compared with the other panels' shares.
@@ -10928,7 +11504,10 @@ class Resizable extends StatefulWidget {
     this.onResize,
   });
 
+  /// The panels, in order.
   final List<ResizablePanel> panels;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Draws a grip on each handle, to show it can be dragged.
@@ -11151,13 +11730,22 @@ class CommandItem {
     this.enabled = true,
   });
 
+  /// What the item says.
   final String label;
+
+  /// Called when it is chosen.
   final VoidCallback onSelected;
 
   /// Other words it is found by: "invoice" for "Billing".
   final List<String> keywords;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// A key combination, shown faint at the end: '⌘K'.
   final String? shortcut;
+
+  /// False fades it and stops it being chosen.
   final bool enabled;
 }
 
@@ -11166,7 +11754,10 @@ class CommandItem {
 class CommandGroup {
   const CommandGroup(this.items, {this.heading});
 
+  /// The group's heading.
   final String? heading;
+
+  /// The group's items.
   final List<CommandItem> items;
 }
 
@@ -11194,10 +11785,19 @@ class Command extends StatefulWidget {
     this.maxHeight = 300,
   });
 
+  /// The items, in titled groups.
   final List<CommandGroup> groups;
+
+  /// Faint text shown while it is empty.
   final String placeholder;
+
+  /// Shown when nothing matches what was typed.
   final String emptyText;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// The tallest the list grows before it scrolls.
   final double maxHeight;
 
   @override
@@ -11612,11 +12212,22 @@ class ComboboxOption<T> {
     this.icon,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// What the option says.
   final String label;
+
+  /// Other words that find it when typed.
   final List<String> keywords;
+
+  /// False fades it and stops it being picked.
   final bool enabled;
+
+  /// The heading it sits under.
   final String? group;
+
+  /// Before the label.
   final Widget? icon;
 }
 
@@ -11662,20 +12273,38 @@ class Combobox<T> extends StatefulWidget {
        onChanged = null,
        onCleared = null;
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// The values chosen, for a combobox that takes several.
   final Set<T>? values;
+
+  /// What can be chosen, in order.
   final List<ComboboxOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
+
+  /// Told the new values whenever one changes.
   final ValueChanged<Set<T>>? onValuesChanged;
 
   /// Shows a button that clears the choice, and is called by it.
   final VoidCallback? onCleared;
-  final String placeholder, searchPlaceholder, emptyText;
+
+  /// Faint text shown while it is empty.
+  final String placeholder;
+
+  /// Faint text in the search field.
+  final String searchPlaceholder;
+
+  /// Shown when nothing matches what was typed.
+  final String emptyText;
 
   /// Draws it as invalid.
   final bool error;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -11975,6 +12604,7 @@ import 'theme.dart';
 class MenubarMenu {
   const MenubarMenu(this.label, {required this.items});
 
+  /// The menu's name in the bar.
   final String label;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
@@ -11993,6 +12623,7 @@ class MenubarMenu {
 class Menubar extends StatefulWidget {
   const Menubar({super.key, required this.menus});
 
+  /// The menus, in order along the bar.
   final List<MenubarMenu> menus;
 
   @override
@@ -12166,8 +12797,13 @@ class NavigationMenuItem {
     this.width = 400,
   }) : onPressed = null;
 
+  /// Its name in the bar.
   final String label;
+
+  /// Called when it is chosen, for an item without a panel.
   final VoidCallback? onPressed;
+
+  /// What its panel shows, usually links; null makes it a link itself.
   final WidgetBuilder? content;
 
   /// The panel's width.
@@ -12189,6 +12825,7 @@ class NavigationMenuItem {
 class NavigationMenu extends StatefulWidget {
   const NavigationMenu({super.key, required this.items});
 
+  /// The items along the bar.
   final List<NavigationMenuItem> items;
 
   @override
@@ -12331,8 +12968,13 @@ class NavigationMenuLink extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// The link's name.
   final String title;
+
+  /// A line under the name: where it goes.
   final String? description;
+
+  /// Called when it is chosen.
   final VoidCallback onPressed;
 
   @override
@@ -12446,6 +13088,7 @@ class Carousel extends StatefulWidget {
     this.semanticLabel = 'Carousel',
   });
 
+  /// The slides, in order.
   final List<Widget> children;
 
   /// How much of the way across one slide takes: 1 shows one, 1 / 3 shows three.
@@ -12456,8 +13099,14 @@ class Carousel extends StatefulWidget {
 
   /// Previous and Next buttons either side of the slides.
   final bool controls;
+
+  /// Told the slide that shows.
   final ValueChanged<int>? onChanged;
+
+  /// Moves it from outside, and tells which slide shows.
   final CarouselController? controller;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Moves on by itself this often.
@@ -12465,6 +13114,8 @@ class Carousel extends StatefulWidget {
 
   /// After the last slide comes the first again.
   final bool loop;
+
+  /// What a screen reader calls it: 'Featured products'.
   final String semanticLabel;
 
   @override
@@ -12650,6 +13301,7 @@ import 'theme.dart';
 class AshlarSelectionControls extends TextSelectionControls {
   AshlarSelectionControls(this.color);
 
+  /// The selection handles' colour.
   final Color color;
   static const _size = 18.0;
 
@@ -12750,6 +13402,8 @@ class AshlarSelectionMenu extends StatelessWidget {
 
   /// Where the selection is, from the field's or the region's state.
   final TextSelectionToolbarAnchors anchors;
+
+  /// The menu's buttons: cut, copy, paste, select all.
   final List<ContextMenuButtonItem> items;
 
   static String _label(ContextMenuButtonItem item) =>
@@ -12902,6 +13556,7 @@ class DateNames {
 class DateNamesScope extends InheritedWidget {
   const DateNamesScope({super.key, required this.names, required super.child});
 
+  /// Month and weekday names, and how a date is written.
   final DateNames names;
 
   @override
@@ -12913,7 +13568,10 @@ class DateNamesScope extends InheritedWidget {
 class DateRange {
   const DateRange(this.start, [this.end]);
 
+  /// The first day.
   final DateTime start;
+
+  /// The last day, or null while only the first is picked.
   final DateTime? end;
 
   bool contains(DateTime d) =>
@@ -13007,13 +13665,22 @@ class Calendar extends StatefulWidget {
        range = null,
        onRangeChanged = null;
 
+  /// The day picked, or null.
   final DateTime? selected;
+
+  /// Told the day picked.
   final ValueChanged<DateTime>? onSelected;
+
+  /// The days picked, for a calendar that takes a span.
   final DateRange? range;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<DateRange>? onRangeChanged;
 
   /// The days picked, each at midnight.
   final Set<DateTime>? days;
+
+  /// Told the days picked, for a calendar that takes several.
   final ValueChanged<Set<DateTime>>? onDaysChanged;
 
   /// The month shown first: the selected one, else this month.
@@ -13024,6 +13691,8 @@ class Calendar extends StatefulWidget {
 
   /// Days that cannot be picked: weekends, booked days.
   final bool Function(DateTime day)? isDisabled;
+
+  /// Takes the keyboard's focus when it first appears, on the picked day.
   final bool autofocus;
 
   /// How many months show side by side.
@@ -13547,12 +14216,28 @@ class DatePicker extends StatefulWidget {
        value = null,
        onChanged = null;
 
+  /// The day picked, or null.
   final DateTime? value;
+
+  /// Told each new value as it changes.
   final ValueChanged<DateTime>? onChanged;
+
+  /// The days picked, for a picker that takes a span.
   final DateRange? range;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<DateRange>? onRangeChanged;
+
+  /// Faint text shown while it is empty.
   final String placeholder;
-  final DateTime? firstDate, lastDate;
+
+  /// The earliest day that can be picked.
+  final DateTime? firstDate;
+
+  /// The latest day that can be picked.
+  final DateTime? lastDate;
+
+  /// Days that cannot be picked: weekends, booked days.
   final bool Function(DateTime day)? isDisabled;
 
   /// What the date is for, read out before it: 'Due date'.
@@ -13731,7 +14416,10 @@ class ChartSeries {
     this.icon,
   });
 
+  /// The series' name, in the legend, the tooltip and what a screen reader hears.
   final String label;
+
+  /// The values, in order.
   final List<double> values;
 
   /// Null takes the theme's chart colours in turn.
@@ -13749,9 +14437,16 @@ class ChartSeries {
 class ChartSlice {
   const ChartSlice(this.label, this.value, {this.color, this.icon});
 
+  /// The slice's name, in the legend, the tooltip and what a screen reader hears.
   final String label;
+
+  /// Its size; its share is this over the total.
   final double value;
+
+  /// Null takes the theme's chart colours in turn.
   final Color? color;
+
+  /// Shown in the legend and the tooltip in place of the colour swatch.
   final IconData? icon;
 }
 
@@ -13795,6 +14490,8 @@ class ChartTooltip {
 
   /// False: no tooltip, though the keys still step and a screen reader still reads.
   final bool enabled;
+
+  /// The mark beside each value: a dot, a line, a dashed line or none.
   final ChartIndicator indicator;
 
   /// False hides the label (the month, say) at the top.
@@ -13921,9 +14618,14 @@ abstract class _Cartesian extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// One per bar, point or group: the months, say.
   final List<String> labels;
+
+  /// The values, one run per series.
   final List<ChartSeries> series;
   final _Kind kind;
+
+  /// The chart's height, labels included.
   final double height;
 
   /// Each series on top of the one before.
@@ -13934,6 +14636,8 @@ abstract class _Cartesian extends StatefulWidget {
 
   /// Bars lying along, labels down the side.
   final bool horizontal;
+
+  /// Smooth, straight, or in steps.
   final ChartCurve curve;
 
   /// A dot on each value of a line.
@@ -13953,7 +14657,11 @@ abstract class _Cartesian extends StatefulWidget {
 
   /// Lines across the plot at each step of the scale.
   final bool grid;
+
+  /// Where the legend sits, or none. Tapping a name hides its series.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
 
   /// How a value is written in the tooltip, on the chart and read out: "KES 2,400".
@@ -14319,6 +15027,8 @@ class _CartesianPainter extends CustomPainter {
   });
 
   final _Kind kind;
+
+  /// The values, in order.
   final List<List<double>> values;
   final List<Color> colors;
   final List<List<Color>?> barColors;
@@ -14689,21 +15399,41 @@ class PieChart extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The slices, clockwise from the top.
   final List<ChartSlice> slices;
+
+  /// A second ring inside: the same whole split another way.
   final List<ChartSlice>? inner;
+
+  /// Its width and height.
   final double size;
+
+  /// A hole in the middle, for the center widget.
   final bool donut;
+
+  /// In the hole: the figure the chart is about.
   final Widget? center;
 
   /// One slice drawn out from the rest: the one being talked about.
   final int? active;
+
+  /// Writing on the slices: none, each value inside, or each name outside.
   final PieLabels labels;
 
   /// A thin line of the page between slices.
   final bool separators;
+
+  /// Where the legend sits, or none.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -15026,8 +15756,14 @@ class RadarChart extends StatefulWidget {
 
   /// One per axis, round the circle clockwise from the top.
   final List<String> labels;
+
+  /// The values, a shape per series.
   final List<ChartSeries> series;
+
+  /// Its width and height, labels included.
   final double size;
+
+  /// Polygons, circles, or nothing behind the shapes.
   final RadarGrid grid;
 
   /// Lines from the centre out to each label.
@@ -15038,13 +15774,24 @@ class RadarChart extends StatefulWidget {
 
   /// The shapes filled; false draws their outlines alone.
   final bool fill;
+
+  /// A dot on each value.
   final bool dots;
 
   /// The value at the edge; a round number above the largest when not given.
   final double? max;
+
+  /// Where the legend sits, or none. Tapping a name hides its series.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -15356,11 +16103,14 @@ class RadialChart extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The values, a ring each from the outside in, or parts of one ring.
   final List<ChartSlice> slices;
 
   /// The value a full ring stands for; the largest value, or the total when stacked,
   /// when not given.
   final double? max;
+
+  /// Its width; a half ring is about half as tall.
   final double size;
 
   /// One ring, split between the slices, in place of a ring each.
@@ -15374,9 +16124,18 @@ class RadialChart extends StatefulWidget {
 
   /// In the middle: the figure the chart is about.
   final Widget? center;
+
+  /// Where the legend sits, or none.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -15946,10 +16705,13 @@ class SidebarAction {
     required this.onPressed,
   });
 
+  /// Its icon.
   final IconData icon;
 
   /// What it does, for screen readers and its tooltip.
   final String label;
+
+  /// Called when it is pressed.
   final VoidCallback onPressed;
 }
 
@@ -15967,8 +16729,13 @@ class SidebarItem {
     this.initiallyOpen = false,
   });
 
+  /// Its name; shown in a tooltip when the sidebar is collapsed to icons.
   final String label;
+
+  /// Its icon, shown alone when the sidebar is collapsed.
   final IconData? icon;
+
+  /// Called when it is chosen.
   final VoidCallback? onPressed;
 
   /// The page being shown.
@@ -15982,6 +16749,8 @@ class SidebarItem {
 
   /// Pages under this one, shown when it is opened.
   final List<SidebarItem> children;
+
+  /// Whether its list starts open.
   final bool initiallyOpen;
 }
 
@@ -16010,10 +16779,17 @@ class SidebarGroup {
   }) : items = const [],
        loading = 0;
 
+  /// The group's title.
   final String? label;
+
+  /// The group's items.
   final List<SidebarItem> items;
+
+  /// A small button at the end of the group's label: add, more.
   final SidebarAction? action;
   final int loading;
+
+  /// Anything else the sidebar holds: a calendar, a file tree, a card.
   final Widget? child;
 
   /// Kept at the bottom of the sidebar, above the footer, where help and settings go.
@@ -16081,20 +16857,40 @@ class SidebarLayout extends StatefulWidget {
     this.narrow = 768,
   });
 
+  /// The navigation, in titled groups.
   final List<SidebarGroup> groups;
+
+  /// The page beside the sidebar.
   final Widget child;
-  final Widget? header, footer;
+
+  /// Above the groups: the app's name, a team switcher, a search field.
+  final Widget? header;
+
+  /// Below the groups: who is signed in.
+  final Widget? footer;
+
+  /// How it gets out of the way: to icons, out of sight, or not at all.
   final SidebarCollapse collapse;
+
+  /// Edge to edge, floating, or with the page inset as a card.
   final SidebarVariant variant;
+
+  /// Which side of the screen it is on; it follows the reading direction.
   final SidebarSide side;
+
+  /// Whether it starts open, when nothing holds its state.
   final bool initiallyOpen;
 
   /// Held by the app when given, with [onOpenChanged] told of each toggle.
   final bool? open;
+
+  /// Told when it opens or closes.
   final ValueChanged<bool>? onOpenChanged;
 
   /// A thin strip along the sidebar's inner edge that toggles it on a click.
   final bool rail;
+
+  /// How wide it is when open.
   final double width;
 
   /// Below this width the sidebar is hidden, and slides in over the page.
@@ -16824,7 +17620,10 @@ class FormItem<T> extends FormField<T> {
          },
        );
 
+  /// Above the control, or beside it when across.
   final Widget? label;
+
+  /// Under the control: what the field is for.
   final Widget? description;
 
   /// Vertical puts the label above (inputs, selects); horizontal puts the control first
@@ -24355,6 +25154,8 @@ class Message extends StatelessWidget {
 
   /// What was said. Several things go in a [Column], or a [BubbleGroup].
   final Widget child;
+
+  /// Which side it sits on: the other party at the start, you at the end.
   final MessageAlign align;
 
   /// Beside the message, level with its last line.
@@ -24433,6 +25234,7 @@ MessageAlign messageAlignOf(BuildContext context) =>
 class MessageGroup extends StatelessWidget {
   const MessageGroup({super.key, required this.children});
 
+  /// The messages, in the order they were sent.
   final List<Widget> children;
 
   @override
@@ -24504,15 +25306,22 @@ class Bubble extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// What was said.
   final Widget child;
+
+  /// Its fill: primary, secondary, muted, tinted, outline, ghost or destructive.
   final BubbleVariant variant;
 
   /// A small pill over the bubble's edge: emoji counts, or buttons to react with.
   final Widget? reactions;
+
+  /// Whether the reactions sit over the top edge or the bottom.
   final BubbleReactionsSide reactionsSide;
 
   /// Makes the whole bubble a button: a suggested reply, say.
   final VoidCallback? onPressed;
+
+  /// What a screen reader calls it when it is a button and its text does not say.
   final String? semanticLabel;
 
   @override
@@ -24611,6 +25420,7 @@ class Bubble extends StatelessWidget {
 class BubbleGroup extends StatelessWidget {
   const BubbleGroup({super.key, required this.children});
 
+  /// The bubbles, in the order they were sent.
   final List<Widget> children;
 
   @override
@@ -24671,7 +25481,10 @@ class Marker extends StatelessWidget {
     this.icon,
   });
 
+  /// The note: Text('Today').
   final Widget child;
+
+  /// Faint text, between two lines, or with a line under it.
   final MarkerVariant variant;
 
   /// 16 square, before the text. Hidden from screen readers: the text says it.
@@ -24810,7 +25623,11 @@ class Attachment extends StatelessWidget {
 
   /// A picture of it: the image itself, or a preview.
   final ImageProvider? image;
+
+  /// Where it is on its way: idle, uploading, processing, failed or done.
   final AttachmentState state;
+
+  /// Medium, small or extra small.
   final AttachmentSize size;
 
   /// Across: the picture beside the name. Upright: a tile, the picture above.
@@ -25017,10 +25834,13 @@ class AttachmentAction extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// Its icon.
   final IconData icon;
 
   /// What it does, for screen readers and the tooltip.
   final String label;
+
+  /// Called when it is pressed. Null disables it.
   final VoidCallback? onPressed;
 
   @override
@@ -25037,6 +25857,7 @@ class AttachmentAction extends StatelessWidget {
 class AttachmentGroup extends StatelessWidget {
   const AttachmentGroup({super.key, required this.children});
 
+  /// The attachments, in order.
   final List<Widget> children;
 
   @override
@@ -25206,6 +26027,8 @@ class MessageScrollerItem {
 
   /// Stays the same for the same row, so the scroller can find it and keep its place.
   final Object id;
+
+  /// The row: a message, a marker, a typing indicator.
   final Widget child;
 
   /// Starts a turn: when one is added, it is brought near the top of the view, and the
@@ -25264,8 +26087,13 @@ class MessageScroller extends StatefulWidget {
     this.semanticLabel = 'Messages',
   });
 
+  /// The rows, oldest first.
   final List<MessageScrollerItem> items;
+
+  /// Moves it from outside, and tells what it shows.
   final MessageScrollerController? controller;
+
+  /// Where it opens: the start, the end, or the last anchored turn.
   final MessageScrollStart start;
 
   /// While the reader is at the end, it stays at the end as an answer grows. Scrolling away
@@ -25282,10 +26110,14 @@ class MessageScroller extends StatefulWidget {
 
   /// Space between rows.
   final double gap;
+
+  /// Room around the rows, inside the scrolling.
   final EdgeInsets padding;
 
   /// A button to the end, shown when there is more below.
   final bool showButton;
+
+  /// What a screen reader calls the conversation.
   final String semanticLabel;
 
   @override
@@ -25824,9 +26656,16 @@ class QuestionChoice {
     this.enabled = true,
   });
 
+  /// The answer's value, given back in the answers.
   final String value;
+
+  /// What the answer says.
   final String label;
+
+  /// A line under the label.
   final String? description;
+
+  /// False fades it and stops it being picked.
   final bool enabled;
 }
 
@@ -25847,8 +26686,14 @@ class Question {
 
   /// The answer's key in what [Questionnaire.onSubmit] gives.
   final String name;
+
+  /// The question.
   final String prompt;
+
+  /// A line under the question.
   final String? description;
+
+  /// The answers to pick from.
   final List<QuestionChoice> choices;
 
   /// Several choices may be picked, not one.
@@ -25860,6 +26705,8 @@ class Question {
   /// A field for an answer of one's own, named by this (a screen reader hears it). Alone,
   /// without [choices], the question is answered in words.
   final String? other;
+
+  /// Faint text in the answer field while it is empty.
   final String? otherPlaceholder;
 
   /// Whether to ask it, from the answers so far: a question that does not apply is left
@@ -25876,8 +26723,13 @@ class QuestionAnswer {
     this.skipped = false,
   });
 
+  /// The choices picked.
   final Set<String> picked;
+
+  /// Words of one's own.
   final String text;
+
+  /// Whether the question was skipped.
   final bool skipped;
 
   bool get answered => picked.isNotEmpty || text.trim().isNotEmpty;
@@ -25903,7 +26755,22 @@ class QuestionnaireLabels {
     this.progress = _progress,
   });
 
-  final String previous, next, skip, submit, required;
+  /// The back button.
+  final String previous;
+
+  /// The next button.
+  final String next;
+
+  /// The skip button.
+  final String skip;
+
+  /// The button on the last question.
+  final String submit;
+
+  /// Shown when a required question is left unanswered.
+  final String required;
+
+  /// Writes where you are: 'Question 2 of 5'.
   final String Function(int current, int total) progress;
 
   static String _progress(int current, int total) =>
@@ -25939,6 +26806,7 @@ class Questionnaire extends StatefulWidget {
     this.validator,
   });
 
+  /// The questions, in order.
   final List<Question> questions;
 
   /// Given every answer, by question name, when the last is done.
@@ -25949,12 +26817,20 @@ class Questionnaire extends StatefulWidget {
 
   /// Which question shows, when you hold it: to send someone back to one.
   final int? index;
+
+  /// Told the question that shows.
   final ValueChanged<int>? onIndexChanged;
 
   /// Told every change, to save as it goes.
   final ValueChanged<Map<String, QuestionAnswer>>? onChanged;
+
+  /// Letters or numbers that pick answers, shown beside them.
   final QuestionShortcuts shortcuts;
+
+  /// Where you are, as words and a bar, above the questions.
   final bool showProgress;
+
+  /// The words on its buttons and in its messages.
   final QuestionnaireLabels labels;
 
   /// A check of your own on an answer: the message to show, or null when it will do.

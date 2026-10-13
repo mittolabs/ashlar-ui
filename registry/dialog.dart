@@ -71,11 +71,22 @@ class Dialog extends StatelessWidget {
     this.centered = false,
   });
 
+  /// The dialog's title, read first by a screen reader.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom, the main one last: usually buttons.
   final List<Widget> actions;
+
+  /// A close button in the corner.
   final bool showClose;
+
+  /// The widest it grows.
   final double maxWidth;
 
   /// Above the title: an icon on a muted circle, or an image.

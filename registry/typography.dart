@@ -26,6 +26,8 @@ Widget _heading(BuildContext context, String text, TextStyle style) =>
 /// The page's title: 36, bold.
 class H1 extends StatelessWidget {
   const H1(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -44,6 +46,8 @@ class H1 extends StatelessWidget {
 /// A section: 30, semibold.
 class H2 extends StatelessWidget {
   const H2(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -62,6 +66,8 @@ class H2 extends StatelessWidget {
 /// A part of a section: 24, semibold.
 class H3 extends StatelessWidget {
   const H3(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -75,6 +81,8 @@ class H3 extends StatelessWidget {
 /// A small heading: 20, semibold.
 class H4 extends StatelessWidget {
   const H4(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -88,6 +96,8 @@ class H4 extends StatelessWidget {
 /// A paragraph of reading text: 16, with room between lines.
 class P extends StatelessWidget {
   const P(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -100,6 +110,8 @@ class P extends StatelessWidget {
 /// The opening paragraph, larger and quieter: 20, muted.
 class Lead extends StatelessWidget {
   const Lead(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -116,6 +128,8 @@ class Lead extends StatelessWidget {
 /// Text that stands out a little: 18, semibold.
 class Large extends StatelessWidget {
   const Large(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -126,6 +140,8 @@ class Large extends StatelessWidget {
 /// A small note: 14, medium.
 class Small extends StatelessWidget {
   const Small(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -136,6 +152,8 @@ class Small extends StatelessWidget {
 /// Text that recedes: 14, muted.
 class Muted extends StatelessWidget {
   const Muted(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -152,6 +170,8 @@ class Muted extends StatelessWidget {
 /// A quotation, set in from a line at its left.
 class Blockquote extends StatelessWidget {
   const Blockquote(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -178,6 +198,8 @@ class Blockquote extends StatelessWidget {
 /// A word of code inside a sentence.
 class InlineCode extends StatelessWidget {
   const InlineCode(this.text, {super.key});
+
+  /// The words.
   final String text;
 
   @override
@@ -204,6 +226,8 @@ class InlineCode extends StatelessWidget {
 /// A bulleted list.
 class BulletList extends StatelessWidget {
   const BulletList(this.items, {super.key});
+
+  /// The points, in order.
   final List<String> items;
 
   @override
@@ -236,7 +260,10 @@ class TypographyTable extends StatelessWidget {
     required this.rows,
   });
 
+  /// The column headings.
   final List<String> headings;
+
+  /// The rows, each a list of cells.
   final List<List<String>> rows;
 
   @override

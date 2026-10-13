@@ -20,7 +20,11 @@ class Skeleton extends StatefulWidget {
 
   /// Null fills the width it is given.
   final double? width;
+
+  /// Its height.
   final double height;
+
+  /// Round, for where an avatar will be.
   final bool circle;
 
   @override

@@ -67,23 +67,42 @@ class Slider extends StatefulWidget {
        onChangeEnd = null,
        onRangeChanged = null;
 
+  /// The value, between min and max.
   final double? value;
   final (double, double)? range;
+
+  /// The values of a slider with several thumbs, in order.
   final List<double>? values;
 
   /// Null disables it.
   final ValueChanged<double>? onChanged;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<(double, double)>? onRangeChanged;
+
+  /// Told the new values whenever one changes.
   final ValueChanged<List<double>>? onValuesChanged;
+
+  /// Told the value when a drag or a key press ends: for saving.
   final ValueChanged<double>? onChangeEnd;
-  final double min, max;
+
+  /// The value at the start.
+  final double min;
+
+  /// The value at the end.
+  final double max;
 
   /// What the value snaps to. Null moves freely; the keys then move a hundredth.
   final double? step;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// How a screen reader reads a value. Defaults to a percentage of the way along.
   final String Function(double value)? semanticFormat;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Upright, how tall it is; across, it fills the width it is given.

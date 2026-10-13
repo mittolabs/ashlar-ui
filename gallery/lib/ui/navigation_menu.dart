@@ -24,8 +24,13 @@ class NavigationMenuItem {
     this.width = 400,
   }) : onPressed = null;
 
+  /// Its name in the bar.
   final String label;
+
+  /// Called when it is chosen, for an item without a panel.
   final VoidCallback? onPressed;
+
+  /// What its panel shows, usually links; null makes it a link itself.
   final WidgetBuilder? content;
 
   /// The panel's width.
@@ -47,6 +52,7 @@ class NavigationMenuItem {
 class NavigationMenu extends StatefulWidget {
   const NavigationMenu({super.key, required this.items});
 
+  /// The items along the bar.
   final List<NavigationMenuItem> items;
 
   @override
@@ -189,8 +195,13 @@ class NavigationMenuLink extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// The link's name.
   final String title;
+
+  /// A line under the name: where it goes.
   final String? description;
+
+  /// Called when it is chosen.
   final VoidCallback onPressed;
 
   @override

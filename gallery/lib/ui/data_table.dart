@@ -19,8 +19,13 @@ class DataColumn {
     this.sortable = false,
   });
 
+  /// The column's heading.
   final Widget label;
+
+  /// Its share of the width, against the other columns'.
   final int flex;
+
+  /// Its values line up at the end, as numbers do.
   final bool numeric;
 
   /// Its heading is a button that asks for the table sorted by it ([DataTable.onSort]).
@@ -81,15 +86,28 @@ class DataTable extends StatelessWidget {
     this.onSelectChanged,
   }) : rows = null;
 
+  /// The columns, in order.
   final List<DataColumn> columns;
 
   /// One widget per column in each row.
   final List<List<Widget>>? rows;
+
+  /// How many rows there are.
   final int? rowCount;
+
+  /// Builds a row's cells, by its number.
   final List<Widget> Function(int index)? rowBuilder;
+
+  /// The table's height; it scrolls inside it.
   final double? height;
+
+  /// Each row's height.
   final double rowHeight;
+
+  /// Under the last row: totals, a pager.
   final List<Widget>? footer;
+
+  /// Under the table, centred: what it holds.
   final Widget? caption;
 
   /// Makes each row a button.
@@ -97,6 +115,8 @@ class DataTable extends StatelessWidget {
 
   /// The column the rows are sorted by, and which way, for its heading to show.
   final int? sortColumn;
+
+  /// Whether the sorted column runs low to high.
   final bool sortAscending;
 
   /// Asks for the rows sorted by a column: sort them, and pass them back in.
@@ -104,6 +124,8 @@ class DataTable extends StatelessWidget {
 
   /// The rows picked, by index; null leaves the checkboxes out.
   final Set<int>? selected;
+
+  /// Told the rows picked; with it, each row has a box to pick it.
   final ValueChanged<Set<int>>? onSelectChanged;
 
   int get _count => rows?.length ?? rowCount!;

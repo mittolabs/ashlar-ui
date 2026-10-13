@@ -26,9 +26,16 @@ class QuestionChoice {
     this.enabled = true,
   });
 
+  /// The answer's value, given back in the answers.
   final String value;
+
+  /// What the answer says.
   final String label;
+
+  /// A line under the label.
   final String? description;
+
+  /// False fades it and stops it being picked.
   final bool enabled;
 }
 
@@ -49,8 +56,14 @@ class Question {
 
   /// The answer's key in what [Questionnaire.onSubmit] gives.
   final String name;
+
+  /// The question.
   final String prompt;
+
+  /// A line under the question.
   final String? description;
+
+  /// The answers to pick from.
   final List<QuestionChoice> choices;
 
   /// Several choices may be picked, not one.
@@ -62,6 +75,8 @@ class Question {
   /// A field for an answer of one's own, named by this (a screen reader hears it). Alone,
   /// without [choices], the question is answered in words.
   final String? other;
+
+  /// Faint text in the answer field while it is empty.
   final String? otherPlaceholder;
 
   /// Whether to ask it, from the answers so far: a question that does not apply is left
@@ -78,8 +93,13 @@ class QuestionAnswer {
     this.skipped = false,
   });
 
+  /// The choices picked.
   final Set<String> picked;
+
+  /// Words of one's own.
   final String text;
+
+  /// Whether the question was skipped.
   final bool skipped;
 
   bool get answered => picked.isNotEmpty || text.trim().isNotEmpty;
@@ -105,7 +125,22 @@ class QuestionnaireLabels {
     this.progress = _progress,
   });
 
-  final String previous, next, skip, submit, required;
+  /// The back button.
+  final String previous;
+
+  /// The next button.
+  final String next;
+
+  /// The skip button.
+  final String skip;
+
+  /// The button on the last question.
+  final String submit;
+
+  /// Shown when a required question is left unanswered.
+  final String required;
+
+  /// Writes where you are: 'Question 2 of 5'.
   final String Function(int current, int total) progress;
 
   static String _progress(int current, int total) =>
@@ -141,6 +176,7 @@ class Questionnaire extends StatefulWidget {
     this.validator,
   });
 
+  /// The questions, in order.
   final List<Question> questions;
 
   /// Given every answer, by question name, when the last is done.
@@ -151,12 +187,20 @@ class Questionnaire extends StatefulWidget {
 
   /// Which question shows, when you hold it: to send someone back to one.
   final int? index;
+
+  /// Told the question that shows.
   final ValueChanged<int>? onIndexChanged;
 
   /// Told every change, to save as it goes.
   final ValueChanged<Map<String, QuestionAnswer>>? onChanged;
+
+  /// Letters or numbers that pick answers, shown beside them.
   final QuestionShortcuts shortcuts;
+
+  /// Where you are, as words and a bar, above the questions.
   final bool showProgress;
+
+  /// The words on its buttons and in its messages.
   final QuestionnaireLabels labels;
 
   /// A check of your own on an answer: the message to show, or null when it will do.

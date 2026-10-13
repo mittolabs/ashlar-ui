@@ -31,6 +31,8 @@ class Message extends StatelessWidget {
 
   /// What was said. Several things go in a [Column], or a [BubbleGroup].
   final Widget child;
+
+  /// Which side it sits on: the other party at the start, you at the end.
   final MessageAlign align;
 
   /// Beside the message, level with its last line.
@@ -109,6 +111,7 @@ MessageAlign messageAlignOf(BuildContext context) =>
 class MessageGroup extends StatelessWidget {
   const MessageGroup({super.key, required this.children});
 
+  /// The messages, in the order they were sent.
   final List<Widget> children;
 
   @override

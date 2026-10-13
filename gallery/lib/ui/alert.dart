@@ -29,11 +29,16 @@ class Alert extends StatelessWidget {
     this.action,
   });
 
+  /// The alert's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
 
   /// A 16px icon at the top left.
   final Widget? icon;
+
+  /// Plain, or in the destructive colour for something wrong.
   final AlertVariant variant;
 
   /// A button at the top right.

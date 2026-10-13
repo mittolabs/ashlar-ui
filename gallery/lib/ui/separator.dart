@@ -8,6 +8,7 @@ import 'theme.dart';
 class Separator extends StatelessWidget {
   const Separator({super.key, this.axis = Axis.horizontal});
 
+  /// Horizontal draws a line across; vertical, down.
   final Axis axis;
 
   @override

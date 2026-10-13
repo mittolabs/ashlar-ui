@@ -38,6 +38,8 @@ class MessageScrollerItem {
 
   /// Stays the same for the same row, so the scroller can find it and keep its place.
   final Object id;
+
+  /// The row: a message, a marker, a typing indicator.
   final Widget child;
 
   /// Starts a turn: when one is added, it is brought near the top of the view, and the
@@ -96,8 +98,13 @@ class MessageScroller extends StatefulWidget {
     this.semanticLabel = 'Messages',
   });
 
+  /// The rows, oldest first.
   final List<MessageScrollerItem> items;
+
+  /// Moves it from outside, and tells what it shows.
   final MessageScrollerController? controller;
+
+  /// Where it opens: the start, the end, or the last anchored turn.
   final MessageScrollStart start;
 
   /// While the reader is at the end, it stays at the end as an answer grows. Scrolling away
@@ -114,10 +121,14 @@ class MessageScroller extends StatefulWidget {
 
   /// Space between rows.
   final double gap;
+
+  /// Room around the rows, inside the scrolling.
   final EdgeInsets padding;
 
   /// A button to the end, shown when there is more below.
   final bool showButton;
+
+  /// What a screen reader calls the conversation.
   final String semanticLabel;
 
   @override

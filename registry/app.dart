@@ -31,18 +31,43 @@ class AshlarApp extends StatelessWidget {
     this.selectable,
   });
 
+  /// The first page, at '/'.
   final Widget? home;
+
+  /// Pages by name, for Navigator.pushNamed.
   final Map<String, WidgetBuilder> routes;
+
+  /// The page to open on, by name, instead of home.
   final String? initialRoute;
+
+  /// Makes a page for a name not in routes.
   final RouteFactory? onGenerateRoute;
+
+  /// The navigator's key, to push pages from outside the widget tree.
   final GlobalKey<NavigatorState>? navigatorKey;
+
+  /// The app's name, for the task switcher and the browser tab.
   final String title;
+
+  /// The light theme.
   final AshlarThemeData theme;
+
+  /// The dark theme.
   final AshlarThemeData darkTheme;
+
+  /// Light, dark, or as the device is set.
   final AshlarThemeMode themeMode;
+
+  /// The app's language and region, when not the device's.
   final Locale? locale;
+
+  /// The languages and regions the app is written for.
   final Iterable<Locale> supportedLocales;
+
+  /// Where translated words come from.
   final Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates;
+
+  /// Wraps every page: for providers the whole app needs.
   final TransitionBuilder? builder;
 
   /// Whether text on the app's pages can be selected and copied, as on a web page.

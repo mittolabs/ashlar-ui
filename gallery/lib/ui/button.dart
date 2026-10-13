@@ -73,13 +73,32 @@ class Button extends StatelessWidget {
 
   /// Null disables the button.
   final VoidCallback? onPressed;
+
+  /// What it shows: usually a Text, an icon, or both.
   final Widget child;
+
+  /// Its fill: primary for the main action, then secondary, outline, ghost, destructive
+  /// or link.
   final ButtonVariant variant;
+
+  /// Its height and room, or a square for an icon alone.
   final ButtonSize size;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// After the label: usually an icon.
   final Widget? trailing;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// Fills the width it is given.

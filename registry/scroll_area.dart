@@ -42,12 +42,25 @@ class ScrollArea extends StatefulWidget {
     this.padding,
   }) : child = null;
 
+  /// What scrolls.
   final Widget? child;
+
+  /// How many items there are, for a list built as it scrolls.
   final int? itemCount;
+
+  /// Builds an item, by its number.
   final IndexedWidgetBuilder? itemBuilder;
+
+  /// Each item's height, when they are all the same: faster to scroll.
   final double? itemExtent;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
+
+  /// Its scroll position, to read or move from outside.
   final ScrollController? controller;
+
+  /// Room around the content, inside the scrolling.
   final EdgeInsetsGeometry? padding;
 
   @override

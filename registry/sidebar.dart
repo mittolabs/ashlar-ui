@@ -20,10 +20,13 @@ class SidebarAction {
     required this.onPressed,
   });
 
+  /// Its icon.
   final IconData icon;
 
   /// What it does, for screen readers and its tooltip.
   final String label;
+
+  /// Called when it is pressed.
   final VoidCallback onPressed;
 }
 
@@ -41,8 +44,13 @@ class SidebarItem {
     this.initiallyOpen = false,
   });
 
+  /// Its name; shown in a tooltip when the sidebar is collapsed to icons.
   final String label;
+
+  /// Its icon, shown alone when the sidebar is collapsed.
   final IconData? icon;
+
+  /// Called when it is chosen.
   final VoidCallback? onPressed;
 
   /// The page being shown.
@@ -56,6 +64,8 @@ class SidebarItem {
 
   /// Pages under this one, shown when it is opened.
   final List<SidebarItem> children;
+
+  /// Whether its list starts open.
   final bool initiallyOpen;
 }
 
@@ -84,10 +94,17 @@ class SidebarGroup {
   }) : items = const [],
        loading = 0;
 
+  /// The group's title.
   final String? label;
+
+  /// The group's items.
   final List<SidebarItem> items;
+
+  /// A small button at the end of the group's label: add, more.
   final SidebarAction? action;
   final int loading;
+
+  /// Anything else the sidebar holds: a calendar, a file tree, a card.
   final Widget? child;
 
   /// Kept at the bottom of the sidebar, above the footer, where help and settings go.
@@ -155,20 +172,40 @@ class SidebarLayout extends StatefulWidget {
     this.narrow = 768,
   });
 
+  /// The navigation, in titled groups.
   final List<SidebarGroup> groups;
+
+  /// The page beside the sidebar.
   final Widget child;
-  final Widget? header, footer;
+
+  /// Above the groups: the app's name, a team switcher, a search field.
+  final Widget? header;
+
+  /// Below the groups: who is signed in.
+  final Widget? footer;
+
+  /// How it gets out of the way: to icons, out of sight, or not at all.
   final SidebarCollapse collapse;
+
+  /// Edge to edge, floating, or with the page inset as a card.
   final SidebarVariant variant;
+
+  /// Which side of the screen it is on; it follows the reading direction.
   final SidebarSide side;
+
+  /// Whether it starts open, when nothing holds its state.
   final bool initiallyOpen;
 
   /// Held by the app when given, with [onOpenChanged] told of each toggle.
   final bool? open;
+
+  /// Told when it opens or closes.
   final ValueChanged<bool>? onOpenChanged;
 
   /// A thin strip along the sidebar's inner edge that toggles it on a click.
   final bool rail;
+
+  /// How wide it is when open.
   final double width;
 
   /// Below this width the sidebar is hidden, and slides in over the page.

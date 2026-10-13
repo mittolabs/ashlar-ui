@@ -28,11 +28,20 @@ class Collapsible extends StatefulWidget {
     this.initiallyOpen = false,
   });
 
+  /// Builds what opens and closes it, given whether it is open and a way to toggle it.
   final Widget Function(BuildContext context, bool open, VoidCallback toggle)
   builder;
+
+  /// What shows when it is open.
   final Widget child;
+
+  /// Whether it is open, when you hold its state.
   final bool? open;
+
+  /// Told when it opens or closes.
   final ValueChanged<bool>? onChanged;
+
+  /// Whether it starts open, when nothing holds its state from outside.
   final bool initiallyOpen;
 
   @override

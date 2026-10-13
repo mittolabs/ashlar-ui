@@ -27,8 +27,14 @@ class Empty extends StatelessWidget {
 
   /// Drawn in a small muted square above the title.
   final Widget? icon;
+
+  /// What is empty.
   final Widget title;
+
+  /// What to do about it.
   final Widget? description;
+
+  /// Buttons to do it.
   final List<Widget> actions;
 
   /// On a muted ground, filling the width it is given.

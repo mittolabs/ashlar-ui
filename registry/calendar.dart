@@ -79,6 +79,7 @@ class DateNames {
 class DateNamesScope extends InheritedWidget {
   const DateNamesScope({super.key, required this.names, required super.child});
 
+  /// Month and weekday names, and how a date is written.
   final DateNames names;
 
   @override
@@ -90,7 +91,10 @@ class DateNamesScope extends InheritedWidget {
 class DateRange {
   const DateRange(this.start, [this.end]);
 
+  /// The first day.
   final DateTime start;
+
+  /// The last day, or null while only the first is picked.
   final DateTime? end;
 
   bool contains(DateTime d) =>
@@ -184,13 +188,22 @@ class Calendar extends StatefulWidget {
        range = null,
        onRangeChanged = null;
 
+  /// The day picked, or null.
   final DateTime? selected;
+
+  /// Told the day picked.
   final ValueChanged<DateTime>? onSelected;
+
+  /// The days picked, for a calendar that takes a span.
   final DateRange? range;
+
+  /// Told the new range whenever either end changes.
   final ValueChanged<DateRange>? onRangeChanged;
 
   /// The days picked, each at midnight.
   final Set<DateTime>? days;
+
+  /// Told the days picked, for a calendar that takes several.
   final ValueChanged<Set<DateTime>>? onDaysChanged;
 
   /// The month shown first: the selected one, else this month.
@@ -201,6 +214,8 @@ class Calendar extends StatefulWidget {
 
   /// Days that cannot be picked: weekends, booked days.
   final bool Function(DateTime day)? isDisabled;
+
+  /// Takes the keyboard's focus when it first appears, on the picked day.
   final bool autofocus;
 
   /// How many months show side by side.

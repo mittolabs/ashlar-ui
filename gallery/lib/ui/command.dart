@@ -20,13 +20,22 @@ class CommandItem {
     this.enabled = true,
   });
 
+  /// What the item says.
   final String label;
+
+  /// Called when it is chosen.
   final VoidCallback onSelected;
 
   /// Other words it is found by: "invoice" for "Billing".
   final List<String> keywords;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// A key combination, shown faint at the end: '⌘K'.
   final String? shortcut;
+
+  /// False fades it and stops it being chosen.
   final bool enabled;
 }
 
@@ -35,7 +44,10 @@ class CommandItem {
 class CommandGroup {
   const CommandGroup(this.items, {this.heading});
 
+  /// The group's heading.
   final String? heading;
+
+  /// The group's items.
   final List<CommandItem> items;
 }
 
@@ -63,10 +75,19 @@ class Command extends StatefulWidget {
     this.maxHeight = 300,
   });
 
+  /// The items, in titled groups.
   final List<CommandGroup> groups;
+
+  /// Faint text shown while it is empty.
   final String placeholder;
+
+  /// Shown when nothing matches what was typed.
   final String emptyText;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// The tallest the list grows before it scrolls.
   final double maxHeight;
 
   @override

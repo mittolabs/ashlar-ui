@@ -38,13 +38,20 @@ class DropdownMenu extends StatefulWidget {
     this.width,
   });
 
+  /// Builds what opens it, given a controller to open and close it with.
   final Widget Function(BuildContext context, MenuController controller)
   builder;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
   final List<Widget> items;
+
+  /// Opens and closes it from outside; one is made when not given.
   final MenuController? controller;
+
+  /// Which side it opens on. It moves to the other side when there is no room.
   final PopoverSide side;
+
+  /// How it lines up along that side: at the start, the centre or the end.
   final PopoverAlign align;
 
   /// Null sizes the menu to its widest item.
@@ -76,6 +83,7 @@ class _DropdownMenuState extends State<DropdownMenu> {
 class MenuList extends StatefulWidget {
   const MenuList({super.key, required this.children, this.focusFirst = false});
 
+  /// The menu's rows.
   final List<Widget> children;
 
   /// Puts focus on the first item as it opens, as a submenu does.
@@ -194,6 +202,7 @@ class MenuItem extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Its label.
   final Widget child;
 
   /// Null disables the item.
@@ -216,6 +225,8 @@ class MenuItem extends StatelessWidget {
 
   /// Set in, to line up with checkbox and radio items beside it.
   final bool inset;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override
@@ -249,11 +260,16 @@ class MenuCheckboxItem extends StatelessWidget {
     this.closeOnPress = true,
   });
 
+  /// Whether it is ticked.
   final bool checked;
 
   /// Null disables the item.
   final ValueChanged<bool>? onChanged;
+
+  /// Its label.
   final Widget child;
+
+  /// A key combination, shown faint at the end: Text('⌘K').
   final Widget? shortcut;
 
   /// False keeps the menu open, for setting several in a row.
@@ -290,8 +306,13 @@ class MenuRadioGroup<T> extends StatelessWidget {
     required this.children,
   });
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// Told each new value as it changes.
   final ValueChanged<T>? onChanged;
+
+  /// The radio items.
   final List<Widget> children;
 
   @override
@@ -326,8 +347,13 @@ class MenuRadioItem<T> extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// Its label.
   final Widget child;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
 
   @override
@@ -360,6 +386,7 @@ class MenuRadioItem<T> extends StatelessWidget {
 class MenuGroup extends StatelessWidget {
   const MenuGroup({super.key, required this.children});
 
+  /// The group's rows.
   final List<Widget> children;
 
   @override
@@ -389,10 +416,19 @@ class MenuSub extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// Its label.
   final Widget child;
+
+  /// The submenu's rows.
   final List<Widget> items;
+
+  /// Before the label: usually an icon.
   final Widget? leading;
+
+  /// Lines its label up with items that have a mark before them.
   final bool inset;
+
+  /// False fades it and stops it taking presses and focus.
   final bool enabled;
 
   @override
@@ -659,6 +695,7 @@ class _MenuRowState extends State<_MenuRow> {
 class MenuLabel extends StatelessWidget {
   const MenuLabel({super.key, required this.child, this.inset = false});
 
+  /// The label's words.
   final Widget child;
 
   /// Set in, to line up with checkbox and radio items under it.

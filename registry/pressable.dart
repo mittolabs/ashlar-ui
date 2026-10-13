@@ -24,6 +24,8 @@ class PressableState {
 
   /// It has focus that came from the keyboard: the time to show a focus ring.
   final bool focused;
+
+  /// Whether it takes presses.
   final bool enabled;
 }
 
@@ -52,8 +54,15 @@ class Pressable extends StatefulWidget {
 
   /// Null disables it.
   final VoidCallback? onPressed;
+
+  /// Builds how it looks, given whether it is hovered, pressed, focused or disabled.
   final Widget Function(BuildContext context, PressableState state) builder;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   /// Read out in place of the visible content.

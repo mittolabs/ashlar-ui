@@ -32,20 +32,46 @@ class Textarea extends StatefulWidget {
     this.decorated = true,
   });
 
+  /// Its text, to read and set from outside; one is made when not given.
   final TextEditingController? controller;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
+
+  /// False fades it and stops it taking focus or typing.
   final bool enabled;
+
+  /// Shows its text, selectable, but takes no typing.
   final bool readOnly;
+
+  /// Marks it as wrong, in the destructive colour. Inside a FormItem, a screen reader
+  /// also hears that it is invalid.
   final bool error;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
+
+  /// The fewest lines it shows, even when empty.
   final int minLines;
+
+  /// The most lines it grows to before scrolling.
   final int maxLines;
 
   /// Shows the grip that drags it taller or shorter.
   final bool resizable;
+
+  /// Rules for what can be typed, such as digits only.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// Told the text as it changes.
   final ValueChanged<String>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// False draws the bare text, for an InputGroup.

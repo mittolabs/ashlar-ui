@@ -21,8 +21,13 @@ class SelectOption<T> {
     this.group,
   });
 
+  /// The value it stands for.
   final T value;
+
+  /// What the option says.
   final String label;
+
+  /// False fades it and stops it being chosen.
   final bool enabled;
 
   /// A 16px icon before the label, in the list and in the trigger.
@@ -66,16 +71,26 @@ class Select<T> extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The value chosen, or null.
   final T? value;
+
+  /// What can be chosen, in order.
   final List<SelectOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
+
+  /// Faint text shown while it is empty.
   final String? placeholder;
 
   /// Draws it as invalid.
   final bool error;
+
+  /// Small fits beside small buttons.
   final SelectSize size;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
 
   /// What it chooses, for screen readers: 'County'. The chosen option is read after it.

@@ -23,10 +23,14 @@ class Checkbox extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// Whether it is ticked.
   final bool value;
 
   /// Null disables the checkbox.
   final ValueChanged<bool>? onChanged;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   /// Neither ticked nor not, as over a list where some are: a dash. A tap ticks it.
@@ -34,7 +38,12 @@ class Checkbox extends StatelessWidget {
 
   /// Draws it as invalid.
   final bool error;
+
+  /// Its focus node, to move focus to it or follow it from outside; one is made when not
+  /// given.
   final FocusNode? focusNode;
+
+  /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
   @override

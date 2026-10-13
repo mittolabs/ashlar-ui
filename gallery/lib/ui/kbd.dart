@@ -13,6 +13,7 @@ import 'theme.dart';
 class Kbd extends StatelessWidget {
   const Kbd({super.key, required this.child});
 
+  /// The key's name or symbol: Text('⌘'), Text('Enter').
   final Widget child;
 
   /// Keys pressed together, with a small gap between them.

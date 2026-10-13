@@ -22,7 +22,10 @@ class ButtonGroup extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// What it holds, in order.
   final List<Widget> children;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// What the buttons are for, read before them: 'Text alignment'.

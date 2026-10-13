@@ -83,9 +83,16 @@ class Drawer extends StatefulWidget {
     this.maxWidth = 512,
   });
 
+  /// The drawer's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// Its body, which scrolls when it is too tall.
   final Widget? content;
+
+  /// Along the bottom: usually buttons.
   final List<Widget> footer;
 
   /// From the top or the bottom of a wide screen, the content is kept to this width,

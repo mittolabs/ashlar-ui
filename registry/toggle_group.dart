@@ -18,9 +18,16 @@ class ToggleGroupItem<T> {
     this.enabled = true,
   });
 
+  /// The value it stands for, given back when it is pressed.
   final T value;
+
+  /// Its label or icon.
   final Widget child;
+
+  /// What a screen reader calls it, for an item that shows an icon alone.
   final String? semanticLabel;
+
+  /// False fades it and leaves it out of the group's choices.
   final bool enabled;
 }
 
@@ -56,9 +63,17 @@ class ToggleGroup<T> extends StatelessWidget {
 
   /// Null disables the group.
   final ValueChanged<Set<T>>? onChanged;
+
+  /// The toggles, in order.
   final List<ToggleGroupItem<T>> items;
+
+  /// Several may be on at once, not one.
   final bool multiple;
+
+  /// Plain, or with borders all the time.
   final ToggleVariant variant;
+
+  /// Small, medium or large.
   final ToggleSize size;
 
   /// What the group sets, read before it: 'Text alignment'.

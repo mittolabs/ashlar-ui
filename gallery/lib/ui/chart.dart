@@ -22,7 +22,10 @@ class ChartSeries {
     this.icon,
   });
 
+  /// The series' name, in the legend, the tooltip and what a screen reader hears.
   final String label;
+
+  /// The values, in order.
   final List<double> values;
 
   /// Null takes the theme's chart colours in turn.
@@ -40,9 +43,16 @@ class ChartSeries {
 class ChartSlice {
   const ChartSlice(this.label, this.value, {this.color, this.icon});
 
+  /// The slice's name, in the legend, the tooltip and what a screen reader hears.
   final String label;
+
+  /// Its size; its share is this over the total.
   final double value;
+
+  /// Null takes the theme's chart colours in turn.
   final Color? color;
+
+  /// Shown in the legend and the tooltip in place of the colour swatch.
   final IconData? icon;
 }
 
@@ -86,6 +96,8 @@ class ChartTooltip {
 
   /// False: no tooltip, though the keys still step and a screen reader still reads.
   final bool enabled;
+
+  /// The mark beside each value: a dot, a line, a dashed line or none.
   final ChartIndicator indicator;
 
   /// False hides the label (the month, say) at the top.
@@ -212,9 +224,14 @@ abstract class _Cartesian extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// One per bar, point or group: the months, say.
   final List<String> labels;
+
+  /// The values, one run per series.
   final List<ChartSeries> series;
   final _Kind kind;
+
+  /// The chart's height, labels included.
   final double height;
 
   /// Each series on top of the one before.
@@ -225,6 +242,8 @@ abstract class _Cartesian extends StatefulWidget {
 
   /// Bars lying along, labels down the side.
   final bool horizontal;
+
+  /// Smooth, straight, or in steps.
   final ChartCurve curve;
 
   /// A dot on each value of a line.
@@ -244,7 +263,11 @@ abstract class _Cartesian extends StatefulWidget {
 
   /// Lines across the plot at each step of the scale.
   final bool grid;
+
+  /// Where the legend sits, or none. Tapping a name hides its series.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
 
   /// How a value is written in the tooltip, on the chart and read out: "KES 2,400".
@@ -610,6 +633,8 @@ class _CartesianPainter extends CustomPainter {
   });
 
   final _Kind kind;
+
+  /// The values, in order.
   final List<List<double>> values;
   final List<Color> colors;
   final List<List<Color>?> barColors;
@@ -980,21 +1005,41 @@ class PieChart extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The slices, clockwise from the top.
   final List<ChartSlice> slices;
+
+  /// A second ring inside: the same whole split another way.
   final List<ChartSlice>? inner;
+
+  /// Its width and height.
   final double size;
+
+  /// A hole in the middle, for the center widget.
   final bool donut;
+
+  /// In the hole: the figure the chart is about.
   final Widget? center;
 
   /// One slice drawn out from the rest: the one being talked about.
   final int? active;
+
+  /// Writing on the slices: none, each value inside, or each name outside.
   final PieLabels labels;
 
   /// A thin line of the page between slices.
   final bool separators;
+
+  /// Where the legend sits, or none.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -1317,8 +1362,14 @@ class RadarChart extends StatefulWidget {
 
   /// One per axis, round the circle clockwise from the top.
   final List<String> labels;
+
+  /// The values, a shape per series.
   final List<ChartSeries> series;
+
+  /// Its width and height, labels included.
   final double size;
+
+  /// Polygons, circles, or nothing behind the shapes.
   final RadarGrid grid;
 
   /// Lines from the centre out to each label.
@@ -1329,13 +1380,24 @@ class RadarChart extends StatefulWidget {
 
   /// The shapes filled; false draws their outlines alone.
   final bool fill;
+
+  /// A dot on each value.
   final bool dots;
 
   /// The value at the edge; a round number above the largest when not given.
   final double? max;
+
+  /// Where the legend sits, or none. Tapping a name hides its series.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override
@@ -1647,11 +1709,14 @@ class RadialChart extends StatefulWidget {
     this.semanticLabel,
   });
 
+  /// The values, a ring each from the outside in, or parts of one ring.
   final List<ChartSlice> slices;
 
   /// The value a full ring stands for; the largest value, or the total when stacked,
   /// when not given.
   final double? max;
+
+  /// Its width; a half ring is about half as tall.
   final double size;
 
   /// One ring, split between the slices, in place of a ring each.
@@ -1665,9 +1730,18 @@ class RadialChart extends StatefulWidget {
 
   /// In the middle: the figure the chart is about.
   final Widget? center;
+
+  /// Where the legend sits, or none.
   final ChartLegend legend;
+
+  /// How the tooltip looks, or that there is none.
   final ChartTooltip tooltip;
+
+  /// How a value is written in the tooltip and read out.
   final String Function(double value) format;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String? semanticLabel;
 
   @override

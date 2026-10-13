@@ -17,8 +17,14 @@ class Spinner extends StatefulWidget {
     this.semanticLabel = 'Loading',
   });
 
+  /// Its width and height; the icon size around it when not given.
   final double? size;
+
+  /// Its colour; the icon colour around it when not given.
   final Color? color;
+
+  /// What a screen reader calls it when its visible text does not say, as for an icon
+  /// alone.
   final String semanticLabel;
 
   @override

@@ -55,6 +55,7 @@ class Carousel extends StatefulWidget {
     this.semanticLabel = 'Carousel',
   });
 
+  /// The slides, in order.
   final List<Widget> children;
 
   /// How much of the way across one slide takes: 1 shows one, 1 / 3 shows three.
@@ -65,8 +66,14 @@ class Carousel extends StatefulWidget {
 
   /// Previous and Next buttons either side of the slides.
   final bool controls;
+
+  /// Told the slide that shows.
   final ValueChanged<int>? onChanged;
+
+  /// Moves it from outside, and tells which slide shows.
   final CarouselController? controller;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Moves on by itself this often.
@@ -74,6 +81,8 @@ class Carousel extends StatefulWidget {
 
   /// After the last slide comes the first again.
   final bool loop;
+
+  /// What a screen reader calls it: 'Featured products'.
   final String semanticLabel;
 
   @override

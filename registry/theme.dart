@@ -46,34 +46,50 @@ class AshlarColors {
 
   /// The page.
   final Color background;
+
+  /// Text and icons on the page.
   final Color foreground;
 
   /// Cards and panels on the page.
   final Color card;
+
+  /// Text and icons on a card.
   final Color cardForeground;
 
   /// Menus, popovers and dialogs, which float above the page.
   final Color popover;
+
+  /// Text and icons in a menu, popover or dialog.
   final Color popoverForeground;
 
   /// The main action: a primary button, a checked box.
   final Color primary;
+
+  /// Text and icons on the primary colour.
   final Color primaryForeground;
 
   /// A quieter action.
   final Color secondary;
+
+  /// Text and icons on the secondary colour.
   final Color secondaryForeground;
 
   /// Backgrounds and text that recede: hints, descriptions, placeholders.
   final Color muted;
+
+  /// Text that recedes: hints, descriptions, placeholders.
   final Color mutedForeground;
 
   /// What is under the pointer or chosen in a list.
   final Color accent;
+
+  /// Text and icons on the accent colour.
   final Color accentForeground;
 
   /// Actions that destroy or warn.
   final Color destructive;
+
+  /// Text and icons on the destructive colour.
   final Color destructiveForeground;
 
   /// Lines between things.
@@ -90,9 +106,24 @@ class AshlarColors {
 
   /// A Sidebar's own surface, text, chosen item, hovered item, lines and focus ring.
   final Color sidebar, sidebarForeground;
-  final Color sidebarPrimary, sidebarPrimaryForeground;
-  final Color sidebarAccent, sidebarAccentForeground;
-  final Color sidebarBorder, sidebarRing;
+
+  /// The sidebar's chosen item and its mark.
+  final Color sidebarPrimary;
+
+  /// Text and icons on the sidebar's primary colour.
+  final Color sidebarPrimaryForeground;
+
+  /// A hovered or chosen sidebar item's fill.
+  final Color sidebarAccent;
+
+  /// Text and icons on the sidebar's accent colour.
+  final Color sidebarAccentForeground;
+
+  /// Lines in and around the sidebar.
+  final Color sidebarBorder;
+
+  /// The focus ring inside the sidebar.
+  final Color sidebarRing;
 
   /// The chart colours as a list, for drawing series in turn.
   List<Color> get charts => [chart1, chart2, chart3, chart4, chart5];
@@ -363,11 +394,16 @@ class AshlarThemeData {
   const AshlarThemeData.dark()
     : this(brightness: Brightness.dark, colors: AshlarColors.dark);
 
+  /// Light or dark: what the colours were made for.
   final Brightness brightness;
+
+  /// Every colour the components use, by role.
   final AshlarColors colors;
 
   /// The base corner radius. Controls use [radiusMd]; cards and dialogs [radiusXl].
   final double radius;
+
+  /// The text styles, by size.
   final AshlarText text;
 
   /// How long a hover, press or open takes.
@@ -478,6 +514,7 @@ class AshlarThemeData {
 class AshlarTheme extends InheritedWidget {
   const AshlarTheme({super.key, required this.data, required super.child});
 
+  /// The theme for everything below it.
   final AshlarThemeData data;
 
   /// The nearest theme, or the light one when there is none.

@@ -11,6 +11,7 @@ import 'theme.dart';
 class AshlarSelectionControls extends TextSelectionControls {
   AshlarSelectionControls(this.color);
 
+  /// The selection handles' colour.
   final Color color;
   static const _size = 18.0;
 
@@ -111,6 +112,8 @@ class AshlarSelectionMenu extends StatelessWidget {
 
   /// Where the selection is, from the field's or the region's state.
   final TextSelectionToolbarAnchors anchors;
+
+  /// The menu's buttons: cut, copy, paste, select all.
   final List<ContextMenuButtonItem> items;
 
   static String _label(ContextMenuButtonItem item) =>

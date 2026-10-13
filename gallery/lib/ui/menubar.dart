@@ -15,6 +15,7 @@ import 'theme.dart';
 class MenubarMenu {
   const MenubarMenu(this.label, {required this.items});
 
+  /// The menu's name in the bar.
   final String label;
 
   /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
@@ -33,6 +34,7 @@ class MenubarMenu {
 class Menubar extends StatefulWidget {
   const Menubar({super.key, required this.menus});
 
+  /// The menus, in order along the bar.
   final List<MenubarMenu> menus;
 
   @override

@@ -11,6 +11,7 @@ import 'theme.dart';
 class ResizablePanel {
   const ResizablePanel({required this.child, this.size = 1, this.minSize = .1});
 
+  /// What the panel shows.
   final Widget child;
 
   /// A share of the room, compared with the other panels' shares.
@@ -38,7 +39,10 @@ class Resizable extends StatefulWidget {
     this.onResize,
   });
 
+  /// The panels, in order.
   final List<ResizablePanel> panels;
+
+  /// Horizontal lays it out across; vertical, down.
   final Axis axis;
 
   /// Draws a grip on each handle, to show it can be dragged.

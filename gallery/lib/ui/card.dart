@@ -25,7 +25,10 @@ enum CardSize {
 class Card extends StatelessWidget {
   const Card({super.key, required this.children, this.size = CardSize.md});
 
+  /// Its parts, top to bottom: CardImage, CardHeader, CardContent, CardFooter.
   final List<Widget> children;
+
+  /// Small cards have less room inside.
   final CardSize size;
 
   @override
@@ -86,6 +89,8 @@ class CardImage extends StatelessWidget {
 
   /// Usually an Image with BoxFit.cover.
   final Widget child;
+
+  /// How tall the picture is.
   final double height;
 
   @override
@@ -103,9 +108,16 @@ class CardHeader extends StatelessWidget {
     this.border = false,
   });
 
+  /// The card's title.
   final Widget? title;
+
+  /// A line under the title.
   final Widget? description;
+
+  /// At the end of the header: a button or a menu.
   final Widget? action;
+
+  /// A line under the header.
   final bool border;
 
   @override
@@ -160,6 +172,7 @@ class CardHeader extends StatelessWidget {
 class CardContent extends StatelessWidget {
   const CardContent({super.key, required this.child});
 
+  /// The card's body.
   final Widget child;
 
   @override
@@ -178,8 +191,13 @@ class CardFooter extends StatelessWidget {
     this.border = false,
   });
 
+  /// Along the bottom: usually buttons.
   final List<Widget> children;
+
+  /// How the footer's children line up along it.
   final MainAxisAlignment alignment;
+
+  /// A line over the footer.
   final bool border;
 
   @override
