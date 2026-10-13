@@ -57,5 +57,5 @@
   "calendar": { "description": "A month of days to pick one from, or a range.", "files": ["calendar.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
   "date-picker": { "description": "A button that shows a date and opens a calendar to change it.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar"], "packages": ["ashlar_icons"] },
   "chart": { "description": "Bar, line, area and pie charts, drawn here with no charting package.", "files": ["chart.dart"], "requires": ["theme"] },
-  "sidebar": { "description": "An app's navigation down the side, collapsing to icons or out of sight.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip"], "packages": ["ashlar_icons"] }
+  "sidebar": { "description": "An app's navigation down the side: variants, submenus, actions, a rail.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"], "packages": ["ashlar_icons"] }
 }
