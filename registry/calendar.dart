@@ -250,13 +250,23 @@ class _CalendarState extends State<Calendar> {
   final _node = FocusNode(debugLabel: 'Calendar');
   bool _keyboard = false;
 
+  /// Focus the calendar gives itself (as it opens, or as its view changes) shows no ring:
+  /// a click brought it there. Focus reached with the keys does.
+  bool _quiet = false;
+
+  void _focusQuietly() {
+    _quiet = true;
+    _node.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _quiet = false);
+  }
+
   /// Days, or the months of [_year], or the twelve years from [_years].
   _View _view = _View.days;
   int _year = 0, _years = 0;
 
   void _open(_View view, int year) => setState(() {
     // The button pressed goes with the view: the calendar keeps the keyboard's focus.
-    _node.requestFocus();
+    _focusQuietly();
     _view = view;
     _year = year;
     // The twelve years shown hold the year, a dozen to a page.
@@ -272,7 +282,7 @@ class _CalendarState extends State<Calendar> {
     // takes it, so the first arrow pressed moves through the days.
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _node.requestFocus();
+        if (mounted) _focusQuietly();
       });
     }
   }
@@ -385,10 +395,10 @@ class _CalendarState extends State<Calendar> {
         lastShown.isBefore(_monthOf(widget.lastDate!));
     return Focus(
       focusNode: _node,
-      autofocus: widget.autofocus,
       onFocusChange: (f) => setState(
         () => _keyboard =
             f &&
+            !_quiet &&
             FocusManager.instance.highlightMode ==
                 FocusHighlightMode.traditional,
       ),
@@ -522,7 +532,6 @@ class _CalendarState extends State<Calendar> {
     );
     return Focus(
       focusNode: _node,
-      autofocus: widget.autofocus,
       // Escape steps back towards the days, rather than closing what holds the calendar.
       onKeyEvent: (node, e) {
         if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
@@ -598,7 +607,7 @@ class _CalendarState extends State<Calendar> {
                                           _month.month == row * 3 + col + 1,
                                       monthOff(row * 3 + col + 1),
                                       () => setState(() {
-                                        _node.requestFocus();
+                                        _focusQuietly();
                                         _month = DateTime(
                                           _year,
                                           row * 3 + col + 1,

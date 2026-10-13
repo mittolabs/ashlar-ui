@@ -18765,13 +18765,23 @@ class _CalendarState extends State<Calendar> {
   final _node = FocusNode(debugLabel: 'Calendar');
   bool _keyboard = false;
 
+  /// Focus the calendar gives itself (as it opens, or as its view changes) shows no ring:
+  /// a click brought it there. Focus reached with the keys does.
+  bool _quiet = false;
+
+  void _focusQuietly() {
+    _quiet = true;
+    _node.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _quiet = false);
+  }
+
   /// Days, or the months of [_year], or the twelve years from [_years].
   _View _view = _View.days;
   int _year = 0, _years = 0;
 
   void _open(_View view, int year) => setState(() {
     // The button pressed goes with the view: the calendar keeps the keyboard's focus.
-    _node.requestFocus();
+    _focusQuietly();
     _view = view;
     _year = year;
     // The twelve years shown hold the year, a dozen to a page.
@@ -18787,7 +18797,7 @@ class _CalendarState extends State<Calendar> {
     // takes it, so the first arrow pressed moves through the days.
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _node.requestFocus();
+        if (mounted) _focusQuietly();
       });
     }
   }
@@ -18900,10 +18910,10 @@ class _CalendarState extends State<Calendar> {
         lastShown.isBefore(_monthOf(widget.lastDate!));
     return Focus(
       focusNode: _node,
-      autofocus: widget.autofocus,
       onFocusChange: (f) => setState(
         () => _keyboard =
             f &&
+            !_quiet &&
             FocusManager.instance.highlightMode ==
                 FocusHighlightMode.traditional,
       ),
@@ -19037,7 +19047,6 @@ class _CalendarState extends State<Calendar> {
     );
     return Focus(
       focusNode: _node,
-      autofocus: widget.autofocus,
       // Escape steps back towards the days, rather than closing what holds the calendar.
       onKeyEvent: (node, e) {
         if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
@@ -19113,7 +19122,7 @@ class _CalendarState extends State<Calendar> {
                                           _month.month == row * 3 + col + 1,
                                       monthOff(row * 3 + col + 1),
                                       () => setState(() {
-                                        _node.requestFocus();
+                                        _focusQuietly();
                                         _month = DateTime(
                                           _year,
                                           row * 3 + col + 1,
@@ -20385,6 +20394,13 @@ class _Columns extends StatefulWidget {
 class _ColumnsState extends State<_Columns> {
   late ClockTime _time = widget.value;
 
+  /// Whether the keys are in use here: then the column in focus is outlined.
+  bool _keys = false;
+
+  void _usingKeys() {
+    if (!_keys) setState(() => _keys = true);
+  }
+
   void _set(ClockTime time) {
     setState(() => _time = time);
     widget.onChanged(time);
@@ -20431,10 +20447,14 @@ class _ColumnsState extends State<_Columns> {
                   value: shownHour,
                   text: (h) => h24 ? '$h'.padLeft(2, '0') : '$h',
                   autofocus: true,
+                  keyboard: _keys,
+                  onKey: _usingKeys,
                   onChanged: (h) => _set(ClockTime(hourOf(h), _time.minute)),
                 ),
                 _Column(
                   label: 'Minute',
+                  keyboard: _keys,
+                  onKey: _usingKeys,
                   values: minutes,
                   value: shownMinute,
                   text: (m) => '$m'.padLeft(2, '0'),
@@ -20443,6 +20463,8 @@ class _ColumnsState extends State<_Columns> {
                 if (!h24)
                   _Column(
                     label: 'AM or PM',
+                    keyboard: _keys,
+                    onKey: _usingKeys,
                     values: const [0, 1],
                     value: pm ? 1 : 0,
                     text: (p) => p == 0 ? 'AM' : 'PM',
@@ -20476,6 +20498,8 @@ class _Column extends StatefulWidget {
     required this.text,
     required this.onChanged,
     this.autofocus = false,
+    required this.keyboard,
+    required this.onKey,
   });
 
   final String label;
@@ -20484,6 +20508,12 @@ class _Column extends StatefulWidget {
   final String Function(int) text;
   final ValueChanged<int> onChanged;
   final bool autofocus;
+
+  /// Whether the keys are in use: then this column is outlined while in focus.
+  final bool keyboard;
+
+  /// Told when a key is used here, or focus arrives by the keys.
+  final VoidCallback onKey;
 
   @override
   State<_Column> createState() => _ColumnState();
@@ -20497,6 +20527,15 @@ class _ColumnState extends State<_Column> {
   late final _node = FocusNode(debugLabel: widget.label);
   bool _focused = false;
 
+  /// Focus given by the picker itself (as it opens, or by a click) is not the keys'.
+  bool _quiet = false;
+
+  void _focusQuietly() {
+    _quiet = true;
+    _node.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _quiet = false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -20504,7 +20543,7 @@ class _ColumnState extends State<_Column> {
     // the first arrow pressed steps the hours.
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _node.requestFocus();
+        if (mounted) _focusQuietly();
       });
     }
   }
@@ -20565,7 +20604,15 @@ class _ColumnState extends State<_Column> {
       onDecrease: () => _step(-1),
       child: Focus(
         focusNode: _node,
-        onFocusChange: (f) => setState(() => _focused = f),
+        onFocusChange: (f) {
+          setState(() => _focused = f);
+          if (f &&
+              !_quiet &&
+              FocusManager.instance.highlightMode ==
+                  FocusHighlightMode.traditional) {
+            widget.onKey();
+          }
+        },
         onKeyEvent: (node, e) {
           if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
             return KeyEventResult.ignored;
@@ -20582,6 +20629,7 @@ class _ColumnState extends State<_Column> {
           } else {
             return KeyEventResult.ignored;
           }
+          widget.onKey();
           return KeyEventResult.handled;
         },
         child: ExcludeSemantics(
@@ -20593,10 +20641,7 @@ class _ColumnState extends State<_Column> {
               borderRadius: BorderRadius.circular(t.radiusMd),
               // Outlined only for the keyboard: a click focuses the column too.
               border: Border.all(
-                color:
-                    _focused &&
-                        FocusManager.instance.highlightMode ==
-                            FocusHighlightMode.traditional
+                color: _focused && widget.keyboard
                     ? c.ring
                     : c.ring.withValues(alpha: 0),
               ),
@@ -20614,7 +20659,7 @@ class _ColumnState extends State<_Column> {
                   // The column takes the keys; its rows take only the pointer.
                   return _Row(
                     onTap: () {
-                      _node.requestFocus();
+                      _focusQuietly();
                       widget.onChanged(v);
                     },
                     builder: (hovered) => AnimatedContainer(
@@ -20773,6 +20818,28 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
         await tester.pump();
         expect(picked.last, const ClockTime(0, 50));
+      },
+    );
+
+    testWidgets(
+      'opened by a click no column is outlined; once a key is used, the focused one is',
+      (tester) async {
+        await pump(tester, start: const ClockTime(9, 30));
+        await tester.tap(find.text('09:30'));
+        await tester.pumpAndSettle();
+        // The columns: 56 wide, with a border that shows only in focus by the keys.
+        List<double> outlines() => [
+          for (final c in tester.widgetList<Container>(
+            find.byWidgetPredicate(
+              (w) => w is Container && w.constraints?.maxWidth == 56,
+            ),
+          ))
+            ((c.decoration! as BoxDecoration).border! as Border).top.color.a,
+        ];
+        expect(outlines(), [0, 0]);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(outlines(), [0, 1]);
       },
     );
 

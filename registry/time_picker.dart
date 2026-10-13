@@ -213,6 +213,13 @@ class _Columns extends StatefulWidget {
 class _ColumnsState extends State<_Columns> {
   late ClockTime _time = widget.value;
 
+  /// Whether the keys are in use here: then the column in focus is outlined.
+  bool _keys = false;
+
+  void _usingKeys() {
+    if (!_keys) setState(() => _keys = true);
+  }
+
   void _set(ClockTime time) {
     setState(() => _time = time);
     widget.onChanged(time);
@@ -259,10 +266,14 @@ class _ColumnsState extends State<_Columns> {
                   value: shownHour,
                   text: (h) => h24 ? '$h'.padLeft(2, '0') : '$h',
                   autofocus: true,
+                  keyboard: _keys,
+                  onKey: _usingKeys,
                   onChanged: (h) => _set(ClockTime(hourOf(h), _time.minute)),
                 ),
                 _Column(
                   label: 'Minute',
+                  keyboard: _keys,
+                  onKey: _usingKeys,
                   values: minutes,
                   value: shownMinute,
                   text: (m) => '$m'.padLeft(2, '0'),
@@ -271,6 +282,8 @@ class _ColumnsState extends State<_Columns> {
                 if (!h24)
                   _Column(
                     label: 'AM or PM',
+                    keyboard: _keys,
+                    onKey: _usingKeys,
                     values: const [0, 1],
                     value: pm ? 1 : 0,
                     text: (p) => p == 0 ? 'AM' : 'PM',
@@ -304,6 +317,8 @@ class _Column extends StatefulWidget {
     required this.text,
     required this.onChanged,
     this.autofocus = false,
+    required this.keyboard,
+    required this.onKey,
   });
 
   final String label;
@@ -312,6 +327,12 @@ class _Column extends StatefulWidget {
   final String Function(int) text;
   final ValueChanged<int> onChanged;
   final bool autofocus;
+
+  /// Whether the keys are in use: then this column is outlined while in focus.
+  final bool keyboard;
+
+  /// Told when a key is used here, or focus arrives by the keys.
+  final VoidCallback onKey;
 
   @override
   State<_Column> createState() => _ColumnState();
@@ -325,6 +346,15 @@ class _ColumnState extends State<_Column> {
   late final _node = FocusNode(debugLabel: widget.label);
   bool _focused = false;
 
+  /// Focus given by the picker itself (as it opens, or by a click) is not the keys'.
+  bool _quiet = false;
+
+  void _focusQuietly() {
+    _quiet = true;
+    _node.requestFocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _quiet = false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -332,7 +362,7 @@ class _ColumnState extends State<_Column> {
     // the first arrow pressed steps the hours.
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _node.requestFocus();
+        if (mounted) _focusQuietly();
       });
     }
   }
@@ -393,7 +423,15 @@ class _ColumnState extends State<_Column> {
       onDecrease: () => _step(-1),
       child: Focus(
         focusNode: _node,
-        onFocusChange: (f) => setState(() => _focused = f),
+        onFocusChange: (f) {
+          setState(() => _focused = f);
+          if (f &&
+              !_quiet &&
+              FocusManager.instance.highlightMode ==
+                  FocusHighlightMode.traditional) {
+            widget.onKey();
+          }
+        },
         onKeyEvent: (node, e) {
           if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
             return KeyEventResult.ignored;
@@ -410,6 +448,7 @@ class _ColumnState extends State<_Column> {
           } else {
             return KeyEventResult.ignored;
           }
+          widget.onKey();
           return KeyEventResult.handled;
         },
         child: ExcludeSemantics(
@@ -421,10 +460,7 @@ class _ColumnState extends State<_Column> {
               borderRadius: BorderRadius.circular(t.radiusMd),
               // Outlined only for the keyboard: a click focuses the column too.
               border: Border.all(
-                color:
-                    _focused &&
-                        FocusManager.instance.highlightMode ==
-                            FocusHighlightMode.traditional
+                color: _focused && widget.keyboard
                     ? c.ring
                     : c.ring.withValues(alpha: 0),
               ),
@@ -442,7 +478,7 @@ class _ColumnState extends State<_Column> {
                   // The column takes the keys; its rows take only the pointer.
                   return _Row(
                     onTap: () {
-                      _node.requestFocus();
+                      _focusQuietly();
                       widget.onChanged(v);
                     },
                     builder: (hovered) => AnimatedContainer(

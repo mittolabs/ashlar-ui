@@ -95,6 +95,28 @@ void main() {
       },
     );
 
+    testWidgets(
+      'opened by a click no column is outlined; once a key is used, the focused one is',
+      (tester) async {
+        await pump(tester, start: const ClockTime(9, 30));
+        await tester.tap(find.text('09:30'));
+        await tester.pumpAndSettle();
+        // The columns: 56 wide, with a border that shows only in focus by the keys.
+        List<double> outlines() => [
+          for (final c in tester.widgetList<Container>(
+            find.byWidgetPredicate(
+              (w) => w is Container && w.constraints?.maxWidth == 56,
+            ),
+          ))
+            ((c.decoration! as BoxDecoration).border! as Border).top.color.a,
+        ];
+        expect(outlines(), [0, 0]);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(outlines(), [0, 1]);
+      },
+    );
+
     testWidgets('minutes come in steps; 1 gives every minute', (tester) async {
       await pump(
         tester,
