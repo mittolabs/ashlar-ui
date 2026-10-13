@@ -34,7 +34,6 @@ class Kbd extends StatelessWidget {
       height: 20,
       constraints: const BoxConstraints(minWidth: 20),
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: t.colors.muted,
         borderRadius: BorderRadius.circular(t.radiusSm),
@@ -48,9 +47,12 @@ class Kbd extends StatelessWidget {
           leadingDistribution: TextLeadingDistribution.even,
         ),
         maxLines: 1,
-        child: IconTheme.merge(
-          data: IconThemeData(color: t.colors.mutedForeground, size: 12),
-          child: child,
+        child: Align(
+          widthFactor: 1,
+          child: IconTheme.merge(
+            data: IconThemeData(color: t.colors.mutedForeground, size: 12),
+            child: child,
+          ),
         ),
       ),
     );

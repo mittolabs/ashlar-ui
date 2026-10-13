@@ -12,6 +12,9 @@ import 'package:ashlar_ui_gallery/ui/empty.dart';
 import 'package:ashlar_ui_gallery/ui/field.dart';
 import 'package:ashlar_ui_gallery/ui/input.dart';
 import 'package:ashlar_ui_gallery/ui/item.dart';
+import 'package:ashlar_ui_gallery/ui/kbd.dart';
+import 'package:ashlar_ui_gallery/ui/badge.dart';
+import 'package:ashlar_ui_gallery/ui/toggle.dart';
 import 'package:ashlar_ui_gallery/ui/marker.dart';
 import 'package:ashlar_ui_gallery/ui/message.dart';
 import 'package:ashlar_ui_gallery/ui/tabs.dart';
@@ -65,6 +68,26 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
       expect(tester.getSize(find.byWidget(widget)).height, lessThan(300));
+    });
+  }
+
+  // Small inline things are as wide as their label, wherever they are put.
+  final inline = <String, Widget>{
+    'Kbd': const Kbd(child: Text('⌘')),
+    'Badge': const Badge(child: Text('New')),
+    'Button': Button(onPressed: () {}, child: const Text('Save')),
+    'Toggle': Toggle(pressed: false, onChanged: (_) {}, child: const Text('B')),
+  };
+  for (final MapEntry(key: name, value: widget) in inline.entries) {
+    testWidgets('$name is as wide as its label', (tester) async {
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Center(
+            child: SizedBox(width: 400, child: Wrap(children: [widget])),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byWidget(widget)).width, lessThan(120));
     });
   }
 }

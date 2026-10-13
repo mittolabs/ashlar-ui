@@ -4324,7 +4324,6 @@ class Kbd extends StatelessWidget {
       height: 20,
       constraints: const BoxConstraints(minWidth: 20),
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: t.colors.muted,
         borderRadius: BorderRadius.circular(t.radiusSm),
@@ -4338,9 +4337,12 @@ class Kbd extends StatelessWidget {
           leadingDistribution: TextLeadingDistribution.even,
         ),
         maxLines: 1,
-        child: IconTheme.merge(
-          data: IconThemeData(color: t.colors.mutedForeground, size: 12),
-          child: child,
+        child: Align(
+          widthFactor: 1,
+          child: IconTheme.merge(
+            data: IconThemeData(color: t.colors.mutedForeground, size: 12),
+            child: child,
+          ),
         ),
       ),
     );
@@ -8826,7 +8828,6 @@ class Toggle extends StatelessWidget {
             padding: EdgeInsets.symmetric(
               horizontal: size == ToggleSize.sm ? 6 : 8,
             ),
-            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: pressed
                   ? c.accent
@@ -8840,12 +8841,19 @@ class Toggle extends StatelessWidget {
                 if (variant == ToggleVariant.outline) ...t.shadowXs,
               ],
             ),
-            child: DefaultTextStyle.merge(
-              style: t.text.sm.copyWith(color: fg, fontWeight: FontWeight.w500),
-              maxLines: 1,
-              child: IconTheme.merge(
-                data: IconThemeData(color: fg, size: 16),
-                child: child,
+            // Centred, and as wide as its label unless a group stretches it.
+            child: Align(
+              widthFactor: 1,
+              child: DefaultTextStyle.merge(
+                style: t.text.sm.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                child: IconTheme.merge(
+                  data: IconThemeData(color: fg, size: 16),
+                  child: child,
+                ),
               ),
             ),
           ),
