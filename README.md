@@ -47,4 +47,4 @@ and screen reader support come from Flutter itself.
 
 ## Licence
 
-ISC. See `LICENSE`.
+MIT. See `LICENSE`.
