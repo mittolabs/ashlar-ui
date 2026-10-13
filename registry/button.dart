@@ -177,9 +177,13 @@ class Button extends StatelessWidget {
           child: IconTheme.merge(
             data: IconThemeData(color: fg, size: 16),
             // The row sets the height and centres in it; the button hugs it unless [expand].
-            child: SizedBox(
-              height: height,
-              width: _square ? height : null,
+            // A height at least: larger text makes it taller rather than being cut off.
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: height,
+                minWidth: _square ? height : 0,
+                maxWidth: _square ? height : double.infinity,
+              ),
               child: Row(
                 mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

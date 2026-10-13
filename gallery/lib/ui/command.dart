@@ -1,5 +1,7 @@
 // Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
+import 'dart:math' show max;
+
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -152,9 +154,14 @@ class _CommandState extends State<Command> {
     _items = items;
   }
 
-  double _extent(_Line l) => l.item != null
-      ? _itemHeight
-      : (l.heading != null ? _headingHeight : _gapHeight);
+  /// Rows grow with large text: the font's scale, never below one.
+  double _grow = 1;
+
+  double _extent(_Line l) =>
+      (l.item != null
+          ? _itemHeight
+          : (l.heading != null ? _headingHeight : _gapHeight)) *
+      _grow;
 
   /// Where a row starts in the list, from the top of the list's padding.
   double _top(int line) {
@@ -200,6 +207,7 @@ class _CommandState extends State<Command> {
     final lit = _items.isEmpty
         ? null
         : _lines[_items[_at.clamp(0, _items.length - 1)]].item;
+    _grow = max(1, MediaQuery.textScalerOf(context).scale(14) / 14);
     final height = _lines.fold<double>(_pad * 2, (h, l) => h + _extent(l));
     return LayoutBuilder(
       builder: (context, box) => DefaultTextStyle.merge(

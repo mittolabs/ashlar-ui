@@ -79,7 +79,8 @@ class _MenubarState extends State<Menubar> {
       container: true,
       explicitChildNodes: true,
       child: Container(
-        height: t.control(36),
+        // As tall as it is drawn, or taller when larger text needs it.
+        height: grownHeight(context, t.control(36)),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: c.background,

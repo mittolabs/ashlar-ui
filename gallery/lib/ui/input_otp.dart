@@ -115,7 +115,8 @@ class _InputOtpState extends State<InputOtp> {
         builder: (context) => AnimatedContainer(
           duration: t.duration,
           width: t.control(36),
-          height: t.control(36),
+          // As tall as it is drawn, or taller when larger text needs it.
+          height: grownHeight(context, t.control(36)),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: t.brightness == Brightness.dark

@@ -153,7 +153,8 @@ class _TimePickerState extends State<TimePicker> {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            height: t.control(36),
+            // A height at least: larger text makes it taller rather than being cut off.
+            constraints: BoxConstraints(minHeight: t.control(36)),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: state.hovered ? c.accent : c.background,

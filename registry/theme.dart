@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 
+import 'dart:math' as math;
+
 import 'palette.dart';
 
 /// The colours of a theme, by role. Each `...Foreground` is the colour for text and
@@ -349,6 +351,15 @@ enum AshlarStyle {
   final double radius, density, spacing;
   final bool flat;
 }
+
+/// [height], or taller when the text in it is enlarged, as on a phone set to large text:
+/// a line of [line] at that size, with the same room around it as at its usual size. [line]
+/// is the text's line height at its usual size: 20 for the small text controls use.
+double grownHeight(BuildContext context, double height, {double line = 20}) =>
+    math.max(
+      height,
+      MediaQuery.textScalerOf(context).scale(line) + math.max(0, height - line),
+    );
 
 /// A whole theme: colours, corners, text, motion.
 @immutable

@@ -155,7 +155,10 @@ class _SelectState<T> extends State<Select<T>> {
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
-                height: t.control(widget.size == SelectSize.sm ? 32 : 36),
+                // A height at least: larger text makes it taller rather than being cut off.
+                constraints: BoxConstraints(
+                  minHeight: t.control(widget.size == SelectSize.sm ? 32 : 36),
+                ),
                 padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark

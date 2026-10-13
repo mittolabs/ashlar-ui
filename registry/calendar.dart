@@ -1,5 +1,7 @@
 // Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
+import 'dart:math' as math;
+
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -248,6 +250,18 @@ class _CalendarState extends State<Calendar> {
         DateTime.now(),
   );
   final _node = FocusNode(debugLabel: 'Calendar');
+
+  /// A day's square and the weekdays' row, grown with large text so a number is never
+  /// cut off: 32 and 24 at its usual size.
+  double _cell = 32, _head = 24, _header = 32;
+
+  void _measure(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
+    _cell = math.max(32, scaler.scale(20));
+    _head = math.max(24, scaler.scale(16) + 8);
+    _header = grownHeight(context, 32);
+  }
+
   bool _keyboard = false;
 
   /// Focus the calendar gives itself (as it opens, or as its view changes) shows no ring:
@@ -385,6 +399,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
+    _measure(context);
     if (_view != _View.days) return _picker(context);
     final names = DateNames.of(context);
     final canBack =
@@ -486,9 +501,9 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(_month.year, _month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final width =
-        widget.months * ((widget.showWeekNumbers ? 32.0 : 0.0) + 7 * 32.0) +
+        widget.months * ((widget.showWeekNumbers ? _cell : 0.0) + 7 * _cell) +
         (widget.months - 1) * 16.0;
-    final height = 32 + 8 + 24 + 4 + weeks * 34.0;
+    final height = _header + 8 + _head + 4 + weeks * (_cell + 2);
     final first = widget.firstDate, last = widget.lastDate;
     // A month or a year can be chosen when some of it lies between the first and last dates.
     bool monthOff(int m) =>
@@ -546,7 +561,9 @@ class _CalendarState extends State<Calendar> {
         child: Column(
           children: [
             SizedBox(
-              height: 32,
+              // Its own height, taller with large text: a finger's room around its
+              // buttons spills over rather than growing it.
+              height: _header,
               child: Row(
                 children: [
                   _Nav(
@@ -656,7 +673,7 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(month.year, month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final today = _day(DateTime.now());
-    final weekCol = widget.showWeekNumbers ? 32.0 : 0.0;
+    final weekCol = widget.showWeekNumbers ? _cell : 0.0;
 
     Widget day(DateTime d) {
       final outside = d.month != month.month;
@@ -735,12 +752,14 @@ class _CalendarState extends State<Calendar> {
       label: names.monthYear(month),
       explicitChildNodes: true,
       child: SizedBox(
-        width: weekCol + 7 * 32,
+        width: weekCol + 7 * _cell,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 32,
+              // Its own height, taller with large text: a finger's room around its
+              // buttons spills over rather than growing it.
+              height: _header,
               // With dropdowns the lists change the month, and take the arrows' room.
               child: Row(
                 children: [
@@ -781,8 +800,8 @@ class _CalendarState extends State<Calendar> {
                   if (widget.showWeekNumbers) SizedBox(width: weekCol),
                   for (var i = 0; i < 7; i++)
                     SizedBox(
-                      width: 32,
-                      height: 24,
+                      width: _cell,
+                      height: _head,
                       child: Center(
                         child: Text(
                           names.weekdaysShort[(firstDay - 1 + i) % 7],
@@ -805,7 +824,7 @@ class _CalendarState extends State<Calendar> {
                     if (widget.showWeekNumbers)
                       SizedBox(
                         width: weekCol,
-                        height: 32,
+                        height: _cell,
                         child: Center(
                           child: Text(
                             '${isoWeek(DateTime(start.year, start.month, start.day + w * 7 + (DateTime.thursday - firstDay + 7) % 7))}',
@@ -815,8 +834,8 @@ class _CalendarState extends State<Calendar> {
                       ),
                     for (var i = 0; i < 7; i++)
                       SizedBox(
-                        width: 32,
-                        height: 32,
+                        width: _cell,
+                        height: _cell,
                         child: day(
                           DateTime(
                             start.year,

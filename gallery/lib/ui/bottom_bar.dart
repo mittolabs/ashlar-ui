@@ -131,10 +131,15 @@ class BottomBar extends StatelessWidget {
                                           constraints: const BoxConstraints(
                                             minWidth: 16,
                                           ),
+                                          // As tall as it is drawn, or taller when larger text needs it.
+                                          height: grownHeight(
+                                            context,
+                                            16,
+                                            line: 10,
+                                          ),
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 4,
                                           ),
-                                          height: 16,
                                           alignment: Alignment.center,
                                           decoration: BoxDecoration(
                                             color: c.destructive,

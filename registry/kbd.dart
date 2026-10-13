@@ -31,8 +31,8 @@ class Kbd extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     return Container(
-      height: 20,
-      constraints: const BoxConstraints(minWidth: 20),
+      // A height at least: larger text makes it taller rather than being cut off.
+      constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: t.colors.muted,

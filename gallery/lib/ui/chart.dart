@@ -377,7 +377,9 @@ class _CartesianState extends State<_Cartesian>
     final across = widget.horizontal && widget.kind == _Kind.bar;
     // Room for the scale's numbers, and for the labels down the side of lying bars.
     final gutter = across ? 80.0 : (widget.axis ? 40.0 : 0.0);
-    final foot = across ? (widget.axis ? 20.0 : 0.0) : 24.0;
+    // The labels' line, as tall as their text is at its size.
+    final line = math.max(20.0, MediaQuery.textScalerOf(context).scale(16) + 4);
+    final foot = across ? (widget.axis ? line : 0.0) : line + 4;
     final legend = widget.legend != ChartLegend.none && widget.series.length > 1
         ? _Legend(
             items: [
@@ -534,7 +536,7 @@ class _CartesianState extends State<_Cartesian>
                               left: plot.left,
                               right: 0,
                               bottom: 0,
-                              height: 20,
+                              height: line,
                               child: ExcludeSemantics(
                                 child: Row(
                                   textDirection: TextDirection.ltr,
@@ -1240,24 +1242,27 @@ class _PieLabel extends StatelessWidget {
   final TextStyle style;
 
   @override
-  Widget build(BuildContext context) => Positioned(
-    left: at.dx - 60,
-    top: at.dy - 10,
-    width: 120,
-    height: 20,
-    child: IgnorePointer(
-      child: ExcludeSemantics(
-        child: Center(
-          child: Text(
-            text,
-            maxLines: 1,
-            style: style,
-            textAlign: TextAlign.center,
+  Widget build(BuildContext context) {
+    final line = math.max(20.0, MediaQuery.textScalerOf(context).scale(16) + 4);
+    return Positioned(
+      left: at.dx - 60,
+      top: at.dy - line / 2,
+      width: 120,
+      height: line,
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: Center(
+            child: Text(
+              text,
+              maxLines: 1,
+              style: style,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _PiePainter extends CustomPainter {

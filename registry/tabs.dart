@@ -154,7 +154,8 @@ class _TabsState extends State<Tabs> {
                 opacity: state.enabled ? 1 : .5,
                 child: AnimatedContainer(
                   duration: t.duration,
-                  height: t.control(36),
+                  // As tall as it is drawn, or taller when larger text needs it.
+                  height: grownHeight(context, t.control(36)),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: across
                       ? Alignment.center
@@ -192,7 +193,8 @@ class _TabsState extends State<Tabs> {
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
-                height: 29,
+                // As tall as it is drawn, or taller when larger text needs it.
+                height: grownHeight(context, 29),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 alignment: across
                     ? Alignment.center
@@ -265,7 +267,7 @@ class _TabsState extends State<Tabs> {
           ),
         },
         child: Container(
-          height: across ? t.control(36) : null,
+          constraints: across ? BoxConstraints(minHeight: t.control(36)) : null,
           padding: line ? EdgeInsets.zero : const EdgeInsets.all(3),
           decoration: line
               ? BoxDecoration(

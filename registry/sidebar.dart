@@ -515,8 +515,9 @@ class _GroupLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return SizedBox(
-      height: 32,
+    // A height at least: larger text makes it taller rather than being cut off.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 32),
       child: Padding(
         padding: const EdgeInsetsDirectional.only(start: 8),
         child: Row(
@@ -550,7 +551,8 @@ class _SkeletonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 32,
+    // As tall as it is drawn, or taller when larger text needs it.
+    height: grownHeight(context, 32),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
@@ -613,7 +615,8 @@ class _ItemState extends State<_Item> {
         final fg = lit ? c.sidebarAccentForeground : c.sidebarForeground;
         return AnimatedContainer(
           duration: t.duration,
-          height: widget.sub ? 28 : 32,
+          // As tall as it is drawn, or taller when larger text needs it.
+          height: grownHeight(context, widget.sub ? 28 : 32),
           margin: const EdgeInsets.only(bottom: 2),
           padding: EdgeInsets.symmetric(horizontal: widget.collapsed ? 0 : 8),
           alignment: widget.collapsed

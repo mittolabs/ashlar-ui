@@ -311,7 +311,8 @@ class _Chip extends StatelessWidget {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     return Container(
-      height: 26,
+      // A height at least: larger text makes it taller rather than being cut off.
+      constraints: const BoxConstraints(minHeight: 26),
       padding: const EdgeInsetsDirectional.only(start: 8, end: 2),
       decoration: BoxDecoration(
         color: c.secondary,
