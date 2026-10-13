@@ -1,6 +1,9 @@
 // Text selection in AshlarApp, as an app gets it from lib/ui.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/context_menu.dart';
+import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
+import 'package:ashlar_ui_gallery/ui/selection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -96,4 +99,87 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     },
   );
+
+  testWidgets(
+    'a right-click in a context menu opens the menu and selects nothing',
+    (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied = (call.arguments as Map)['text'] as String?;
+          }
+          return null;
+        },
+      );
+      await tester.pumpWidget(
+        AshlarApp(
+          selectable: true,
+          home: Center(
+            child: ContextMenu(
+              items: [MenuItem(onPressed: () {}, child: const Text('Reload'))],
+              child: const SizedBox(
+                width: 300,
+                height: 150,
+                child: Center(child: Text('Right-click here')),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tapAt(
+        tester.getCenter(find.text('Right-click here')),
+        buttons: kSecondaryButton,
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Reload'), findsOneWidget);
+      await copy(tester);
+      expect(copied, anyOf(isNull, isEmpty));
+    },
+  );
+
+  testWidgets('touch handles show on phones, never on the desktop', (
+    tester,
+  ) async {
+    final controls = AshlarSelectionControls(const Color(0xFF000000));
+    late BuildContext context;
+    await tester.pumpWidget(
+      Builder(
+        builder: (c) => SizedBox(
+          key: GlobalKey(),
+          child: Builder(
+            builder: (cc) {
+              context = cc;
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+    for (final (platform, shown) in [
+      (TargetPlatform.macOS, false),
+      (TargetPlatform.windows, false),
+      (TargetPlatform.iOS, true),
+      (TargetPlatform.android, true),
+    ]) {
+      debugDefaultTargetPlatformOverride = platform;
+      expect(
+        controls.getHandleSize(20) != Size.zero,
+        shown,
+        reason: '$platform',
+      );
+      expect(
+        (controls.buildHandle(
+              context,
+              TextSelectionHandleType.left,
+              20,
+            ) as SizedBox).child !=
+            null,
+        shown,
+        reason: '$platform',
+      );
+    }
+    debugDefaultTargetPlatformOverride = null;
+  });
 }

@@ -21,7 +21,15 @@ class AshlarSelectionControls extends TextSelectionControls {
     double textLineHeight, [
     VoidCallback? onTap,
   ]) {
-    if (type == TextSelectionHandleType.collapsed) {
+    // Handles are for dragging a selection with a finger. A mouse needs none, so the
+    // desktop shows none, as its own apps do.
+    final desktop = switch (defaultTargetPlatform) {
+      TargetPlatform.macOS ||
+      TargetPlatform.windows ||
+      TargetPlatform.linux => true,
+      _ => false,
+    };
+    if (desktop || type == TextSelectionHandleType.collapsed) {
       return const SizedBox.shrink();
     }
     final start = type == TextSelectionHandleType.left;
@@ -41,8 +49,14 @@ class AshlarSelectionControls extends TextSelectionControls {
       };
 
   @override
-  Size getHandleSize(double textLineHeight) =>
-      Size(_size, _size + textLineHeight);
+  Size getHandleSize(double textLineHeight) => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS ||
+    TargetPlatform.windows ||
+    TargetPlatform.linux => Size.zero,
+    _ => _sizeFor(textLineHeight),
+  };
+
+  Size _sizeFor(double textLineHeight) => Size(_size, _size + textLineHeight);
 
   // The menu is built by contextMenuBuilder; this older hook is not used.
   @override

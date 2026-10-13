@@ -5740,7 +5740,8 @@ import 'popover.dart';
 
 /// A menu that opens where [child] is right-clicked or long-pressed, or from the keyboard
 /// with the menu key or Shift+F10 while something inside it has focus. Takes the same
-/// items as a DropdownMenu. On the web it turns the browser's own menu off while shown,
+/// items as a DropdownMenu. Text inside it cannot be selected: a right-click there is for
+/// the menu. On the web it turns the browser's own menu off while shown,
 /// when the app fills the page; a page that embeds Flutter in part of it must turn the
 /// browser's menu off itself there.
 ///
@@ -5825,7 +5826,9 @@ class _ContextMenuState extends State<ContextMenu> {
             behavior: HitTestBehavior.opaque,
             onSecondaryTapDown: (d) => _openAt(d.localPosition),
             onLongPressStart: (d) => _openAt(d.localPosition),
-            child: widget.child,
+            // A right-click or long press here is for the menu, so the text under it is
+            // not selected as well.
+            child: SelectionContainer.disabled(child: widget.child),
           ),
         ),
       ),
@@ -8338,7 +8341,15 @@ class AshlarSelectionControls extends TextSelectionControls {
     double textLineHeight, [
     VoidCallback? onTap,
   ]) {
-    if (type == TextSelectionHandleType.collapsed) {
+    // Handles are for dragging a selection with a finger. A mouse needs none, so the
+    // desktop shows none, as its own apps do.
+    final desktop = switch (defaultTargetPlatform) {
+      TargetPlatform.macOS ||
+      TargetPlatform.windows ||
+      TargetPlatform.linux => true,
+      _ => false,
+    };
+    if (desktop || type == TextSelectionHandleType.collapsed) {
       return const SizedBox.shrink();
     }
     final start = type == TextSelectionHandleType.left;
@@ -8358,8 +8369,14 @@ class AshlarSelectionControls extends TextSelectionControls {
       };
 
   @override
-  Size getHandleSize(double textLineHeight) =>
-      Size(_size, _size + textLineHeight);
+  Size getHandleSize(double textLineHeight) => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS ||
+    TargetPlatform.windows ||
+    TargetPlatform.linux => Size.zero,
+    _ => _sizeFor(textLineHeight),
+  };
+
+  Size _sizeFor(double textLineHeight) => Size(_size, _size + textLineHeight);
 
   // The menu is built by contextMenuBuilder; this older hook is not used.
   @override

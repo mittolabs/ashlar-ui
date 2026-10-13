@@ -10,7 +10,8 @@ import 'popover.dart';
 
 /// A menu that opens where [child] is right-clicked or long-pressed, or from the keyboard
 /// with the menu key or Shift+F10 while something inside it has focus. Takes the same
-/// items as a DropdownMenu. On the web it turns the browser's own menu off while shown,
+/// items as a DropdownMenu. Text inside it cannot be selected: a right-click there is for
+/// the menu. On the web it turns the browser's own menu off while shown,
 /// when the app fills the page; a page that embeds Flutter in part of it must turn the
 /// browser's menu off itself there.
 ///
@@ -95,7 +96,9 @@ class _ContextMenuState extends State<ContextMenu> {
             behavior: HitTestBehavior.opaque,
             onSecondaryTapDown: (d) => _openAt(d.localPosition),
             onLongPressStart: (d) => _openAt(d.localPosition),
-            child: widget.child,
+            // A right-click or long press here is for the menu, so the text under it is
+            // not selected as well.
+            child: SelectionContainer.disabled(child: widget.child),
           ),
         ),
       ),
