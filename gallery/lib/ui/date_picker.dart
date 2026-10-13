@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'calendar.dart';
 import 'popover.dart';
 import 'pressable.dart';
+import 'select.dart';
 import 'theme.dart';
 
 /// A button that shows a date and opens a Calendar to change it. [DatePicker.range] picks
@@ -26,6 +27,7 @@ class DatePicker extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.semanticLabel,
+    this.presets = const [],
   }) : range = null,
        onRangeChanged = null;
 
@@ -38,7 +40,8 @@ class DatePicker extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.semanticLabel,
-  }) : value = null,
+  }) : presets = const [],
+       value = null,
        onChanged = null;
 
   final DateTime? value;
@@ -51,6 +54,9 @@ class DatePicker extends StatefulWidget {
 
   /// What the date is for, read out before it: 'Due date'.
   final String? semanticLabel;
+
+  /// Dates a tap away, offered above the calendar: ('Tomorrow', tomorrow).
+  final List<(String, DateTime)> presets;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -91,7 +97,8 @@ class _DatePickerState extends State<DatePicker> {
       onClose: _focus.requestFocus,
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
-        child: Padding(
+        // Scrolls when the room by the trigger is shorter than the calendar.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(12),
           child: _isRange
               ? Calendar.range(
@@ -105,16 +112,38 @@ class _DatePickerState extends State<DatePicker> {
                     if (v.end != null) _menu.close();
                   },
                 )
-              : Calendar(
-                  autofocus: true,
-                  selected: widget.value,
-                  firstDate: widget.firstDate,
-                  lastDate: widget.lastDate,
-                  isDisabled: widget.isDisabled,
-                  onSelected: (d) {
-                    widget.onChanged?.call(d);
-                    _menu.close();
-                  },
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (widget.presets.isNotEmpty) ...[
+                      Select<int>(
+                        value: null,
+                        size: SelectSize.sm,
+                        placeholder: 'Pick a preset',
+                        options: [
+                          for (final (i, p) in widget.presets.indexed)
+                            SelectOption(i, p.$1),
+                        ],
+                        onChanged: (i) {
+                          widget.onChanged?.call(widget.presets[i].$2);
+                          _menu.close();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    Calendar(
+                      autofocus: widget.presets.isEmpty,
+                      selected: widget.value,
+                      firstDate: widget.firstDate,
+                      lastDate: widget.lastDate,
+                      isDisabled: widget.isDisabled,
+                      onSelected: (d) {
+                        widget.onChanged?.call(d);
+                        _menu.close();
+                      },
+                    ),
+                  ],
                 ),
         ),
       ),

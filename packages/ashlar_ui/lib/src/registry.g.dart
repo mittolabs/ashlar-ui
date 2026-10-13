@@ -3846,6 +3846,42 @@ class _Entrance extends StatelessWidget {
     );
   }
 }
+
+/// The top of a popover's content: a title and a line about it.
+class PopoverHeader extends StatelessWidget {
+  const PopoverHeader({super.key, required this.title, this.description});
+
+  final Widget title;
+  final Widget? description;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(
+              color: t.colors.popoverForeground,
+              fontWeight: FontWeight.w500,
+            ),
+            child: title,
+          ),
+        ),
+        if (description != null) ...[
+          const SizedBox(height: 4),
+          DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            child: description!,
+          ),
+        ],
+      ],
+    );
+  }
+}
 ''',
     },
   ),
@@ -11145,11 +11181,13 @@ class NavigationMenuLink extends StatelessWidget {
     },
   ),
   'carousel': Component(
-    description: "Slides in a row, moved by swiping, buttons or the arrow keys.",
+    description: "Slides moved by swiping, buttons, keys, a controller or by themselves.",
     requires: ["button"],
     packages: ["ashlar_icons"],
     files: {
       'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
+
+import 'dart:async';
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/services.dart';
@@ -11157,12 +11195,36 @@ import 'package:flutter/widgets.dart';
 
 import 'button.dart';
 
-/// Slides in a row, one or several in view, moved by swiping, by the buttons either
-/// side, or by the arrow keys while it has focus. A screen reader hears which slide is
-/// showing.
+/// Moves a [Carousel] from outside it, and tells which slide leads.
+class CarouselController extends ChangeNotifier {
+  _CarouselState? _state;
+  int _index = 0;
+
+  /// The slide at the start of the view.
+  int get index => _index;
+
+  /// How many slides there are.
+  int get count => _state?.widget.children.length ?? 0;
+
+  void next() => _state?._go(_index + 1);
+  void previous() => _state?._go(_index - 1);
+  void animateTo(int index) => _state?._go(index);
+
+  void _set(int i) {
+    if (i == _index) return;
+    _index = i;
+    notifyListeners();
+  }
+}
+
+/// Slides in a row (or a column), one or several in view, moved by swiping, by the buttons
+/// either side, by the arrow keys while it has focus, by a [controller], or by itself with
+/// [autoplay], which waits while the pointer or the keyboard is on it. A screen reader
+/// hears which slide is showing.
 ///
 /// ```dart
 /// Carousel(viewportFraction: 1 / 3, children: [for (final p in products) ProductCard(p)])
+/// Carousel(axis: Axis.vertical, autoplay: Duration(seconds: 4), children: banners)
 /// ```
 class Carousel extends StatefulWidget {
   const Carousel({
@@ -11172,20 +11234,32 @@ class Carousel extends StatefulWidget {
     this.spacing = 16,
     this.controls = true,
     this.onChanged,
+    this.controller,
+    this.axis = Axis.horizontal,
+    this.autoplay,
+    this.loop = false,
     this.semanticLabel = 'Carousel',
   });
 
   final List<Widget> children;
 
-  /// How much of the width one slide takes: 1 shows one, 1 / 3 shows three.
+  /// How much of the way across one slide takes: 1 shows one, 1 / 3 shows three.
   final double viewportFraction;
 
   /// The gap between slides.
   final double spacing;
 
-  /// Previous and Next buttons outside the slides, left and right.
+  /// Previous and Next buttons either side of the slides.
   final bool controls;
   final ValueChanged<int>? onChanged;
+  final CarouselController? controller;
+  final Axis axis;
+
+  /// Moves on by itself this often.
+  final Duration? autoplay;
+
+  /// After the last slide comes the first again.
+  final bool loop;
   final String semanticLabel;
 
   @override
@@ -11195,6 +11269,8 @@ class Carousel extends StatefulWidget {
 class _CarouselState extends State<Carousel> {
   late final _pages = PageController(viewportFraction: widget.viewportFraction);
   int _at = 0;
+  Timer? _timer;
+  bool _held = false;
 
   /// The last slide that can lead: with several in view, the end comes sooner.
   int get _last =>
@@ -11203,20 +11279,56 @@ class _CarouselState extends State<Carousel> {
         widget.children.length - 1,
       );
 
-  void _go(int i) => _pages.animateToPage(
-    i.clamp(0, _last),
-    duration: const Duration(milliseconds: 300),
-    curve: Curves.easeOutCubic,
-  );
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?._state = this;
+    _play();
+  }
+
+  @override
+  void didUpdateWidget(Carousel old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller?._state = null;
+      widget.controller?._state = this;
+    }
+    if (old.autoplay != widget.autoplay) _play();
+  }
+
+  void _play() {
+    _timer?.cancel();
+    final every = widget.autoplay;
+    if (every == null) return;
+    _timer = Timer.periodic(every, (_) {
+      if (_held || !mounted) return;
+      _go(_at >= _last ? 0 : _at + 1, wrap: true);
+    });
+  }
+
+  void _go(int i, {bool wrap = false}) {
+    if (widget.loop || wrap) {
+      if (i > _last) i = 0;
+      if (i < 0) i = _last;
+    }
+    _pages.animateToPage(
+      i.clamp(0, _last),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
+    widget.controller?._state = null;
     _pages.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final across = widget.axis == Axis.horizontal;
     final track = Semantics(
       container: true,
       label: widget.semanticLabel,
@@ -11224,26 +11336,41 @@ class _CarouselState extends State<Carousel> {
       // The keys go to what has focus and up from it, so the bindings sit outside the Focus.
       child: CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+          SingleActivator(
+            across
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowDown,
+          ): () =>
               _go(_at + 1),
-          const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+          SingleActivator(
+            across ? LogicalKeyboardKey.arrowLeft : LogicalKeyboardKey.arrowUp,
+          ): () =>
               _go(_at - 1),
         },
         child: Focus(
-          child: PageView.builder(
-            controller: _pages,
-            padEnds: false,
-            itemCount: widget.children.length,
-            onPageChanged: (i) {
-              setState(() => _at = i);
-              widget.onChanged?.call(i);
-            },
-            itemBuilder: (context, i) => Padding(
-              padding: EdgeInsets.only(right: widget.spacing),
-              child: Semantics(
-                label: 'Slide ${i + 1} of ${widget.children.length}',
-                container: true,
-                child: widget.children[i],
+          onFocusChange: (f) => _held = f,
+          child: MouseRegion(
+            onEnter: (_) => _held = true,
+            onExit: (_) => _held = false,
+            child: PageView.builder(
+              controller: _pages,
+              scrollDirection: widget.axis,
+              padEnds: false,
+              itemCount: widget.children.length,
+              onPageChanged: (i) {
+                setState(() => _at = i);
+                widget.controller?._set(i);
+                widget.onChanged?.call(i);
+              },
+              itemBuilder: (context, i) => Padding(
+                padding: across
+                    ? EdgeInsetsDirectional.only(end: widget.spacing)
+                    : EdgeInsets.only(bottom: widget.spacing),
+                child: Semantics(
+                  label: 'Slide ${i + 1} of ${widget.children.length}',
+                  container: true,
+                  child: widget.children[i],
+                ),
               ),
             ),
           ),
@@ -11254,26 +11381,33 @@ class _CarouselState extends State<Carousel> {
     Widget arrow(IconData icon, String label, VoidCallback? onPressed) =>
         Button(
           variant: ButtonVariant.outline,
-          size: ButtonSize.icon,
+          size: ButtonSize.iconSm,
           semanticLabel: label,
           onPressed: onPressed,
           child: AshlarIcon(icon),
         );
-    return Row(
+    final back = arrow(
+      across
+          ? AshlarIconsRoundedStroke.arrowLeft
+          : AshlarIconsRoundedStroke.arrowUp,
+      'Previous slide',
+      _at > 0 || widget.loop ? () => _go(_at - 1) : null,
+    );
+    final on = arrow(
+      across
+          ? AshlarIconsRoundedStroke.arrowRight
+          : AshlarIconsRoundedStroke.arrowDown,
+      'Next slide',
+      _at < _last || widget.loop ? () => _go(_at + 1) : null,
+    );
+    return Flex(
+      direction: widget.axis,
       children: [
-        arrow(
-          AshlarIconsRoundedStroke.arrowLeft,
-          'Previous slide',
-          _at > 0 ? () => _go(_at - 1) : null,
-        ),
-        const SizedBox(width: 12),
+        back,
+        const SizedBox(width: 12, height: 12),
         Expanded(child: track),
-        const SizedBox(width: 12),
-        arrow(
-          AshlarIconsRoundedStroke.arrowRight,
-          'Next slide',
-          _at < _last ? () => _go(_at + 1) : null,
-        ),
+        const SizedBox(width: 12, height: 12),
+        on,
       ],
     );
   }
@@ -11465,8 +11599,8 @@ class AshlarSelectionMenu extends StatelessWidget {
     },
   ),
   'calendar': Component(
-    description: "A month of days to pick one from, or a range.",
-    requires: ["theme","button"],
+    description: "Months of days to pick one, several or a range from, with week numbers and dropdowns.",
+    requires: ["theme","button","select"],
     packages: ["ashlar_icons"],
     files: {
       'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
@@ -11476,6 +11610,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'button.dart';
+import 'select.dart';
 import 'theme.dart';
 
 /// The words dates are written in: month and weekday names, which day a week starts on,
@@ -11582,14 +11717,25 @@ bool _same(DateTime? a, DateTime? b) =>
     a.month == b.month &&
     a.day == b.day;
 
-/// A month of days to pick from: one day, or with [Calendar.range] a start and an end.
-/// The arrows on either side change the month. From the keyboard the arrow keys move a
-/// day or a week, Page Up and Page Down a month, Home and End to the week's ends, and
-/// Enter or Space picks.
+/// The ISO week of the year a day falls in: weeks start on Monday, and week 1 holds the
+/// year's first Thursday.
+int isoWeek(DateTime d) {
+  final day = DateTime.utc(d.year, d.month, d.day);
+  final thursday = day.add(Duration(days: 4 - day.weekday));
+  final first = DateTime.utc(thursday.year, 1, 1);
+  return thursday.difference(first).inDays ~/ 7 + 1;
+}
+
+/// Months of days to pick from: one day, several with [Calendar.multiple], or a start and
+/// an end with [Calendar.range]. The arrows either side change the month; with
+/// [dropdowns] the month and year are picked from lists. From the keyboard the arrow keys
+/// move a day or a week, Page Up and Page Down a month, Home and End to the week's ends,
+/// and Enter or Space picks.
 ///
 /// ```dart
 /// Calendar(selected: day, onSelected: (d) => setState(() => day = d))
-/// Calendar.range(range: stay, onRangeChanged: (r) => setState(() => stay = r))
+/// Calendar.range(range: stay, months: 2, onRangeChanged: (r) => setState(() => stay = r))
+/// Calendar.multiple(days: picked, onDaysChanged: (d) => setState(() => picked = d))
 /// ```
 class Calendar extends StatefulWidget {
   const Calendar({
@@ -11601,8 +11747,13 @@ class Calendar extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.autofocus = false,
+    this.months = 1,
+    this.showWeekNumbers = false,
+    this.dropdowns = false,
   }) : range = null,
-       onRangeChanged = null;
+       onRangeChanged = null,
+       days = null,
+       onDaysChanged = null;
 
   const Calendar.range({
     super.key,
@@ -11613,13 +11764,39 @@ class Calendar extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.autofocus = false,
+    this.months = 1,
+    this.showWeekNumbers = false,
+    this.dropdowns = false,
   }) : selected = null,
-       onSelected = null;
+       onSelected = null,
+       days = null,
+       onDaysChanged = null;
+
+  const Calendar.multiple({
+    super.key,
+    required Set<DateTime> this.days,
+    required ValueChanged<Set<DateTime>> this.onDaysChanged,
+    this.initialMonth,
+    this.firstDate,
+    this.lastDate,
+    this.isDisabled,
+    this.autofocus = false,
+    this.months = 1,
+    this.showWeekNumbers = false,
+    this.dropdowns = false,
+  }) : selected = null,
+       onSelected = null,
+       range = null,
+       onRangeChanged = null;
 
   final DateTime? selected;
   final ValueChanged<DateTime>? onSelected;
   final DateRange? range;
   final ValueChanged<DateRange>? onRangeChanged;
+
+  /// The days picked, each at midnight.
+  final Set<DateTime>? days;
+  final ValueChanged<Set<DateTime>>? onDaysChanged;
 
   /// The month shown first: the selected one, else this month.
   final DateTime? initialMonth;
@@ -11631,6 +11808,15 @@ class Calendar extends StatefulWidget {
   final bool Function(DateTime day)? isDisabled;
   final bool autofocus;
 
+  /// How many months show side by side.
+  final int months;
+
+  /// The week of the year before each row.
+  final bool showWeekNumbers;
+
+  /// The month and year picked from lists, for going far quickly: a date of birth.
+  final bool dropdowns;
+
   @override
   State<Calendar> createState() => _CalendarState();
 }
@@ -11640,11 +11826,13 @@ class _CalendarState extends State<Calendar> {
     widget.initialMonth ??
         widget.selected ??
         widget.range?.start ??
+        widget.days?.firstOrNull ??
         DateTime.now(),
   );
   late DateTime _focus = _day(
     widget.selected ??
         widget.range?.start ??
+        widget.days?.firstOrNull ??
         widget.initialMonth ??
         DateTime.now(),
   );
@@ -11671,6 +11859,13 @@ class _CalendarState extends State<Calendar> {
       widget.onSelected!(d);
       return;
     }
+    if (widget.onDaysChanged != null) {
+      final next = {...widget.days!};
+      final had = next.where((x) => _same(x, d)).toList();
+      had.isEmpty ? next.add(d) : next.removeAll(had);
+      widget.onDaysChanged!(next);
+      return;
+    }
     final r = widget.range;
     // A finished range, or none: start again. A start only: this is the other end.
     if (r == null || r.end != null) {
@@ -11688,32 +11883,168 @@ class _CalendarState extends State<Calendar> {
   void _moveFocus(DateTime to) {
     setState(() {
       _focus = to;
-      _month = _monthOf(to);
+      // Keep the focused day in view: move the months only when it leaves them.
+      final last = DateTime(_month.year, _month.month + widget.months - 1);
+      if (to.isBefore(_month)) _month = _monthOf(to);
+      if (to.isAfter(DateTime(last.year, last.month + 1, 0))) {
+        _month = DateTime(to.year, to.month - widget.months + 1);
+      }
     });
+  }
+
+  KeyEventResult _key(FocusNode node, KeyEvent e, int first) {
+    if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final k = e.logicalKey;
+    final f = _focus;
+    final DateTime? to = switch (k) {
+      LogicalKeyboardKey.arrowLeft => DateTime(f.year, f.month, f.day - 1),
+      LogicalKeyboardKey.arrowRight => DateTime(f.year, f.month, f.day + 1),
+      LogicalKeyboardKey.arrowUp => DateTime(f.year, f.month, f.day - 7),
+      LogicalKeyboardKey.arrowDown => DateTime(f.year, f.month, f.day + 7),
+      LogicalKeyboardKey.pageUp => DateTime(f.year, f.month - 1, f.day),
+      LogicalKeyboardKey.pageDown => DateTime(f.year, f.month + 1, f.day),
+      LogicalKeyboardKey.home => DateTime(
+        f.year,
+        f.month,
+        f.day - (f.weekday - first + 7) % 7,
+      ),
+      LogicalKeyboardKey.end => DateTime(
+        f.year,
+        f.month,
+        f.day + 6 - (f.weekday - first + 7) % 7,
+      ),
+      _ => null,
+    };
+    if (to != null) {
+      setState(() => _keyboard = true);
+      _moveFocus(_day(to));
+      return KeyEventResult.handled;
+    }
+    if (k == LogicalKeyboardKey.enter || k == LogicalKeyboardKey.space) {
+      _pick(_focus);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   @override
   Widget build(BuildContext context) {
+    final names = DateNames.of(context);
+    final canBack =
+        widget.firstDate == null || _month.isAfter(_monthOf(widget.firstDate!));
+    final lastShown = DateTime(_month.year, _month.month + widget.months - 1);
+    final canOn =
+        widget.lastDate == null ||
+        lastShown.isBefore(_monthOf(widget.lastDate!));
+    return Focus(
+      focusNode: _node,
+      autofocus: widget.autofocus,
+      onFocusChange: (f) => setState(
+        () => _keyboard =
+            f &&
+            FocusManager.instance.highlightMode ==
+                FocusHighlightMode.traditional,
+      ),
+      onKeyEvent: (node, e) => _key(node, e, names.firstWeekday),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var m = 0; m < widget.months; m++) ...[
+            if (m > 0) const SizedBox(width: 16),
+            _grid(
+              context,
+              DateTime(_month.year, _month.month + m),
+              back: m == 0 ? (canBack ? () => _showMonth(-1) : null) : null,
+              on: m == widget.months - 1
+                  ? (canOn ? () => _showMonth(1) : null)
+                  : null,
+              first: m == 0,
+              last: m == widget.months - 1,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _caption(BuildContext context, DateTime month) {
+    final t = AshlarTheme.of(context);
+    final names = DateNames.of(context);
+    if (!widget.dropdowns) {
+      return Text(
+        names.monthYear(month),
+        textAlign: TextAlign.center,
+        style: t.text.sm.copyWith(
+          fontWeight: FontWeight.w500,
+          color: t.colors.foreground,
+        ),
+      );
+    }
+    final from = widget.firstDate?.year ?? month.year - 100,
+        to = widget.lastDate?.year ?? month.year + 10;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          child: Select<int>(
+            size: SelectSize.sm,
+            value: month.month,
+            semanticLabel: 'Month',
+            options: [
+              for (var i = 1; i <= 12; i++)
+                SelectOption(i, names.months[i - 1].substring(0, 3)),
+            ],
+            onChanged: (v) => setState(() => _month = DateTime(_month.year, v)),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Select<int>(
+            size: SelectSize.sm,
+            value: month.year,
+            semanticLabel: 'Year',
+            options: [for (var y = from; y <= to; y++) SelectOption(y, '$y')],
+            onChanged: (v) =>
+                setState(() => _month = DateTime(v, _month.month)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _grid(
+    BuildContext context,
+    DateTime month, {
+    VoidCallback? back,
+    VoidCallback? on,
+    required bool first,
+    required bool last,
+  }) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final names = DateNames.of(context);
-    final first = names.firstWeekday;
+    final firstDay = names.firstWeekday;
     // The grid starts on the first weekday on or before the 1st, and runs whole weeks.
-    final lead = (_month.weekday - first + 7) % 7;
-    final start = DateTime(_month.year, _month.month, 1 - lead);
-    final days = DateTime(_month.year, _month.month + 1, 0).day;
-    final weeks = ((lead + days) / 7).ceil();
+    final lead = (month.weekday - firstDay + 7) % 7;
+    final start = DateTime(month.year, month.month, 1 - lead);
+    final count = DateTime(month.year, month.month + 1, 0).day;
+    final weeks = ((lead + count) / 7).ceil();
     final today = _day(DateTime.now());
-    final canBack =
-        widget.firstDate == null || _month.isAfter(_monthOf(widget.firstDate!));
-    final canOn =
-        widget.lastDate == null || _month.isBefore(_monthOf(widget.lastDate!));
+    final weekCol = widget.showWeekNumbers ? 32.0 : 0.0;
 
     Widget day(DateTime d) {
-      final outside = d.month != _month.month;
+      final outside = d.month != month.month;
+      // With two months, a day outside its month is left to the month it belongs to.
+      if (outside && widget.months > 1) return const SizedBox();
       final off = _off(d);
       final r = widget.range;
-      final isStart = _same(d, r?.start) || _same(d, widget.selected);
+      final isStart =
+          _same(d, r?.start) ||
+          _same(d, widget.selected) ||
+          (widget.days?.any((x) => _same(x, d)) ?? false);
       final isEnd = _same(d, r?.end);
       final middle = !isStart && !isEnd && (r?.contains(d) ?? false);
       final picked = isStart || isEnd;
@@ -11727,9 +12058,9 @@ class _CalendarState extends State<Calendar> {
       // A range is one band: the ends round only on their outer side.
       final radius = Radius.circular(t.radiusMd);
       final inRange = r?.end != null && !_same(r!.start, r.end);
-      final band = BorderRadius.horizontal(
-        left: middle || (isEnd && inRange) ? Radius.zero : radius,
-        right: middle || (isStart && inRange && r.end != null)
+      final band = BorderRadiusDirectional.horizontal(
+        start: middle || (isEnd && inRange) ? Radius.zero : radius,
+        end: middle || (isStart && inRange && r.end != null)
             ? Radius.zero
             : radius,
       );
@@ -11776,131 +12107,101 @@ class _CalendarState extends State<Calendar> {
       );
     }
 
-    return Focus(
-      focusNode: _node,
-      autofocus: widget.autofocus,
-      onFocusChange: (f) => setState(
-        () => _keyboard =
-            f &&
-            FocusManager.instance.highlightMode ==
-                FocusHighlightMode.traditional,
-      ),
-      onKeyEvent: (node, e) {
-        if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
-          return KeyEventResult.ignored;
-        }
-        final k = e.logicalKey;
-        final f = _focus;
-        final DateTime? to = switch (k) {
-          LogicalKeyboardKey.arrowLeft => f.subtract(const Duration(days: 1)),
-          LogicalKeyboardKey.arrowRight => f.add(const Duration(days: 1)),
-          LogicalKeyboardKey.arrowUp => DateTime(f.year, f.month, f.day - 7),
-          LogicalKeyboardKey.arrowDown => DateTime(f.year, f.month, f.day + 7),
-          LogicalKeyboardKey.pageUp => DateTime(f.year, f.month - 1, f.day),
-          LogicalKeyboardKey.pageDown => DateTime(f.year, f.month + 1, f.day),
-          LogicalKeyboardKey.home => DateTime(
-            f.year,
-            f.month,
-            f.day - (f.weekday - first + 7) % 7,
-          ),
-          LogicalKeyboardKey.end => DateTime(
-            f.year,
-            f.month,
-            f.day + 6 - (f.weekday - first + 7) % 7,
-          ),
-          _ => null,
-        };
-        if (to != null) {
-          setState(() => _keyboard = true);
-          _moveFocus(_day(to));
-          return KeyEventResult.handled;
-        }
-        if (k == LogicalKeyboardKey.enter || k == LogicalKeyboardKey.space) {
-          _pick(_focus);
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
-      },
-      child: Semantics(
-        container: true,
-        label: names.monthYear(_month),
-        explicitChildNodes: true,
-        child: SizedBox(
-          width: 7 * 32,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 32,
-                child: Row(
-                  children: [
-                    _Nav(
-                      icon: AshlarIconsRoundedStroke.chevronLeft,
-                      label: 'Previous month',
-                      onPressed: canBack ? () => _showMonth(-1) : null,
+    return Semantics(
+      container: true,
+      label: names.monthYear(month),
+      explicitChildNodes: true,
+      child: SizedBox(
+        width: weekCol + 7 * 32,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 32,
+              // With dropdowns the lists change the month, and take the arrows' room.
+              child: Row(
+                children: [
+                  if (!widget.dropdowns)
+                    SizedBox(
+                      width: 32,
+                      child: first
+                          ? _Nav(
+                              icon: AshlarIconsRoundedStroke.chevronLeft,
+                              label: 'Previous month',
+                              onPressed: back,
+                            )
+                          : null,
                     ),
-                    Expanded(
-                      child: Text(
-                        names.monthYear(_month),
-                        textAlign: TextAlign.center,
-                        style: t.text.sm.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: c.foreground,
+                  Expanded(child: Center(child: _caption(context, month))),
+                  if (!widget.dropdowns)
+                    SizedBox(
+                      width: 32,
+                      child: last
+                          ? _Nav(
+                              icon: AshlarIconsRoundedStroke.chevronRight,
+                              label: 'Next month',
+                              onPressed: on,
+                            )
+                          : null,
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            ExcludeSemantics(
+              child: Row(
+                children: [
+                  if (widget.showWeekNumbers) SizedBox(width: weekCol),
+                  for (var i = 0; i < 7; i++)
+                    SizedBox(
+                      width: 32,
+                      height: 24,
+                      child: Center(
+                        child: Text(
+                          names.weekdaysShort[(firstDay - 1 + i) % 7],
+                          style: t.text.xs.copyWith(
+                            color: c.mutedForeground,
+                            fontSize: 12.8,
+                          ),
                         ),
                       ),
                     ),
-                    _Nav(
-                      icon: AshlarIconsRoundedStroke.chevronRight,
-                      label: 'Next month',
-                      onPressed: canOn ? () => _showMonth(1) : null,
-                    ),
-                  ],
-                ),
+                ],
               ),
-              const SizedBox(height: 8),
-              ExcludeSemantics(
+            ),
+            const SizedBox(height: 4),
+            for (var w = 0; w < weeks; w++)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
                 child: Row(
                   children: [
+                    if (widget.showWeekNumbers)
+                      SizedBox(
+                        width: weekCol,
+                        height: 32,
+                        child: Center(
+                          child: Text(
+                            '${isoWeek(DateTime(start.year, start.month, start.day + w * 7 + (DateTime.thursday - firstDay + 7) % 7))}',
+                            style: t.text.xs.copyWith(color: c.mutedForeground),
+                          ),
+                        ),
+                      ),
                     for (var i = 0; i < 7; i++)
                       SizedBox(
                         width: 32,
-                        height: 24,
-                        child: Center(
-                          child: Text(
-                            names.weekdaysShort[(first - 1 + i) % 7],
-                            style: t.text.xs.copyWith(
-                              color: c.mutedForeground,
-                              fontSize: 12.8,
-                            ),
+                        height: 32,
+                        child: day(
+                          DateTime(
+                            start.year,
+                            start.month,
+                            start.day + w * 7 + i,
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
-              for (var w = 0; w < weeks; w++)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < 7; i++)
-                        SizedBox(
-                          width: 32,
-                          height: 32,
-                          child: day(
-                            DateTime(
-                              start.year,
-                              start.month,
-                              start.day + w * 7 + i,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -11965,8 +12266,8 @@ class _Nav extends StatelessWidget {
     },
   ),
   'date-picker': Component(
-    description: "A button that shows a date and opens a calendar to change it.",
-    requires: ["theme","pressable","popover","calendar"],
+    description: "A button that shows a date and opens a calendar, with presets.",
+    requires: ["theme","pressable","popover","calendar","select"],
     packages: ["ashlar_icons"],
     files: {
       'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
@@ -11978,6 +12279,7 @@ import 'package:flutter/widgets.dart';
 import 'calendar.dart';
 import 'popover.dart';
 import 'pressable.dart';
+import 'select.dart';
 import 'theme.dart';
 
 /// A button that shows a date and opens a Calendar to change it. [DatePicker.range] picks
@@ -11997,6 +12299,7 @@ class DatePicker extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.semanticLabel,
+    this.presets = const [],
   }) : range = null,
        onRangeChanged = null;
 
@@ -12009,7 +12312,8 @@ class DatePicker extends StatefulWidget {
     this.lastDate,
     this.isDisabled,
     this.semanticLabel,
-  }) : value = null,
+  }) : presets = const [],
+       value = null,
        onChanged = null;
 
   final DateTime? value;
@@ -12022,6 +12326,9 @@ class DatePicker extends StatefulWidget {
 
   /// What the date is for, read out before it: 'Due date'.
   final String? semanticLabel;
+
+  /// Dates a tap away, offered above the calendar: ('Tomorrow', tomorrow).
+  final List<(String, DateTime)> presets;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -12062,7 +12369,8 @@ class _DatePickerState extends State<DatePicker> {
       onClose: _focus.requestFocus,
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
-        child: Padding(
+        // Scrolls when the room by the trigger is shorter than the calendar.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(12),
           child: _isRange
               ? Calendar.range(
@@ -12076,16 +12384,38 @@ class _DatePickerState extends State<DatePicker> {
                     if (v.end != null) _menu.close();
                   },
                 )
-              : Calendar(
-                  autofocus: true,
-                  selected: widget.value,
-                  firstDate: widget.firstDate,
-                  lastDate: widget.lastDate,
-                  isDisabled: widget.isDisabled,
-                  onSelected: (d) {
-                    widget.onChanged?.call(d);
-                    _menu.close();
-                  },
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (widget.presets.isNotEmpty) ...[
+                      Select<int>(
+                        value: null,
+                        size: SelectSize.sm,
+                        placeholder: 'Pick a preset',
+                        options: [
+                          for (final (i, p) in widget.presets.indexed)
+                            SelectOption(i, p.$1),
+                        ],
+                        onChanged: (i) {
+                          widget.onChanged?.call(widget.presets[i].$2);
+                          _menu.close();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    Calendar(
+                      autofocus: widget.presets.isEmpty,
+                      selected: widget.value,
+                      firstDate: widget.firstDate,
+                      lastDate: widget.lastDate,
+                      isDisabled: widget.isDisabled,
+                      onSelected: (d) {
+                        widget.onChanged?.call(d);
+                        _menu.close();
+                      },
+                    ),
+                  ],
                 ),
         ),
       ),

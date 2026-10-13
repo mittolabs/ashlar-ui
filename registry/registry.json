@@ -52,10 +52,10 @@
   "combobox": { "description": "A select you can search: one pick or several as chips, groups, clearing.", "files": ["combobox.dart"], "requires": ["theme", "pressable", "popover", "command"], "packages": ["ashlar_icons"] },
   "menubar": { "description": "A bar of menus, as at the top of a desktop app.", "files": ["menubar.dart"], "requires": ["theme", "pressable", "popover", "dropdown-menu"] },
   "navigation-menu": { "description": "A site's main links, with panels that open from headings.", "files": ["navigation_menu.dart"], "requires": ["theme", "pressable", "popover"], "packages": ["ashlar_icons"] },
-  "carousel": { "description": "Slides in a row, moved by swiping, buttons or the arrow keys.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
+  "carousel": { "description": "Slides moved by swiping, buttons, keys, a controller or by themselves.", "files": ["carousel.dart"], "requires": ["button"], "packages": ["ashlar_icons"] },
   "selection": { "description": "Selection handles and the cut, copy and paste menu.", "files": ["selection.dart"], "requires": ["theme"] },
-  "calendar": { "description": "A month of days to pick one from, or a range.", "files": ["calendar.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
-  "date-picker": { "description": "A button that shows a date and opens a calendar to change it.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar"], "packages": ["ashlar_icons"] },
+  "calendar": { "description": "Months of days to pick one, several or a range from, with week numbers and dropdowns.", "files": ["calendar.dart"], "requires": ["theme", "button", "select"], "packages": ["ashlar_icons"] },
+  "date-picker": { "description": "A button that shows a date and opens a calendar, with presets.", "files": ["date_picker.dart"], "requires": ["theme", "pressable", "popover", "calendar", "select"], "packages": ["ashlar_icons"] },
   "chart": { "description": "Bar, line, area and pie charts, drawn here with no charting package.", "files": ["chart.dart"], "requires": ["theme"] },
   "sidebar": { "description": "An app's navigation down the side: variants, submenus, actions, a rail.", "files": ["sidebar.dart"], "requires": ["theme", "pressable", "button", "sheet", "tooltip", "skeleton"], "packages": ["ashlar_icons"] }
 }

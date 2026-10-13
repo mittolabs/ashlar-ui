@@ -307,3 +307,39 @@ class _Entrance extends StatelessWidget {
     );
   }
 }
+
+/// The top of a popover's content: a title and a line about it.
+class PopoverHeader extends StatelessWidget {
+  const PopoverHeader({super.key, required this.title, this.description});
+
+  final Widget title;
+  final Widget? description;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(
+              color: t.colors.popoverForeground,
+              fontWeight: FontWeight.w500,
+            ),
+            child: title,
+          ),
+        ),
+        if (description != null) ...[
+          const SizedBox(height: 4),
+          DefaultTextStyle.merge(
+            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            child: description!,
+          ),
+        ],
+      ],
+    );
+  }
+}

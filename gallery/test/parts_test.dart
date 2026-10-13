@@ -322,7 +322,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
     expect(find.text('Edit'), findsOneWidget);
-    expect(find.descendant(of: find.byType(Sheet), matching: find.byType(Button)), findsNothing);
+    expect(
+      find.descendant(of: find.byType(Sheet), matching: find.byType(Button)),
+      findsNothing,
+    );
     semantics.dispose();
   });
 
