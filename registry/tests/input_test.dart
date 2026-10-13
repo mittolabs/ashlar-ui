@@ -5,6 +5,7 @@ import 'dart:ui' show Tristate;
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/input.dart';
 import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -117,5 +118,46 @@ void main() {
       expect(find.text('x'), findsNothing);
       focus.dispose();
     });
+  });
+
+  testWidgets('a screen reader opens it by tapping it, unless it is disabled', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final focus = FocusNode();
+    addTearDown(focus.dispose);
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Center(
+          child: SizedBox(
+            width: 300,
+            child: Input(placeholder: 'Email', focusNode: focus),
+          ),
+        ),
+      ),
+    );
+    final node = tester.getSemantics(find.byType(EditableText));
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    node.owner!.performAction(node.id, SemanticsAction.tap);
+    await tester.pump();
+    expect(focus.hasFocus, isTrue);
+    await tester.pumpWidget(
+      const AshlarApp(
+        home: Center(
+          child: SizedBox(
+            width: 300,
+            child: Input(placeholder: 'Email', enabled: false),
+          ),
+        ),
+      ),
+    );
+    expect(
+      tester
+          .getSemantics(find.byType(EditableText))
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isFalse,
+    );
+    handle.dispose();
   });
 }

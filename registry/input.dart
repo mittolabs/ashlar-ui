@@ -277,6 +277,15 @@ class _InputState extends State<Input>
                             child: Semantics(
                               label: widget.semanticLabel ?? widget.placeholder,
                               enabled: widget.enabled,
+                              // A screen reader opens a field by tapping it: then it takes
+                              // focus and the keyboard comes up, as Flutter's own field does.
+                              onTap: widget.enabled && !widget.readOnly
+                                  ? () {
+                                      _focus.requestFocus();
+                                      editableTextKey.currentState
+                                          ?.requestKeyboard();
+                                    }
+                                  : null,
                               child: editable,
                             ),
                           ),
