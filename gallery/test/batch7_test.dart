@@ -7,6 +7,7 @@ import 'package:ashlar_ui_gallery/ui/command.dart';
 import 'package:ashlar_ui_gallery/ui/dropdown_menu.dart';
 import 'package:ashlar_ui_gallery/ui/menubar.dart';
 import 'package:ashlar_ui_gallery/ui/navigation_menu.dart';
+import 'package:ashlar_ui_gallery/ui/popover.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -120,32 +121,31 @@ void main() {
     });
   });
 
-  testWidgets(
-    'in a short space, its list shrinks rather than overflow',
-    (tester) async {
-      await tester.pumpWidget(
-        AshlarApp(
-          home: Align(
-            alignment: Alignment.center,
-            child: SizedBox(
-              width: 240,
-              child: Combobox<int>(
-                value: null,
-                options: [
-                  for (var i = 0; i < 40; i++) ComboboxOption(i, 'Option $i'),
-                ],
-                onChanged: (_) {},
-              ),
+  testWidgets('in a short space, its list shrinks rather than overflow', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Align(
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: 240,
+            child: Combobox<int>(
+              value: null,
+              options: [
+                for (var i = 0; i < 40; i++) ComboboxOption(i, 'Option $i'),
+              ],
+              onChanged: (_) {},
             ),
           ),
         ),
-      );
-      await tester.tap(find.byType(Combobox<int>));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      expect(find.text('Option 0'), findsOneWidget);
-    },
-  );
+      ),
+    );
+    await tester.tap(find.byType(Combobox<int>));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Option 0'), findsOneWidget);
+  });
 
   testWidgets('a combobox searches, picks and says what it holds', (
     tester,
@@ -174,6 +174,20 @@ void main() {
     );
     await tester.tap(find.text('Choose a county'));
     await tester.pumpAndSettle();
+    // As wide as the trigger, not the screen.
+    expect(
+      tester
+          .getSize(
+            find
+                .descendant(
+                  of: find.byType(PopoverPanel),
+                  matching: find.byType(TapRegion),
+                )
+                .first,
+          )
+          .width,
+      240,
+    );
     await tester.enterText(find.byType(EditableText), 'mom');
     await tester.pump();
     expect(find.text('Nairobi'), findsNothing);

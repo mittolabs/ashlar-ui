@@ -76,7 +76,9 @@ class _ComboboxState<T> extends State<Combobox<T>> {
       onClose: _focus.requestFocus,
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
-        matchWidth: true,
+        // The search field takes all the width it is given, so the width is set: the
+        // trigger's, and never narrower than 200.
+        width: info.anchorRect.width < 200 ? 200 : info.anchorRect.width,
         child: Command(
           placeholder: widget.searchPlaceholder,
           emptyText: widget.emptyText,
