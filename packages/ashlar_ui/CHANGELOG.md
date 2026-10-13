@@ -1,3 +1,8 @@
+## 0.1.2
+
+- Toggle keeps its height: given room, it stretched to fill it since 0.1.0. A framed Empty
+  and a MessageGroup are as tall as what they hold.
+
 ## 0.1.1
 
 - An example of using the command, and doc comments on what the package exports.
