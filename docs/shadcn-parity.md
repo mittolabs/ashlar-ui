@@ -18,8 +18,8 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Showcase situations across components | about 480 | 55 (one demo each) |
 | Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 27: the same set |
 | Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 4 kinds, no radar or radial |
-| Themes | 7 base colours and 17 accent colours | neutral only |
-| Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 1 |
+| Themes | 7 base colours and 17 accent colours | the same 7 and 17, with contrast floors |
+| Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 6: standard, compact, rounded, sharp, dense, soft |
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
 | CLI commands | 15: init, add, apply, build, diff, docs, eject, info, mcp, migrate, preset, search, view, registry, dry run | 3: init, add, list |
 | Right-to-left | yes, CLI converts to logical sides | yes, logical sides; tested in both directions |
@@ -173,6 +173,16 @@ an answer only while the reader is at the end, keeps its place as older rows loa
 to any row and says which turn is being read. Then Questionnaire: one question at a time,
 one choice or several or words, required or skippable, conditional questions, letter or
 number keys, arrows and Enter. Each has a page on the site.
+
+**Step 6, themes and styles: done** (13 October 2026, f1420a5). Seven bases (neutral,
+stone, zinc, mauve, olive, mist, taupe) and seventeen accents, generated from shadcn's oklch
+values by `tool/palette.mjs`, with contrast floors shadcn's values miss: muted text reaches
+4.5 to 1 on the page and on muted surfaces (olive's was 4.25), and the sidebar's mark 4.5
+(dark lime's was 1.85). Six styles of our own naming (standard, compact, rounded, sharp,
+dense, soft) carry radius, control density, panel spacing and shadows, which buttons,
+inputs, selects, toggles, tabs, menus, cards and panels read. `ashlar init --base --accent
+--style` writes `app_theme.dart`. Not carried over: fonts per style (Ashlar ships no
+fonts), and shadcn's per-component rules beyond spacing and shape.
 
 ## Plan
 
