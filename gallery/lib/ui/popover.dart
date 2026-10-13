@@ -109,7 +109,19 @@ class PopoverPanel extends StatelessWidget {
     final c = t.colors;
     final min = matchWidth ? info.anchorRect.width : minWidth;
     return CustomSingleChildLayout(
-      delegate: _Place(info.anchorRect, side, align),
+      // Opened at a point (a right-click), it is placed against that point instead.
+      delegate: _Place(
+        info.position == null
+            ? info.anchorRect
+            : Rect.fromLTWH(
+                info.anchorRect.left + info.position!.dx,
+                info.anchorRect.top + info.position!.dy,
+                0,
+                0,
+              ),
+        side,
+        align,
+      ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
         // RawMenuAnchor closes only submenus on a tap outside; the panel closes itself.

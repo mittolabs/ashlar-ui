@@ -38,5 +38,9 @@
   "toggle-group": { "description": "Toggles joined into one piece, one or several pressed.", "files": ["toggle_group.dart"], "requires": ["toggle", "group"] },
   "slider": { "description": "A value picked by dragging along a track, or with the arrow keys.", "files": ["slider.dart"], "requires": ["theme"] },
   "pagination": { "description": "Previous, page numbers and Next, for a long list.", "files": ["pagination.dart"], "requires": ["theme", "button"], "packages": ["ashlar_icons"] },
-  "alert-dialog": { "description": "A question that needs an answer before going on.", "files": ["alert_dialog.dart"], "requires": ["dialog", "button"] }
+  "alert-dialog": { "description": "A question that needs an answer before going on.", "files": ["alert_dialog.dart"], "requires": ["dialog", "button"] },
+  "hover-card": { "description": "A card that appears when the pointer rests on something.", "files": ["hover_card.dart"], "requires": ["theme", "popover"] },
+  "context-menu": { "description": "A menu that opens where something is right-clicked or long-pressed.", "files": ["context_menu.dart"], "requires": ["popover", "dropdown-menu"] },
+  "scroll-area": { "description": "Scrolling with a thin scrollbar in the theme's colours.", "files": ["scroll_area.dart"], "requires": ["theme"] },
+  "data-table": { "description": "Rows of data under column headings, with a footer and a caption.", "files": ["data_table.dart"], "requires": ["theme"] }
 }

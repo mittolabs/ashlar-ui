@@ -2883,7 +2883,19 @@ class PopoverPanel extends StatelessWidget {
     final c = t.colors;
     final min = matchWidth ? info.anchorRect.width : minWidth;
     return CustomSingleChildLayout(
-      delegate: _Place(info.anchorRect, side, align),
+      // Opened at a point (a right-click), it is placed against that point instead.
+      delegate: _Place(
+        info.position == null
+            ? info.anchorRect
+            : Rect.fromLTWH(
+                info.anchorRect.left + info.position!.dx,
+                info.anchorRect.top + info.position!.dy,
+                0,
+                0,
+              ),
+        side,
+        align,
+      ),
       child: TapRegion(
         groupId: info.tapRegionGroupId,
         // RawMenuAnchor closes only submenus on a tap outside; the panel closes itself.
@@ -5583,6 +5595,503 @@ class AlertDialog extends StatelessWidget {
       ),
     ),
   );
+}
+''',
+    },
+  ),
+  'hover-card': Component(
+    description: "A card that appears when the pointer rests on something.",
+    requires: ["theme","popover"],
+    packages: [],
+    files: {
+      'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
+// change.
+
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
+
+import 'popover.dart';
+import 'theme.dart';
+
+/// A card that appears when the pointer rests on [child] or the keyboard focuses it: a
+/// preview of a profile or a link. It is extra: anything a person needs should be
+/// reachable without it, since touch screens have no hover.
+///
+/// ```dart
+/// HoverCard(
+///   content: (context) => Text('Wanjiru Mwangi. Designer at Mittolabs.'),
+///   child: Button(variant: ButtonVariant.link, onPressed: openProfile, child: Text('@wanjiru')),
+/// )
+/// ```
+class HoverCard extends StatefulWidget {
+  const HoverCard({
+    super.key,
+    required this.child,
+    required this.content,
+    this.openDelay = const Duration(milliseconds: 700),
+    this.closeDelay = const Duration(milliseconds: 300),
+    this.side = PopoverSide.bottom,
+    this.align = PopoverAlign.center,
+    this.width = 256,
+  });
+
+  final Widget child;
+  final WidgetBuilder content;
+  final Duration openDelay, closeDelay;
+  final PopoverSide side;
+  final PopoverAlign align;
+  final double width;
+
+  @override
+  State<HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<HoverCard> {
+  final _menu = MenuController();
+  Timer? _timer;
+
+  void _later(Duration delay, VoidCallback then) {
+    _timer?.cancel();
+    _timer = Timer(delay, () {
+      if (mounted) then();
+    });
+  }
+
+  void _show() => _later(widget.openDelay, _menu.open);
+  void _hide() => _later(widget.closeDelay, _menu.close);
+  void _stay() => _timer?.cancel();
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return RawMenuAnchor(
+      controller: _menu,
+      overlayBuilder: (context, info) => PopoverPanel(
+        info: info,
+        side: widget.side,
+        align: widget.align,
+        width: widget.width,
+        child: MouseRegion(
+          onEnter: (_) => _stay(),
+          onExit: (_) => _hide(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: DefaultTextStyle.merge(
+              style: t.text.sm,
+              child: Builder(builder: widget.content),
+            ),
+          ),
+        ),
+      ),
+      child: MouseRegion(
+        onEnter: (_) => _show(),
+        onExit: (_) => _hide(),
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          onFocusChange: (focused) {
+            if (!focused) {
+              _hide();
+            } else if (FocusManager.instance.highlightMode ==
+                FocusHighlightMode.traditional) {
+              _show();
+            }
+          },
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'context-menu': Component(
+    description: "A menu that opens where something is right-clicked or long-pressed.",
+    requires: ["popover","dropdown-menu"],
+    packages: [],
+    files: {
+      'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
+// change.
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'dropdown_menu.dart';
+import 'popover.dart';
+
+/// A menu that opens where [child] is right-clicked or long-pressed, or from the keyboard
+/// with the menu key or Shift+F10 while something inside it has focus. Takes the same
+/// items as a DropdownMenu. On the web it turns the browser's own menu off while shown.
+///
+/// ```dart
+/// ContextMenu(
+///   items: [
+///     MenuItem(onPressed: back, shortcut: Text('⌘['), child: Text('Back')),
+///     MenuItem(onPressed: reload, shortcut: Text('⌘R'), child: Text('Reload')),
+///   ],
+///   child: Container(height: 150, child: Center(child: Text('Right-click here'))),
+/// )
+/// ```
+class ContextMenu extends StatefulWidget {
+  const ContextMenu({
+    super.key,
+    required this.child,
+    required this.items,
+    this.width = 224,
+  });
+
+  final Widget child;
+
+  /// [MenuItem], [MenuLabel] and [MenuSeparator], in order.
+  final List<Widget> items;
+  final double width;
+
+  @override
+  State<ContextMenu> createState() => _ContextMenuState();
+}
+
+/// How many context menus are on screen, so the browser's menu comes back with the last.
+int _shown = 0;
+
+class _ContextMenuState extends State<ContextMenu> {
+  final _menu = MenuController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb && _shown++ == 0) BrowserContextMenu.disableContextMenu();
+  }
+
+  @override
+  void dispose() {
+    if (kIsWeb && --_shown == 0) BrowserContextMenu.enableContextMenu();
+    super.dispose();
+  }
+
+  void _openAt(Offset at) => _menu.open(position: at);
+
+  @override
+  Widget build(BuildContext context) => RawMenuAnchor(
+    controller: _menu,
+    overlayBuilder: (context, info) => PopoverPanel(
+      info: info,
+      width: widget.width,
+      child: MenuList(children: widget.items),
+    ),
+    child: Builder(
+      builder: (context) => Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.contextMenu): _OpenIntent(),
+          SingleActivator(LogicalKeyboardKey.f10, shift: true): _OpenIntent(),
+        },
+        child: Actions(
+          actions: {
+            _OpenIntent: CallbackAction<_OpenIntent>(
+              onInvoke: (_) {
+                final box = context.findRenderObject()! as RenderBox;
+                _openAt(box.size.center(Offset.zero));
+                return null;
+              },
+            ),
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onSecondaryTapDown: (d) => _openAt(d.localPosition),
+            onLongPressStart: (d) => _openAt(d.localPosition),
+            child: widget.child,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _OpenIntent extends Intent {
+  const _OpenIntent();
+}
+''',
+    },
+  ),
+  'scroll-area': Component(
+    description: "Scrolling with a thin scrollbar in the theme's colours.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
+// change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Scrolls [child] with a thin scrollbar in the theme's colours, shown while the pointer
+/// is over it and while it scrolls, in place of the platform's.
+///
+/// ```dart
+/// SizedBox(height: 300, child: ScrollArea(child: Column(children: tags)))
+/// ```
+class ScrollArea extends StatefulWidget {
+  const ScrollArea({
+    super.key,
+    required this.child,
+    this.axis = Axis.vertical,
+    this.controller,
+    this.padding,
+  });
+
+  final Widget child;
+  final Axis axis;
+  final ScrollController? controller;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  State<ScrollArea> createState() => _ScrollAreaState();
+}
+
+class _ScrollAreaState extends State<ScrollArea> {
+  ScrollController? _own;
+  ScrollController get _controller =>
+      widget.controller ?? (_own ??= ScrollController());
+  bool _hovered = false;
+
+  @override
+  void dispose() {
+    _own?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AshlarTheme.of(context).colors;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: ScrollConfiguration(
+        // The platform's own scrollbar is replaced by the one below.
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: RawScrollbar(
+          controller: _controller,
+          thumbVisibility: _hovered,
+          thumbColor: c.border,
+          thickness: 8,
+          radius: const Radius.circular(4),
+          crossAxisMargin: 1,
+          mainAxisMargin: 1,
+          interactive: true,
+          child: SingleChildScrollView(
+            controller: _controller,
+            scrollDirection: widget.axis,
+            padding: widget.padding,
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'data-table': Component(
+    description: "Rows of data under column headings, with a footer and a caption.",
+    requires: ["theme"],
+    packages: [],
+    files: {
+      'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
+// change. (Flutter's widgets layer has a Table for layout; this one is for data.)
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A column of a [DataTable]: its heading, its share of the width, and how its cells line
+/// up (numbers to the end).
+@immutable
+class DataColumn {
+  const DataColumn(this.label, {this.flex = 1, this.numeric = false});
+
+  final Widget label;
+  final int flex;
+  final bool numeric;
+}
+
+/// Rows of data under column headings, with a line between rows, the row under the
+/// pointer lit, an optional footer row (totals) and a caption.
+///
+/// ```dart
+/// DataTable(
+///   columns: [DataColumn(Text('Invoice')), DataColumn(Text('Status')), DataColumn(Text('Amount'), numeric: true)],
+///   rows: [
+///     [Text('INV001'), Text('Paid'), Text('KES 2,500')],
+///     [Text('INV002'), Text('Pending'), Text('KES 1,500')],
+///   ],
+///   footer: [Text('Total'), SizedBox(), Text('KES 4,000')],
+///   caption: Text('Your recent invoices.'),
+/// )
+/// ```
+class DataTable extends StatelessWidget {
+  const DataTable({
+    super.key,
+    required this.columns,
+    required this.rows,
+    this.footer,
+    this.caption,
+    this.onRowPressed,
+  });
+
+  final List<DataColumn> columns;
+
+  /// One widget per column in each row.
+  final List<List<Widget>> rows;
+  final List<Widget>? footer;
+  final Widget? caption;
+
+  /// Makes each row a button.
+  final ValueChanged<int>? onRowPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget line(
+      List<Widget> cells, {
+      required TextStyle style,
+      double height = 40,
+    }) => Row(
+      children: [
+        for (final (i, col) in columns.indexed)
+          Expanded(
+            flex: col.flex,
+            child: Container(
+              constraints: BoxConstraints(minHeight: height),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              alignment: col.numeric
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
+              child: DefaultTextStyle.merge(
+                style: style,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: col.numeric ? TextAlign.end : TextAlign.start,
+                child: i < cells.length ? cells[i] : const SizedBox(),
+              ),
+            ),
+          ),
+      ],
+    );
+    final border = BorderSide(color: c.border);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(border: Border(bottom: border)),
+          child: line(
+            [
+              for (final col in columns)
+                Semantics(header: true, child: col.label),
+            ],
+            style: t.text.sm.copyWith(
+              color: c.foreground,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        for (final (i, row) in rows.indexed)
+          _Row(
+            last: i == rows.length - 1 && footer == null,
+            onPressed: onRowPressed == null ? null : () => onRowPressed!(i),
+            child: line(row, style: t.text.sm.copyWith(color: c.foreground)),
+          ),
+        if (footer != null)
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: c.muted.withValues(alpha: c.muted.a * .5),
+              border: Border(top: border),
+            ),
+            child: line(
+              footer!,
+              style: t.text.sm.copyWith(
+                color: c.foreground,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        if (caption != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: DefaultTextStyle.merge(
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+              textAlign: TextAlign.center,
+              child: caption!,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Row extends StatefulWidget {
+  const _Row({required this.child, required this.last, this.onPressed});
+
+  final Widget child;
+  final bool last;
+  final VoidCallback? onPressed;
+
+  @override
+  State<_Row> createState() => _RowState();
+}
+
+class _RowState extends State<_Row> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget row = MouseRegion(
+      cursor: widget.onPressed == null
+          ? MouseCursor.defer
+          : SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: t.duration,
+        decoration: BoxDecoration(
+          color: _hovered
+              ? c.muted.withValues(alpha: c.muted.a * .5)
+              : const Color(0x00000000),
+          border: Border(
+            bottom: BorderSide(
+              color: widget.last ? const Color(0x00000000) : c.border,
+            ),
+          ),
+        ),
+        child: widget.child,
+      ),
+    );
+    if (widget.onPressed != null) {
+      row = Semantics(
+        button: true,
+        onTap: widget.onPressed,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onPressed,
+          child: row,
+        ),
+      );
+    }
+    return MergeSemantics(child: row);
+  }
 }
 ''',
     },
