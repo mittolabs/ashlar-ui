@@ -59,6 +59,71 @@ void main() {
     );
   });
 
+  test('init sets where components, blocks and tests go', () async {
+    final dir = project();
+    final said = await ashlar(dir, [
+      'init',
+      '--path',
+      'lib/widgets/ui/',
+      '--blocks',
+      'lib/screens',
+      '--tests',
+      'test/ui',
+    ]);
+    expect(
+      said,
+      contains(
+        'components go in lib/widgets/ui, blocks in lib/screens, tests in test/ui',
+      ),
+    );
+    final config = loadYaml(File('${dir.path}/ashlar.yaml').readAsStringSync());
+    expect(config['path'], 'lib/widgets/ui');
+    expect(config['blocks'], 'lib/screens');
+    expect(config['tests'], 'test/ui');
+    await ashlar(dir, ['add', 'login-01', 'swipe-actions']);
+    expect(
+      File('${dir.path}/lib/screens/login_01.dart').readAsStringSync(),
+      contains("import '../widgets/ui/"),
+    );
+    expect(
+      File('${dir.path}/test/ui/swipe_actions_test.dart').existsSync(),
+      isTrue,
+    );
+    expect(Directory('${dir.path}/test/ashlar').existsSync(), isFalse);
+  });
+
+  test('init again keeps the folders it is not given', () async {
+    final dir = project();
+    await ashlar(dir, [
+      'init',
+      '--blocks',
+      'lib/screens',
+      '--tests',
+      'test/ui',
+    ]);
+    await ashlar(dir, ['init', '--accent', 'blue']);
+    final config = loadYaml(File('${dir.path}/ashlar.yaml').readAsStringSync());
+    expect(config['blocks'], 'lib/screens');
+    expect(config['tests'], 'test/ui');
+  });
+
+  test('init refuses a folder outside the project', () async {
+    for (final bad in ['/tmp/ui', '../ui', 'lib/../../ui', '']) {
+      final dir = project();
+      final said = await ashlar(dir, ['init', '--tests', bad]);
+      expect(said, contains('name a folder inside the project'));
+      expect(File('${dir.path}/ashlar.yaml').existsSync(), isFalse);
+    }
+  });
+
+  test('init says when flutter test will not find the tests', () async {
+    final dir = project();
+    expect(
+      await ashlar(dir, ['init', '--tests', 'checks/ui']),
+      contains('run these with flutter test checks/ui'),
+    );
+  });
+
   test('tests that use another component wait until it is added', () async {
     final dir = project();
     await ashlar(dir, ['init']);

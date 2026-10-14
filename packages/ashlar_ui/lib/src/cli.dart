@@ -46,7 +46,9 @@ final _usage =
     '''
 Ashlar UI: components for Flutter on the widgets layer, copied into your app.
 
-  ashlar init [--path lib/ui]          set up the theme and AshlarApp
+  ashlar init [--path lib/ui]          set up the theme and AshlarApp; --path is where
+             [--blocks lib/blocks]      components go, --blocks the blocks (beside them
+             [--tests test/ashlar]      unless you say), --tests their tests
              [--prefix SL]              your own prefix on every name: SLButton, SLTheme
              [--base neutral]           the greys: ${bases.join(', ')}
              [--accent blue]            a colour for main actions: ${accents.join(', ')}
@@ -101,7 +103,16 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
   }
 
   // The words after the command that are not options or their values.
-  final options = {'path', 'base', 'accent', 'style', 'out', 'prefix'};
+  // Folders for init; for add, --blocks is a word of its own.
+  final options = {
+    'path',
+    'base',
+    'accent',
+    'style',
+    'out',
+    'prefix',
+    if (command == 'init') ...['blocks', 'tests'],
+  };
   final words = [
     for (var i = 0; i < rest.length; i++)
       if (!rest[i].startsWith('--') &&
@@ -131,7 +142,20 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
   final project = Project(root);
   switch (command) {
     case 'init':
-      final path = option('path') ?? 'lib/ui';
+      final folders = <String, String?>{};
+      for (final name in ['path', 'blocks', 'tests']) {
+        final given = option(name);
+        if (given == null) continue;
+        final folder = _folder(given);
+        if (folder == null) {
+          o.writeln(
+            '--$name $given: name a folder inside the project, as lib/ui or test/ui.',
+          );
+          return 64;
+        }
+        folders[name] = folder;
+      }
+      final path = folders['path'] ?? 'lib/ui';
       final base = option('base') ?? 'neutral',
           accent = option('accent'),
           style = option('style') ?? 'standard';
@@ -146,13 +170,27 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       project.save({
         'prefix': ?prefix,
         'path': path,
+        'blocks': ?folders['blocks'],
+        'tests': ?folders['tests'],
         'base': base,
         'accent': accent,
         'style': style,
       });
+      final tests = project.tests;
       o.writeln(
-        'ashlar.yaml: components go in $path; $base${accent == null ? '' : ', $accent'}, $style',
+        'ashlar.yaml: components go in $path, blocks in ${project.blocks}'
+        '${tests == null ? '' : ', tests in $tests'}; '
+        '$base${accent == null ? '' : ', $accent'}, $style',
       );
+      if (!path.startsWith('lib/')) {
+        o.writeln(
+          '  note   $path is not under lib: its components get no tests, since a test cannot import them.',
+        );
+      } else if (tests != null && !'$tests/'.startsWith('test/')) {
+        o.writeln(
+          '  note   flutter test looks in test; run these with flutter test $tests.',
+        );
+      }
       final code = await project.add(
         ['theme', 'app'],
         overwrite: rest.contains('--overwrite'),
@@ -381,6 +419,20 @@ final appDarkTheme = ${theme('dark')};
     prefix == null ? text : withPrefix(text, prefixedNames(prefix)),
   );
   out.writeln('  wrote  $path/app_theme.dart');
+}
+
+/// [given] as a folder from the project root, without a trailing slash; null when it
+/// is not one inside the project.
+String? _folder(String given) {
+  final folder = given.replaceAll(RegExp(r'^\./|/+$'), '');
+  final parts = folder.split('/');
+  if (folder.isEmpty ||
+      folder.startsWith('/') ||
+      folder.contains(r'\') ||
+      parts.any((p) => p.isEmpty || p == '.' || p == '..')) {
+    return null;
+  }
+  return folder;
 }
 
 /// The way from folder [from] to folder [to], both from the project root.

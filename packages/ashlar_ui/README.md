@@ -18,7 +18,7 @@ Run it in the root of a Flutter project.
 
 | Command | What it does |
 |---|---|
-| `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say). `--prefix SL` puts your own prefix on every name: `SLButton`, `SLTheme`. |
+| `ashlar init` | Copies the theme and `AshlarApp`, and writes `app_theme.dart` with your choices: `--base` (neutral, stone, zinc, mauve, olive, mist, taupe), `--accent` (one of seventeen colours), `--style` (standard, compact, rounded, sharp, dense, soft), `--path` (where components go, `lib/ui` unless you say), `--blocks` (where blocks go, a `blocks` folder beside the components unless you say) and `--tests` (where their tests go, `test/ashlar` unless you say). `--prefix SL` puts your own prefix on every name: `SLButton`, `SLTheme`. |
 | `ashlar apply` | Chooses the theme again with the same options; `--accent none` takes the accent away. Your components are left as they are. `--prefix` renames everything to a new prefix, your own code included; `--prefix none` takes it away. |
 | `ashlar add <item>...` | Copies components, and what they need. `--all` adds every component, `--blocks` every block (whole screens, written to `lib/blocks`). A file you already have is kept unless you pass `--overwrite`. Each comes with its tests, in `test/ashlar`; `--no-tests` leaves them out. |
 | `ashlar view <item>...` | Shows what an item is, what it needs and its files, before you add it. |
@@ -54,8 +54,8 @@ The files are yours, so change a component and its tests tell you which promise 
 change broke; change the tests when you meant to break it. Tests that use another
 component (most use a Button as a trigger) are written once you have that one too.
 A test you delete stays deleted. `ashlar update` merges tests as it merges components.
-`tests: false` in `ashlar.yaml` leaves them out, and `tests: test/ui` puts them
-elsewhere. Components outside `lib` get no tests, since a test cannot import them.
+`tests: false` in `ashlar.yaml` leaves them out, and `ashlar init --tests test/ui`
+(or `tests: test/ui`) puts them elsewhere. Components outside `lib` get no tests, since a test cannot import them.
 
 ## Checking your app
 

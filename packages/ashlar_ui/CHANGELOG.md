@@ -1,3 +1,8 @@
+## Unreleased
+
+- `ashlar init --blocks` and `--tests` set where blocks and tests go, as `--path` does for
+  components. A folder outside the project is refused.
+
 ## 0.1.2
 
 - Toggle keeps its height: given room, it stretched to fill it since 0.1.0. A framed Empty
