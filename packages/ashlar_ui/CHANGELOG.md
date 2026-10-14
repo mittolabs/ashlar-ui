@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.3
 
 - `ashlar init --blocks` and `--tests` set where blocks and tests go, as `--path` does for
   components. A folder outside the project is refused.
