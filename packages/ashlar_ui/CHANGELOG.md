@@ -1,3 +1,9 @@
+## 0.1.4
+
+- `AshlarApp.router` takes a `RouterConfig`, for go_router and other routers, with the same
+  theme, text and icon defaults around every page as `AshlarApp`.
+- `ashlar init` now copies the app shell's test with it; `--no-tests` leaves it out.
+
 ## 0.1.3
 
 - `ashlar init --blocks` and `--tests` set where blocks and tests go, as `--path` does for
