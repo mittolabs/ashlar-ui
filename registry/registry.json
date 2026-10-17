@@ -1,6 +1,6 @@
 {
   "theme": { "description": "Colours, corners, text and motion: seven bases, seventeen accents, six styles.", "files": ["theme.dart", "palette.dart"] },
-  "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.", "files": ["app.dart"], "requires": ["theme", "selection"] },
+  "app": { "description": "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp; AshlarApp.router for go_router and the like.", "files": ["app.dart"], "requires": ["theme", "selection"], "tests": ["tests/app_test.dart"] },
   "pressable": { "description": "Hover, press, keyboard focus and activation, and a press area big enough for a finger, for every control.", "files": ["pressable.dart"], "requires": ["theme", "group"] },
   "button": { "description": "Six variants and four sizes, with leading and trailing icons.", "files": ["button.dart"], "requires": ["theme", "pressable", "group"], "tests": ["tests/button_test.dart"], "preview": "previews/button.dart" },
   "badge": { "description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"], "preview": "previews/badge.dart" },

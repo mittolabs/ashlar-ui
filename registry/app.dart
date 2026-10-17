@@ -29,7 +29,36 @@ class AshlarApp extends StatelessWidget {
     this.localizationsDelegates,
     this.builder,
     this.selectable,
-  });
+  }) : routerConfig = null;
+
+  /// An app whose pages come from a router, such as go_router's GoRouter, given as
+  /// [routerConfig]. The router builds the pages, so they are not made selectable the
+  /// way [AshlarPageRoute] makes them: wrap a page in a SelectionArea where its text
+  /// should be.
+  ///
+  /// ```dart
+  /// AshlarApp.router(routerConfig: GoRouter(routes: [...]), theme: appTheme)
+  /// ```
+  const AshlarApp.router({
+    super.key,
+    required RouterConfig<Object> this.routerConfig,
+    this.title = '',
+    this.theme = const AshlarThemeData.light(),
+    this.darkTheme = const AshlarThemeData.dark(),
+    this.themeMode = AshlarThemeMode.system,
+    this.locale,
+    this.supportedLocales = const [Locale('en', 'US')],
+    this.localizationsDelegates,
+    this.builder,
+    this.selectable,
+  }) : home = null,
+       routes = const {},
+       initialRoute = null,
+       onGenerateRoute = null,
+       navigatorKey = null;
+
+  /// Where pages come from, for [AshlarApp.router]; null for an app of [home] and [routes].
+  final RouterConfig<Object>? routerConfig;
 
   /// The first page, at '/'.
   final Widget? home;
@@ -94,9 +123,49 @@ class AshlarApp extends StatelessWidget {
           : theme,
   };
 
+  /// The theme, text and icon defaults around every page.
+  Widget _wrap(BuildContext context, Widget? child) {
+    final data = _themeFor(context);
+    Widget page = AshlarTheme(
+      data: data,
+      child: DefaultTextStyle(
+        style: data.text.sm.copyWith(color: data.colors.foreground),
+        child: IconTheme(
+          data: IconThemeData(color: data.colors.foreground, size: 16),
+          child: ScrollConfiguration(
+            behavior: const _AshlarScrollBehavior(),
+            child: ColoredBox(
+              color: data.colors.background,
+              child: _SelectionDefault(
+                selectable: _selectable,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (builder != null) page = builder!(context, page);
+    return page;
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = _themeFor(context);
+    final textStyle = data.text.sm.copyWith(color: data.colors.foreground);
+    if (routerConfig case final config?) {
+      return WidgetsApp.router(
+        routerConfig: config,
+        title: title,
+        color: data.colors.primary,
+        locale: locale,
+        supportedLocales: supportedLocales,
+        localizationsDelegates: localizationsDelegates,
+        debugShowCheckedModeBanner: false,
+        textStyle: textStyle,
+        builder: _wrap,
+      );
+    }
     return WidgetsApp(
       navigatorKey: navigatorKey,
       home: home,
@@ -109,33 +178,10 @@ class AshlarApp extends StatelessWidget {
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
       debugShowCheckedModeBanner: false,
-      textStyle: data.text.sm.copyWith(color: data.colors.foreground),
+      textStyle: textStyle,
       pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) =>
           AshlarPageRoute<T>(settings: settings, builder: builder),
-      builder: (context, child) {
-        final data = _themeFor(context);
-        Widget page = AshlarTheme(
-          data: data,
-          child: DefaultTextStyle(
-            style: data.text.sm.copyWith(color: data.colors.foreground),
-            child: IconTheme(
-              data: IconThemeData(color: data.colors.foreground, size: 16),
-              child: ScrollConfiguration(
-                behavior: const _AshlarScrollBehavior(),
-                child: ColoredBox(
-                  color: data.colors.background,
-                  child: _SelectionDefault(
-                    selectable: _selectable,
-                    child: child ?? const SizedBox.shrink(),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-        if (builder != null) page = builder!(context, page);
-        return page;
-      },
+      builder: _wrap,
     );
   }
 }

@@ -1524,7 +1524,7 @@ const _accents = <AshlarAccent, (_Accent, _Accent)>{
     },
   ),
   'app': Component(
-    description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp.",
+    description: "AshlarApp, the app shell on WidgetsApp, in place of MaterialApp; AshlarApp.router for go_router and the like.",
     requires: ["theme","selection"],
     packages: [],
     block: false,
@@ -1560,7 +1560,36 @@ class AshlarApp extends StatelessWidget {
     this.localizationsDelegates,
     this.builder,
     this.selectable,
-  });
+  }) : routerConfig = null;
+
+  /// An app whose pages come from a router, such as go_router's GoRouter, given as
+  /// [routerConfig]. The router builds the pages, so they are not made selectable the
+  /// way [AshlarPageRoute] makes them: wrap a page in a SelectionArea where its text
+  /// should be.
+  ///
+  /// ```dart
+  /// AshlarApp.router(routerConfig: GoRouter(routes: [...]), theme: appTheme)
+  /// ```
+  const AshlarApp.router({
+    super.key,
+    required RouterConfig<Object> this.routerConfig,
+    this.title = '',
+    this.theme = const AshlarThemeData.light(),
+    this.darkTheme = const AshlarThemeData.dark(),
+    this.themeMode = AshlarThemeMode.system,
+    this.locale,
+    this.supportedLocales = const [Locale('en', 'US')],
+    this.localizationsDelegates,
+    this.builder,
+    this.selectable,
+  }) : home = null,
+       routes = const {},
+       initialRoute = null,
+       onGenerateRoute = null,
+       navigatorKey = null;
+
+  /// Where pages come from, for [AshlarApp.router]; null for an app of [home] and [routes].
+  final RouterConfig<Object>? routerConfig;
 
   /// The first page, at '/'.
   final Widget? home;
@@ -1625,9 +1654,49 @@ class AshlarApp extends StatelessWidget {
           : theme,
   };
 
+  /// The theme, text and icon defaults around every page.
+  Widget _wrap(BuildContext context, Widget? child) {
+    final data = _themeFor(context);
+    Widget page = AshlarTheme(
+      data: data,
+      child: DefaultTextStyle(
+        style: data.text.sm.copyWith(color: data.colors.foreground),
+        child: IconTheme(
+          data: IconThemeData(color: data.colors.foreground, size: 16),
+          child: ScrollConfiguration(
+            behavior: const _AshlarScrollBehavior(),
+            child: ColoredBox(
+              color: data.colors.background,
+              child: _SelectionDefault(
+                selectable: _selectable,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (builder != null) page = builder!(context, page);
+    return page;
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = _themeFor(context);
+    final textStyle = data.text.sm.copyWith(color: data.colors.foreground);
+    if (routerConfig case final config?) {
+      return WidgetsApp.router(
+        routerConfig: config,
+        title: title,
+        color: data.colors.primary,
+        locale: locale,
+        supportedLocales: supportedLocales,
+        localizationsDelegates: localizationsDelegates,
+        debugShowCheckedModeBanner: false,
+        textStyle: textStyle,
+        builder: _wrap,
+      );
+    }
     return WidgetsApp(
       navigatorKey: navigatorKey,
       home: home,
@@ -1640,33 +1709,10 @@ class AshlarApp extends StatelessWidget {
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
       debugShowCheckedModeBanner: false,
-      textStyle: data.text.sm.copyWith(color: data.colors.foreground),
+      textStyle: textStyle,
       pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) =>
           AshlarPageRoute<T>(settings: settings, builder: builder),
-      builder: (context, child) {
-        final data = _themeFor(context);
-        Widget page = AshlarTheme(
-          data: data,
-          child: DefaultTextStyle(
-            style: data.text.sm.copyWith(color: data.colors.foreground),
-            child: IconTheme(
-              data: IconThemeData(color: data.colors.foreground, size: 16),
-              child: ScrollConfiguration(
-                behavior: const _AshlarScrollBehavior(),
-                child: ColoredBox(
-                  color: data.colors.background,
-                  child: _SelectionDefault(
-                    selectable: _selectable,
-                    child: child ?? const SizedBox.shrink(),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-        if (builder != null) page = builder!(context, page);
-        return page;
-      },
+      builder: _wrap,
     );
   }
 }
@@ -1741,6 +1787,57 @@ class _AshlarScrollBehavior extends ScrollBehavior {
     Widget child,
     ScrollableDetails details,
   ) => child;
+}
+''',
+    },
+    testNeeds: ["theme"],
+    tests: {
+      'app_test.dart': r'''// Tests for AshlarApp. Copied into your app with the component: they check what it
+// promises, so change them as you change it.
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+
+/// A router with one page, which shows the theme it is given.
+class _Delegate extends RouterDelegate<Object> with ChangeNotifier {
+  @override
+  Widget build(BuildContext context) => Builder(
+    builder: (context) => Text(
+      AshlarTheme.of(context).brightness == Brightness.dark ? 'dark' : 'light',
+    ),
+  );
+
+  @override
+  Future<bool> popRoute() async => false;
+
+  @override
+  Future<void> setNewRoutePath(Object configuration) async {}
+}
+
+void main() {
+  testWidgets('a home page gets the theme', (tester) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        themeMode: AshlarThemeMode.light,
+        home: Builder(
+          builder: (context) => Text(
+            AshlarTheme.of(context).brightness == Brightness.dark ? 'dark' : 'light',
+          ),
+        ),
+      ),
+    );
+    expect(find.text('light'), findsOneWidget);
+  });
+
+  testWidgets('a router\'s pages get the theme, and follow the theme mode', (tester) async {
+    final config = RouterConfig<Object>(routerDelegate: _Delegate());
+    await tester.pumpWidget(AshlarApp.router(routerConfig: config, themeMode: AshlarThemeMode.light));
+    expect(find.text('light'), findsOneWidget);
+    await tester.pumpWidget(AshlarApp.router(routerConfig: config, themeMode: AshlarThemeMode.dark));
+    expect(find.text('dark'), findsOneWidget);
+  });
 }
 ''',
     },
