@@ -4,6 +4,7 @@ import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/button.dart';
 import 'package:ashlar_ui_gallery/ui/drawer.dart';
 import 'package:ashlar_ui_gallery/ui/input.dart';
+import 'package:ashlar_ui_gallery/ui/pressable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -116,5 +117,114 @@ void main() {
     await tester.drag(find.text('Filters'), const Offset(-250, 0));
     await tester.pumpAndSettle();
     expect(find.text('Filters'), findsNothing);
+  });
+
+  group('DrawerSheet', () {
+    // Where the sheet's top is: its handle's, under the sheet's one-pixel border.
+    double top(WidgetTester tester) =>
+        tester
+            .getTopLeft(
+              find
+                  .descendant(
+                    of: find.byType(DrawerSheet),
+                    matching: find.byType(Pressable),
+                  )
+                  .first,
+            )
+            .dy -
+        1;
+
+    Future<void> sheet(
+      WidgetTester tester, {
+      DrawerSheetController? controller,
+      ValueChanged<int>? onSnap,
+    }) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        AshlarApp(
+          home: Stack(
+            children: [
+              const Center(child: Text('Behind')),
+              DrawerSheet(
+                snaps: const [.4, .9],
+                controller: controller,
+                onSnap: onSnap,
+                builder: (context, scroll) => ListView(
+                  controller: scroll,
+                  children: [
+                    const Text('First'),
+                    for (var i = 0; i < 40; i++) Text('Row $i'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('rests at its first snap, over what is behind it', (
+      tester,
+    ) async {
+      await sheet(tester);
+      expect(top(tester), moreOrLessEquals(800 * .6, epsilon: 1));
+      expect(find.text('Behind'), findsOneWidget);
+    });
+
+    testWidgets('dragged up by its handle, it rests at the next snap', (
+      tester,
+    ) async {
+      final snaps = <int>[];
+      await sheet(tester, onSnap: snaps.add);
+      await tester.drag(
+        find.bySemanticsLabel('Raise Sheet'),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(top(tester), moreOrLessEquals(800 * .1, epsilon: 1));
+      expect(snaps, [1]);
+    });
+
+    testWidgets('a short, slow drag springs back to the snap it was at', (
+      tester,
+    ) async {
+      await sheet(tester);
+      await tester.timedDrag(
+        find.bySemanticsLabel('Raise Sheet'),
+        const Offset(0, -60),
+        const Duration(milliseconds: 600),
+      );
+      await tester.pumpAndSettle();
+      expect(top(tester), moreOrLessEquals(800 * .6, epsilon: 1));
+    });
+
+    testWidgets(
+      'its handle, pressed, goes up a snap, and from the top back down',
+      (tester) async {
+        await sheet(tester);
+        await tester.tap(find.bySemanticsLabel('Raise Sheet'));
+        await tester.pumpAndSettle();
+        expect(top(tester), moreOrLessEquals(800 * .1, epsilon: 1));
+        await tester.tap(find.bySemanticsLabel('Lower Sheet'));
+        await tester.pumpAndSettle();
+        expect(top(tester), moreOrLessEquals(800 * .6, epsilon: 1));
+      },
+    );
+
+    testWidgets('a controller moves it and says where it rests', (
+      tester,
+    ) async {
+      final controller = DrawerSheetController();
+      await sheet(tester, controller: controller);
+      expect(controller.snap, 0);
+      // Its animation runs on frames, which only pumping advances: not awaited here.
+      controller.snapTo(1);
+      await tester.pumpAndSettle();
+      expect(controller.snap, 1);
+      expect(top(tester), moreOrLessEquals(800 * .1, epsilon: 1));
+    });
   });
 }

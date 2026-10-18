@@ -2,6 +2,7 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'pressable.dart';
 import 'theme.dart';
 
 /// The edge a drawer comes from.
@@ -295,6 +296,246 @@ class _DrawerState extends State<Drawer> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Moves a [DrawerSheet] between its snaps, and says which one it rests at.
+class DrawerSheetController extends ChangeNotifier {
+  _DrawerSheetState? _sheet;
+  int _snap = 0;
+
+  /// The snap the sheet rests at, an index into [DrawerSheet.snaps].
+  int get snap => _snap;
+
+  /// Moves the sheet to the snap at [index], animated.
+  Future<void> snapTo(int index) async => _sheet?._snapTo(index);
+
+  void _rest(int index) {
+    _snap = index;
+    notifyListeners();
+  }
+}
+
+/// A drawer that stays on the page: it rests at one of its [snaps] over what is behind it,
+/// and is dragged or flicked between them, the way maps and music players show a panel
+/// that is part of the screen rather than in front of it. Once it is at its highest snap,
+/// its content scrolls; dragged down from the top of that content, it comes down with it.
+///
+/// Put it in a [Stack] over the page, and give [builder]'s scroll controller to the
+/// content's scroll view:
+///
+/// ```dart
+/// Stack(
+///   children: [
+///     const MapView(),
+///     DrawerSheet(
+///       snaps: const [.4, .9],
+///       builder: (context, scroll) => ListView(controller: scroll, children: rides),
+///     ),
+///   ],
+/// )
+/// ```
+///
+/// The handle at the top is a control too: a tap, Enter or a screen reader's increase and
+/// decrease move the sheet to the next snap.
+class DrawerSheet extends StatefulWidget {
+  const DrawerSheet({
+    super.key,
+    required this.builder,
+    this.snaps = const [.4, .9],
+    this.initialSnap = 0,
+    this.controller,
+    this.onSnap,
+    this.maxWidth = 512,
+    this.label = 'Sheet',
+  }) : assert(snaps.length > 0);
+
+  /// Its content, given the scroll controller its scroll view should use, so scrolling and
+  /// dragging the sheet hand over to each other.
+  final Widget Function(BuildContext context, ScrollController scroll) builder;
+
+  /// The heights it rests at, as parts of the height it has (0 to 1), lowest first.
+  final List<double> snaps;
+
+  /// Where it starts, an index into [snaps].
+  final int initialSnap;
+
+  /// Moves it from outside, and says which snap it rests at.
+  final DrawerSheetController? controller;
+
+  /// When it comes to rest at a snap: its index in [snaps].
+  final ValueChanged<int>? onSnap;
+
+  /// On a wide screen, its width at most, centred.
+  final double maxWidth;
+
+  /// What a screen reader calls it.
+  final String label;
+
+  @override
+  State<DrawerSheet> createState() => _DrawerSheetState();
+}
+
+class _DrawerSheetState extends State<DrawerSheet> {
+  final _sheet = DraggableScrollableController();
+  late int _snap = widget.initialSnap;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller
+      ?.._sheet = this
+      .._snap = _snap;
+    _sheet.addListener(_settle);
+  }
+
+  @override
+  void didUpdateWidget(DrawerSheet old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller?._sheet = null;
+      widget.controller
+        ?.._sheet = this
+        .._snap = _snap;
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller?._sheet = null;
+    _sheet
+      ..removeListener(_settle)
+      ..dispose();
+    super.dispose();
+  }
+
+  /// The snap nearest to where the sheet is.
+  int _nearest(double size) {
+    var best = 0;
+    for (final (i, s) in widget.snaps.indexed) {
+      if ((s - size).abs() < (widget.snaps[best] - size).abs()) best = i;
+    }
+    return best;
+  }
+
+  /// When it is at a snap, that snap is the one it rests at.
+  void _settle() {
+    if (!_sheet.isAttached) return;
+    final i = _nearest(_sheet.size);
+    if ((widget.snaps[i] - _sheet.size).abs() > .005 || i == _snap) return;
+    setState(() => _snap = i);
+    widget.controller?._rest(i);
+    widget.onSnap?.call(i);
+  }
+
+  Future<void> _snapTo(int index) async {
+    if (!_sheet.isAttached) return;
+    final t = AshlarTheme.of(context);
+    await _sheet.animateTo(
+      widget.snaps[index.clamp(0, widget.snaps.length - 1)],
+      duration: t.duration * 2,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  /// The handle's tap: up a snap, or from the top back to the bottom.
+  void _step() => _snapTo(_snap < widget.snaps.length - 1 ? _snap + 1 : 0);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final radius = Radius.circular(t.radiusLg);
+    final top = _snap == widget.snaps.length - 1;
+    return LayoutBuilder(
+      builder: (context, box) => DraggableScrollableSheet(
+        controller: _sheet,
+        initialChildSize: widget.snaps[widget.initialSnap],
+        minChildSize: widget.snaps.first,
+        maxChildSize: widget.snaps.last,
+        snap: true,
+        snapSizes: widget.snaps,
+        builder: (context, scroll) => Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: widget.maxWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                color: c.background,
+                borderRadius: BorderRadius.vertical(top: radius),
+                border: Border.all(color: c.border),
+                boxShadow: t.shadowLg,
+              ),
+              child: Semantics(
+                container: true,
+                label: widget.label,
+                explicitChildNodes: true,
+                child: DefaultTextStyle(
+                  style: t.text.sm.copyWith(color: c.foreground),
+                  child: Column(
+                    children: [
+                      // The handle: dragged, it moves the sheet; pressed, it moves it a snap.
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onVerticalDragUpdate: (d) => _sheet.jumpTo(
+                          (_sheet.size - d.delta.dy / box.maxHeight).clamp(
+                            widget.snaps.first,
+                            widget.snaps.last,
+                          ),
+                        ),
+                        onVerticalDragEnd: (d) {
+                          final v = d.primaryVelocity ?? 0;
+                          // A flick goes a snap that way; otherwise the nearest snap.
+                          final i = v < -500
+                              ? (_nearest(_sheet.size) + 1)
+                              : v > 500
+                              ? _nearest(_sheet.size) - 1
+                              : _nearest(_sheet.size);
+                          _snapTo(i.clamp(0, widget.snaps.length - 1));
+                        },
+                        child: Semantics(
+                          onIncrease: top ? null : () => _snapTo(_snap + 1),
+                          onDecrease: _snap == 0
+                              ? null
+                              : () => _snapTo(_snap - 1),
+                          child: Pressable(
+                            onPressed: _step,
+                            semanticLabel: top
+                                ? 'Lower ${widget.label}'
+                                : 'Raise ${widget.label}',
+                            builder: (context, state) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Center(
+                                child: Container(
+                                  width: 100,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: state.pressed || state.focused
+                                        ? c.mutedForeground
+                                        : c.muted,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SafeArea(
+                          top: false,
+                          child: widget.builder(context, scroll),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
