@@ -1,3 +1,11 @@
+## 0.1.5
+
+- `DrawerSheet`, in `drawer`: a drawer that stays on the page and rests at snap points,
+  dragged or flicked between them, its content scrolling once it is fully up. Its handle
+  is a control (a tap, Enter or a screen reader's increase and decrease move it a snap),
+  and a `DrawerSheetController` moves it and says where it rests. `drawer` now needs
+  `pressable`.
+
 ## 0.1.4
 
 - `AshlarApp.router` takes a `RouterConfig`, for go_router and other routers, with the same
