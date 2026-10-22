@@ -38253,6 +38253,289 @@ class _Signup05State extends State<Signup05> {
 ''',
     },
   ),
+  'chat-01': Component(
+    description: "An assistant's conversation: its thinking, the tools it used, its sources, and an answer that streams in.",
+    requires: ["bubble","button","markdown","message","message-scroller","prompt-input","reasoning","shimmer","sources","theme","tool-call"],
+    packages: ["ashlar_icons"],
+    block: true,
+    files: {
+      'blocks/chat_01.dart': r'''// Ashlar UI block: chat-01. Copied into your app by `ashlar add chat-01`; it is yours to
+// change. An assistant's conversation: its thinking, the tools it used, its sources, and
+// an answer that streams in.
+
+import 'dart:async';
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/bubble.dart';
+import '../ui/button.dart';
+import '../ui/markdown.dart';
+import '../ui/message.dart';
+import '../ui/message_scroller.dart';
+import '../ui/prompt_input.dart';
+import '../ui/reasoning.dart';
+import '../ui/shimmer.dart';
+import '../ui/sources.dart';
+import '../ui/theme.dart';
+import '../ui/tool_call.dart';
+
+/// One turn of the conversation.
+class _Turn {
+  _Turn.asked(this.text)
+    : mine = true,
+      done = true,
+      tools = const [],
+      sources = const [];
+  _Turn.answer({
+    this.text = '',
+    this.done = false,
+    this.thought,
+    this.took,
+    this.tools = const [],
+    this.sources = const [],
+  }) : mine = false;
+
+  final bool mine;
+  String text;
+  bool done;
+  String? thought;
+  Duration? took;
+  final List<ToolCall> tools;
+  final List<Source> sources;
+}
+
+/// An assistant's conversation, from the first question to an answer streaming in, with a
+/// prompt box under it.
+///
+/// Give [answer] your model: it is asked each question and gives back the answer's text a
+/// piece at a time. Without it the block answers with a written example, so the screen
+/// can be seen working before a model is wired in.
+class Chat01 extends StatefulWidget {
+  const Chat01({super.key, this.answer, this.onAttach, this.onOpenSource});
+
+  /// Answers [question], as the pieces of text a model streams.
+  final Stream<String> Function(String question)? answer;
+  final VoidCallback? onAttach;
+  final ValueChanged<Source>? onOpenSource;
+
+  @override
+  State<Chat01> createState() => _Chat01State();
+}
+
+class _Chat01State extends State<Chat01> {
+  final _turns = <_Turn>[
+    _Turn.asked('Which Westlands orders are late this week?'),
+    _Turn.answer(
+      done: true,
+      thought: 'Late means past its promised time and not yet delivered. I need this week\'s Westlands orders, then compare each promised time with its delivery.',
+      took: const Duration(seconds: 4),
+      tools: const [
+        ToolCall(
+          title: 'Look up this week\'s orders',
+          name: 'list_orders',
+          input: '{"branch": "westlands", "from": "2026-10-19"}',
+          output: '{"count": 38, "late": 3}',
+        ),
+      ],
+      sources: const [
+        Source(title: 'Orders, Westlands', detail: 'This week, 38 orders'),
+        Source(title: 'Deliveries', detail: 'Riders\' check-ins'),
+      ],
+      text: """Three of this week's 38 orders are late:
+
+| Order | Customer | Promised | Late by |
+|---|---|---|---:|
+| 1042 | Wanjiru K. | Tue 11:00 | 2 h |
+| 1057 | Otieno M. | Wed 15:30 | 45 min |
+| 1063 | Njeri W. | Thu 10:00 | 1 h 20 min |
+
+All three went out with the same rider, and **1063** is still on the road. Want me to message the customers?""",
+    ),
+  ];
+  StreamSubscription<String>? _streaming;
+  DateTime? _started;
+
+  bool get _busy => _streaming != null;
+
+  void _ask(String question) {
+    final answer = _Turn.answer();
+    setState(() {
+      _turns
+        ..add(_Turn.asked(question))
+        ..add(answer);
+      _started = DateTime.now();
+    });
+    _streaming = (widget.answer ?? _example)(question).listen(
+      (piece) => setState(() {
+        answer.took ??= DateTime.now().difference(_started!);
+        answer.text += piece;
+      }),
+      onDone: () => _finish(answer),
+      onError: (Object _) {
+        if (answer.text.isEmpty) {
+          answer.text = 'Something went wrong. Try again.';
+        }
+        _finish(answer);
+      },
+    );
+  }
+
+  void _finish(_Turn answer) {
+    _streaming?.cancel();
+    if (mounted) {
+      setState(() {
+        answer.done = true;
+        _streaming = null;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _streaming?.cancel();
+    super.dispose();
+  }
+
+  /// A written answer, a word at a time, for before a model is wired in.
+  Stream<String> _example(String question) async* {
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    const text =
+        'This is a written example, not a model. Pass `answer` to **Chat01** and each question goes to your model, its answer streaming in here as it does now.';
+    for (final word in text.split(' ')) {
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      yield '$word ';
+    }
+  }
+
+  Widget _answer(_Turn turn) {
+    final t = AshlarTheme.of(context);
+    final waiting = !turn.done && turn.text.isEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (turn.thought != null) ...[
+          Reasoning(
+            thinking: !turn.done && turn.text.isEmpty,
+            took: turn.took,
+            child: Text(turn.thought!),
+          ),
+          const SizedBox(height: 10),
+        ],
+        for (final tool in turn.tools) ...[tool, const SizedBox(height: 10)],
+        if (waiting)
+          Shimmer(child: Text('Thinking…', style: t.text.sm))
+        else
+          Markdown(turn.text.trimRight(), streaming: !turn.done),
+        if (turn.sources.isNotEmpty && turn.done) ...[
+          const SizedBox(height: 12),
+          Sources(sources: turn.sources, onOpen: widget.onOpenSource),
+        ],
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget column(Widget child) => Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: child,
+      ),
+    );
+    return ColoredBox(
+      color: c.background,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border)),
+            ),
+            child: Row(
+              children: [
+                AshlarIcon(
+                  AshlarIconsRoundedStroke.sparkles,
+                  size: 18,
+                  color: c.foreground,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Assistant',
+                  style: t.text.sm.copyWith(
+                    color: c.foreground,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'Orders and deliveries',
+                    style: t.text.sm.copyWith(color: c.mutedForeground),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: MessageScroller(
+              busy: _busy,
+              gap: 24,
+              items: [
+                for (final (i, turn) in _turns.indexed)
+                  MessageScrollerItem(
+                    id: i,
+                    anchor: turn.mine,
+                    child: column(
+                      turn.mine
+                          ? Message(
+                              align: MessageAlign.end,
+                              child: Bubble(
+                                variant: BubbleVariant.muted,
+                                child: Text(turn.text),
+                              ),
+                            )
+                          : _answer(turn),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: column(
+              PromptInput(
+                busy: _busy,
+                onSubmit: _ask,
+                onStop: () {
+                  final last = _turns.last;
+                  _finish(last);
+                },
+                placeholder: 'Ask about orders and deliveries',
+                actions: [
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.icon,
+                    semanticLabel: 'Attach a file',
+                    onPressed: widget.onAttach,
+                    child: const AshlarIcon(AshlarIconsRoundedStroke.paperclip),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
   'dashboard-01': Component(
     description: "An app home: sidebar, header, four figures, a chart over time and a table.",
     requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
@@ -46112,6 +46395,2303 @@ class MarkdownDemo extends StatelessWidget {
 }
 ''',
   ),
+  'prompt-input': Component(
+    description: "Where a person writes to an assistant: text that grows, what they attached, your actions, and send that becomes stop.",
+    requires: ["button","input-group","textarea","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'prompt_input.dart': r'''// Ashlar UI: Prompt Input. Copied into your app by `ashlar add prompt-input`; it is yours to
+// change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'button.dart';
+import 'input_group.dart';
+import 'textarea.dart';
+import 'theme.dart';
+
+/// Where a person writes to an assistant: text that grows as it is written, what they
+/// attached above it, your actions (attach, a model to choose) under it, and a send button
+/// that becomes a stop button while the answer arrives.
+///
+/// With a keyboard, Enter sends and Shift+Enter starts a new line; on a phone's own
+/// keyboard the return key starts a new line and the button sends. Enter while a word is
+/// still being composed (as in Japanese or Chinese) finishes the word, not the message.
+///
+/// ```dart
+/// PromptInput(
+///   busy: answering,
+///   onSubmit: (text) => ask(text),
+///   onStop: cancel,
+///   actions: [Button(variant: ButtonVariant.ghost, size: ButtonSize.icon, semanticLabel: 'Attach a file', onPressed: pick, child: AshlarIcon(AshlarIconsRoundedStroke.paperclip))],
+/// )
+/// ```
+class PromptInput extends StatefulWidget {
+  const PromptInput({
+    super.key,
+    required this.onSubmit,
+    this.controller,
+    this.focusNode,
+    this.placeholder = 'Ask anything',
+    this.busy = false,
+    this.onStop,
+    this.attachments = const [],
+    this.actions = const [],
+    this.minLines = 2,
+    this.maxLines = 8,
+    this.enabled = true,
+    this.autofocus = false,
+    this.clearOnSubmit = true,
+  });
+
+  /// Told the text when it is sent, trimmed. Not called for nothing at all, unless
+  /// something is attached.
+  final ValueChanged<String> onSubmit;
+
+  /// Its text, to read and set from outside; one is made when not given.
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+
+  /// Faint text shown while it is empty, and what a screen reader calls it.
+  final String placeholder;
+
+  /// An answer is arriving: the send button stops it instead, and Enter does nothing.
+  final bool busy;
+
+  /// Called by the stop button while [busy]; without it the button is not shown then.
+  final VoidCallback? onStop;
+
+  /// What is to go with the message, above the text: Attachments, say.
+  final List<Widget> attachments;
+
+  /// At the start of the row under the text: attach, a model to choose, a mode.
+  final List<Widget> actions;
+
+  /// The fewest lines it shows, and the most it grows to before scrolling.
+  final int minLines, maxLines;
+
+  final bool enabled;
+  final bool autofocus;
+
+  /// Empties the text once it is sent.
+  final bool clearOnSubmit;
+
+  @override
+  State<PromptInput> createState() => _PromptInputState();
+}
+
+class _PromptInputState extends State<PromptInput> {
+  TextEditingController? _own;
+  TextEditingController get _text =>
+      widget.controller ?? (_own ??= TextEditingController());
+
+  @override
+  void initState() {
+    super.initState();
+    _text.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(PromptInput old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      (old.controller ?? _own)?.removeListener(_changed);
+      _text.addListener(_changed);
+    }
+  }
+
+  @override
+  void dispose() {
+    _text.removeListener(_changed);
+    _own?.dispose();
+    super.dispose();
+  }
+
+  void _changed() => setState(() {});
+
+  bool get _canSend =>
+      widget.enabled &&
+      !widget.busy &&
+      (_text.text.trim().isNotEmpty || widget.attachments.isNotEmpty);
+
+  void _send() {
+    if (!_canSend) return;
+    final text = _text.text.trim();
+    if (widget.clearOnSubmit) _text.clear();
+    widget.onSubmit(text);
+  }
+
+  KeyEventResult _key(FocusNode _, KeyEvent e) {
+    if (e is! KeyDownEvent) return KeyEventResult.ignored;
+    if (e.logicalKey != LogicalKeyboardKey.enter &&
+        e.logicalKey != LogicalKeyboardKey.numpadEnter) {
+      return KeyEventResult.ignored;
+    }
+    // Shift+Enter is a new line, and Enter mid-composition finishes the word.
+    if (HardwareKeyboard.instance.isShiftPressed ||
+        _text.value.composing.isValid) {
+      return KeyEventResult.ignored;
+    }
+    _send();
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final stopping = widget.busy && widget.onStop != null;
+    return InputGroup(
+      top: widget.attachments.isEmpty
+          ? null
+          : Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: widget.attachments,
+              ),
+            ),
+      bottom: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(6, 0, 8, 8),
+        child: Row(
+          children: [
+            ...widget.actions,
+            const Spacer(),
+            if (stopping)
+              Button(
+                size: ButtonSize.icon,
+                semanticLabel: 'Stop',
+                onPressed: widget.onStop,
+                child: AshlarIcon(
+                  AshlarIconsRoundedSolid.square,
+                  size: 14,
+                  color: t.colors.primaryForeground,
+                ),
+              )
+            else
+              Button(
+                size: ButtonSize.icon,
+                semanticLabel: 'Send',
+                onPressed: _canSend ? _send : null,
+                child: const AshlarIcon(AshlarIconsRoundedStroke.arrowUp),
+              ),
+          ],
+        ),
+      ),
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onKeyEvent: _key,
+        child: Textarea(
+          controller: _text,
+          focusNode: widget.focusNode,
+          placeholder: widget.placeholder,
+          enabled: widget.enabled,
+          autofocus: widget.autofocus,
+          minLines: widget.minLines,
+          maxLines: widget.maxLines,
+          resizable: false,
+          decorated: false,
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'prompt_input_test.dart': r'''// Tests for PromptInput. Copied into your app by `ashlar add prompt-input` with the
+// component: they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/prompt_input.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Padding(padding: const EdgeInsets.all(16), child: child),
+);
+
+void main() {
+  group('PromptInput', () {
+    testWidgets('sends the text with Enter, trimmed, and empties itself', (
+      tester,
+    ) async {
+      final sent = <String>[];
+      await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
+      await tester.enterText(find.byType(EditableText), '  How far is Nakuru?  ');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(sent, ['How far is Nakuru?']);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        isEmpty,
+      );
+    });
+
+    testWidgets('leaves Shift+Enter to start a new line', (tester) async {
+      final sent = <String>[];
+      await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
+      await tester.enterText(find.byType(EditableText), 'First line');
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      expect(sent, isEmpty);
+    });
+
+    testWidgets('sends nothing at all, and says so by its button', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final sent = <String>[];
+      await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
+      await tester.enterText(find.byType(EditableText), '   ');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(sent, isEmpty);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Send')),
+        matchesSemantics(
+          label: 'Send',
+          isButton: true,
+          hasEnabledState: true,
+          isFocusable: false,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('sends with its button', (tester) async {
+      final sent = <String>[];
+      await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
+      await tester.enterText(find.byType(EditableText), 'Hello');
+      await tester.pump();
+      await tester.tap(find.bySemanticsLabel('Send'));
+      expect(sent, ['Hello']);
+    });
+
+    testWidgets('stops instead of sending while busy', (tester) async {
+      final sent = <String>[];
+      var stopped = 0;
+      await tester.pumpWidget(
+        app(
+          PromptInput(onSubmit: sent.add, busy: true, onStop: () => stopped++),
+        ),
+      );
+      await tester.enterText(find.byType(EditableText), 'Again');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(sent, isEmpty);
+      expect(find.bySemanticsLabel('Send'), findsNothing);
+      await tester.tap(find.bySemanticsLabel('Stop'));
+      expect(stopped, 1);
+    });
+
+    testWidgets('sends an attachment with no text, and shows its actions', (
+      tester,
+    ) async {
+      final sent = <String>[];
+      await tester.pumpWidget(
+        app(
+          PromptInput(
+            onSubmit: sent.add,
+            attachments: const [Text('report.pdf')],
+            actions: const [Text('Attach')],
+          ),
+        ),
+      );
+      expect(find.text('report.pdf'), findsOneWidget);
+      expect(find.text('Attach'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('Send'));
+      expect(sent, ['']);
+    });
+
+    testWidgets('is called by its placeholder to a screen reader', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(PromptInput(onSubmit: (_) {}, placeholder: 'Ask about an order')),
+      );
+      expect(find.bySemanticsLabel('Ask about an order'), findsOneWidget);
+      handle.dispose();
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'PromptInputDemo',
+    preview: r'''// The prompt input picture ashlar update --preview draws, from the site's demo.
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/attachment.dart';
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/prompt_input.dart';
+
+class PromptInputDemo extends StatelessWidget {
+  const PromptInputDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 560,
+    child: PromptInput(
+      onSubmit: (_) {},
+      placeholder: 'Ask about orders and deliveries',
+      attachments: const [
+        Attachment(
+          title: 'westlands-week-43.csv',
+          description: '38 rows',
+          icon: AshlarIconsRoundedStroke.fileText,
+        ),
+      ],
+      actions: [
+        Button(
+          variant: ButtonVariant.ghost,
+          size: ButtonSize.icon,
+          semanticLabel: 'Attach a file',
+          onPressed: () {},
+          child: const AshlarIcon(AshlarIconsRoundedStroke.paperclip),
+        ),
+        Button(
+          variant: ButtonVariant.ghost,
+          size: ButtonSize.sm,
+          onPressed: () {},
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.globe),
+          child: const Text('Search'),
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'shimmer': Component(
+    description: "Text with a light passing over it, for what is still being worked on.",
+    requires: ["theme"],
+    packages: [],
+    block: false,
+    files: {
+      'shimmer.dart': r'''// Ashlar UI: Shimmer. Copied into your app by `ashlar add shimmer`; it is yours to change.
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// Text, or any shape, with a light passing across it: for what is still being worked on,
+/// as "Thinking…" or "Searching the orders…". Drawn in the muted colour with the foreground
+/// passing over it; when the person asks for less motion it stands still, muted.
+///
+/// ```dart
+/// Shimmer(child: Text('Thinking…'))
+/// ```
+class Shimmer extends StatefulWidget {
+  const Shimmer({
+    super.key,
+    required this.child,
+    this.enabled = true,
+    this.period = const Duration(milliseconds: 1800),
+  });
+
+  final Widget child;
+
+  /// False draws [child] as it is, with no light.
+  final bool enabled;
+
+  /// How long the light takes to cross.
+  final Duration period;
+
+  @override
+  State<Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
+  late final _pass = AnimationController(vsync: this, duration: widget.period);
+
+  bool get _still => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(Shimmer old) {
+    super.didUpdateWidget(old);
+    if (old.period != widget.period) _pass.duration = widget.period;
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.enabled && !_still) {
+      if (!_pass.isAnimating) _pass.repeat();
+    } else {
+      _pass.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pass.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    final c = AshlarTheme.of(context).colors;
+    final base = c.mutedForeground, light = c.foreground;
+    if (_still) {
+      return DefaultTextStyle.merge(
+        style: TextStyle(color: base),
+        child: widget.child,
+      );
+    }
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return AnimatedBuilder(
+      animation: _pass,
+      child: widget.child,
+      builder: (context, child) {
+        // The light starts off one side and ends off the other, reading the way the text does.
+        final at = -2.0 + 4 * _pass.value;
+        final x = rtl ? -at : at;
+        return ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => LinearGradient(
+            begin: Alignment(x - 1, 0),
+            end: Alignment(x + 1, 0),
+            colors: [base, light, base],
+            stops: const [.3, .5, .7],
+          ).createShader(bounds),
+          child: child,
+        );
+      },
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'shimmer_test.dart': r'''// Tests for Shimmer. Copied into your app by `ashlar add shimmer` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/shimmer.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {bool still = false}) => AshlarApp(
+  builder: (context, page) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(disableAnimations: still),
+    child: page!,
+  ),
+  home: Center(child: child),
+);
+
+void main() {
+  group('Shimmer', () {
+    testWidgets('passes a light across its child', (tester) async {
+      await tester.pumpWidget(app(const Shimmer(child: Text('Thinking…'))));
+      expect(find.byType(ShaderMask), findsOneWidget);
+      expect(find.text('Thinking…'), findsOneWidget);
+      // It keeps moving, so the test does not wait for it to settle.
+      await tester.pump(const Duration(milliseconds: 900));
+      expect(tester.hasRunningAnimations, isTrue);
+    });
+
+    testWidgets('stands still when less motion is asked for', (tester) async {
+      await tester.pumpWidget(
+        app(const Shimmer(child: Text('Thinking…')), still: true),
+      );
+      expect(find.byType(ShaderMask), findsNothing);
+      expect(tester.hasRunningAnimations, isFalse);
+    });
+
+    testWidgets('draws its child as it is when not enabled', (tester) async {
+      await tester.pumpWidget(
+        app(const Shimmer(enabled: false, child: Text('Done'))),
+      );
+      expect(find.byType(ShaderMask), findsNothing);
+      expect(tester.hasRunningAnimations, isFalse);
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'ShimmerDemo',
+    preview: r'''// The shimmer picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/shimmer.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+
+class ShimmerDemo extends StatelessWidget {
+  const ShimmerDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Shimmer(child: Text('Thinking…', style: t.text.base)),
+        const SizedBox(height: 12),
+        Shimmer(child: Text('Searching this week\'s orders…', style: t.text.sm)),
+      ],
+    );
+  }
+}
+''',
+  ),
+  'reasoning': Component(
+    description: "What a model thought before answering, folded under a line that says how long it took.",
+    requires: ["collapsible","pressable","shimmer","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'reasoning.dart': r'''// Ashlar UI: Reasoning. Copied into your app by `ashlar add reasoning`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'collapsible.dart';
+import 'pressable.dart';
+import 'shimmer.dart';
+import 'theme.dart';
+
+/// What a model thought before it answered, folded away under a line that says so. While
+/// [thinking] the line shimmers ("Thinking…") and the thoughts show as they arrive; when it
+/// is done the line says how long it took ("Thought for 12 seconds") and the thoughts fold
+/// away, a tap from being read again.
+///
+/// ```dart
+/// Reasoning(
+///   thinking: !done,
+///   took: done ? elapsed : null,
+///   child: Markdown(thoughts, streaming: !done),
+/// )
+/// ```
+class Reasoning extends StatefulWidget {
+  const Reasoning({
+    super.key,
+    required this.child,
+    this.thinking = false,
+    this.took,
+    this.label,
+    this.closeWhenDone = true,
+  });
+
+  /// The thoughts: Text, or Markdown for formatted ones.
+  final Widget child;
+
+  /// Still thinking: the line shimmers and the thoughts are open.
+  final bool thinking;
+
+  /// How long it thought, said on the line once it is done.
+  final Duration? took;
+
+  /// The line's words, in place of "Thinking…" and "Thought for …".
+  final String? label;
+
+  /// Folds the thoughts away when [thinking] ends, unless the person opened or closed
+  /// them meanwhile.
+  final bool closeWhenDone;
+
+  @override
+  State<Reasoning> createState() => _ReasoningState();
+}
+
+/// "12 seconds", "1 minute", "2 minutes".
+String _spoken(Duration d) {
+  final s = (d.inMilliseconds / 1000).round();
+  if (s < 60) return s == 1 ? '1 second' : '$s seconds';
+  final m = (s / 60).round();
+  return m == 1 ? '1 minute' : '$m minutes';
+}
+
+class _ReasoningState extends State<Reasoning> {
+  late bool _open = widget.thinking;
+
+  /// The person opened or closed it themselves: it stays as they left it.
+  bool _chosen = false;
+
+  @override
+  void didUpdateWidget(Reasoning old) {
+    super.didUpdateWidget(old);
+    if (old.thinking && !widget.thinking && widget.closeWhenDone && !_chosen) {
+      _open = false;
+    } else if (!old.thinking && widget.thinking && !_chosen) {
+      _open = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final words =
+        widget.label ??
+        (widget.thinking
+            ? 'Thinking…'
+            : widget.took == null
+            ? 'Thoughts'
+            : 'Thought for ${_spoken(widget.took!)}');
+    return Collapsible(
+      open: _open,
+      onChanged: (open) => setState(() {
+        _open = open;
+        _chosen = true;
+      }),
+      builder: (context, open, toggle) => Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Pressable(
+          onPressed: toggle,
+          expanded: open,
+          semanticLabel: words,
+          builder: (context, state) {
+            final ink = state.hovered || state.focused
+                ? c.foreground
+                : c.mutedForeground;
+            final text = Text(words, style: t.text.sm.copyWith(color: ink));
+            return AnimatedContainer(
+              duration: t.duration,
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(t.radiusSm),
+                border: Border.all(
+                  color: state.focused ? c.ring : c.ring.withValues(alpha: 0),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AshlarIcon(
+                    AshlarIconsRoundedStroke.brain,
+                    size: 16,
+                    color: ink,
+                  ),
+                  const SizedBox(width: 6),
+                  if (widget.thinking) Shimmer(child: text) else text,
+                  const SizedBox(width: 2),
+                  AnimatedRotation(
+                    turns: open ? 0 : -.25,
+                    duration: t.duration,
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronDown,
+                      size: 16,
+                      color: ink,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsetsDirectional.only(start: 9, top: 6),
+        padding: const EdgeInsetsDirectional.only(start: 14),
+        decoration: BoxDecoration(
+          border: BorderDirectional(
+            start: BorderSide(color: c.border, width: 2),
+          ),
+        ),
+        child: DefaultTextStyle.merge(
+          style: t.text.sm.copyWith(color: c.mutedForeground),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app","shimmer"],
+    tests: {
+      'reasoning_test.dart': r'''// Tests for Reasoning. Copied into your app by `ashlar add reasoning` with the component:
+// they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/reasoning.dart';
+import 'package:ashlar_ui_gallery/ui/shimmer.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Padding(padding: const EdgeInsets.all(16), child: child),
+);
+
+void main() {
+  group('Reasoning', () {
+    testWidgets('shows its thoughts while thinking, under a shimmering line', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const Reasoning(thinking: true, child: Text('Checking stock'))),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Thinking…'), findsOneWidget);
+      expect(find.byType(Shimmer), findsOneWidget);
+      expect(find.text('Checking stock').hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('says how long it took and folds away when done', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const Reasoning(thinking: true, child: Text('Checking stock'))),
+      );
+      await tester.pumpWidget(
+        app(
+          const Reasoning(
+            took: Duration(seconds: 12),
+            child: Text('Checking stock'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Thought for 12 seconds'), findsOneWidget);
+      expect(find.byType(Shimmer), findsNothing);
+      expect(find.text('Checking stock').hitTestable(), findsNothing);
+      await tester.tap(find.text('Thought for 12 seconds'));
+      await tester.pumpAndSettle();
+      expect(find.text('Checking stock').hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('stays open when the person opened it', (tester) async {
+      await tester.pumpWidget(
+        app(const Reasoning(thinking: true, child: Text('Checking stock'))),
+      );
+      // Closed and opened again while thinking: theirs to close now.
+      await tester.tap(find.text('Thinking…'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('Thinking…'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpWidget(
+        app(
+          const Reasoning(
+            took: Duration(minutes: 2),
+            child: Text('Checking stock'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Thought for 2 minutes'), findsOneWidget);
+      expect(find.text('Checking stock').hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('tells a screen reader whether it is open', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const Reasoning(took: Duration(seconds: 1), child: Text('x'))),
+      );
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Thought for 1 second')),
+        matchesSemantics(
+          label: 'Thought for 1 second',
+          isButton: true,
+          hasExpandedState: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          hasEnabledState: true,
+          isEnabled: true,
+        ),
+      );
+      handle.dispose();
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'ReasoningDemo',
+    preview: r'''// The reasoning picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/reasoning.dart';
+
+class ReasoningDemo extends StatelessWidget {
+  const ReasoningDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    width: 520,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Reasoning(
+          thinking: true,
+          child: Text(
+            'Late means past its promised time and not yet delivered. I need this week\'s Westlands orders first.',
+          ),
+        ),
+        SizedBox(height: 16),
+        Reasoning(took: Duration(seconds: 12), child: Text('Folded away once it is done.')),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'tool-call': Component(
+    description: "What an assistant did with one of your tools, or asks to do: where it got to, what went in and came out, approve or deny.",
+    requires: ["badge","button","collapsible","pressable","shimmer","spinner","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'tool_call.dart': r'''// Ashlar UI: Tool Call. Copied into your app by `ashlar add tool-call`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import 'badge.dart';
+import 'button.dart';
+import 'collapsible.dart';
+import 'pressable.dart';
+import 'shimmer.dart';
+import 'spinner.dart';
+import 'theme.dart';
+
+/// Where a tool call has got to.
+enum ToolCallStatus {
+  /// Asked for, not yet started.
+  pending,
+
+  /// Running now.
+  running,
+
+  /// Waiting for the person to allow it or not.
+  approval,
+
+  /// Finished.
+  done,
+
+  /// Failed, or was not allowed.
+  error,
+}
+
+/// What an assistant did, or asks to do, with one of your tools: its name and where it has
+/// got to on one line, what it was given and what came back folded under it. When it needs
+/// the person's say ([ToolCallStatus.approval]) it opens, says what it will do, and offers
+/// [onApprove] and [onDeny].
+///
+/// ```dart
+/// ToolCall(
+///   title: 'Refund order 1042',
+///   name: 'refund_order',
+///   status: ToolCallStatus.approval,
+///   input: '{"order": 1042, "amount": 2500}',
+///   onApprove: () => run(call),
+///   onDeny: () => refuse(call),
+/// )
+/// ```
+class ToolCall extends StatefulWidget {
+  const ToolCall({
+    super.key,
+    required this.name,
+    this.title,
+    this.status = ToolCallStatus.done,
+    this.input,
+    this.output,
+    this.error,
+    this.approval,
+    this.onApprove,
+    this.onDeny,
+    this.icon = AshlarIconsRoundedStroke.wrench,
+    this.initiallyOpen = false,
+  });
+
+  /// The tool's own name, as the model called it: `refund_order`.
+  final String name;
+
+  /// What it does, in words a person reads: "Refund order 1042". The name shows alone
+  /// without it.
+  final String? title;
+  final ToolCallStatus status;
+
+  /// What it was given and what came back, as text (JSON, say), drawn as code.
+  final String? input, output;
+
+  /// What went wrong, when it failed.
+  final String? error;
+
+  /// What the person is asked to allow, in place of "Allow this to run?".
+  final String? approval;
+  final VoidCallback? onApprove, onDeny;
+  final IconData icon;
+
+  /// Starts with what it was given and what came back showing. It always starts open
+  /// when it is waiting for the person.
+  final bool initiallyOpen;
+
+  @override
+  State<ToolCall> createState() => _ToolCallState();
+}
+
+class _ToolCallState extends State<ToolCall> {
+  late bool _open =
+      widget.initiallyOpen || widget.status == ToolCallStatus.approval;
+
+  @override
+  void didUpdateWidget(ToolCall old) {
+    super.didUpdateWidget(old);
+    if (widget.status == ToolCallStatus.approval &&
+        old.status != ToolCallStatus.approval) {
+      _open = true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final title = widget.title ?? widget.name;
+    final (
+      String said,
+      Widget? mark,
+      BadgeVariant variant,
+    ) = switch (widget.status) {
+      ToolCallStatus.pending => ('Waiting', null, BadgeVariant.outline),
+      ToolCallStatus.running => (
+        'Running',
+        Spinner(size: 12, color: c.mutedForeground, semanticLabel: ''),
+        BadgeVariant.outline,
+      ),
+      ToolCallStatus.approval => (
+        'Needs approval',
+        const AshlarIcon(AshlarIconsRoundedStroke.shieldAlert, size: 12),
+        BadgeVariant.secondary,
+      ),
+      ToolCallStatus.done => (
+        'Done',
+        const AshlarIcon(AshlarIconsRoundedStroke.check, size: 12),
+        BadgeVariant.outline,
+      ),
+      ToolCallStatus.error => (
+        'Failed',
+        const AshlarIcon(AshlarIconsRoundedStroke.circleX, size: 12),
+        BadgeVariant.destructive,
+      ),
+    };
+    final hasBody =
+        widget.input != null ||
+        widget.output != null ||
+        widget.error != null ||
+        widget.status == ToolCallStatus.approval;
+    final heading = Text(
+      title,
+      style: t.text.sm.copyWith(
+        color: c.foreground,
+        fontWeight: FontWeight.w500,
+      ),
+      overflow: TextOverflow.ellipsis,
+    );
+    return Container(
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Collapsible(
+        open: _open,
+        onChanged: (open) => setState(() => _open = open),
+        builder: (context, open, toggle) => Pressable(
+          onPressed: hasBody ? toggle : null,
+          expanded: hasBody ? open : null,
+          semanticLabel: '$title, $said',
+          builder: (context, state) => AnimatedContainer(
+            duration: t.duration,
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 10, 10),
+            decoration: BoxDecoration(
+              color: state.hovered && hasBody
+                  ? c.accent.withValues(alpha: .5)
+                  : c.accent.withValues(alpha: 0),
+              borderRadius: BorderRadius.circular(t.radiusLg),
+              border: Border.all(
+                color: state.focused ? c.ring : c.ring.withValues(alpha: 0),
+              ),
+            ),
+            child: Row(
+              children: [
+                AshlarIcon(widget.icon, size: 16, color: c.mutedForeground),
+                const SizedBox(width: 10),
+                // The title first, the tool name after it in what room is left.
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 3,
+                        child: widget.status == ToolCallStatus.running
+                            ? Shimmer(child: heading)
+                            : heading,
+                      ),
+                      if (widget.title != null)
+                        Flexible(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 8),
+                            child: Text(
+                              widget.name,
+                              style: _mono(t)
+                                  .copyWith(color: c.mutedForeground),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ExcludeSemantics(
+                  child: Badge(
+                    variant: variant,
+                    leading: mark,
+                    child: Text(said),
+                  ),
+                ),
+                if (hasBody) ...[
+                  const SizedBox(width: 4),
+                  AnimatedRotation(
+                    turns: open ? 0 : -.25,
+                    duration: t.duration,
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronDown,
+                      size: 16,
+                      color: c.mutedForeground,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.input != null)
+                _Part(label: 'Input', text: widget.input!),
+              if (widget.output != null)
+                _Part(label: 'Output', text: widget.output!),
+              if (widget.error != null)
+                _Part(label: 'Error', text: widget.error!, error: true),
+              if (widget.status == ToolCallStatus.approval) ...[
+                const SizedBox(height: 12),
+                Text(
+                  widget.approval ?? 'Allow this to run?',
+                  style: t.text.sm.copyWith(color: c.foreground),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Button(
+                      variant: ButtonVariant.outline,
+                      size: ButtonSize.sm,
+                      onPressed: widget.onDeny,
+                      child: const Text('Deny'),
+                    ),
+                    const SizedBox(width: 8),
+                    Button(
+                      size: ButtonSize.sm,
+                      onPressed: widget.onApprove,
+                      child: const Text('Approve'),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+TextStyle _mono(AshlarThemeData t) => t.text.xs.copyWith(
+  fontFamily: 'monospace',
+  fontFamilyFallback: const ['Menlo', 'Consolas', 'Roboto Mono', 'monospace'],
+);
+
+/// What a call was given, or what came back: a label, the text as code, and a copy button.
+class _Part extends StatelessWidget {
+  const _Part({required this.label, required this.text, this.error = false});
+
+  final String label, text;
+  final bool error;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
+                  style: t.text.xs.copyWith(
+                    color: c.mutedForeground,
+                    letterSpacing: .6,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Pressable(
+                onPressed: () => Clipboard.setData(ClipboardData(text: text)),
+                semanticLabel: 'Copy the ${label.toLowerCase()}',
+                builder: (context, state) => Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: state.hovered
+                        ? c.accent
+                        : c.accent.withValues(alpha: 0),
+                    borderRadius: BorderRadius.circular(t.radiusSm),
+                    border: Border.all(
+                      color: state.focused
+                          ? c.ring
+                          : c.ring.withValues(alpha: 0),
+                    ),
+                  ),
+                  child: AshlarIcon(
+                    AshlarIconsRoundedStroke.copy,
+                    size: 13,
+                    color: c.mutedForeground,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Container(
+            constraints: const BoxConstraints(maxHeight: 220),
+            decoration: BoxDecoration(
+              color: error
+                  ? c.destructive.withValues(alpha: .08)
+                  : c.muted.withValues(alpha: .6),
+              borderRadius: BorderRadius.circular(t.radiusMd),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(10),
+              child: Text(
+                text,
+                style: _mono(t).copyWith(
+                  color: error ? c.destructive : c.foreground,
+                  height: 1.5,
+                ),
+                textDirection: TextDirection.ltr,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app","shimmer"],
+    tests: {
+      'tool_call_test.dart': r'''// Tests for ToolCall. Copied into your app by `ashlar add tool-call` with the component:
+// they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/shimmer.dart';
+import 'package:ashlar_ui_gallery/ui/tool_call.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Padding(padding: const EdgeInsets.all(16), child: child),
+);
+
+void main() {
+  group('ToolCall', () {
+    testWidgets('says what it did and where it got to', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const ToolCall(
+            title: 'Look up order 1042',
+            name: 'get_order',
+            input: '{"order": 1042}',
+            output: '{"status": "paid"}',
+          ),
+        ),
+      );
+      expect(find.text('Look up order 1042'), findsOneWidget);
+      expect(find.text('get_order'), findsOneWidget);
+      expect(find.text('Done'), findsOneWidget);
+      // Folded until asked for.
+      expect(find.text('{"status": "paid"}').hitTestable(), findsNothing);
+      await tester.tap(find.text('Look up order 1042'));
+      await tester.pumpAndSettle();
+      expect(find.text('{"order": 1042}').hitTestable(), findsOneWidget);
+      expect(find.text('{"status": "paid"}').hitTestable(), findsOneWidget);
+    });
+
+    testWidgets('shimmers while running', (tester) async {
+      await tester.pumpWidget(
+        app(const ToolCall(name: 'search', status: ToolCallStatus.running)),
+      );
+      expect(find.text('Running'), findsOneWidget);
+      expect(find.byType(Shimmer), findsOneWidget);
+    });
+
+    testWidgets('opens to ask the person, and tells their answer', (
+      tester,
+    ) async {
+      var approved = 0, denied = 0;
+      await tester.pumpWidget(
+        app(
+          ToolCall(
+            title: 'Refund KES 2,500',
+            name: 'refund_order',
+            status: ToolCallStatus.approval,
+            approval: 'Refund KES 2,500 to Wanjiru?',
+            onApprove: () => approved++,
+            onDeny: () => denied++,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Needs approval'), findsOneWidget);
+      expect(
+        find.text('Refund KES 2,500 to Wanjiru?').hitTestable(),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Approve'));
+      await tester.tap(find.text('Deny'));
+      expect((approved, denied), (1, 1));
+    });
+
+    testWidgets('shows what went wrong', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const ToolCall(
+            name: 'send_sms',
+            status: ToolCallStatus.error,
+            error: 'The number is not on the account.',
+            initiallyOpen: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Failed'), findsOneWidget);
+      expect(find.text('The number is not on the account.'), findsOneWidget);
+    });
+
+    testWidgets('reads as one line to a screen reader', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const ToolCall(name: 'get_order', input: '{}')),
+      );
+      expect(find.bySemanticsLabel('get_order, Done'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('fits a phone with a long name', (tester) async {
+      tester.view
+        ..physicalSize = const Size(320, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        app(
+          const ToolCall(
+            title: 'Look up every order placed from the Westlands branch',
+            name: 'list_orders_for_branch_with_items',
+            status: ToolCallStatus.approval,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'ToolCallDemo',
+    preview: r'''// The tool call picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/tool_call.dart';
+
+class ToolCallDemo extends StatelessWidget {
+  const ToolCallDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 560,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const ToolCall(
+          title: 'Look up this week\'s orders',
+          name: 'list_orders',
+          input: '{"branch": "westlands"}',
+          output: '{"count": 38, "late": 3}',
+        ),
+        const SizedBox(height: 10),
+        const ToolCall(title: 'Find the rider', name: 'get_rider', status: ToolCallStatus.running),
+        const SizedBox(height: 10),
+        ToolCall(
+          title: 'Message three customers',
+          name: 'send_sms',
+          status: ToolCallStatus.approval,
+          input: '{"orders": [1042, 1057, 1063]}',
+          approval: 'Send an SMS about the delay to Wanjiru, Otieno and Njeri?',
+          onApprove: () {},
+          onDeny: () {},
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'sources': Component(
+    description: "What an answer rests on, numbered, and the citation that points to each.",
+    requires: ["collapsible","pressable","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'sources.dart': r'''// Ashlar UI: Sources. Copied into your app by `ashlar add sources`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'collapsible.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// One thing an answer rests on: a page, a document, a row in your data.
+class Source {
+  const Source({required this.title, this.detail, this.url});
+
+  /// What it is called: a page's title, a file's name.
+  final String title;
+
+  /// Where it is from, under the title: a site, a folder, a date. Taken from [url] when
+  /// not given.
+  final String? detail;
+
+  /// Its address, given back to [Sources.onOpen].
+  final String? url;
+
+  String? get _from =>
+      detail ??
+      (url == null ? null : Uri.tryParse(url!)?.host.replaceFirst('www.', ''));
+}
+
+/// What an answer rests on, folded under a line that counts them ("Used 4 sources"), each
+/// numbered as the answer cites it. [Citation] draws that number in the answer's text.
+///
+/// ```dart
+/// Sources(
+///   sources: [Source(title: 'Returns policy', url: 'https://shop.co.ke/returns')],
+///   onOpen: (source) => launch(source.url!),
+/// )
+/// ```
+class Sources extends StatelessWidget {
+  const Sources({
+    super.key,
+    required this.sources,
+    this.onOpen,
+    this.initiallyOpen = false,
+  });
+
+  final List<Source> sources;
+
+  /// Called with the source tapped; they are not tappable without it.
+  final ValueChanged<Source>? onOpen;
+  final bool initiallyOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final count = sources.length == 1
+        ? 'Used 1 source'
+        : 'Used ${sources.length} sources';
+    return Collapsible(
+      initiallyOpen: initiallyOpen,
+      builder: (context, open, toggle) => Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Pressable(
+          onPressed: toggle,
+          expanded: open,
+          semanticLabel: count,
+          builder: (context, state) {
+            final ink = state.hovered || state.focused
+                ? c.foreground
+                : c.mutedForeground;
+            return AnimatedContainer(
+              duration: t.duration,
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(t.radiusSm),
+                border: Border.all(
+                  color: state.focused ? c.ring : c.ring.withValues(alpha: 0),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AshlarIcon(
+                    AshlarIconsRoundedStroke.bookOpen,
+                    size: 16,
+                    color: ink,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(count, style: t.text.sm.copyWith(color: ink)),
+                  const SizedBox(width: 2),
+                  AnimatedRotation(
+                    turns: open ? 0 : -.25,
+                    duration: t.duration,
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronDown,
+                      size: 16,
+                      color: ink,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, s) in sources.indexed)
+              Pressable(
+                onPressed: onOpen == null ? null : () => onOpen!(s),
+                link: s.url != null,
+                semanticLabel:
+                    '${i + 1}. ${s.title}${s._from == null ? '' : ', ${s._from}'}',
+                builder: (context, state) => AnimatedContainer(
+                  duration: t.duration,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: state.hovered && onOpen != null
+                        ? c.accent
+                        : c.accent.withValues(alpha: 0),
+                    borderRadius: BorderRadius.circular(t.radiusMd),
+                    border: Border.all(
+                      color: state.focused
+                          ? c.ring
+                          : c.ring.withValues(alpha: 0),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: _Number(i + 1),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: t.text.sm.copyWith(
+                                color: c.foreground,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (s._from case final from?)
+                              Text(
+                                from,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.text.xs.copyWith(
+                                  color: c.mutedForeground,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The number of a source, in a small rounded square.
+class _Number extends StatelessWidget {
+  const _Number(this.n, {this.hovered = false});
+
+  final int n;
+  final bool hovered;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Container(
+      // At least a small square, and taller when the text is made larger.
+      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: hovered ? c.primary : c.muted,
+        borderRadius: BorderRadius.circular(t.radiusSm),
+      ),
+      // As wide as its number, so it sits in a line of text.
+      child: Center(
+        widthFactor: 1,
+        child: Text(
+          '$n',
+          style: t.text.xs.copyWith(
+            color: hovered ? c.primaryForeground : c.mutedForeground,
+            fontWeight: FontWeight.w600,
+            fontSize: 11,
+            height: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A source's number in an answer's text, as `[2]` is written: tap it to open the source.
+///
+/// ```dart
+/// Text.rich(TextSpan(children: [TextSpan(text: 'Returns take 14 days '), WidgetSpan(child: Citation(1, onPressed: open))]))
+/// ```
+class Citation extends StatelessWidget {
+  const Citation(this.number, {super.key, this.onPressed, this.title});
+
+  final int number;
+  final VoidCallback? onPressed;
+
+  /// What it cites, for a screen reader: "Source 1, Returns policy".
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    // In a sentence, a finger-sized press area would push the lines apart; a link inside
+    // text is exempt from that minimum, as on the web.
+    return AshlarTheme(
+      data: t.copyWith(tapTarget: 0),
+      child: Pressable(
+        onPressed: onPressed,
+        link: true,
+        semanticLabel: 'Source $number${title == null ? '' : ', $title'}',
+        builder: (context, state) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: state.focused ? c.ring : c.ring.withValues(alpha: 0),
+            ),
+          ),
+          child: _Number(number, hovered: state.hovered),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'sources_test.dart': r'''// Tests for Sources. Copied into your app by `ashlar add sources` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/sources.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Padding(padding: const EdgeInsets.all(16), child: child),
+);
+
+const _sources = [
+  Source(title: 'Returns policy', url: 'https://www.shop.co.ke/returns'),
+  Source(title: 'Order 1042', detail: 'Orders, 12 October'),
+];
+
+void main() {
+  group('Sources', () {
+    testWidgets('counts its sources and opens to list them', (tester) async {
+      await tester.pumpWidget(app(const Sources(sources: _sources)));
+      expect(find.text('Used 2 sources'), findsOneWidget);
+      expect(find.text('Returns policy').hitTestable(), findsNothing);
+      await tester.tap(find.text('Used 2 sources'));
+      await tester.pumpAndSettle();
+      expect(find.text('Returns policy').hitTestable(), findsOneWidget);
+      // Where it is from, taken from its address when not given.
+      expect(find.text('shop.co.ke'), findsOneWidget);
+      expect(find.text('Orders, 12 October'), findsOneWidget);
+    });
+
+    testWidgets('gives back the source tapped', (tester) async {
+      Source? opened;
+      await tester.pumpWidget(
+        app(
+          Sources(
+            sources: _sources,
+            initiallyOpen: true,
+            onOpen: (s) => opened = s,
+          ),
+        ),
+      );
+      await tester.tap(find.text('Order 1042'));
+      expect(opened?.title, 'Order 1042');
+    });
+
+    testWidgets('reads each source with its number', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const Sources(sources: _sources, initiallyOpen: true)),
+      );
+      expect(
+        find.bySemanticsLabel('1. Returns policy, shop.co.ke'),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a Citation opens its source, and says which', (tester) async {
+      final handle = tester.ensureSemantics();
+      var opened = 0;
+      await tester.pumpWidget(
+        app(Citation(2, title: 'Order 1042', onPressed: () => opened++)),
+      );
+      expect(find.text('2'), findsOneWidget);
+      expect(find.bySemanticsLabel('Source 2, Order 1042'), findsOneWidget);
+      await tester.tap(find.text('2'));
+      expect(opened, 1);
+      handle.dispose();
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'SourcesDemo',
+    preview: r'''// The sources picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/sources.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+
+class SourcesDemo extends StatelessWidget {
+  const SourcesDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return SizedBox(
+      width: 520,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text.rich(
+            TextSpan(
+              style: t.text.sm.copyWith(color: t.colors.foreground),
+              children: [
+                const TextSpan(text: 'Returns are taken within 14 days of delivery'),
+                WidgetSpan(alignment: PlaceholderAlignment.middle, child: Citation(1, title: 'Returns policy', onPressed: () {})),
+                const TextSpan(text: ', and order 1042 was delivered on 12 October'),
+                WidgetSpan(alignment: PlaceholderAlignment.middle, child: Citation(2, title: 'Order 1042', onPressed: () {})),
+                const TextSpan(text: '.'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Sources(
+            initiallyOpen: true,
+            onOpen: (_) {},
+            sources: const [
+              Source(title: 'Returns policy', url: 'https://www.shop.co.ke/returns'),
+              Source(title: 'Order 1042', detail: 'Orders, 12 October'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+  ),
+  'plan': Component(
+    description: "The steps an assistant set itself, ticked off as it works.",
+    requires: ["shimmer","spinner","theme"],
+    packages: ["ashlar_icons"],
+    block: false,
+    files: {
+      'plan.dart': r'''// Ashlar UI: Plan. Copied into your app by `ashlar add plan`; it is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'shimmer.dart';
+import 'spinner.dart';
+import 'theme.dart';
+
+/// Where a step of a plan has got to.
+enum PlanStepStatus { pending, active, done, skipped, failed }
+
+/// One step of a plan: what it is, where it has got to, and a line more if it needs one.
+class PlanStep {
+  const PlanStep(
+    this.title, {
+    this.status = PlanStepStatus.pending,
+    this.detail,
+  });
+
+  final String title;
+  final PlanStepStatus status;
+
+  /// A line under the title: what was found, why it failed.
+  final String? detail;
+}
+
+/// The steps an assistant set itself, ticked off as it works: done ones ticked, the one it
+/// is on turning and shimmering, those to come as empty rings, and how many are done at
+/// the top.
+///
+/// ```dart
+/// Plan(
+///   title: 'Move the orders table',
+///   steps: [
+///     PlanStep('Back up the table', status: PlanStepStatus.done),
+///     PlanStep('Copy the rows across', status: PlanStepStatus.active, detail: '1.2M of 2M'),
+///     PlanStep('Switch reads over'),
+///   ],
+/// )
+/// ```
+class Plan extends StatelessWidget {
+  const Plan({super.key, required this.steps, this.title});
+
+  final List<PlanStep> steps;
+
+  /// What the plan is for, above the steps.
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final done = steps.where((s) => s.status == PlanStepStatus.done).length;
+    final count = '$done of ${steps.length} done';
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  title ?? 'Plan',
+                  style: t.text.sm.copyWith(
+                    color: c.foreground,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                count,
+                style: t.text.xs.copyWith(
+                  color: c.mutedForeground,
+                  height: 20 / 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // How far along, as a thin bar: read out as the count above.
+          ExcludeSemantics(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: SizedBox(
+                height: 3,
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: ColoredBox(color: c.muted)),
+                    FractionallySizedBox(
+                      widthFactor: steps.isEmpty ? 0 : done / steps.length,
+                      heightFactor: 1,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: ColoredBox(color: c.primary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          for (final s in steps) _Step(step: s),
+        ],
+      ),
+    );
+  }
+}
+
+class _Step extends StatelessWidget {
+  const _Step({required this.step});
+
+  final PlanStep step;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (Widget mark, String said) = switch (step.status) {
+      PlanStepStatus.pending => (
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: c.input, width: 1.5),
+          ),
+        ),
+        'to do',
+      ),
+      PlanStepStatus.active => (
+        Spinner(size: 14, color: c.foreground, semanticLabel: ''),
+        'in progress',
+      ),
+      PlanStepStatus.done => (
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: c.primary),
+          child: AshlarIcon(
+            AshlarIconsRoundedStroke.check,
+            size: 11,
+            color: c.primaryForeground,
+          ),
+        ),
+        'done',
+      ),
+      PlanStepStatus.skipped => (
+        AshlarIcon(
+          AshlarIconsRoundedStroke.circleMinus,
+          size: 16,
+          color: c.mutedForeground,
+        ),
+        'skipped',
+      ),
+      PlanStepStatus.failed => (
+        AshlarIcon(
+          AshlarIconsRoundedStroke.circleX,
+          size: 16,
+          color: c.destructive,
+        ),
+        'failed',
+      ),
+    };
+    final quiet =
+        step.status == PlanStepStatus.pending ||
+        step.status == PlanStepStatus.skipped;
+    final title = Text(
+      step.title,
+      style: t.text.sm.copyWith(
+        color: quiet ? c.mutedForeground : c.foreground,
+        fontWeight: step.status == PlanStepStatus.active
+            ? FontWeight.w500
+            : null,
+        decoration: step.status == PlanStepStatus.skipped
+            ? TextDecoration.lineThrough
+            : null,
+        decorationColor: c.mutedForeground,
+      ),
+    );
+    return MergeSemantics(
+      child: Semantics(
+        value: said,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 16,
+                height: 20,
+                child: Center(child: ExcludeSemantics(child: mark)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (step.status == PlanStepStatus.active)
+                      Shimmer(child: title)
+                    else
+                      title,
+                    if (step.detail != null)
+                      Text(
+                        step.detail!,
+                        style: t.text.xs.copyWith(
+                          color: step.status == PlanStepStatus.failed
+                              ? c.destructive
+                              : c.mutedForeground,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app","shimmer"],
+    tests: {
+      'plan_test.dart': r'''// Tests for Plan. Copied into your app by `ashlar add plan` with the component: they check
+// what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/plan.dart';
+import 'package:ashlar_ui_gallery/ui/shimmer.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Padding(padding: const EdgeInsets.all(16), child: child),
+);
+
+const _steps = [
+  PlanStep('Back up the table', status: PlanStepStatus.done),
+  PlanStep(
+    'Copy the rows',
+    status: PlanStepStatus.active,
+    detail: '1.2M of 2M',
+  ),
+  PlanStep('Switch reads over'),
+  PlanStep('Drop the old table', status: PlanStepStatus.skipped),
+];
+
+void main() {
+  group('Plan', () {
+    testWidgets('counts what is done and shimmers the step it is on', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(const Plan(title: 'Move orders', steps: _steps)),
+      );
+      expect(find.text('Move orders'), findsOneWidget);
+      expect(find.text('1 of 4 done'), findsOneWidget);
+      expect(find.text('1.2M of 2M'), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.text('Copy the rows'),
+          matching: find.byType(Shimmer),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('tells a screen reader where each step has got to', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(app(const Plan(steps: _steps)));
+      expect(
+        tester.getSemantics(find.text('Back up the table')),
+        matchesSemantics(label: 'Back up the table', value: 'done'),
+      );
+      expect(
+        tester.getSemantics(find.text('Switch reads over')),
+        matchesSemantics(label: 'Switch reads over', value: 'to do'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('shows why a step failed', (tester) async {
+      await tester.pumpWidget(
+        app(
+          const Plan(
+            steps: [
+              PlanStep(
+                'Send the receipt',
+                status: PlanStepStatus.failed,
+                detail: 'No email on the account',
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(find.text('0 of 1 done'), findsOneWidget);
+      expect(find.text('No email on the account'), findsOneWidget);
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'PlanDemo',
+    preview: r'''// The plan picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/plan.dart';
+
+class PlanDemo extends StatelessWidget {
+  const PlanDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    width: 460,
+    child: Plan(
+      title: 'Move the orders table',
+      steps: [
+        PlanStep('Back up the table', status: PlanStepStatus.done),
+        PlanStep('Make the new table', status: PlanStepStatus.done),
+        PlanStep('Copy the rows across', status: PlanStepStatus.active, detail: '1.2M of 2M rows'),
+        PlanStep('Switch reads over'),
+        PlanStep('Drop the old table'),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'soundwave': Component(
+    description: "How loud a voice is, as a row of bars, from the levels your audio gives.",
+    requires: ["theme"],
+    packages: [],
+    block: false,
+    files: {
+      'soundwave.dart': r'''// Ashlar UI: Soundwave. Copied into your app by `ashlar add soundwave`; it is yours to change.
+
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// How loud something is, as a row of rounded bars: a person speaking to an assistant, or
+/// a voice note. Give it [levels] from 0 (silence) to 1, newest last, as your audio gives
+/// them; it draws as many of the newest as fit, and a row of dots when there are none.
+/// Listening to the microphone needs a plugin, so that part is your app's.
+///
+/// ```dart
+/// Soundwave(levels: recorder.levels, semanticLabel: 'Listening')
+/// ```
+class Soundwave extends StatelessWidget {
+  const Soundwave({
+    super.key,
+    required this.levels,
+    this.height = 32,
+    this.barWidth = 3,
+    this.gap = 2,
+    this.color,
+    this.semanticLabel,
+  });
+
+  /// From 0 to 1, oldest first.
+  final List<double> levels;
+  final double height, barWidth, gap;
+
+  /// The bars' colour; the foreground when not given.
+  final Color? color;
+
+  /// What a screen reader hears: "Listening", "Voice note, 12 seconds".
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AshlarTheme.of(context).colors;
+    return Semantics(
+      label: semanticLabel,
+      image: semanticLabel != null,
+      excludeSemantics: true,
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: CustomPaint(
+          painter: _Bars(
+            levels: levels,
+            barWidth: barWidth,
+            gap: gap,
+            color: color ?? c.foreground,
+            quiet: c.mutedForeground.withValues(alpha: .5),
+            rtl: Directionality.of(context) == TextDirection.rtl,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Bars extends CustomPainter {
+  _Bars({
+    required this.levels,
+    required this.barWidth,
+    required this.gap,
+    required this.color,
+    required this.quiet,
+    required this.rtl,
+  });
+
+  final List<double> levels;
+  final double barWidth, gap;
+  final Color color, quiet;
+  final bool rtl;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final step = barWidth + gap;
+    final fit = math.max(1, ((size.width + gap) / step).floor());
+    final shown = levels.length > fit
+        ? levels.sublist(levels.length - fit)
+        : levels;
+    final mid = size.height / 2;
+    final paint = Paint();
+    // The newest bar at the end the text reads to; the bars before it towards the start.
+    for (var i = 0; i < fit; i++) {
+      final k = i - (fit - shown.length);
+      final level = k < 0 ? 0.0 : shown[k].clamp(0.0, 1.0);
+      final h = math.max(barWidth, level * size.height);
+      final x = rtl ? size.width - (i + 1) * step + gap : i * step;
+      paint.color = k < 0 || level == 0 ? quiet : color;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(x, mid - h / 2, barWidth, h),
+          Radius.circular(barWidth / 2),
+        ),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Bars old) =>
+      old.levels != levels ||
+      old.color != color ||
+      old.quiet != quiet ||
+      old.barWidth != barWidth ||
+      old.gap != gap ||
+      old.rtl != rtl;
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'soundwave_test.dart': r'''// Tests for Soundwave. Copied into your app by `ashlar add soundwave` with the component:
+// they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/soundwave.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Center(child: SizedBox(width: 200, child: child)),
+);
+
+void main() {
+  group('Soundwave', () {
+    testWidgets('draws as tall as it is told', (tester) async {
+      await tester.pumpWidget(
+        app(const Soundwave(levels: [0, .5, 1], height: 40)),
+      );
+      expect(tester.getSize(find.byType(Soundwave)), const Size(200, 40));
+    });
+
+    testWidgets('draws silence and more levels than fit', (tester) async {
+      await tester.pumpWidget(app(const Soundwave(levels: [])));
+      await tester.pumpWidget(
+        app(Soundwave(levels: [for (var i = 0; i < 500; i++) (i % 10) / 10])),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('is one picture to a screen reader, named', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        app(const Soundwave(levels: [.2, .8], semanticLabel: 'Listening')),
+      );
+      expect(
+        tester.getSemantics(find.byType(Soundwave)),
+        matchesSemantics(label: 'Listening', isImage: true),
+      );
+      handle.dispose();
+    });
+  });
+}
+''',
+    },
+    previewWidget: 'SoundwaveDemo',
+    preview: r'''// The soundwave picture ashlar update --preview draws, from the site's demo.
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/soundwave.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+
+/// Levels as speech gives them: louder in bursts, quiet between words.
+final _levels = [
+  for (var i = 0; i < 90; i++)
+    (math.sin(i / 3) * .5 + .5) * (math.sin(i / 11) * .4 + .6) * (i % 17 < 3 ? .15 : 1),
+];
+
+class SoundwaveDemo extends StatelessWidget {
+  const SoundwaveDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return SizedBox(
+      width: 360,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Soundwave(levels: _levels, height: 40, semanticLabel: 'Listening'),
+          const SizedBox(height: 8),
+          Text('Listening… 0:07', style: t.text.sm.copyWith(color: t.colors.mutedForeground)),
+          const SizedBox(height: 20),
+          Soundwave(levels: const [], height: 24),
+        ],
+      ),
+    );
+  }
+}
+''',
+  ),
   'message-scroller': Component(
     description: "A conversation that scrolls as people expect: new turns near the top, following only at the end.",
     requires: ["button"],
@@ -46389,10 +48969,21 @@ class _MessageScrollerState extends State<MessageScroller> {
 
   /// Brings a new turn near the top, keeping a slice of the row before it in view, and
   /// keeps room below it for what follows.
-  void _anchor(Object id) {
+  void _anchor(Object id, [int tries = 0]) {
     final position = _position;
+    if (!mounted || position == null) return;
     final at = _offsetOf(id);
-    if (!mounted || position == null || at == null) return;
+    if (at == null) {
+      // Below a long answer the new turn is not laid out yet: go to the end, where it is,
+      // and place it once it is.
+      if (tries < 3) {
+        position.jumpTo(position.maxScrollExtent);
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _anchor(id, tries + 1),
+        );
+      }
+      return;
+    }
     final index = widget.items.indexWhere((i) => i.id == id);
     final before = index > 0 ? _heightOf(widget.items[index - 1].id) ?? 0 : 0;
     final peek = before < widget.previousPeek ? before : widget.previousPeek;
@@ -46879,6 +49470,21 @@ void main() {
         expect(tester.getTopLeft(find.text('a')).dy, closeTo(before, 1));
       },
     );
+
+    testWidgets('a turn sent from far up is brought into view', (tester) async {
+      final items = [for (var i = 0; i < 30; i++) row('old $i', 100)];
+      final controller = await pump(
+        tester,
+        items,
+        start: MessageScrollStart.start,
+      );
+      expect(controller.canScrollEnd, isTrue);
+      // Sent while reading the start: the new turn is far below anything laid out.
+      await pump(tester, [...items, row('q', 40, anchor: true), row('a', 50)]);
+      await tester.pumpAndSettle();
+      expect(find.text('q'), findsOneWidget);
+      expect(topOf(tester, 'q'), lessThan(120));
+    });
 
     testWidgets('older messages load above without moving the view', (
       tester,

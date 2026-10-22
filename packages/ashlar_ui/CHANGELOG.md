@@ -44,6 +44,27 @@ This breaks code written against 0.1.x charts: see "Moving from 0.1" below.
 - `color-picker`: `ColorPicker`, a square for saturation and brightness, a hue strip,
   opacity if asked, a hex field and swatches, each part by pointer, keys or a screen
   reader; `ColorPickerButton` opens one from a swatch.
+- For AI features:
+  - `markdown`: `Markdown`, formatted text drawn as it streams in (headings, lists with
+    boxes to tick, tables, quotes, links, pictures, code with a copy button); what is
+    not yet closed is drawn as if it were, and `streaming` shows a caret.
+  - `prompt-input`: `PromptInput`, text that grows, attachments above it, your actions
+    under it, and send that becomes stop while an answer arrives. Enter sends,
+    Shift+Enter starts a line, and a word still being composed is left alone.
+  - `reasoning`: `Reasoning`, a model's thoughts under "Thinking…", folded away as
+    "Thought for 12 seconds" once it is done.
+  - `tool-call`: `ToolCall`, what an assistant did with a tool (waiting, running, done,
+    failed) with what went in and came out, and Approve and Deny when it asks.
+  - `sources`: `Sources`, what an answer rests on, numbered, and `Citation`, the number
+    in the answer's text.
+  - `plan`: `Plan`, an assistant's steps ticked off as it works.
+  - `shimmer`: `Shimmer`, a light passing over text still being worked on; still when
+    less motion is asked for.
+  - `soundwave`: `Soundwave`, a voice's loudness as bars, from levels your audio gives.
+  - `chat-01`: a block, an assistant's whole conversation using them; give it your
+    model as a stream of text.
+- `message-scroller`: a turn sent while scrolled far up is brought into view. It stayed
+  out of sight below.
 - `ashlar init` writes what a coding agent should know about building with Ashlar UI
   (the components and their names, the theme, Pressable, ashlaricons, start and end,
   `ashlar shot` and `check`) into `AGENTS.md`, and `CLAUDE.md` when there is one,

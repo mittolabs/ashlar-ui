@@ -1,4 +1,5 @@
 {
+  "chat-01": "An assistant's conversation: its thinking, the tools it used, its sources, and an answer that streams in.",
   "dashboard-01": "An app home: sidebar, header, four figures, a chart over time and a table.",
   "login-01": "A sign-in card in the middle of the page.",
   "login-02": "Sign in on one side, a picture on the other.",

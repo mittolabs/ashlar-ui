@@ -1,5 +1,8 @@
 // Blocks: every whole screen lays out at a desktop and a phone size, light and dark,
 // and the forms in them check what is sent.
+import 'dart:async';
+
+import 'package:ashlar_ui_gallery/blocks/chat_01.dart';
 import 'package:ashlar_ui_gallery/blocks/dashboard_01.dart';
 import 'package:ashlar_ui_gallery/blocks/login_01.dart';
 import 'package:ashlar_ui_gallery/blocks/login_02.dart';
@@ -33,6 +36,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final blocks = <String, Widget Function()>{
+  'chat-01': () => const Chat01(),
   'dashboard-01': () => const Dashboard01(),
   'login-01': () => const Login01(),
   'login-02': () => const Login02(),
@@ -222,5 +226,48 @@ void main() {
     await tester.pump();
     expect(find.text('Weekend plans'), findsNothing);
     expect(find.text('Meeting tomorrow'), findsOneWidget);
+  });
+
+  testWidgets('a question is asked, its answer streams in, and stop ends it', (
+    tester,
+  ) async {
+    final pieces = StreamController<String>();
+    String? asked;
+    await pumpAt(
+      tester,
+      const Size(1280, 800),
+      Chat01(
+        answer: (q) {
+          asked = q;
+          return pieces.stream;
+        },
+      ),
+    );
+    // The conversation it opens with, folded where it should be.
+    expect(find.text('Thought for 4 seconds'), findsOneWidget);
+    expect(find.text('Used 2 sources'), findsOneWidget);
+    await tester.enterText(find.byType(EditableText), 'Message the customers');
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Send'));
+    // The new turn is brought near the top over a few frames.
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(asked, 'Message the customers');
+    expect(find.text('Thinking…'), findsOneWidget);
+    pieces.add('Sent to ');
+    await tester.pump(const Duration(milliseconds: 100));
+    pieces.add('all three.');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(
+      find.textContaining('Sent to all three.', findRichText: true),
+      findsOneWidget,
+    );
+    // Stopped mid-answer: what came is kept, and the box sends again.
+    await tester.tap(find.bySemanticsLabel('Stop'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.bySemanticsLabel('Send'), findsOneWidget);
+    // Stop cancelled the answer, so nothing listens for the close.
+    unawaited(pieces.close());
   });
 }

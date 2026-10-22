@@ -243,5 +243,26 @@
  ],
  "markdown": [
   "app"
+ ],
+ "prompt-input": [
+  "app"
+ ],
+ "reasoning": [
+  "app"
+ ],
+ "tool-call": [
+  "app"
+ ],
+ "sources": [
+  "app"
+ ],
+ "plan": [
+  "app"
+ ],
+ "soundwave": [
+  "app"
+ ],
+ "shimmer": [
+  "app"
  ]
 }
