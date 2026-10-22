@@ -10,6 +10,7 @@ import 'component.dart';
 import 'diff.dart';
 import 'mcp.dart';
 import 'prefix.dart';
+import 'preset.dart';
 import 'merge.dart';
 import 'registry.g.dart';
 import 'review.dart';
@@ -17,30 +18,6 @@ import 'remote.dart';
 
 /// The version each pub.dev package a component needs is added at.
 const packageVersions = {'ashlar_icons': '^0.2.0'};
-
-/// The theme choices `ashlar init` and `ashlar apply` take, as palette.dart and theme.dart
-/// name them.
-const bases = ['neutral', 'stone', 'zinc', 'mauve', 'olive', 'mist', 'taupe'];
-const accents = [
-  'amber',
-  'blue',
-  'cyan',
-  'emerald',
-  'fuchsia',
-  'green',
-  'indigo',
-  'lime',
-  'orange',
-  'pink',
-  'purple',
-  'red',
-  'rose',
-  'sky',
-  'teal',
-  'violet',
-  'yellow',
-];
-const styles = ['standard', 'compact', 'rounded', 'sharp', 'dense', 'soft'];
 
 final _usage =
     '''
@@ -53,8 +30,10 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
              [--base neutral]           the greys: ${bases.join(', ')}
              [--accent blue]            a colour for main actions: ${accents.join(', ')}
              [--style standard]         spacing and shape: ${styles.join(', ')}
-  ashlar apply [--base] [--accent] [--style] [--prefix]
+             [--preset a1...]           a theme made on ui.ashlar.ke/themes, colours and all
+  ashlar apply [--base] [--accent] [--style] [--preset] [--prefix]
                                         choose the theme again; --accent none for none;
+                                        --preset none drops a preset's changes;
                                         --prefix renames everywhere, your code too
   ashlar add <item>... [--all]          copy components, with what they need
              [--blocks]                 every block: whole screens, in lib/blocks
@@ -109,6 +88,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     'base',
     'accent',
     'style',
+    'preset',
     'out',
     'prefix',
     if (command == 'init') ...['blocks', 'tests'],
@@ -156,9 +136,27 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         folders[name] = folder;
       }
       final path = folders['path'] ?? 'lib/ui';
-      final base = option('base') ?? 'neutral',
-          accent = option('accent'),
-          style = option('style') ?? 'standard';
+      var preset = const ThemePreset();
+      if (option('preset') case final code?) {
+        try {
+          preset = ThemePreset.parse(code);
+        } on FormatException catch (e) {
+          o.writeln('--preset: ${e.message}');
+          return 64;
+        }
+      }
+      // Options given beside a preset change its choices.
+      final givenAccent = option('accent');
+      if (givenAccent != null && givenAccent != 'none') {
+        if (!_checkTheme(preset.base, givenAccent, preset.style, o)) return 64;
+      }
+      preset = preset.withChoices(
+        base: option('base'),
+        accent: givenAccent == 'none' ? null : givenAccent,
+        noAccent: givenAccent == 'none',
+        style: option('style'),
+      );
+      final base = preset.base, accent = preset.accent, style = preset.style;
       if (!_checkTheme(base, accent, style, o)) return 64;
       final prefix = option('prefix');
       if (prefix != null && !validPrefix.hasMatch(prefix)) {
@@ -175,12 +173,14 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         'base': base,
         'accent': accent,
         'style': style,
+        'preset': preset.changed ? preset.code : null,
       });
       final tests = project.tests;
       o.writeln(
         'ashlar.yaml: components go in $path, blocks in ${project.blocks}'
         '${tests == null ? '' : ', tests in $tests'}; '
-        '$base${accent == null ? '' : ', $accent'}, $style',
+        '$base${accent == null ? '' : ', $accent'}, $style'
+        '${preset.changed ? ', and the preset\'s changes' : ''}',
       );
       if (!path.startsWith('lib/')) {
         o.writeln(
@@ -198,27 +198,50 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         out: o,
       );
       if (code != 0) return code;
-      writeAppTheme(
-        root,
-        path,
-        base: base,
-        accent: accent,
-        style: style,
-        prefix: prefix,
-        out: o,
-      );
+      writeAppTheme(root, path, preset: preset, prefix: prefix, out: o);
       o.writeln(
         'Give ${project.named('AshlarApp')} theme: appTheme and darkTheme: appDarkTheme from $path/app_theme.dart.',
       );
       return 0;
     case 'apply':
       final config = project.config;
-      final base = option('base') ?? config['base'] as String? ?? 'neutral';
+      // The theme as it is: the preset kept in ashlar.yaml, or its choices alone.
+      var preset = ThemePreset(
+        base: config['base'] as String? ?? 'neutral',
+        accent: config['accent'] as String?,
+        style: config['style'] as String? ?? 'standard',
+      );
+      final kept = config['preset'] as String?;
+      final givenPreset = option('preset');
+      try {
+        if (givenPreset != null && givenPreset != 'none') {
+          preset = ThemePreset.parse(givenPreset);
+        } else if (kept != null && givenPreset != 'none') {
+          preset = ThemePreset.parse(kept);
+        }
+      } on FormatException catch (e) {
+        o.writeln(
+          givenPreset != null
+              ? '--preset: ${e.message}'
+              : 'The preset in ashlar.yaml: ${e.message} Give --preset again, or --preset none.',
+        );
+        return 64;
+      }
       final given = option('accent');
-      final accent = given == 'none'
-          ? null
-          : given ?? config['accent'] as String?;
-      final style = option('style') ?? config['style'] as String? ?? 'standard';
+      preset = preset.withChoices(
+        base: option('base'),
+        accent: given == 'none' ? null : given,
+        noAccent: given == 'none',
+        style: option('style'),
+      );
+      if (givenPreset == 'none') {
+        preset = ThemePreset(
+          base: preset.base,
+          accent: preset.accent,
+          style: preset.style,
+        );
+      }
+      final base = preset.base, accent = preset.accent, style = preset.style;
       if (!_checkTheme(base, accent, style, o)) return 64;
       if (option('prefix') case final given?) {
         final prefix = given == 'none' ? null : given;
@@ -230,7 +253,12 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         }
         project.renamePrefix(prefix, o);
       }
-      project.save({'base': base, 'accent': accent, 'style': style});
+      project.save({
+        'base': base,
+        'accent': accent,
+        'style': style,
+        'preset': preset.changed ? preset.code : null,
+      });
       // The palette came after some projects began: add it if it is not there.
       final code = await project.add(['theme'], overwrite: false, out: o);
       if (code != 0) return code;
@@ -238,13 +266,12 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         root,
         project.path,
         prefix: project.prefix,
-        base: base,
-        accent: accent,
-        style: style,
+        preset: preset,
         out: o,
       );
       o.writeln(
-        'Theme: $base${accent == null ? '' : ', $accent'}, $style. Your components are as they were.',
+        'Theme: $base${accent == null ? '' : ', $accent'}, $style'
+        '${preset.changed ? ', and the preset\'s changes' : ''}. Your components are as they were.',
       );
       return 0;
     case 'add':
@@ -384,37 +411,16 @@ bool _matches(MapEntry<String, Component> e, String query) {
       .every((word) => text.contains(word));
 }
 
-/// Writes the chosen theme to [path]/app_theme.dart, for AshlarApp to use.
+/// Writes the chosen theme to [path]/app_theme.dart, for AshlarApp to use: the preset's
+/// base, accent and style, and whatever it changes on top of them.
 void writeAppTheme(
   Directory root,
   String path, {
-  required String base,
-  String? accent,
-  required String style,
+  required ThemePreset preset,
   String? prefix,
   required StringSink out,
 }) {
-  String theme(String brightness) =>
-      'AshlarThemeData.from(\n'
-      '  brightness: Brightness.$brightness,\n'
-      '  base: AshlarBase.$base,\n'
-      '${accent == null ? '' : '  accent: AshlarAccent.$accent,\n'}'
-      '  style: AshlarStyle.$style,\n'
-      ')';
-  final text =
-      '''
-// Your app's theme, written by `ashlar init`: change it here, or choose again with
-// `ashlar apply`. Give it to [AshlarApp]: theme: appTheme, darkTheme: appDarkTheme.
-
-import 'package:flutter/widgets.dart';
-
-import 'palette.dart';
-import 'theme.dart';
-
-final appTheme = ${theme('light')};
-
-final appDarkTheme = ${theme('dark')};
-''';
+  final text = preset.appThemeDart();
   File('${root.path}/$path/app_theme.dart').writeAsStringSync(
     prefix == null ? text : withPrefix(text, prefixedNames(prefix)),
   );
