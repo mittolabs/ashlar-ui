@@ -24755,10 +24755,12 @@ String chartDate(DateTime d, {Duration step = const Duration(days: 1)}) {
   if (step >= const Duration(days: 28)) {
     return d.month == 1 ? '${_months[0]} ${d.year}' : _months[d.month - 1];
   }
-  if (step >= const Duration(days: 1))
+  if (step >= const Duration(days: 1)) {
     return '${d.day} ${_months[d.month - 1]}';
-  if (step >= const Duration(minutes: 1))
+  }
+  if (step >= const Duration(minutes: 1)) {
     return '${two(d.hour)}:${two(d.minute)}';
+  }
   return '${two(d.hour)}:${two(d.minute)}:${two(d.second)}';
 }
 
@@ -27290,8 +27292,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       };
 
   KeyEventResult _key(KeyEvent e, int n, bool across) {
-    if (e is! KeyDownEvent && e is! KeyRepeatEvent)
+    if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
+    }
     final next = across
         ? LogicalKeyboardKey.arrowDown
         : LogicalKeyboardKey.arrowRight;
@@ -28352,12 +28355,13 @@ class _CartesianPainter extends CustomPainter {
       }
       final half = across ? Offset(0, w / 2) : Offset(w / 2, 0);
       var body = Rect.fromPoints(po - half, pc + half);
-      if (body.height < 1 && !across)
+      if (body.height < 1 && !across) {
         body = Rect.fromCenter(
           center: body.center,
           width: body.width,
           height: 1,
         );
+      }
       if (rising && p.risingColor == null) {
         canvas.drawRect(body, Paint()..color = page);
         canvas.drawRect(
@@ -28393,7 +28397,7 @@ class _CartesianPainter extends CustomPainter {
       canvas.drawLine(q(b.q1), q(b.min), edge);
       canvas.drawLine(q(b.max) - half * .6, q(b.max) + half * .6, edge);
       canvas.drawLine(q(b.min) - half * .6, q(b.min) + half * .6, edge);
-      if (p.mean)
+      if (p.mean) {
         chartMark(
           canvas,
           ChartShape.cross,
@@ -28401,6 +28405,7 @@ class _CartesianPainter extends CustomPainter {
           3.5,
           Paint()..color = fg,
         );
+      }
       if (p.outliers) {
         for (final v in b.out) {
           canvas.drawCircle(q(v), 3, _stroke(color, 1.5));
@@ -28583,12 +28588,13 @@ class _CartesianPainter extends CustomPainter {
             text,
             Alignment.centerRight,
           );
-          if (x.tickLine)
+          if (x.tickLine) {
             canvas.drawLine(
               Offset(plot.left - 6, a),
               Offset(plot.left, a),
               axisPaint,
             );
+          }
         } else if (x.top) {
           chartText(
             canvas,
@@ -28597,12 +28603,13 @@ class _CartesianPainter extends CustomPainter {
             text,
             Alignment.bottomCenter,
           );
-          if (x.tickLine)
+          if (x.tickLine) {
             canvas.drawLine(
               Offset(a, plot.top - 6),
               Offset(a, plot.top),
               axisPaint,
             );
+          }
         } else {
           chartText(
             canvas,
@@ -28611,12 +28618,13 @@ class _CartesianPainter extends CustomPainter {
             text,
             Alignment.topCenter,
           );
-          if (x.tickLine)
+          if (x.tickLine) {
             canvas.drawLine(
               Offset(a, plot.bottom),
               Offset(a, plot.bottom + 6),
               axisPaint,
             );
+          }
         }
       }
     }
