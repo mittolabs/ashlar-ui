@@ -6,10 +6,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) => AshlarApp(
-  themeMode: mode,
-  home: Center(child: SizedBox(width: 200, child: child)),
-);
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 200, child: child)),
+    );
 
 void main() {
   testWidgets('every kind draws in light and dark', (tester) async {
@@ -21,7 +22,13 @@ void main() {
               values: const [3, -2, 5, 4, 0, 6],
               kind: kind,
               band: (0, 4),
-              markers: const SparkMarkers(high: true, low: true, first: true, last: true, values: true),
+              markers: const SparkMarkers(
+                high: true,
+                low: true,
+                first: true,
+                last: true,
+                values: true,
+              ),
             ),
             mode: mode,
           ),
@@ -33,17 +40,29 @@ void main() {
 
   testWidgets('a screen reader hears its span', (tester) async {
     final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(app(const Sparkline(values: [4, 9, 2, 7], semanticLabel: 'Sales')));
+    await tester.pumpWidget(
+      app(const Sparkline(values: [4, 9, 2, 7], semanticLabel: 'Sales')),
+    );
     expect(
-      tester.getSemantics(find.bySemanticsLabel('Sales')).getSemanticsData().value,
+      tester
+          .getSemantics(find.bySemanticsLabel('Sales'))
+          .getSemanticsData()
+          .value,
       '4 values from 4 to 7, highest 9, lowest 2',
     );
     semantics.dispose();
   });
 
-  testWidgets('the value under the pointer is shown with its label', (tester) async {
+  testWidgets('the value under the pointer is shown with its label', (
+    tester,
+  ) async {
     await tester.pumpWidget(
-      app(const Sparkline(values: [4, 9, 2, 7], labels: ['Mon', 'Tue', 'Wed', 'Thu'])),
+      app(
+        const Sparkline(
+          values: [4, 9, 2, 7],
+          labels: ['Mon', 'Tue', 'Wed', 'Thu'],
+        ),
+      ),
     );
     final box = tester.getRect(find.byType(Sparkline));
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -55,6 +74,18 @@ void main() {
 
   testWidgets('no values draws nothing and says so', (tester) async {
     await tester.pumpWidget(app(const Sparkline(values: [])));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('takes doubles and whole numbers alike', (tester) async {
+    final doubles = <double>[18200, 21400, 19850];
+    await tester.pumpWidget(
+      app(Sparkline(values: doubles, semanticLabel: 'Balance')),
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(
+      app(Sparkline(values: <int>[3, 9, 4], kind: SparkKind.area)),
+    );
     expect(tester.takeException(), isNull);
   });
 }

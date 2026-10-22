@@ -115,7 +115,9 @@ class _SparklineState extends State<Sparkline> {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final color = widget.color ?? c.chart1;
-    final values = widget.values;
+    // As doubles: a List<double> or List<int> given as List<num> cannot be reduced with
+    // math.max, which is typed for num.
+    final values = [for (final v in widget.values) v.toDouble()];
     final summary = values.isEmpty
         ? 'No values'
         : '${values.length} values from ${_write(values.first)} to ${_write(values.last)}, '
@@ -133,7 +135,8 @@ class _SparklineState extends State<Sparkline> {
             int? at(Offset p) {
               if (values.isEmpty) return null;
               final f = (p.dx / w).clamp(0.0, .9999);
-              return widget.kind == SparkKind.bar || widget.kind == SparkKind.winLoss
+              return widget.kind == SparkKind.bar ||
+                      widget.kind == SparkKind.winLoss
                   ? (f * values.length).floor()
                   : (f * (values.length - 1)).round();
             }
@@ -173,8 +176,12 @@ class _SparklineState extends State<Sparkline> {
                     ),
                     if (_at != null && _at! < values.length)
                       Positioned(
-                        left: (_at! + .5) / values.length * w > w * .6 ? null : 0,
-                        right: (_at! + .5) / values.length * w > w * .6 ? 0 : null,
+                        left: (_at! + .5) / values.length * w > w * .6
+                            ? null
+                            : 0,
+                        right: (_at! + .5) / values.length * w > w * .6
+                            ? 0
+                            : null,
                         bottom: widget.height + 4,
                         child: IgnorePointer(
                           child: Container(
@@ -270,11 +277,21 @@ class _SparkPainter extends CustomPainter {
           } else {
             r = v > 0
                 ? Rect.fromLTRB(i * w + w * .15, pad, i * w + w * .85, mid - 1)
-                : Rect.fromLTRB(i * w + w * .15, mid + 1, i * w + w * .85, size.height - pad);
+                : Rect.fromLTRB(
+                    i * w + w * .15,
+                    mid + 1,
+                    i * w + w * .85,
+                    size.height - pad,
+                  );
           }
         } else {
           final z = y(0), top = y(v);
-          r = Rect.fromLTRB(i * w + w * .15, math.min(z, top), i * w + w * .85, math.max(z, top));
+          r = Rect.fromLTRB(
+            i * w + w * .15,
+            math.min(z, top),
+            i * w + w * .85,
+            math.max(z, top),
+          );
         }
         final c = v < 0 ? negative : color;
         canvas.drawRRect(
@@ -285,7 +302,9 @@ class _SparkPainter extends CustomPainter {
       return;
     }
     final step = n == 1 ? 0.0 : (size.width - pad * 2) / (n - 1);
-    final pts = [for (var i = 0; i < n; i++) Offset(pad + i * step, y(values[i]))];
+    final pts = [
+      for (var i = 0; i < n; i++) Offset(pad + i * step, y(values[i])),
+    ];
     final path = Path()..moveTo(pts.first.dx, pts.first.dy);
     if (curve == ChartCurve.linear || n < 3) {
       for (final p in pts.skip(1)) {
@@ -310,7 +329,10 @@ class _SparkPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [color.withValues(alpha: .35), color.withValues(alpha: .02)],
+            colors: [
+              color.withValues(alpha: .35),
+              color.withValues(alpha: .02),
+            ],
           ).createShader(Offset.zero & size),
       );
     }
@@ -326,7 +348,8 @@ class _SparkPainter extends CustomPainter {
     final hiAt = values.indexOf(values.reduce(math.max));
     final loAt = values.indexOf(values.reduce(math.min));
     for (var i = 0; i < n; i++) {
-      final marked = markers.all ||
+      final marked =
+          markers.all ||
           (markers.high && i == hiAt) ||
           (markers.low && i == loAt) ||
           (markers.first && i == 0) ||
@@ -343,7 +366,10 @@ class _SparkPainter extends CustomPainter {
         final above = pts[i].dy > size.height / 2;
         var x = pts[i].dx - tp.width / 2;
         x = x.clamp(0, math.max(0, size.width - tp.width));
-        tp.paint(canvas, Offset(x, above ? pts[i].dy - tp.height - 3 : pts[i].dy + 3));
+        tp.paint(
+          canvas,
+          Offset(x, above ? pts[i].dy - tp.height - 3 : pts[i].dy + 3),
+        );
       }
     }
     if (at != null && at! < n) {
