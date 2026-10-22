@@ -13,6 +13,7 @@ import 'prefix.dart';
 import 'preset.dart';
 import 'merge.dart';
 import 'registry.g.dart';
+import 'agents.dart';
 import 'review.dart';
 import 'shot.dart';
 import 'remote.dart';
@@ -32,6 +33,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
              [--accent blue]            a colour for main actions: ${accents.join(', ')}
              [--style standard]         spacing and shape: ${styles.join(', ')}
              [--preset a1...]           a theme made on ui.ashlar.ke/themes, colours and all
+             [--no-agents]              no Ashlar UI section in AGENTS.md (and CLAUDE.md)
   ashlar apply [--base] [--accent] [--style] [--preset] [--prefix]
                                         choose the theme again; --accent none for none;
                                         --preset none drops a preset's changes;
@@ -206,6 +208,19 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       );
       if (code != 0) return code;
       writeAppTheme(root, path, preset: preset, prefix: prefix, out: o);
+      if (!rest.contains('--no-agents')) {
+        writeAgentRules(
+          root,
+          agentRules(
+            path: path,
+            tests: project.tests ?? 'test/ashlar',
+            named: project.named,
+          ),
+          o,
+        );
+      } else {
+        project.save({'agents': false});
+      }
       o.writeln(
         'Give ${project.named('AshlarApp')} theme: appTheme and darkTheme: appDarkTheme from $path/app_theme.dart.',
       );
@@ -276,6 +291,18 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         preset: preset,
         out: o,
       );
+      // The rules name the components under the prefix: write them again.
+      if (project.config['agents'] != false) {
+        writeAgentRules(
+          root,
+          agentRules(
+            path: project.path,
+            tests: project.tests ?? 'test/ashlar',
+            named: project.named,
+          ),
+          o,
+        );
+      }
       o.writeln(
         'Theme: $base${accent == null ? '' : ', $accent'}, $style'
         '${preset.changed ? ', and the preset\'s changes' : ''}. Your components are as they were.',
