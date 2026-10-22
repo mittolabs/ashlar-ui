@@ -18,4 +18,8 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
 - **ashlaricons for every icon**, at the version in `packageVersions` (the CLI).
 - **The default look is shadcn's neutral theme**, light and dark, checked against
   ui.shadcn.com when it changes.
+- **Name no other library in what users read**: the site, the components' descriptions,
+  the comments in files `ashlar add` copies, and the changelog. Say what Ashlar UI does on
+  its own terms. Internal docs (`docs/`) may compare, and say so. Crediting where data
+  came from (the palette) is not a comparison.
 - Flutter through fvm on stable. Conventional Commits; `git config core.hooksPath .githooks`.
