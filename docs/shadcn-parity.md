@@ -17,7 +17,7 @@ each one's showcase covers 3 to 26 situations. Ours mostly offer one shape with 
 | Components | 62 | 62, with the theme, app and helpers besides |
 | Showcase situations across components | about 480 | 168: a demo each and 106 examples |
 | Blocks (whole screens) | 28: 1 dashboard, 16 sidebars, 5 logins, 5 signups | 27: the same set |
-| Chart variants | 71, across area, bar, line, pie, radar, radial, tooltip | 58, across the same seven |
+| Chart variants | 70, across area, bar, line, pie, radar, radial, tooltip | 122: all 70 of theirs by name, five more in those groups, 47 in thirteen groups of ours (2026-10-22, `docs/charts.md`) |
 | Themes | 7 base colours and 17 accent colours | the same 7 and 17, with contrast floors |
 | Visual styles (presets) | 8: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, Rhea | 6: standard, compact, rounded, sharp, dense, soft |
 | Primitive bases | 3: Radix, Base UI (default since July), React Aria | Flutter's widgets layer |
@@ -214,7 +214,9 @@ now fixed with tests: Alert, Field across and Message grew to the height they we
 Kbd and Toggle to the width; Switch, Checkbox and Radio stretched in a stretching column.
 
 Where we still trail: shadcn shows about 480 situations to our 168 (62 demos and 106
-examples), and 71 chart variants to our 58.
+examples). Charts no longer trail: rebuilt as rows and parts on 22 October 2026 (0.2.0),
+with all 70 of shadcn's variants and Syncfusion's kinds; `docs/charts.md` has the
+details and what is still short.
 
 ## Plan
 
