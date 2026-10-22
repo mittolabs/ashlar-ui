@@ -85,6 +85,7 @@ void main() {
         'add_components',
         'update_components',
         'check_app',
+        'shot_screen',
       ],
     );
   });

@@ -1,8 +1,9 @@
 // ashlar update --preview: each component an update would change, drawn in the app's own
 // theme as it is and as it would be, side by side on a page in .ashlar/review. Nothing in
 // the app changes: the would-be files are written beside the review, never into lib.
-import 'dart:convert';
 import 'dart:io';
+
+import 'render.dart';
 
 /// One component to draw: its name, the widget in its preview, and the preview's source
 /// (importing the gallery's ui folder, as the registry keeps it).
@@ -97,26 +98,10 @@ ${hasTheme ? "import '$ui/app_theme.dart' as ${as}Chosen;" : ''}''';
     return '$chosen.copyWith(text: $chosen.text.fontFamily == null ? const ${as}Theme.$text(fontFamily: \'Roboto\') : $chosen.text)';
   }
 
-  harness.writeln('''
-
-/// The app's fonts, and Roboto from Flutter itself for text that names none.
-Future<void> _fonts() async {
-  final manifest = jsonDecode(await rootBundle.loadString('FontManifest.json')) as List;
-  for (final family in manifest.cast<Map<String, dynamic>>()) {
-    final loader = FontLoader(family['family'] as String);
-    for (final font in (family['fonts'] as List).cast<Map<String, dynamic>>()) {
-      loader.addFont(rootBundle.load(font['asset'] as String));
-    }
-    await loader.load();
-  }
-  final roboto = FontLoader('Roboto');
-  for (final w in ['Regular', 'Medium', 'Bold']) {
-    final f = File('\${const String.fromEnvironment('FONTS')}/Roboto-\$w.ttf');
-    if (f.existsSync()) roboto.addFont(Future.value(ByteData.sublistView(f.readAsBytesSync())));
-  }
-  await roboto.load();
-}
-
+  harness
+    ..writeln()
+    ..writeln(fontsSource)
+    ..writeln('''
 Future<void> _draw(WidgetTester tester, Widget app, String file) async {
   tester.view
     ..physicalSize = const Size(888, 592) * 2
@@ -164,34 +149,12 @@ void main() {
   final test = File('${dir.path}/review_test.dart')
     ..writeAsStringSync(harness.toString());
 
-  final fvm = File('${root.path}/.fvmrc').existsSync();
-  final flutter = [if (fvm) 'fvm', 'flutter'];
-  // Flutter's own Roboto, where Flutter keeps it.
-  String fonts = '';
-  try {
-    final v = await Process.run(
-      flutter.first,
-      [...flutter.skip(1), '--version', '--machine'],
-      workingDirectory: root.path,
-      runInShell: true,
-    );
-    final flutterRoot =
-        (jsonDecode('${v.stdout}'.substring('${v.stdout}'.indexOf('{')))
-            as Map)['flutterRoot'];
-    fonts = '$flutterRoot/bin/cache/artifacts/material_fonts';
-  } on Object {
-    // Without it, text in the pictures is drawn in Flutter's test font, as boxes.
-  }
-  final result = await Process.run(
-    flutter.first,
-    [
-      ...flutter.skip(1),
-      'test',
-      '--dart-define=FONTS=$fonts',
-      test.path.substring(root.path.length + 1),
-    ],
-    workingDirectory: root.path,
-    runInShell: true,
+  final (flutter, fonts) = await flutterFor(root);
+  final result = await runDrawing(
+    root,
+    flutter,
+    fonts,
+    test.path.substring(root.path.length + 1),
   );
   final drawn = items
       .where((i) => File('${dir.path}/${i.name}-after.png').existsSync())

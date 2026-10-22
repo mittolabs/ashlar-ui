@@ -14,6 +14,7 @@ import 'preset.dart';
 import 'merge.dart';
 import 'registry.g.dart';
 import 'review.dart';
+import 'shot.dart';
 import 'remote.dart';
 
 /// The version each pub.dev package a component needs is added at.
@@ -39,6 +40,10 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
              [--blocks]                 every block: whole screens, in lib/blocks
              [--overwrite]              replace files you already have
              [--no-tests]               leave out their tests (test/ashlar)
+  ashlar shot <file>[:Widget]...        draw your screens to pictures without running the app,
+             [--size phone]             in your theme: phone, tablet, desktop or 390x844, several
+             [--dark] [--both]          with commas; light, dark or both; --center for a part of
+             [--out .ashlar/shots]      a screen. Says what Flutter complained of, and where
   ashlar view <item>...                 what an item is and its files, before adding it
   ashlar search [words] [@registry...]  find items by name or description
   ashlar list                           what there is, and what you have
@@ -90,6 +95,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     'style',
     'preset',
     'out',
+    'size',
+    'scale',
     'prefix',
     if (command == 'init') ...['blocks', 'tests'],
   };
@@ -366,6 +373,48 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
       return serveStdio(root);
     case 'check':
       return project.check(contrast: !rest.contains('--no-contrast'), out: o);
+    case 'shot':
+      if (words.isEmpty) {
+        o.writeln(
+          'Name what to draw: a file under lib, and its widget if it has several, as lib/screens/home.dart:HomeScreen.',
+        );
+        return 64;
+      }
+      final targets = <ShotTarget>[];
+      for (final w in words) {
+        final t = resolveShot(root, w);
+        if (t is String) {
+          o.writeln(t);
+          return 64;
+        }
+        targets.add(t as ShotTarget);
+      }
+      final sizes = (option('size') ?? 'phone').split(',');
+      for (final s in sizes) {
+        if (!shotSizes.containsKey(s) && !RegExp(r'^\d+x\d+$').hasMatch(s)) {
+          o.writeln(
+            '--size $s: name ${shotSizes.keys.join(', ')}, or a size as 390x844; several with commas.',
+          );
+          return 64;
+        }
+      }
+      final scale = double.tryParse(option('scale') ?? '2') ?? 2;
+      final darks = rest.contains('--both')
+          ? [false, true]
+          : [rest.contains('--dark')];
+      return drawShots(
+        root: root,
+        package: project.package ?? '',
+        path: project.path,
+        targets: targets,
+        sizes: sizes,
+        darks: darks,
+        out: option('out') ?? '.ashlar/shots',
+        scale: scale,
+        center: rest.contains('--center'),
+        named: project.named,
+        o: o,
+      );
     case 'diff':
       return await project.diff(words, o);
     case 'update':
@@ -662,6 +711,9 @@ class Project {
   }
 
   /// The project's package name, from pubspec.yaml.
+  /// The app's name, as pubspec.yaml gives it.
+  String? get package => _package;
+
   String? get _package => RegExp(
     r'^name:\s*(\S+)',
     multiLine: true,

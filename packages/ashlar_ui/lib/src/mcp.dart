@@ -87,6 +87,39 @@ const _tools = [
       },
     },
   },
+  {
+    'name': 'shot_screen',
+    'description':
+        'Draws the app\'s own screens or widgets to PNG pictures without running the app, in its theme and fonts, at a phone\'s, a tablet\'s or a desktop\'s size, light or dark, and reports what Flutter complained of while drawing (overflows and the like) with the file and line it came from. Read the pictures to see what you built.',
+    'inputSchema': {
+      'type': 'object',
+      'properties': {
+        'targets': {
+          'type': 'array',
+          'items': {'type': 'string'},
+          'description':
+              'Files under lib, each with its widget if it has several: ["lib/screens/home.dart:HomeScreen"]. The widget must be made with no arguments.',
+        },
+        'sizes': {
+          'type': 'array',
+          'items': {'type': 'string'},
+          'description':
+              'phone, tablet, desktop or WIDTHxHEIGHT; phone unless given.',
+        },
+        'mode': {
+          'type': 'string',
+          'enum': ['light', 'dark', 'both'],
+          'description': 'light unless given.',
+        },
+        'center': {
+          'type': 'boolean',
+          'description':
+              'Centre a part of a screen rather than filling the screen with it.',
+        },
+      },
+      'required': ['targets'],
+    },
+  },
 ];
 
 /// Answers MCP requests read a line each from [input], writing a line each to [output],
@@ -160,8 +193,13 @@ Future<void> serveMcp(
             'content': [
               {'type': 'text', 'text': '$out'.trimRight()},
             ],
-            // 64 is a usage mistake; check's 1 means it found something, not a failure.
-            'isError': code == 64 || (code != 0 && command.first != 'check'),
+            // 64 is a usage mistake; check's 1, and shot's (drawn, with faults), mean it
+            // found something, not a failure.
+            'isError':
+                code == 64 ||
+                (code != 0 &&
+                    !(command.first == 'check' ||
+                        (command.first == 'shot' && code == 1))),
           },
         });
       default:
@@ -193,6 +231,19 @@ List<String>? _command(String tool, Map<String, dynamic> a) {
       return ['update', ...n, if (a['dry_run'] == true) '--dry-run'];
     case 'check_app':
       return ['check', if (a['contrast'] == false) '--no-contrast'];
+    case 'shot_screen':
+      final targets = names(a['targets']);
+      if (targets == null || targets.isEmpty) return null;
+      final sizes = a.containsKey('sizes') ? names(a['sizes']) : <String>[];
+      if (sizes == null) return null;
+      return [
+        'shot',
+        ...targets,
+        if (sizes.isNotEmpty) ...['--size', sizes.join(',')],
+        if (a['mode'] == 'dark') '--dark',
+        if (a['mode'] == 'both') '--both',
+        if (a['center'] == true) '--center',
+      ];
   }
   return null;
 }

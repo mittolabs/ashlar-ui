@@ -43,14 +43,19 @@ void main() {
   test('a preset that is wrong says why', () {
     void says(String code, String words) => expect(
       () => ThemePreset.parse(code),
-      throwsA(isA<FormatException>().having((e) => e.message, 'message', contains(words))),
+      throwsA(
+        isA<FormatException>().having(
+          (e) => e.message,
+          'message',
+          contains(words),
+        ),
+      ),
     );
     says('zz123', 'starts with a1');
     says('${custom.code.substring(0, 20)}%', 'cut short');
     says(const ThemePreset().code.replaceFirst('a1', 'a1x'), 'cut short');
     // Made by hand: an accent there is not, and a colour with no name.
-    String made(String json) =>
-        'a1${base64UrlNoPad(json)}';
+    String made(String json) => 'a1${base64UrlNoPad(json)}';
     says(made('{"a":"chartreuse"}'), 'no accent');
     says(made('{"l":{"brand":"ff000000"}}'), 'no name for: brand');
     says(made('{"l":{"primary":"red"}}'), 'not a colour');
@@ -60,7 +65,11 @@ void main() {
   test('init --preset writes the choices and the changes on them', () async {
     final dir = project();
     final out = StringBuffer();
-    expect(await run(['init', '--preset', custom.code], dir: dir, out: out), 0, reason: '$out');
+    expect(
+      await run(['init', '--preset', custom.code], dir: dir, out: out),
+      0,
+      reason: '$out',
+    );
     final theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
     expect(theme, contains('base: AshlarBase.zinc'));
     expect(theme, contains('accent: AshlarAccent.blue'));
@@ -70,22 +79,45 @@ void main() {
     expect(theme, contains('primary: Color(0xFF2563EB),'));
     expect(theme, contains('primary: Color(0xFF60A5FA),'));
     expect(theme, contains('Made from the preset ${custom.code}'));
-    expect(File('${dir.path}/ashlar.yaml').readAsStringSync(), contains('preset: ${custom.code}'));
+    expect(
+      File('${dir.path}/ashlar.yaml').readAsStringSync(),
+      contains('preset: ${custom.code}'),
+    );
   });
 
-  test('apply keeps a preset, changes its choices, and drops it when asked', () async {
-    final dir = project();
-    await run(['init', '--preset', custom.code], dir: dir, out: StringBuffer());
-    expect(await run(['apply', '--accent', 'green'], dir: dir, out: StringBuffer()), 0);
-    var theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
-    expect(theme, contains('accent: AshlarAccent.green'));
-    expect(theme, contains('primary: Color(0xFF2563EB),'));
-    expect(await run(['apply', '--preset', 'none'], dir: dir, out: StringBuffer()), 0);
-    theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
-    expect(theme, isNot(contains('copyWith')));
-    expect(theme, contains('accent: AshlarAccent.green'));
-    expect(File('${dir.path}/ashlar.yaml').readAsStringSync(), isNot(contains('preset:')));
-  });
+  test(
+    'apply keeps a preset, changes its choices, and drops it when asked',
+    () async {
+      final dir = project();
+      await run(
+        ['init', '--preset', custom.code],
+        dir: dir,
+        out: StringBuffer(),
+      );
+      expect(
+        await run(
+          ['apply', '--accent', 'green'],
+          dir: dir,
+          out: StringBuffer(),
+        ),
+        0,
+      );
+      var theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
+      expect(theme, contains('accent: AshlarAccent.green'));
+      expect(theme, contains('primary: Color(0xFF2563EB),'));
+      expect(
+        await run(['apply', '--preset', 'none'], dir: dir, out: StringBuffer()),
+        0,
+      );
+      theme = File('${dir.path}/lib/ui/app_theme.dart').readAsStringSync();
+      expect(theme, isNot(contains('copyWith')));
+      expect(theme, contains('accent: AshlarAccent.green'));
+      expect(
+        File('${dir.path}/ashlar.yaml').readAsStringSync(),
+        isNot(contains('preset:')),
+      );
+    },
+  );
 
   test('a preset that is wrong stops init, saying why', () async {
     final dir = project();

@@ -139,11 +139,17 @@ void main() {
     expect(tooltip.existsSync(), isTrue);
   });
 
-  test('init brings the app shell\'s test, as add brings a component\'s', () async {
-    final dir = project();
-    await ashlar(dir, ['init']);
-    expect(File('${dir.path}/test/ashlar/app_test.dart').existsSync(), isTrue);
-  });
+  test(
+    'init brings the app shell\'s test, as add brings a component\'s',
+    () async {
+      final dir = project();
+      await ashlar(dir, ['init']);
+      expect(
+        File('${dir.path}/test/ashlar/app_test.dart').existsSync(),
+        isTrue,
+      );
+    },
+  );
 
   test('--no-tests, or "tests": false, leaves them out', () async {
     final dir = project();

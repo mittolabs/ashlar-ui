@@ -44,6 +44,10 @@ This breaks code written against 0.1.x charts: see "Moving from 0.1" below.
 - `color-picker`: `ColorPicker`, a square for saturation and brightness, a hue strip,
   opacity if asked, a hex field and swatches, each part by pointer, keys or a screen
   reader; `ColorPickerButton` opens one from a swatch.
+- `ashlar shot` draws the app's own screens to pictures without running it, in its
+  theme and fonts, at a phone's, a tablet's or a desktop's size, light or dark, and
+  names what Flutter complained of while drawing with the file and line. `ashlar mcp`
+  has it as `shot_screen`, so a coding agent can see what it built.
 - `ashlar init --preset` and `ashlar apply --preset` take a theme made on
   ui.ashlar.ke/themes: its base, accent and style, and any colours (light and dark),
   corners, spacing and shadows changed on them, written into `app_theme.dart`. The
