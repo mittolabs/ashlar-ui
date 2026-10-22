@@ -137,36 +137,6 @@ void main() {
             Line(label: 'Mean', value: (r) => r.mobile, error: (r) => 10),
           ],
         ),
-        PieChart<Visit>(
-          data: visits,
-          center: const Text('801'),
-          children: [
-            ChartLegend(),
-            Pie(
-              value: (r) => r.desktop,
-              name: (r) => r.month,
-              innerRadius: .6,
-              labels: [ChartLabels(text: (r, _) => r.month)],
-            ),
-          ],
-        ),
-        RadarChart<Visit>(
-          data: visits,
-          axis: (r) => r.month,
-          children: [
-            PolarGrid(type: PolarGridType.circle, fill: true),
-            PolarAngleAxis(),
-            PolarRadiusAxis(),
-            Radar(label: 'Desktop', value: (r) => r.desktop, dots: true),
-          ],
-        ),
-        RadialBarChart<Visit>(
-          data: visits,
-          name: (r) => r.month,
-          startAngle: -90,
-          endAngle: 90,
-          children: [PolarGrid(), RadialBar(value: (r) => r.desktop)],
-        ),
       ]) {
         await tester.pumpWidget(app(chart, mode: mode));
         await tester.pumpAndSettle();
@@ -378,46 +348,6 @@ void main() {
     );
     await tester.pump();
     expect(tester.hasRunningAnimations, isFalse);
-  });
-
-  testWidgets('a slice under the pointer shows its name and value', (tester) async {
-    await tester.pumpWidget(
-      app(
-        PieChart<Visit>(
-          data: visits.take(2).toList(),
-          children: [ChartTooltip(), Pie(value: (r) => r.desktop, name: (r) => r.month)],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final pie = tester.getRect(find.byType(PieChart<Visit>));
-    // 186 of 491, clockwise from the top: the right side is January's.
-    await mouseAt(tester, pie.center + Offset(pie.height * .3, 0));
-    // The title and the row both name it.
-    expect(find.text('Jan'), findsNWidgets(2));
-    expect(find.text('186'), findsOneWidget);
-  });
-
-  testWidgets('a radar shows every series at the axis under the pointer', (tester) async {
-    await tester.pumpWidget(
-      app(
-        RadarChart<Visit>(
-          data: visits,
-          axis: (r) => r.month,
-          children: [
-            ChartTooltip(),
-            Radar(label: 'Desktop', value: (r) => r.desktop),
-            Radar(label: 'Mobile', value: (r) => r.mobile),
-          ],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final r = tester.getRect(find.byType(RadarChart<Visit>));
-    // Straight up is the first axis.
-    await mouseAt(tester, r.center - Offset(0, r.height * .3));
-    expect(find.text('186'), findsOneWidget);
-    expect(find.text('80'), findsOneWidget);
   });
 
   testWidgets('a table shows every row and series', (tester) async {

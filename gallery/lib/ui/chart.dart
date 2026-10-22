@@ -46,6 +46,16 @@ abstract class ChartPart<T> {
   const ChartPart();
 }
 
+/// A part that gives [ChartTable] a column: a pie, a radar, a radial bar, or a part of
+/// your own.
+abstract interface class ChartColumn<T> {
+  /// The column's heading.
+  String get columnName;
+
+  /// The row's value in it.
+  num? columnValue(T row);
+}
+
 /// How a line goes from one value to the next.
 enum ChartCurve {
   /// A smooth curve that never overshoots a value (Recharts' `monotone`).
@@ -340,6 +350,14 @@ String chartThousands(num v) {
     b.write(s[i]);
   }
   return b.toString();
+}
+
+/// A value as a tooltip writes it: whole numbers with thousands marked, others to two
+/// places at most.
+String chartPlain(num v) {
+  if (v == v.roundToDouble()) return chartThousands(v);
+  final s = v.toStringAsFixed(2);
+  return s.replaceFirst(RegExp(r'\.?0+$'), '');
 }
 
 String _percent(num v) => '${(v * 100).round()}%';
@@ -675,8 +693,9 @@ class _Floating extends StatelessWidget {
   }
 }
 
-/// Writes [s] at [at], placed by [align] (topLeft puts its top left corner there).
-void _write(
+/// Writes [s] at [at] on a canvas, placed by [align] (topLeft puts its top left corner
+/// there). For drawing charts of your own.
+void chartText(
   Canvas canvas,
   String s,
   Offset at,
@@ -698,8 +717,8 @@ double _textWidth(String s, TextStyle style) => (TextPainter(
   textDirection: TextDirection.ltr,
 )..layout()).width;
 
-/// Draws [shape] of radius [r] at [c].
-void _mark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
+/// Draws [shape] of radius [r] at [c]: a chart's dot or mark.
+void chartMark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
   switch (shape) {
     case ChartShape.circle:
       canvas.drawCircle(c, r, paint);
@@ -744,9 +763,9 @@ void _mark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
   }
 }
 
-/// Draws [icon] centred on [c] at [size].
-void _icon(Canvas canvas, IconData icon, Offset c, double size, Color color) {
-  _write(
+/// Draws [icon] centred on [c] at [size], from its font.
+void chartGlyph(Canvas canvas, IconData icon, Offset c, double size, Color color) {
+  chartText(
     canvas,
     String.fromCharCode(icon.codePoint),
     c,
@@ -857,7 +876,7 @@ Path _through(List<Offset> p, ChartCurve curve, {bool across = false}) {
 }
 
 /// A dashed copy of [source]: [on] pixels drawn, [off] skipped.
-Path _dashed(Path source, {double on = 4, double off = 4}) {
+Path chartDashed(Path source, {double on = 4, double off = 4}) {
   final out = Path();
   for (final m in source.computeMetrics()) {
     var d = 0.0;
@@ -869,8 +888,9 @@ Path _dashed(Path source, {double on = 4, double off = 4}) {
   return out;
 }
 
-/// Starts a chart's growing in, or shows it whole when motion is reduced.
-mixin _Grows<W extends StatefulWidget> on State<W>, TickerProviderStateMixin<W> {
+/// Starts a chart's growing in, or shows it whole when motion is reduced: [grown] runs from
+/// 0 to 1 as it appears. For charts in other files, and charts of your own.
+mixin ChartGrowth<W extends StatefulWidget> on State<W>, TickerProviderStateMixin<W> {
   late final grow = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 700),
@@ -1828,7 +1848,7 @@ class _YScale {
 }
 
 class _CartesianState<T> extends State<CartesianChart<T>>
-    with TickerProviderStateMixin, _Grows<CartesianChart<T>> {
+    with TickerProviderStateMixin, ChartGrowth<CartesianChart<T>> {
   late final _morph = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 500),
@@ -1886,13 +1906,8 @@ class _CartesianState<T> extends State<CartesianChart<T>>
 
   String Function(num) get _format =>
       widget.format ??
-      (widget.stackOffset == StackOffset.expand ? _percent : _plain);
+      (widget.stackOffset == StackOffset.expand ? _percent : chartPlain);
 
-  static String _plain(num v) {
-    if (v == v.roundToDouble()) return chartThousands(v);
-    final s = v.toStringAsFixed(2);
-    return s.replaceFirst(RegExp(r'\.?0+$'), '');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -3208,7 +3223,7 @@ class _CartesianPainter extends CustomPainter {
       return;
     }
     canvas.drawPath(
-      _dashed(Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)),
+      chartDashed(Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)),
       Paint()
         ..color = p.color
         ..strokeWidth = p.strokeWidth
@@ -3313,7 +3328,7 @@ class _CartesianPainter extends CustomPainter {
       final color = r.color ?? mutedFg;
       canvas.drawRect(rect, Paint()..color = color.withValues(alpha: r.opacity));
       if (r.label != null) {
-        _write(canvas, r.label!, rect.topLeft + const Offset(6, 4), text, Alignment.topLeft);
+        chartText(canvas, r.label!, rect.topLeft + const Offset(6, 4), text, Alignment.topLeft);
       }
     }
 
@@ -3355,7 +3370,7 @@ class _CartesianPainter extends CustomPainter {
       final y = _y(tr.yAxisId);
       final path = _through([for (final p in pts) at(p.dx, _g(y, p.dy), y)], ChartCurve.linear);
       final p = _stroke(tr.color ?? mutedFg, 1.5);
-      canvas.drawPath(tr.dashed ? _dashed(path, on: 6, off: 4) : path, p);
+      canvas.drawPath(tr.dashed ? chartDashed(path, on: 6, off: 4) : path, p);
     }
 
     for (final r in refs) {
@@ -3377,7 +3392,7 @@ class _CartesianPainter extends CustomPainter {
             end = across ? b : a;
           }
           if (r.label != null && end != null) {
-            _write(
+            chartText(
               canvas,
               r.label!,
               end + (across ? const Offset(-4, 4) : const Offset(-4, -4)),
@@ -3394,7 +3409,7 @@ class _CartesianPainter extends CustomPainter {
           canvas.drawCircle(q, r.radius + 2, Paint()..color = page);
           canvas.drawCircle(q, r.radius, Paint()..color = r.color ?? fg);
           if (r.label != null) {
-            _write(canvas, r.label!, q - Offset(0, r.radius + 6), strong, Alignment.bottomCenter);
+            chartText(canvas, r.label!, q - Offset(0, r.radius + 6), strong, Alignment.bottomCenter);
           }
         default:
           break;
@@ -3639,7 +3654,7 @@ class _CartesianPainter extends CustomPainter {
     for (final run in tops) {
       if (run.length < 2) continue;
       final path = _through([for (final p in run) p.$2], curve, across: across);
-      canvas.drawPath(dashed ? _dashed(path, on: 6, off: 4) : path, _stroke(s.color, width));
+      canvas.drawPath(dashed ? chartDashed(path, on: 6, off: 4) : path, _stroke(s.color, width));
     }
     if (dots || dot != null) {
       final d = dot ?? const ChartDot<dynamic>();
@@ -3648,12 +3663,12 @@ class _CartesianPainter extends CustomPainter {
           final color = _dim(s.colors?[i] ?? s.color, i);
           if (d.icon != null) {
             canvas.drawCircle(p, d.radius + 4, Paint()..color = page);
-            _icon(canvas, d.icon!, p, d.radius * 3, color);
+            chartGlyph(canvas, d.icon!, p, d.radius * 3, color);
           } else if (d.hollow) {
-            _mark(canvas, d.shape, p, d.radius, Paint()..color = page);
-            _mark(canvas, d.shape, p, d.radius, _stroke(color, 2));
+            chartMark(canvas, d.shape, p, d.radius, Paint()..color = page);
+            chartMark(canvas, d.shape, p, d.radius, _stroke(color, 2));
           } else {
-            _mark(canvas, d.shape, p, d.radius, Paint()..color = color);
+            chartMark(canvas, d.shape, p, d.radius, Paint()..color = color);
           }
         }
       }
@@ -3685,8 +3700,8 @@ class _CartesianPainter extends CustomPainter {
       final q = at(us[i], _g(y, v), y);
       final r = (s.radii?[i] ?? p.minRadius + .5) * (i == hovered ? 1.25 : 1);
       final color = _dim(s.colors?[i] ?? s.color, i);
-      _mark(canvas, p.shape, q, r, Paint()..color = color.withValues(alpha: color.a * p.opacity));
-      if (s.radii != null) _mark(canvas, p.shape, q, r, _stroke(color, 1));
+      chartMark(canvas, p.shape, q, r, Paint()..color = color.withValues(alpha: color.a * p.opacity));
+      if (s.radii != null) chartMark(canvas, p.shape, q, r, _stroke(color, 1));
     }
   }
 
@@ -3746,7 +3761,7 @@ class _CartesianPainter extends CustomPainter {
       canvas.drawLine(q(b.q1), q(b.min), edge);
       canvas.drawLine(q(b.max) - half * .6, q(b.max) + half * .6, edge);
       canvas.drawLine(q(b.min) - half * .6, q(b.min) + half * .6, edge);
-      if (p.mean) _mark(canvas, ChartShape.cross, q(b.mean), 3.5, Paint()..color = fg);
+      if (p.mean) chartMark(canvas, ChartShape.cross, q(b.mean), 3.5, Paint()..color = fg);
       if (p.outliers) {
         for (final v in b.out) {
           canvas.drawCircle(q(v), 3, _stroke(color, 1.5));
@@ -3858,7 +3873,7 @@ class _CartesianPainter extends CustomPainter {
             (rect.centerRight - Offset(o, 0), Alignment.centerRight),
           ChartLabelPosition.insideEnd => (rect.topCenter + Offset(0, o), Alignment.topCenter),
         };
-        _write(canvas, str, p, style, a);
+        chartText(canvas, str, p, style, a);
       }
     }
   }
@@ -3878,13 +3893,13 @@ class _CartesianPainter extends CustomPainter {
       for (final (u, s) in xTicks) {
         final a = alongPx(u);
         if (across) {
-          _write(canvas, s, Offset(plot.left - m, a), text, Alignment.centerRight);
+          chartText(canvas, s, Offset(plot.left - m, a), text, Alignment.centerRight);
           if (x.tickLine) canvas.drawLine(Offset(plot.left - 6, a), Offset(plot.left, a), axisPaint);
         } else if (x.top) {
-          _write(canvas, s, Offset(a, plot.top - m), text, Alignment.bottomCenter);
+          chartText(canvas, s, Offset(a, plot.top - m), text, Alignment.bottomCenter);
           if (x.tickLine) canvas.drawLine(Offset(a, plot.top - 6), Offset(a, plot.top), axisPaint);
         } else {
-          _write(canvas, s, Offset(a, plot.bottom + m), text, Alignment.topCenter);
+          chartText(canvas, s, Offset(a, plot.bottom + m), text, Alignment.topCenter);
           if (x.tickLine) canvas.drawLine(Offset(a, plot.bottom), Offset(a, plot.bottom + 6), axisPaint);
         }
       }
@@ -3909,7 +3924,7 @@ class _CartesianPainter extends CustomPainter {
         final s = yText(y, v);
         if (across) {
           final x = plot.left + f * plot.width;
-          _write(
+          chartText(
             canvas,
             s,
             Offset(x, y.right ? edge - m : edge + m),
@@ -3918,7 +3933,7 @@ class _CartesianPainter extends CustomPainter {
           );
         } else {
           final py = plot.bottom - f * plot.height;
-          _write(
+          chartText(
             canvas,
             s,
             Offset(y.right ? edge + m : edge - m, py),
@@ -4092,7 +4107,7 @@ class _BrushPainter extends CustomPainter {
 }
 
 // ---------------------------------------------------------------------------------------
-// Polar charts: pies, radars and radial bars
+// The grid behind polar charts (radar-chart, radial-chart)
 // ---------------------------------------------------------------------------------------
 
 /// The lines a radar or radial chart is drawn over.
@@ -4132,1416 +4147,6 @@ class PolarGrid<T> extends ChartPart<T> {
   final bool dashed;
 }
 
-/// A radar's labels round the edge.
-class PolarAngleAxis<T> extends ChartPart<T> {
-  const PolarAngleAxis({this.hide = false, this.tickFormatter});
-
-  final bool hide;
-
-  /// Writes an axis's label from its name and row: `'$name\n${row.score}'` puts the
-  /// value under it.
-  final String Function(String name, T row)? tickFormatter;
-}
-
-/// A radar's scale along one spoke.
-class PolarRadiusAxis<T> extends ChartPart<T> {
-  const PolarRadiusAxis({
-    this.angle = 90,
-    this.tickCount = 4,
-    this.tickFormatter,
-    this.max,
-  });
-
-  /// The spoke it is written along, in degrees clockwise from the top.
-  final double angle;
-  final int tickCount;
-  final String Function(num value)? tickFormatter;
-
-  /// The value at the edge; null is a round number above the largest.
-  final num? max;
-}
-
-/// One ring of a pie: a slice per row.
-class Pie<T> extends ChartPart<T> {
-  const Pie({
-    required this.value,
-    required this.name,
-    this.data,
-    this.colorOf,
-    this.innerRadius,
-    this.outerRadius,
-    this.paddingAngle = 0,
-    this.cornerRadius = 0,
-    this.activeIndex,
-    this.labels = const [],
-    this.labelLine = true,
-    this.separators = true,
-  });
-
-  final ChartValue<T> value;
-
-  /// Each slice's name, for the legend, the tooltip and a screen reader.
-  final String Function(T row) name;
-
-  /// Rows of its own, for a second ring that splits the whole another way.
-  final List<T>? data;
-
-  /// A colour per slice; null takes the theme's chart colours in turn.
-  final Color? Function(T row)? colorOf;
-
-  /// Where the ring starts and ends, as shares of the radius: 0.6 to 1 is a donut.
-  /// Null: a whole pie, or an even share of the radius with other rings.
-  final double? innerRadius, outerRadius;
-
-  /// A gap between slices, in degrees.
-  final double paddingAngle;
-
-  /// The rounding of each slice's corners.
-  final double cornerRadius;
-
-  /// One slice drawn out from the rest: the one being talked about.
-  final int? activeIndex;
-
-  /// Text on the slices: [ChartLabelPosition.inside] within them, anything else outside.
-  final List<ChartLabels<T>> labels;
-
-  /// A line from each slice to its outside label.
-  final bool labelLine;
-
-  /// A thin line of the page between slices.
-  final bool separators;
-}
-
-/// A radar's shape: one value per row, round the circle.
-class Radar<T> extends ChartPart<T> {
-  const Radar({
-    required this.label,
-    required this.value,
-    this.color,
-    this.icon,
-    this.fill = true,
-    this.opacity = .6,
-    this.dots = false,
-    this.dot,
-    this.width = 2,
-    this.dashed = false,
-  });
-
-  final String label;
-  final ChartValue<T> value;
-  final Color? color;
-  final IconData? icon;
-
-  /// The shape filled; false draws its outline alone.
-  final bool fill;
-  final double opacity;
-  final bool dots;
-  final ChartDot<T>? dot;
-  final double width;
-  final bool dashed;
-}
-
-/// Arcs round a centre: a ring per row, or the series sharing one ring when they have
-/// a [stackId].
-class RadialBar<T> extends ChartPart<T> {
-  const RadialBar({
-    required this.value,
-    this.label,
-    this.color,
-    this.colorOf,
-    this.icon,
-    this.stackId,
-    this.background = true,
-    this.round = true,
-    this.labels = const [],
-  });
-
-  final ChartValue<T> value;
-
-  /// Its name, when there are several series.
-  final String? label;
-  final Color? color;
-
-  /// A colour per row's ring.
-  final Color? Function(T row)? colorOf;
-  final IconData? icon;
-  final String? stackId;
-
-  /// A faint full ring behind each arc, to show what a full one would be.
-  final bool background;
-
-  /// Rounded ends.
-  final bool round;
-
-  /// Text on each arc: [ChartLabelPosition.insideStart] writes it at the arc's start.
-  final List<ChartLabels<T>> labels;
-}
-
-/// Slices of a whole: put a [Pie] in it, two for a ring inside a ring.
-///
-/// ```dart
-/// PieChart<Browser>(
-///   data: browsers,
-///   center: Text('1,125'),
-///   children: [
-///     ChartTooltip(hideLabel: true),
-///     Pie(value: (r) => r.visitors, name: (r) => r.browser, innerRadius: .6),
-///   ],
-/// )
-/// ```
-class PieChart<T> extends StatefulWidget {
-  const PieChart({
-    super.key,
-    required this.data,
-    required this.children,
-    this.size = 250,
-    this.center,
-    this.onSelect,
-    this.format,
-    this.semanticLabel,
-  });
-
-  final List<T> data;
-  final List<ChartPart<T>> children;
-
-  /// Its width and height, without the legend.
-  final double size;
-
-  /// In the middle of a donut: the figure the chart is about.
-  final Widget? center;
-  final ValueChanged<ChartSelection<T>?>? onSelect;
-  final String Function(num value)? format;
-  final String? semanticLabel;
-
-  @override
-  State<PieChart<T>> createState() => _PieState<T>();
-}
-
-class _PieState<T> extends State<PieChart<T>>
-    with TickerProviderStateMixin, _Grows<PieChart<T>> {
-  int? _at;
-  int _ring = 0;
-  final _hidden = <int>{};
-  ChartSelection<T>? _selected;
-
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final pies = widget.children.whereType<Pie<T>>().toList();
-    final tooltip = widget.children.whereType<ChartTooltip<T>>().firstOrNull;
-    final legend = widget.children.whereType<ChartLegend<T>>().firstOrNull;
-    final outside = pies.any(
-      (p) => p.labels.any((l) => l.position != ChartLabelPosition.inside),
-    );
-    final margin = outside ? 40.0 : 4.0;
-    final r = widget.size / 2 - margin;
-    final centre = Offset(widget.size / 2, widget.size / 2);
-
-    // Each ring's slices: rows, values, colours and angles (clockwise from the top).
-    final rings = <_Ring<T>>[];
-    for (final (k, p) in pies.indexed) {
-      final rows = p.data ?? widget.data;
-      final values = [
-        for (final (i, row) in rows.indexed)
-          k == 0 && _hidden.contains(i) ? 0.0 : (p.value(row)?.toDouble() ?? 0),
-      ];
-      final total = values.fold<double>(0, (a, v) => a + math.max(0, v));
-      final inner = p.innerRadius ??
-          (pies.length == 1 ? 0.0 : (pies.length - 1 - k) / pies.length * .9);
-      final outer = p.outerRadius ??
-          (pies.length == 1 ? 1.0 : (pies.length - k) / pies.length);
-      rings.add(
-        _Ring(
-          part: p,
-          rows: rows,
-          values: values,
-          total: total,
-          colors: [
-            for (final (i, row) in rows.indexed)
-              p.colorOf?.call(row) ?? c.charts[i % c.charts.length],
-          ],
-          inner: inner * r,
-          outer: outer * r,
-          labels: [
-            for (final l in p.labels)
-              (
-                l,
-                [
-                  for (final (i, row) in rows.indexed)
-                    l.text != null ? l.text!(row, values[i]) : _format(values[i]),
-                ],
-              ),
-          ],
-        ),
-      );
-    }
-
-    (int, int)? sliceAt(Offset p) {
-      final d = p - centre;
-      var a = math.atan2(d.dy, d.dx) + math.pi / 2;
-      if (a < 0) a += 2 * math.pi;
-      for (final (k, ring) in rings.indexed) {
-        if (d.distance > ring.outer + 8 || d.distance < ring.inner) continue;
-        var run = 0.0;
-        for (final (i, v) in ring.values.indexed) {
-          run += ring.total == 0 ? 0 : math.max(0, v) / ring.total * 2 * math.pi;
-          if (a <= run) return (k, i);
-        }
-      }
-      return null;
-    }
-
-    final first = rings.firstOrNull;
-    final entries = first == null
-        ? <ChartLegendEntry>[]
-        : [
-            for (final (i, row) in first.rows.indexed)
-              ChartLegendEntry(
-                label: first.part.name(row),
-                color: first.colors[i],
-                shown: !_hidden.contains(i),
-                onToggle: legend?.toggle ?? false
-                    ? () => setState(() {
-                        if (!_hidden.remove(i) &&
-                            _hidden.length < first.rows.length - 1) {
-                          _hidden.add(i);
-                        }
-                      })
-                    : null,
-              ),
-          ];
-    final legendView = legend == null
-        ? null
-        : (legend.builder ?? (context, e) => ChartLegendView(entries: e))(
-            context,
-            entries,
-          );
-
-    Widget? tip;
-    if (_at != null && tooltip != null && _ring < rings.length) {
-      final ring = rings[_ring];
-      final row = ring.rows[_at!];
-      final name = ring.part.name(row);
-      final v = ring.values[_at!];
-      final items = [
-        ChartTooltipItem(
-          label: name,
-          value: v,
-          text: tooltip.formatter?.call(v, name, row) ?? _format(v),
-          color: ring.colors[_at!],
-        ),
-      ];
-      final data = ChartTooltipData<T>(
-        title: tooltip.labelFormatter?.call(name, row) ?? name,
-        items: items,
-        row: row,
-        index: _at,
-      );
-      tip = tooltip.builder?.call(context, data) ??
-          ChartTooltipCard(
-            title: tooltip.hideLabel ? null : data.title,
-            items: items,
-            indicator: tooltip.hideIndicator ? ChartIndicator.none : tooltip.indicator,
-          );
-    }
-
-    return Semantics(
-      container: true,
-      label: widget.semanticLabel ?? 'Chart',
-      value: [
-        for (final ring in rings)
-          for (final (i, row) in ring.rows.indexed)
-            '${ring.part.name(row)} ${_format(ring.values[i])}',
-      ].join(', '),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (legendView != null && legend!.position == ChartLegendPosition.top) ...[
-            legendView,
-            const SizedBox(height: 12),
-          ],
-          MouseRegion(
-            onHover: (e) => setState(() {
-              final hit = sliceAt(e.localPosition);
-              _ring = hit?.$1 ?? 0;
-              _at = hit?.$2;
-            }),
-            onExit: (_) => setState(() => _at = null),
-            child: GestureDetector(
-              onTapDown: (d) => setState(() {
-                final hit = sliceAt(d.localPosition);
-                _ring = hit?.$1 ?? 0;
-                _at = hit?.$2;
-              }),
-              onTapUp: (d) {
-                if (widget.onSelect == null) return;
-                final hit = sliceAt(d.localPosition);
-                if (hit == null) return;
-                final pick = ChartSelection<T>(
-                  index: hit.$2,
-                  row: rings[hit.$1].rows[hit.$2],
-                );
-                setState(() => _selected = _selected == pick ? null : pick);
-                widget.onSelect!(_selected);
-              },
-              child: SizedBox.square(
-                dimension: widget.size,
-                child: AnimatedBuilder(
-                  animation: grow,
-                  builder: (context, _) => Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: _PiePainter(
-                            rings: rings,
-                            centre: centre,
-                            at: _at,
-                            atRing: _ring,
-                            selected: _selected?.index,
-                            gap: c.background,
-                            sweep: grown,
-                            labelLine: c.mutedForeground,
-                            text: t.text.xs.copyWith(color: c.foreground),
-                            inside: t.text.xs.copyWith(
-                              color: c.background,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            format: _format,
-                          ),
-                        ),
-                      ),
-                      if (widget.center != null)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: Center(
-                              child: DefaultTextStyle.merge(
-                                style: t.text.xl.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: c.foreground,
-                                ),
-                                textAlign: TextAlign.center,
-                                child: widget.center!,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (tip != null)
-                        Positioned(
-                          top: 0,
-                          left: widget.size * .55,
-                          child: IgnorePointer(child: tip),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (legendView != null &&
-              legend!.position == ChartLegendPosition.bottom) ...[
-            const SizedBox(height: 12),
-            legendView,
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Ring<T> {
-  _Ring({
-    required this.part,
-    required this.rows,
-    required this.values,
-    required this.total,
-    required this.colors,
-    required this.inner,
-    required this.outer,
-    required this.labels,
-  });
-
-  final Pie<T> part;
-
-  /// Each label's text per slice, written while building.
-  final List<(ChartLabels<T>, List<String?>)> labels;
-  final List<T> rows;
-  final List<double> values;
-  final double total, inner, outer;
-  final List<Color> colors;
-}
-
-class _PiePainter extends CustomPainter {
-  _PiePainter({
-    required this.rings,
-    required this.centre,
-    required this.at,
-    required this.atRing,
-    required this.selected,
-    required this.gap,
-    required this.sweep,
-    required this.labelLine,
-    required this.text,
-    required this.inside,
-    required this.format,
-  });
-
-  final List<_Ring<dynamic>> rings;
-  final Offset centre;
-  final int? at, selected;
-  final int atRing;
-  final Color gap, labelLine;
-  final double sweep;
-  final TextStyle text, inside;
-  final String Function(num) format;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final (k, ring) in rings.indexed) {
-      if (ring.total <= 0) continue;
-      final p = ring.part;
-      final pad = p.paddingAngle * math.pi / 180;
-      var start = -math.pi / 2;
-      final active = p.activeIndex ?? (k == atRing ? at : null) ?? (k == 0 ? selected : null);
-      for (final (i, v) in ring.values.indexed) {
-        final a = math.max(0, v) / ring.total * 2 * math.pi * sweep;
-        if (a <= 0) continue;
-        final out = ring.outer + (i == active ? 8 : 0);
-        final from = start + pad / 2, to = start + a - pad / 2;
-        if (to > from) {
-          final path = _slice(centre, ring.inner, out, from, to, p.cornerRadius);
-          canvas.drawPath(path, Paint()..color = ring.colors[i]);
-          if (p.separators && p.paddingAngle == 0 && ring.values.length > 1) {
-            canvas.drawPath(
-              path,
-              Paint()
-                ..color = gap
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 1.5,
-            );
-          }
-        }
-        // Labels, once the pie is whole.
-        if (sweep == 1) {
-          final mid = start + a / 2;
-          final dir = Offset(math.cos(mid), math.sin(mid));
-          for (final (l, texts) in ring.labels) {
-            final s = texts[i];
-            if (s == null) continue;
-            if (l.position == ChartLabelPosition.inside) {
-              final at = centre + dir * ((ring.inner + out) / 2);
-              _write(canvas, s, at, inside.copyWith(color: l.color));
-            } else {
-              final edge = centre + dir * out;
-              final at = centre + dir * (out + 14 + l.offset);
-              if (p.labelLine) {
-                canvas.drawLine(
-                  edge,
-                  centre + dir * (out + 10 + l.offset),
-                  Paint()
-                    ..color = labelLine
-                    ..strokeWidth = 1,
-                );
-              }
-              _write(
-                canvas,
-                s,
-                at,
-                text.copyWith(color: l.color),
-                Alignment(dir.dx < -.2 ? 1 : (dir.dx > .2 ? -1 : 0), dir.dy < -.2 ? 1 : (dir.dy > .2 ? -1 : 0)),
-              );
-            }
-          }
-        }
-        start += a;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_PiePainter old) => true;
-}
-
-/// A ring's slice between two radii and two angles, its corners rounded by [round].
-Path _slice(Offset c, double inner, double outer, double from, double to, double round) {
-  final p = Path();
-  if (round <= 0 || to - from < .02) {
-    p.arcTo(Rect.fromCircle(center: c, radius: outer), from, to - from, true);
-    if (inner > 0) {
-      p.arcTo(Rect.fromCircle(center: c, radius: inner), to, from - to, false);
-    } else {
-      p.lineTo(c.dx, c.dy);
-    }
-    return p..close();
-  }
-  final r = math.min(round, (outer - inner) / 2);
-  final ao = r / outer, ai = inner > 0 ? r / inner : 0.0;
-  Offset at(double rad, double a) => c + Offset(math.cos(a), math.sin(a)) * rad;
-  p.moveTo(at(outer - r, from).dx, at(outer - r, from).dy);
-  p.quadraticBezierTo(at(outer, from).dx, at(outer, from).dy, at(outer, from + ao).dx, at(outer, from + ao).dy);
-  p.arcTo(Rect.fromCircle(center: c, radius: outer), from + ao, to - from - 2 * ao, false);
-  p.quadraticBezierTo(at(outer, to).dx, at(outer, to).dy, at(outer - r, to).dx, at(outer - r, to).dy);
-  if (inner > 0) {
-    p.lineTo(at(inner + r, to).dx, at(inner + r, to).dy);
-    p.quadraticBezierTo(at(inner, to).dx, at(inner, to).dy, at(inner, to - ai).dx, at(inner, to - ai).dy);
-    p.arcTo(Rect.fromCircle(center: c, radius: inner), to - ai, -(to - from - 2 * ai), false);
-    p.quadraticBezierTo(at(inner, from).dx, at(inner, from).dy, at(inner + r, from).dx, at(inner + r, from).dy);
-  } else {
-    p.lineTo(c.dx, c.dy);
-  }
-  return p..close();
-}
-
-/// Several values for each series round a circle, joined into a shape: how a series
-/// spreads across the axes, and how series compare. Each row is an axis.
-///
-/// ```dart
-/// RadarChart<Score>(
-///   data: scores,
-///   axis: (r) => r.skill,
-///   children: [
-///     PolarGrid(),
-///     PolarAngleAxis(),
-///     ChartTooltip(),
-///     Radar(label: 'This year', value: (r) => r.now),
-///   ],
-/// )
-/// ```
-class RadarChart<T> extends StatefulWidget {
-  const RadarChart({
-    super.key,
-    required this.data,
-    required this.axis,
-    required this.children,
-    this.size = 280,
-    this.onSelect,
-    this.format,
-    this.semanticLabel,
-  });
-
-  final List<T> data;
-
-  /// Each row's axis name: 'Speed', 'Range'.
-  final String Function(T row) axis;
-  final List<ChartPart<T>> children;
-  final double size;
-  final ValueChanged<ChartSelection<T>?>? onSelect;
-  final String Function(num value)? format;
-  final String? semanticLabel;
-
-  @override
-  State<RadarChart<T>> createState() => _RadarState<T>();
-}
-
-class _RadarState<T> extends State<RadarChart<T>>
-    with TickerProviderStateMixin, _Grows<RadarChart<T>> {
-  int? _at;
-  final _hidden = <String>{};
-
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final data = widget.data;
-    final n = data.length;
-    final radars = widget.children.whereType<Radar<T>>().toList();
-    final grid = widget.children.whereType<PolarGrid<T>>().firstOrNull;
-    final angleAxis = widget.children.whereType<PolarAngleAxis<T>>().firstOrNull;
-    final radius = widget.children.whereType<PolarRadiusAxis<T>>().firstOrNull;
-    final tooltip = widget.children.whereType<ChartTooltip<T>>().firstOrNull;
-    final legend = widget.children.whereType<ChartLegend<T>>().firstOrNull;
-    final colors = [
-      for (final (k, p) in radars.indexed) p.color ?? c.charts[k % c.charts.length],
-    ];
-    final shown = [
-      for (final (k, p) in radars.indexed)
-        if (!_hidden.contains(p.label)) k,
-    ];
-    final values = [
-      for (final p in radars) [for (final r in data) p.value(r)?.toDouble()],
-    ];
-    final biggest = [
-      for (final k in shown) ...values[k].whereType<double>(),
-    ].fold<double>(0, math.max);
-    final ticks = chartTicks(0, biggest, count: radius?.tickCount ?? 4);
-    final top = radius?.max?.toDouble() ?? ticks.last;
-    const margin = 44.0;
-    final r = widget.size / 2 - margin;
-    final centre = Offset(widget.size / 2, widget.size / 2);
-    double angle(int i) => -math.pi / 2 + i * 2 * math.pi / math.max(1, n);
-    int? axisAt(Offset p) {
-      final d = p - centre;
-      if (d.distance > r + margin || n == 0) return null;
-      var a = math.atan2(d.dy, d.dx) + math.pi / 2;
-      if (a < 0) a += 2 * math.pi;
-      return (a / (2 * math.pi) * n).round() % n;
-    }
-
-    final legendView = legend == null
-        ? null
-        : (legend.builder ?? (context, e) => ChartLegendView(entries: e))(
-            context,
-            [
-              for (final (k, p) in radars.indexed)
-                ChartLegendEntry(
-                  label: p.label,
-                  color: colors[k],
-                  icon: p.icon,
-                  shown: !_hidden.contains(p.label),
-                  onToggle: legend.toggle && radars.length > 1
-                      ? () => setState(() {
-                          if (!_hidden.remove(p.label) &&
-                              _hidden.length < radars.length - 1) {
-                            _hidden.add(p.label);
-                          }
-                        })
-                      : null,
-                ),
-            ],
-          );
-    String axisText(int i) =>
-        angleAxis?.tickFormatter?.call(widget.axis(data[i]), data[i]) ??
-        widget.axis(data[i]);
-
-    Widget? tip;
-    if (_at != null && tooltip != null && _at! < n) {
-      final row = data[_at!];
-      final name = widget.axis(row);
-      final items = [
-        for (final k in shown)
-          if (values[k][_at!] case final v?)
-            ChartTooltipItem(
-              label: radars[k].label,
-              value: v,
-              text: tooltip.formatter?.call(v, radars[k].label, row) ?? _format(v),
-              color: colors[k],
-              icon: radars[k].icon,
-            ),
-      ];
-      final d = ChartTooltipData<T>(
-        title: tooltip.labelFormatter?.call(name, row) ?? name,
-        items: items,
-        row: row,
-        index: _at,
-      );
-      tip = tooltip.builder?.call(context, d) ??
-          ChartTooltipCard(
-            title: tooltip.hideLabel ? null : d.title,
-            items: items,
-            indicator: tooltip.hideIndicator ? ChartIndicator.none : tooltip.indicator,
-            total: tooltip.total
-                ? (() {
-                    final sum = items.fold<num>(0, (a, it) => a + it.value);
-                    return tooltip.formatter?.call(sum, 'Total', row) ?? _format(sum);
-                  })()
-                : null,
-          );
-    }
-
-    return Semantics(
-      container: true,
-      label: widget.semanticLabel ?? 'Chart',
-      value: [
-        for (var i = 0; i < n; i++)
-          '${widget.axis(data[i])}: ${[
-            for (final k in shown)
-              if (values[k][i] != null) '${radars[k].label} ${_format(values[k][i]!)}',
-          ].join(', ')}',
-      ].join('; '),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (legendView != null && legend!.position == ChartLegendPosition.top) ...[
-            legendView,
-            const SizedBox(height: 12),
-          ],
-          MouseRegion(
-            onHover: (e) => setState(() => _at = axisAt(e.localPosition)),
-            onExit: (_) => setState(() => _at = null),
-            child: GestureDetector(
-              onTapDown: (d) => setState(() => _at = axisAt(d.localPosition)),
-              onTapUp: (d) {
-                final i = axisAt(d.localPosition);
-                if (i != null) {
-                  widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
-                }
-              },
-              child: SizedBox.square(
-                dimension: widget.size,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned.fill(
-                      child: AnimatedBuilder(
-                        animation: grow,
-                        builder: (context, _) => CustomPaint(
-                          painter: _RadarPainter(
-                            n: n,
-                            radars: [for (final k in shown) radars[k]],
-                            values: [for (final k in shown) values[k]],
-                            dotColors: [
-                              for (final k in shown)
-                                [for (final row in data) radars[k].dot?.colorOf?.call(row)],
-                            ],
-                            colors: [for (final k in shown) colors[k]],
-                            top: top,
-                            r: r,
-                            centre: centre,
-                            grid: grid,
-                            radius: radius,
-                            ticks: [for (final v in ticks) if (v <= top) v],
-                            at: _at,
-                            line: c.border,
-                            band: c.muted,
-                            page: c.background,
-                            text: t.text.xs.copyWith(color: c.mutedForeground),
-                            grow: grown,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (angleAxis == null || !angleAxis.hide)
-                      for (var i = 0; i < n; i++)
-                        _CentredLabel(
-                          at: centre +
-                              Offset(math.cos(angle(i)), math.sin(angle(i))) *
-                                  (r + 22),
-                          text: axisText(i),
-                          style: t.text.xs.copyWith(
-                            color: i == _at ? c.foreground : c.mutedForeground,
-                            fontWeight: i == _at ? FontWeight.w500 : null,
-                          ),
-                        ),
-                    if (tip != null)
-                      Positioned(
-                        top: 0,
-                        left: widget.size * .6,
-                        child: IgnorePointer(child: tip),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          if (legendView != null &&
-              legend!.position == ChartLegendPosition.bottom) ...[
-            const SizedBox(height: 12),
-            legendView,
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Text centred on a point, without catching the pointer; it may run to two lines.
-class _CentredLabel extends StatelessWidget {
-  const _CentredLabel({required this.at, required this.text, required this.style});
-
-  final Offset at;
-  final String text;
-  final TextStyle style;
-
-  @override
-  Widget build(BuildContext context) {
-    final lines = '\n'.allMatches(text).length + 1;
-    final line = math.max(18.0, MediaQuery.textScalerOf(context).scale(16) + 2);
-    return Positioned(
-      left: at.dx - 60,
-      top: at.dy - line * lines / 2,
-      width: 120,
-      height: line * lines,
-      child: IgnorePointer(
-        child: ExcludeSemantics(
-          child: Center(
-            child: Text(text, style: style, textAlign: TextAlign.center),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RadarPainter extends CustomPainter {
-  _RadarPainter({
-    required this.n,
-    required this.radars,
-    required this.values,
-    required this.dotColors,
-    required this.colors,
-    required this.top,
-    required this.r,
-    required this.centre,
-    required this.grid,
-    required this.radius,
-    required this.ticks,
-    required this.at,
-    required this.line,
-    required this.band,
-    required this.page,
-    required this.text,
-    required this.grow,
-  });
-
-  final int n;
-  final List<Radar<dynamic>> radars;
-  final List<List<double?>> values;
-  final List<List<Color?>> dotColors;
-  final List<Color> colors;
-  final double top, r, grow;
-  final Offset centre;
-  final PolarGrid<dynamic>? grid;
-  final PolarRadiusAxis<dynamic>? radius;
-  final List<double> ticks;
-  final int? at;
-  final Color line, band, page;
-  final TextStyle text;
-
-  Offset _point(int i, double d) {
-    final a = -math.pi / 2 + i * 2 * math.pi / n;
-    return centre + Offset(math.cos(a), math.sin(a)) * d;
-  }
-
-  Path _ring(double d, PolarGridType type) {
-    if (type == PolarGridType.circle) {
-      return Path()..addOval(Rect.fromCircle(center: centre, radius: d));
-    }
-    final p = Path()..moveTo(_point(0, d).dx, _point(0, d).dy);
-    for (var i = 1; i < n; i++) {
-      p.lineTo(_point(i, d).dx, _point(i, d).dy);
-    }
-    return p..close();
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (n < 3) return;
-    final stroke = Paint()
-      ..color = line
-      ..style = PaintingStyle.stroke;
-    if (grid case final g?) {
-      final radii = g.radii ?? [for (var k = 1; k <= g.rings; k++) k / g.rings];
-      final sorted = [...radii]..sort((a, b) => b.compareTo(a));
-      for (final (k, f) in sorted.indexed) {
-        final ring = _ring(r * f, g.type);
-        if (g.fill && k.isEven) {
-          canvas.drawPath(ring, Paint()..color = band.withValues(alpha: .6));
-          if (k + 1 < sorted.length) {
-            canvas.drawPath(_ring(r * sorted[k + 1], g.type), Paint()..color = page);
-          }
-        }
-        canvas.drawPath(g.dashed ? _dashed(ring) : ring, stroke);
-      }
-      if (g.radialLines) {
-        for (var i = 0; i < n; i++) {
-          canvas.drawLine(
-            centre,
-            _point(i, r),
-            i == at ? (Paint()..color = line..strokeWidth = 2) : stroke,
-          );
-        }
-      }
-    }
-    for (final (s, v) in values.indexed) {
-      final p = radars[s];
-      final shape = Path();
-      final pts = [
-        for (var i = 0; i < n; i++)
-          _point(i, r * ((v[i] ?? 0) / top).clamp(0, 1) * grow),
-      ];
-      for (final (i, q) in pts.indexed) {
-        i == 0 ? shape.moveTo(q.dx, q.dy) : shape.lineTo(q.dx, q.dy);
-      }
-      shape.close();
-      if (p.fill) {
-        canvas.drawPath(shape, Paint()..color = colors[s].withValues(alpha: p.opacity));
-      }
-      final outline = Paint()
-        ..color = colors[s]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = p.width
-        ..strokeJoin = StrokeJoin.round;
-      canvas.drawPath(p.dashed ? _dashed(shape) : shape, outline);
-      if (p.dots || p.dot != null || at != null) {
-        final d = p.dot ?? const ChartDot<dynamic>();
-        for (final (i, q) in pts.indexed) {
-          if (!(p.dots || p.dot != null) && i != at) continue;
-          final color = dotColors[s][i] ?? colors[s];
-          if (d.icon != null) {
-            _icon(canvas, d.icon!, q, d.radius * 3, color);
-          } else {
-            _mark(canvas, d.shape, q, i == at ? d.radius + 1 : d.radius, Paint()..color = color);
-          }
-        }
-      }
-    }
-    // The scale along one spoke.
-    if (radius case final ra?) {
-      final a = (ra.angle - 90) * math.pi / 180;
-      final dir = Offset(math.cos(a), math.sin(a));
-      for (final v in ticks) {
-        if (v == 0) continue;
-        _write(
-          canvas,
-          ra.tickFormatter?.call(v) ?? chartNumber(v),
-          centre + dir * (r * v / top) + const Offset(4, 0),
-          text,
-          Alignment.centerLeft,
-        );
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RadarPainter old) => true;
-}
-
-/// Values as arcs round a centre: a ring per row, or the series sharing a ring when
-/// stacked; round the whole circle, or part of it.
-///
-/// ```dart
-/// RadialBarChart<Browser>(
-///   data: browsers,
-///   name: (r) => r.browser,
-///   children: [RadialBar(value: (r) => r.visitors, colorOf: (r) => r.color)],
-/// )
-/// ```
-class RadialBarChart<T> extends StatefulWidget {
-  const RadialBarChart({
-    super.key,
-    required this.data,
-    required this.children,
-    this.name,
-    this.size = 250,
-    this.startAngle = 0,
-    this.endAngle = 360,
-    this.innerRadius = .3,
-    this.outerRadius = 1,
-    this.max,
-    this.center,
-    this.onSelect,
-    this.format,
-    this.semanticLabel,
-  });
-
-  final List<T> data;
-  final List<ChartPart<T>> children;
-
-  /// Each row's name, for the legend, the tooltip and a screen reader.
-  final String Function(T row)? name;
-
-  /// Its width; a half ring is about half as tall.
-  final double size;
-
-  /// Where the arcs start and the full ring ends, in degrees clockwise from the top:
-  /// -90 to 90 is the top half, a gauge.
-  final double startAngle, endAngle;
-
-  /// Where the rings start and end, as shares of the radius.
-  final double innerRadius, outerRadius;
-
-  /// The value a full ring stands for; the largest, or the largest stack, when not
-  /// given.
-  final num? max;
-
-  /// In the middle: the figure the chart is about.
-  final Widget? center;
-  final ValueChanged<ChartSelection<T>?>? onSelect;
-  final String Function(num value)? format;
-  final String? semanticLabel;
-
-  @override
-  State<RadialBarChart<T>> createState() => _RadialState<T>();
-}
-
-class _RadialState<T> extends State<RadialBarChart<T>>
-    with TickerProviderStateMixin, _Grows<RadialBarChart<T>> {
-  int? _at;
-  int? _atBar;
-
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final data = widget.data;
-    final n = data.length;
-    final bars = widget.children.whereType<RadialBar<T>>().toList();
-    final grid = widget.children.whereType<PolarGrid<T>>().firstOrNull;
-    final tooltip = widget.children.whereType<ChartTooltip<T>>().firstOrNull;
-    final legend = widget.children.whereType<ChartLegend<T>>().firstOrNull;
-    final values = [
-      for (final b in bars) [for (final r in data) b.value(r)?.toDouble() ?? 0],
-    ];
-    // Groups within a ring: one per stack, or per series not stacked.
-    final groupOf = <String, int>{};
-    for (final (k, b) in bars.indexed) {
-      groupOf.putIfAbsent(b.stackId ?? '#$k', () => groupOf.length);
-    }
-    var max = widget.max?.toDouble() ?? 0;
-    if (widget.max == null) {
-      for (var i = 0; i < n; i++) {
-        final sums = <int, double>{};
-        for (final (k, b) in bars.indexed) {
-          final g = groupOf[b.stackId ?? '#$k']!;
-          sums[g] = (sums[g] ?? 0) + values[k][i];
-        }
-        for (final s in sums.values) {
-          max = math.max(max, s);
-        }
-      }
-    }
-    final start = widget.startAngle, end = widget.endAngle;
-    final arcDeg = end - start;
-    // A half ring needs about half the height.
-    final half = arcDeg.abs() <= 180;
-    final height = half ? widget.size / 2 + 28 : widget.size;
-    final r = widget.size / 2 - 4;
-    final centre = Offset(widget.size / 2, half ? widget.size / 2 : widget.size / 2);
-    final inner = r * widget.innerRadius, outer = r * widget.outerRadius;
-    final ringW = n == 0 ? 0.0 : (outer - inner) / n;
-    Color colorOf(int k, int i) =>
-        bars[k].colorOf?.call(data[i]) ??
-        bars[k].color ??
-        (bars.length == 1 ? c.charts[i % c.charts.length] : c.charts[k % c.charts.length]);
-    String nameOf(int i) => widget.name?.call(data[i]) ?? '${i + 1}';
-
-    (int, int?)? hit(Offset p) {
-      final d = p - centre;
-      if (d.distance > outer + 4 || d.distance < inner - 4 || n == 0) return null;
-      // Rows from the outside in.
-      final ring = ((outer - d.distance) / ringW).floor().clamp(0, n - 1);
-      var a = (math.atan2(d.dy, d.dx) + math.pi / 2) * 180 / math.pi;
-      while (a < start) {
-        a += 360;
-      }
-      // Which series' arc in the ring the angle falls in.
-      final runs = <int, double>{};
-      for (final (k, b) in bars.indexed) {
-        final g = groupOf[b.stackId ?? '#$k']!;
-        final from = runs[g] ?? 0;
-        final to = from + values[k][ring] / (max == 0 ? 1 : max) * arcDeg;
-        runs[g] = to;
-        if (a - start >= from && a - start <= to) return (ring, k);
-      }
-      return (ring, null);
-    }
-
-    final entries = bars.length > 1 && bars.every((b) => b.label != null)
-        ? [
-            for (final (k, b) in bars.indexed)
-              ChartLegendEntry(label: b.label!, color: colorOf(k, 0), icon: b.icon),
-          ]
-        : [
-            for (var i = 0; i < n; i++)
-              ChartLegendEntry(label: nameOf(i), color: colorOf(0, i)),
-          ];
-    final legendView = legend == null
-        ? null
-        : (legend.builder ?? (context, e) => ChartLegendView(entries: e))(context, entries);
-
-    Widget? tip;
-    if (_at != null && tooltip != null && _at! < n && bars.isNotEmpty) {
-      final row = data[_at!];
-      final items = [
-        for (final (k, b) in bars.indexed)
-          if (_atBar == null || _atBar == k)
-            ChartTooltipItem(
-              label: b.label ?? nameOf(_at!),
-              value: values[k][_at!],
-              text: tooltip.formatter?.call(values[k][_at!], b.label ?? nameOf(_at!), row) ??
-                  _format(values[k][_at!]),
-              color: colorOf(k, _at!),
-              icon: b.icon,
-            ),
-      ];
-      final d = ChartTooltipData<T>(
-        title: tooltip.labelFormatter?.call(nameOf(_at!), row) ?? nameOf(_at!),
-        items: items,
-        row: row,
-        index: _at,
-      );
-      tip = tooltip.builder?.call(context, d) ??
-          ChartTooltipCard(
-            title: tooltip.hideLabel ? null : d.title,
-            items: items,
-            indicator: tooltip.hideIndicator ? ChartIndicator.none : tooltip.indicator,
-          );
-    }
-
-    return Semantics(
-      container: true,
-      label: widget.semanticLabel ?? 'Chart',
-      value: [
-        for (var i = 0; i < n; i++)
-          for (final (k, b) in bars.indexed)
-            '${b.label ?? nameOf(i)} ${_format(values[k][i])} of ${_format(max)}',
-      ].join(', '),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (legendView != null && legend!.position == ChartLegendPosition.top) ...[
-            legendView,
-            const SizedBox(height: 12),
-          ],
-          MouseRegion(
-            onHover: (e) => setState(() {
-              final h = hit(e.localPosition);
-              _at = h?.$1;
-              _atBar = h?.$2;
-            }),
-            onExit: (_) => setState(() => _at = null),
-            child: GestureDetector(
-              onTapDown: (d) => setState(() {
-                final h = hit(d.localPosition);
-                _at = h?.$1;
-                _atBar = h?.$2;
-              }),
-              onTapUp: (d) {
-                final h = hit(d.localPosition);
-                if (h != null) {
-                  widget.onSelect?.call(
-                    ChartSelection<T>(
-                      index: h.$1,
-                      row: data[h.$1],
-                      series: h.$2 == null ? null : bars[h.$2!].label,
-                    ),
-                  );
-                }
-              },
-              child: SizedBox(
-                width: widget.size,
-                height: height,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      width: widget.size,
-                      height: widget.size,
-                      child: AnimatedBuilder(
-                        animation: grow,
-                        builder: (context, _) => CustomPaint(
-                          painter: _RadialPainter(
-                            n: n,
-                            bars: bars,
-                            values: values,
-                            groupOf: groupOf,
-                            colorOf: colorOf,
-                            names: [for (var i = 0; i < n; i++) nameOf(i)],
-                            labelTexts: [
-                              for (final b in bars)
-                                [
-                                  for (final l in b.labels)
-                                    [
-                                      for (final row in data)
-                                        l.text != null
-                                            ? l.text!(row, b.value(row) ?? 0)
-                                            : _format(b.value(row) ?? 0),
-                                    ],
-                                ],
-                            ],
-                            max: max,
-                            centre: centre,
-                            inner: inner,
-                            outer: outer,
-                            start: start,
-                            arc: arcDeg,
-                            grid: grid,
-                            at: _at,
-                            track: c.muted,
-                            line: c.border,
-                            page: c.background,
-                            fg: c.foreground,
-                            text: t.text.xs.copyWith(
-                              color: c.background,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            grow: grown,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (widget.center != null)
-                      Positioned(
-                        left: 0,
-                        width: widget.size,
-                        top: half ? widget.size / 2 - 56 : 0,
-                        height: half ? 56 : widget.size,
-                        child: IgnorePointer(
-                          child: Center(
-                            child: DefaultTextStyle.merge(
-                              style: t.text.xl.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: c.foreground,
-                              ),
-                              textAlign: TextAlign.center,
-                              child: widget.center!,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (tip != null)
-                      Positioned(
-                        top: 0,
-                        left: widget.size * .6,
-                        child: IgnorePointer(child: tip),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          if (legendView != null &&
-              legend!.position == ChartLegendPosition.bottom) ...[
-            const SizedBox(height: 12),
-            legendView,
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _RadialPainter extends CustomPainter {
-  _RadialPainter({
-    required this.n,
-    required this.bars,
-    required this.values,
-    required this.groupOf,
-    required this.colorOf,
-    required this.names,
-    required this.labelTexts,
-    required this.max,
-    required this.centre,
-    required this.inner,
-    required this.outer,
-    required this.start,
-    required this.arc,
-    required this.grid,
-    required this.at,
-    required this.track,
-    required this.line,
-    required this.page,
-    required this.fg,
-    required this.text,
-    required this.grow,
-  });
-
-  final int n;
-  final List<RadialBar<dynamic>> bars;
-  final List<List<double>> values;
-  final Map<String, int> groupOf;
-  final Color Function(int k, int i) colorOf;
-  final List<String> names;
-  final List<List<List<String?>>> labelTexts;
-  final double max, inner, outer, start, arc, grow;
-  final Offset centre;
-  final PolarGrid<dynamic>? grid;
-  final int? at;
-  final Color track, line, page, fg;
-  final TextStyle text;
-
-  double _rad(double deg) => (deg - 90) * math.pi / 180;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (n == 0 || max <= 0) return;
-    final ringW = (outer - inner) / n;
-    final groups = groupOf.length;
-    final labels = <(String, Offset, ChartLabels<dynamic>)>[];
-    if (grid case final g?) {
-      // Circles between the rings, and spokes at the ends.
-      final p = Paint()
-        ..color = line
-        ..style = PaintingStyle.stroke;
-      for (var i = 0; i <= n; i++) {
-        final rad = outer - i * ringW;
-        final path = Path()
-          ..addArc(Rect.fromCircle(center: centre, radius: rad), _rad(start), arc * math.pi / 180);
-        canvas.drawPath(g.dashed ? _dashed(path) : path, p);
-      }
-    }
-    for (var i = 0; i < n; i++) {
-      final ringOuter = outer - i * ringW;
-      final band = ringW * .78;
-      final each = band / groups;
-      final runs = <int, double>{};
-      for (final (k, b) in bars.indexed) {
-        final g = groupOf[b.stackId ?? '#$k']!;
-        final mid = ringOuter - ringW * .11 - each * g - each / 2;
-        final rect = Rect.fromCircle(center: centre, radius: mid);
-        final w = each * (at == i ? 1.08 : 1);
-        if (b.background && (runs[g] ?? 0) == 0) {
-          canvas.drawArc(
-            rect,
-            _rad(start),
-            arc * math.pi / 180,
-            false,
-            Paint()
-              ..color = track
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = each
-              ..strokeCap = b.round && b.stackId == null && arc.abs() < 360
-                  ? StrokeCap.round
-                  : StrokeCap.butt,
-          );
-        }
-        final from = runs[g] ?? 0;
-        final sweep = (values[k][i] / max).clamp(0, 1) * arc * grow;
-        runs[g] = from + sweep;
-        if (sweep.abs() < .01) continue;
-        if (grow == 1) {
-          for (final (li, l) in b.labels.indexed) {
-            if (labelTexts[k][li][i] case final s?) {
-              final atDeg = l.position == ChartLabelPosition.insideStart
-                  ? start + from + 6
-                  : start + from + sweep - 4;
-              labels.add((
-                s,
-                centre + Offset(math.cos(_rad(atDeg)), math.sin(_rad(atDeg))) * mid,
-                l,
-              ));
-            }
-          }
-        }
-        canvas.drawArc(
-          rect,
-          _rad(start + from),
-          sweep * math.pi / 180,
-          false,
-          Paint()
-            ..color = colorOf(k, i)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = w
-            ..strokeCap = b.round && b.stackId == null ? StrokeCap.round : StrokeCap.butt,
-        );
-      }
-    }
-    for (final (s, p, l) in labels) {
-      _write(
-        canvas,
-        s,
-        p,
-        text.copyWith(color: l.color),
-        l.position == ChartLabelPosition.insideStart
-            ? Alignment.centerLeft
-            : Alignment.centerRight,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RadialPainter old) => true;
-}
-
 // ---------------------------------------------------------------------------------------
 // The values as a table
 // ---------------------------------------------------------------------------------------
@@ -5568,7 +4173,8 @@ class ChartTable<T> extends StatelessWidget {
   /// Each row's label, the first column.
   final Object Function(T row) x;
 
-  /// The chart's parts: each series, pie, radar or radial bar becomes a column.
+  /// The chart's parts: each series becomes a column, as does any [ChartColumn] (a pie,
+  /// a radar, a radial bar).
   final List<ChartPart<T>> children;
 
   /// The first column's heading.
@@ -5579,7 +4185,7 @@ class ChartTable<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final write = format ?? _CartesianState._plain;
+    final write = format ?? chartPlain;
     final columns = <(String, num? Function(int))>[];
     for (final p in children) {
       switch (p) {
@@ -5600,12 +4206,8 @@ class ChartTable<T> extends StatelessWidget {
           }));
         case CartesianSeries<T>():
           columns.add((p.label, (i) => p.values?[i] ?? p.value?.call(data[i])));
-        case Pie<T>():
-          columns.add(('Value', (i) => p.value(data[i])));
-        case Radar<T>():
-          columns.add((p.label, (i) => p.value(data[i])));
-        case RadialBar<T>():
-          columns.add((p.label ?? 'Value', (i) => p.value(data[i])));
+        case final ChartColumn<T> c:
+          columns.add((c.columnName, (i) => c.columnValue(data[i])));
         default:
           break;
       }

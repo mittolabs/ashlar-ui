@@ -83,17 +83,17 @@ class ChartDemo extends StatelessWidget {
             children: [
               const CardHeader(title: Text('Payments'), description: Text('This month')),
               CardContent(
-                child: Center(
-                  child: PieChart<_Method>(
-                    size: 150,
-                    data: _methods,
-                    semanticLabel: 'Payments by method',
-                    center: const Text('565'),
-                    children: [
-                      ChartTooltip(hideLabel: true),
-                      Pie(value: (r) => r.amount, name: (r) => r.method, innerRadius: .6),
-                    ],
-                  ),
+                child: BarChart<_Method>(
+                  height: 150,
+                  data: _methods,
+                  x: (r) => r.method,
+                  layout: ChartLayout.vertical,
+                  semanticLabel: 'Payments by method',
+                  children: [
+                    XAxis(),
+                    ChartTooltip(hideLabel: true),
+                    Bar(label: 'KES', value: (r) => r.amount, labels: [ChartLabels(position: ChartLabelPosition.right)]),
+                  ],
                 ),
               ),
             ],

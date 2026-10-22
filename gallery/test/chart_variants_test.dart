@@ -2,6 +2,9 @@
 // tooltip, keys and screen reader say what is drawn.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/pie_chart.dart';
+import 'package:ashlar_ui_gallery/ui/radar_chart.dart';
+import 'package:ashlar_ui_gallery/ui/radial_chart.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';

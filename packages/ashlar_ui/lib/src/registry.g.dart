@@ -23495,7 +23495,7 @@ class _TimePickerDemoState extends State<TimePickerDemo> {
 ''',
   ),
   'chart': Component(
-    description: "Charts as in shadcn/ui: your rows and the parts you put in them. Bar, line, area, composed and scatter charts with bars, lines, areas, marks, bubbles, prices, boxes, waterfalls and ranges; number, time, category and log axes, several of them; reference lines and bands, annotations, trendlines, a brush, zoom and pan, a crosshair and selection. Pie, radar and radial bar charts. A table of the values. Drawn here, with no charting package.",
+    description: "Charts as in shadcn/ui: your rows and the parts you put in them. Bar, line, area, composed and scatter charts with bars, lines, areas, marks, bubbles, prices, boxes, waterfalls and ranges; number, time, category and log axes, several of them; reference lines and bands, annotations, trendlines, a brush, zoom and pan, a crosshair and selection. Histograms, and a table of the values. Drawn here, with no charting package.",
     requires: ["theme"],
     packages: [],
     block: false,
@@ -23546,6 +23546,16 @@ typedef ChartValue<T> = num? Function(T row);
 /// Something put in a chart: a series, an axis, the grid, the tooltip, the legend.
 abstract class ChartPart<T> {
   const ChartPart();
+}
+
+/// A part that gives [ChartTable] a column: a pie, a radar, a radial bar, or a part of
+/// your own.
+abstract interface class ChartColumn<T> {
+  /// The column's heading.
+  String get columnName;
+
+  /// The row's value in it.
+  num? columnValue(T row);
 }
 
 /// How a line goes from one value to the next.
@@ -23842,6 +23852,14 @@ String chartThousands(num v) {
     b.write(s[i]);
   }
   return b.toString();
+}
+
+/// A value as a tooltip writes it: whole numbers with thousands marked, others to two
+/// places at most.
+String chartPlain(num v) {
+  if (v == v.roundToDouble()) return chartThousands(v);
+  final s = v.toStringAsFixed(2);
+  return s.replaceFirst(RegExp(r'\.?0+$'), '');
 }
 
 String _percent(num v) => '${(v * 100).round()}%';
@@ -24177,8 +24195,9 @@ class _Floating extends StatelessWidget {
   }
 }
 
-/// Writes [s] at [at], placed by [align] (topLeft puts its top left corner there).
-void _write(
+/// Writes [s] at [at] on a canvas, placed by [align] (topLeft puts its top left corner
+/// there). For drawing charts of your own.
+void chartText(
   Canvas canvas,
   String s,
   Offset at,
@@ -24200,8 +24219,8 @@ double _textWidth(String s, TextStyle style) => (TextPainter(
   textDirection: TextDirection.ltr,
 )..layout()).width;
 
-/// Draws [shape] of radius [r] at [c].
-void _mark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
+/// Draws [shape] of radius [r] at [c]: a chart's dot or mark.
+void chartMark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
   switch (shape) {
     case ChartShape.circle:
       canvas.drawCircle(c, r, paint);
@@ -24246,9 +24265,9 @@ void _mark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
   }
 }
 
-/// Draws [icon] centred on [c] at [size].
-void _icon(Canvas canvas, IconData icon, Offset c, double size, Color color) {
-  _write(
+/// Draws [icon] centred on [c] at [size], from its font.
+void chartGlyph(Canvas canvas, IconData icon, Offset c, double size, Color color) {
+  chartText(
     canvas,
     String.fromCharCode(icon.codePoint),
     c,
@@ -24359,7 +24378,7 @@ Path _through(List<Offset> p, ChartCurve curve, {bool across = false}) {
 }
 
 /// A dashed copy of [source]: [on] pixels drawn, [off] skipped.
-Path _dashed(Path source, {double on = 4, double off = 4}) {
+Path chartDashed(Path source, {double on = 4, double off = 4}) {
   final out = Path();
   for (final m in source.computeMetrics()) {
     var d = 0.0;
@@ -24371,8 +24390,9 @@ Path _dashed(Path source, {double on = 4, double off = 4}) {
   return out;
 }
 
-/// Starts a chart's growing in, or shows it whole when motion is reduced.
-mixin _Grows<W extends StatefulWidget> on State<W>, TickerProviderStateMixin<W> {
+/// Starts a chart's growing in, or shows it whole when motion is reduced: [grown] runs from
+/// 0 to 1 as it appears. For charts in other files, and charts of your own.
+mixin ChartGrowth<W extends StatefulWidget> on State<W>, TickerProviderStateMixin<W> {
   late final grow = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 700),
@@ -25330,7 +25350,7 @@ class _YScale {
 }
 
 class _CartesianState<T> extends State<CartesianChart<T>>
-    with TickerProviderStateMixin, _Grows<CartesianChart<T>> {
+    with TickerProviderStateMixin, ChartGrowth<CartesianChart<T>> {
   late final _morph = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 500),
@@ -25388,13 +25408,8 @@ class _CartesianState<T> extends State<CartesianChart<T>>
 
   String Function(num) get _format =>
       widget.format ??
-      (widget.stackOffset == StackOffset.expand ? _percent : _plain);
+      (widget.stackOffset == StackOffset.expand ? _percent : chartPlain);
 
-  static String _plain(num v) {
-    if (v == v.roundToDouble()) return chartThousands(v);
-    final s = v.toStringAsFixed(2);
-    return s.replaceFirst(RegExp(r'\.?0+$'), '');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -26710,7 +26725,7 @@ class _CartesianPainter extends CustomPainter {
       return;
     }
     canvas.drawPath(
-      _dashed(Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)),
+      chartDashed(Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)),
       Paint()
         ..color = p.color
         ..strokeWidth = p.strokeWidth
@@ -26815,7 +26830,7 @@ class _CartesianPainter extends CustomPainter {
       final color = r.color ?? mutedFg;
       canvas.drawRect(rect, Paint()..color = color.withValues(alpha: r.opacity));
       if (r.label != null) {
-        _write(canvas, r.label!, rect.topLeft + const Offset(6, 4), text, Alignment.topLeft);
+        chartText(canvas, r.label!, rect.topLeft + const Offset(6, 4), text, Alignment.topLeft);
       }
     }
 
@@ -26857,7 +26872,7 @@ class _CartesianPainter extends CustomPainter {
       final y = _y(tr.yAxisId);
       final path = _through([for (final p in pts) at(p.dx, _g(y, p.dy), y)], ChartCurve.linear);
       final p = _stroke(tr.color ?? mutedFg, 1.5);
-      canvas.drawPath(tr.dashed ? _dashed(path, on: 6, off: 4) : path, p);
+      canvas.drawPath(tr.dashed ? chartDashed(path, on: 6, off: 4) : path, p);
     }
 
     for (final r in refs) {
@@ -26879,7 +26894,7 @@ class _CartesianPainter extends CustomPainter {
             end = across ? b : a;
           }
           if (r.label != null && end != null) {
-            _write(
+            chartText(
               canvas,
               r.label!,
               end + (across ? const Offset(-4, 4) : const Offset(-4, -4)),
@@ -26896,7 +26911,7 @@ class _CartesianPainter extends CustomPainter {
           canvas.drawCircle(q, r.radius + 2, Paint()..color = page);
           canvas.drawCircle(q, r.radius, Paint()..color = r.color ?? fg);
           if (r.label != null) {
-            _write(canvas, r.label!, q - Offset(0, r.radius + 6), strong, Alignment.bottomCenter);
+            chartText(canvas, r.label!, q - Offset(0, r.radius + 6), strong, Alignment.bottomCenter);
           }
         default:
           break;
@@ -27141,7 +27156,7 @@ class _CartesianPainter extends CustomPainter {
     for (final run in tops) {
       if (run.length < 2) continue;
       final path = _through([for (final p in run) p.$2], curve, across: across);
-      canvas.drawPath(dashed ? _dashed(path, on: 6, off: 4) : path, _stroke(s.color, width));
+      canvas.drawPath(dashed ? chartDashed(path, on: 6, off: 4) : path, _stroke(s.color, width));
     }
     if (dots || dot != null) {
       final d = dot ?? const ChartDot<dynamic>();
@@ -27150,12 +27165,12 @@ class _CartesianPainter extends CustomPainter {
           final color = _dim(s.colors?[i] ?? s.color, i);
           if (d.icon != null) {
             canvas.drawCircle(p, d.radius + 4, Paint()..color = page);
-            _icon(canvas, d.icon!, p, d.radius * 3, color);
+            chartGlyph(canvas, d.icon!, p, d.radius * 3, color);
           } else if (d.hollow) {
-            _mark(canvas, d.shape, p, d.radius, Paint()..color = page);
-            _mark(canvas, d.shape, p, d.radius, _stroke(color, 2));
+            chartMark(canvas, d.shape, p, d.radius, Paint()..color = page);
+            chartMark(canvas, d.shape, p, d.radius, _stroke(color, 2));
           } else {
-            _mark(canvas, d.shape, p, d.radius, Paint()..color = color);
+            chartMark(canvas, d.shape, p, d.radius, Paint()..color = color);
           }
         }
       }
@@ -27187,8 +27202,8 @@ class _CartesianPainter extends CustomPainter {
       final q = at(us[i], _g(y, v), y);
       final r = (s.radii?[i] ?? p.minRadius + .5) * (i == hovered ? 1.25 : 1);
       final color = _dim(s.colors?[i] ?? s.color, i);
-      _mark(canvas, p.shape, q, r, Paint()..color = color.withValues(alpha: color.a * p.opacity));
-      if (s.radii != null) _mark(canvas, p.shape, q, r, _stroke(color, 1));
+      chartMark(canvas, p.shape, q, r, Paint()..color = color.withValues(alpha: color.a * p.opacity));
+      if (s.radii != null) chartMark(canvas, p.shape, q, r, _stroke(color, 1));
     }
   }
 
@@ -27248,7 +27263,7 @@ class _CartesianPainter extends CustomPainter {
       canvas.drawLine(q(b.q1), q(b.min), edge);
       canvas.drawLine(q(b.max) - half * .6, q(b.max) + half * .6, edge);
       canvas.drawLine(q(b.min) - half * .6, q(b.min) + half * .6, edge);
-      if (p.mean) _mark(canvas, ChartShape.cross, q(b.mean), 3.5, Paint()..color = fg);
+      if (p.mean) chartMark(canvas, ChartShape.cross, q(b.mean), 3.5, Paint()..color = fg);
       if (p.outliers) {
         for (final v in b.out) {
           canvas.drawCircle(q(v), 3, _stroke(color, 1.5));
@@ -27360,7 +27375,7 @@ class _CartesianPainter extends CustomPainter {
             (rect.centerRight - Offset(o, 0), Alignment.centerRight),
           ChartLabelPosition.insideEnd => (rect.topCenter + Offset(0, o), Alignment.topCenter),
         };
-        _write(canvas, str, p, style, a);
+        chartText(canvas, str, p, style, a);
       }
     }
   }
@@ -27380,13 +27395,13 @@ class _CartesianPainter extends CustomPainter {
       for (final (u, s) in xTicks) {
         final a = alongPx(u);
         if (across) {
-          _write(canvas, s, Offset(plot.left - m, a), text, Alignment.centerRight);
+          chartText(canvas, s, Offset(plot.left - m, a), text, Alignment.centerRight);
           if (x.tickLine) canvas.drawLine(Offset(plot.left - 6, a), Offset(plot.left, a), axisPaint);
         } else if (x.top) {
-          _write(canvas, s, Offset(a, plot.top - m), text, Alignment.bottomCenter);
+          chartText(canvas, s, Offset(a, plot.top - m), text, Alignment.bottomCenter);
           if (x.tickLine) canvas.drawLine(Offset(a, plot.top - 6), Offset(a, plot.top), axisPaint);
         } else {
-          _write(canvas, s, Offset(a, plot.bottom + m), text, Alignment.topCenter);
+          chartText(canvas, s, Offset(a, plot.bottom + m), text, Alignment.topCenter);
           if (x.tickLine) canvas.drawLine(Offset(a, plot.bottom), Offset(a, plot.bottom + 6), axisPaint);
         }
       }
@@ -27411,7 +27426,7 @@ class _CartesianPainter extends CustomPainter {
         final s = yText(y, v);
         if (across) {
           final x = plot.left + f * plot.width;
-          _write(
+          chartText(
             canvas,
             s,
             Offset(x, y.right ? edge - m : edge + m),
@@ -27420,7 +27435,7 @@ class _CartesianPainter extends CustomPainter {
           );
         } else {
           final py = plot.bottom - f * plot.height;
-          _write(
+          chartText(
             canvas,
             s,
             Offset(y.right ? edge + m : edge - m, py),
@@ -27594,7 +27609,7 @@ class _BrushPainter extends CustomPainter {
 }
 
 // ---------------------------------------------------------------------------------------
-// Polar charts: pies, radars and radial bars
+// The grid behind polar charts (radar-chart, radial-chart)
 // ---------------------------------------------------------------------------------------
 
 /// The lines a radar or radial chart is drawn over.
@@ -27634,37 +27649,748 @@ class PolarGrid<T> extends ChartPart<T> {
   final bool dashed;
 }
 
-/// A radar's labels round the edge.
-class PolarAngleAxis<T> extends ChartPart<T> {
-  const PolarAngleAxis({this.hide = false, this.tickFormatter});
+// ---------------------------------------------------------------------------------------
+// The values as a table
+// ---------------------------------------------------------------------------------------
 
-  final bool hide;
-
-  /// Writes an axis's label from its name and row: `'$name\n${row.score}'` puts the
-  /// value under it.
-  final String Function(String name, T row)? tickFormatter;
-}
-
-/// A radar's scale along one spoke.
-class PolarRadiusAxis<T> extends ChartPart<T> {
-  const PolarRadiusAxis({
-    this.angle = 90,
-    this.tickCount = 4,
-    this.tickFormatter,
-    this.max,
+/// A chart's values as a table: a row per data row, a column per series. Give it the
+/// same rows and parts as the chart, to show beside it or in its place for those who
+/// would rather read the numbers.
+///
+/// ```dart
+/// ChartTable<Visit>(data: visits, x: (r) => r.month, children: parts)
+/// ```
+class ChartTable<T> extends StatelessWidget {
+  const ChartTable({
+    super.key,
+    required this.data,
+    required this.x,
+    required this.children,
+    this.heading = '',
+    this.format,
   });
 
-  /// The spoke it is written along, in degrees clockwise from the top.
-  final double angle;
-  final int tickCount;
-  final String Function(num value)? tickFormatter;
+  final List<T> data;
 
-  /// The value at the edge; null is a round number above the largest.
-  final num? max;
+  /// Each row's label, the first column.
+  final Object Function(T row) x;
+
+  /// The chart's parts: each series becomes a column, as does any [ChartColumn] (a pie,
+  /// a radar, a radial bar).
+  final List<ChartPart<T>> children;
+
+  /// The first column's heading.
+  final String heading;
+  final String Function(num value)? format;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final write = format ?? chartPlain;
+    final columns = <(String, num? Function(int))>[];
+    for (final p in children) {
+      switch (p) {
+        case DerivedSeries<T>():
+          for (final s in p.derive(data)) {
+            columns.add((s.label, (i) => s.values?[i] ?? s.value?.call(data[i])));
+          }
+        case Candlestick<T>():
+          columns
+            ..add(('${p.label} open', (i) => p.open(data[i])))
+            ..add(('${p.label} high', (i) => p.high(data[i])))
+            ..add(('${p.label} low', (i) => p.low(data[i])))
+            ..add(('${p.label} close', (i) => p.close(data[i])));
+        case BoxPlot<T>():
+          columns.add(('${p.label} median', (i) {
+            final s = p.samples(data[i]);
+            return s.isEmpty ? null : _Box(s).median;
+          }));
+        case CartesianSeries<T>():
+          columns.add((p.label, (i) => p.values?[i] ?? p.value?.call(data[i])));
+        case final ChartColumn<T> c:
+          columns.add((c.columnName, (i) => c.columnValue(data[i])));
+        default:
+          break;
+      }
+    }
+    String label(Object v) => v is DateTime ? chartDate(v) : '$v';
+    final head = t.text.xs.copyWith(color: c.mutedForeground, fontWeight: FontWeight.w500);
+    final body = t.text.xs.copyWith(
+      color: c.foreground,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    Widget cell(String s, TextStyle style, {bool end = false}) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Text(s, style: style, textAlign: end ? TextAlign.end : TextAlign.start),
+    );
+    return Table(
+      defaultColumnWidth: const IntrinsicColumnWidth(),
+      border: TableBorder(horizontalInside: BorderSide(color: c.border)),
+      children: [
+        TableRow(
+          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+          children: [
+            cell(heading, head),
+            for (final (name, _) in columns) cell(name, head, end: true),
+          ],
+        ),
+        for (var i = 0; i < data.length; i++)
+          TableRow(
+            children: [
+              cell(label(x(data[i])), body),
+              for (final (_, read) in columns)
+                cell(read(i) == null ? '' : write(read(i)!), body, end: true),
+            ],
+          ),
+      ],
+    );
+  }
 }
 
+// ---------------------------------------------------------------------------------------
+// Histograms
+// ---------------------------------------------------------------------------------------
+
+/// One bar of a histogram: the values from [from] up to [to], and how many there were.
+typedef ChartBin = ({double from, double to, int count});
+
+/// Splits [values] into [bins] bins of equal width over their span: Sturges' rule
+/// (1 + log2 n) when not given.
+List<ChartBin> chartBins(List<num> values, {int? bins}) {
+  if (values.isEmpty) return const [];
+  final lo = values.reduce(math.min).toDouble(), hi = values.reduce(math.max).toDouble();
+  final n = bins ?? (1 + (math.log(values.length) / math.ln2).ceil());
+  final width = hi == lo ? 1.0 : (hi - lo) / n;
+  final counts = List.filled(n, 0);
+  for (final v in values) {
+    counts[((v - lo) / width).floor().clamp(0, n - 1)]++;
+  }
+  return [
+    for (var i = 0; i < n; i++) (from: lo + i * width, to: lo + (i + 1) * width, count: counts[i]),
+  ];
+}
+
+/// How often values fall in each span: bars side by side over a number line, and the
+/// normal curve with the same mean and spread over them if you like.
+///
+/// ```dart
+/// HistogramChart(values: deliveryMinutes, label: 'Orders', normalCurve: true)
+/// ```
+class HistogramChart extends StatelessWidget {
+  const HistogramChart({
+    super.key,
+    required this.values,
+    this.bins,
+    this.label = 'Count',
+    this.color,
+    this.height = 250,
+    this.normalCurve = false,
+    this.grid = true,
+    this.tickFormatter,
+    this.semanticLabel,
+  });
+
+  final List<num> values;
+
+  /// How many bars; Sturges' rule when null.
+  final int? bins;
+
+  /// The bars' name in the tooltip.
+  final String label;
+  final Color? color;
+  final double height;
+
+  /// The bell curve a normal spread with these values' mean and deviation would make.
+  final bool normalCurve;
+  final bool grid;
+
+  /// Writes a value on the number line.
+  final String Function(num value)? tickFormatter;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final b = chartBins(values, bins: bins);
+    final n = values.length;
+    final mean = n == 0 ? 0.0 : values.fold<double>(0, (a, v) => a + v) / n;
+    final sd = n == 0
+        ? 0.0
+        : math.sqrt(values.fold<double>(0, (a, v) => a + (v - mean) * (v - mean)) / n);
+    final width = b.isEmpty ? 1.0 : b.first.to - b.first.from;
+    String write(num v) => tickFormatter?.call(v) ?? chartNumber(v);
+    return BarChart<ChartBin>(
+      data: b,
+      x: (r) => (r.from + r.to) / 2,
+      height: height,
+      barCategoryGap: .04,
+      semanticLabel: semanticLabel,
+      children: [
+        if (grid) CartesianGrid(),
+        XAxis(tickFormatter: (v) => write(v as num)),
+        YAxis(),
+        ChartTooltip(
+          labelFormatter: (_, r) => r == null ? '' : '${write(r.from)} to ${write(r.to)}',
+        ),
+        Bar(label: label, value: (r) => r.count, color: color, radius: 2),
+        if (normalCurve && sd > 0)
+          Line(
+            label: 'Normal',
+            values: [
+              for (final r in b)
+                n * width / (sd * math.sqrt(2 * math.pi)) *
+                    math.exp(-math.pow((r.from + r.to) / 2 - mean, 2) / (2 * sd * sd)),
+            ],
+            dashed: true,
+            width: 1.5,
+          ),
+      ],
+    );
+  }
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'chart_test.dart': r'''// Tests for Chart. Copied into your app by `ashlar add chart` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 480, child: child)),
+    );
+
+typedef Visit = ({String month, double desktop, double mobile});
+
+const visits = <Visit>[
+  (month: 'Jan', desktop: 186, mobile: 80),
+  (month: 'Feb', desktop: 305, mobile: 200),
+  (month: 'Mar', desktop: 237, mobile: 120),
+  (month: 'Apr', desktop: 73, mobile: 190),
+];
+
+typedef Price = ({DateTime day, double open, double high, double low, double close});
+
+final prices = <Price>[
+  for (var i = 0; i < 30; i++)
+    (
+      day: DateTime(2026, 3, 1 + i),
+      open: 100.0 + i,
+      high: 104.0 + i,
+      low: 98.0 + i,
+      close: 102.0 + i,
+    ),
+];
+
+BarChart<Visit> bars({
+  List<ChartPart<Visit>> extra = const [],
+  ValueChanged<ChartSelection<Visit>?>? onSelect,
+  String? semanticLabel,
+}) => BarChart<Visit>(
+  data: visits,
+  x: (r) => r.month,
+  onSelect: onSelect,
+  semanticLabel: semanticLabel,
+  children: [
+    CartesianGrid(),
+    XAxis(),
+    ChartTooltip(),
+    Bar(label: 'Desktop', value: (r) => r.desktop),
+    Bar(label: 'Mobile', value: (r) => r.mobile),
+    ...extra,
+  ],
+);
+
+Future<TestGesture> mouseAt(WidgetTester tester, Offset at) async {
+  final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: Offset.zero);
+  await mouse.moveTo(at);
+  await tester.pump();
+  return mouse;
+}
+
+void main() {
+  testWidgets('every kind draws in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      for (final chart in <Widget>[
+        bars(),
+        BarChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          layout: ChartLayout.vertical,
+          children: [
+            XAxis(),
+            YAxis(),
+            Bar(
+              label: 'Desktop',
+              value: (r) => r.desktop,
+              stackId: 'a',
+              labels: [ChartLabels(position: ChartLabelPosition.insideStart, text: (r, _) => r.month)],
+            ),
+            Bar(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
+          ],
+        ),
+        LineChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          children: [
+            XAxis(),
+            YAxis(),
+            Line(label: 'Desktop', value: (r) => r.desktop, dots: true),
+            Line(label: 'Mobile', value: (r) => r.mobile, curve: ChartCurve.step),
+          ],
+        ),
+        AreaChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          stackOffset: StackOffset.expand,
+          children: [
+            Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
+            Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
+          ],
+        ),
+        ScatterChart<Visit>(
+          data: visits,
+          x: (r) => r.desktop,
+          children: [
+            XAxis(),
+            YAxis(),
+            Scatter(label: 'Visits', value: (r) => r.mobile, size: (r) => r.desktop),
+            Trendline(value: (r) => r.mobile),
+          ],
+        ),
+        ComposedChart<Price>(
+          data: prices,
+          x: (r) => r.day,
+          children: [
+            XAxis(),
+            YAxis(),
+            YAxis(id: 'b', right: true, type: AxisType.log),
+            Candlestick(label: 'KES', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
+            Ohlc(label: 'O', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close, yAxisId: 'b'),
+            ReferenceArea(y1: 110, y2: 115),
+            ReferenceLine(x: prices[10].day),
+            Brush(),
+            Crosshair(),
+          ],
+        ),
+        ComposedChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          children: [
+            XAxis(),
+            BoxPlot(label: 'Spread', samples: (r) => [r.mobile, r.desktop, (r.mobile + r.desktop) / 2]),
+            Waterfall(label: 'Change', value: (r) => r.desktop - r.mobile, total: (r) => r.month == 'Apr'),
+            Line(label: 'Mean', value: (r) => r.mobile, error: (r) => 10),
+          ],
+        ),
+      ]) {
+        await tester.pumpWidget(app(chart, mode: mode));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: '$chart $mode');
+      }
+    }
+  });
+
+  testWidgets('a screen reader hears what it shows and every value', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(app(bars(semanticLabel: 'Visitors by month')));
+    await tester.pumpAndSettle();
+    final node = tester
+        .getSemantics(find.bySemanticsLabel('Visitors by month'))
+        .getSemanticsData();
+    expect(node.value, contains('Jan: Desktop 186, Mobile 80'));
+    expect(node.value, contains('Apr: Desktop 73, Mobile 190'));
+    semantics.dispose();
+  });
+
+  testWidgets('hovering a row shows its values; leaving hides them', (tester) async {
+    await tester.pumpWidget(app(bars()));
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(BarChart<Visit>));
+    // The second of four rows.
+    final mouse = await mouseAt(tester, Offset(box.left + box.width * .375, box.top + 100));
+    expect(find.text('305'), findsOneWidget);
+    expect(find.text('200'), findsOneWidget);
+    await mouse.moveTo(Offset.zero);
+    await tester.pump();
+    expect(find.text('305'), findsNothing);
+  });
+
+  testWidgets('the tooltip writes its values and title your way', (tester) async {
+    await tester.pumpWidget(
+      app(
+        BarChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          children: [
+            ChartTooltip(
+              labelFormatter: (label, r) => '$label 2026',
+              formatter: (v, series, r) => 'KES $v',
+              total: true,
+            ),
+            Bar(label: 'Desktop', value: (r) => r.desktop),
+            Bar(label: 'Mobile', value: (r) => r.mobile),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(BarChart<Visit>));
+    await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
+    expect(find.text('Jan 2026'), findsOneWidget);
+    expect(find.text('KES 186.0'), findsOneWidget);
+    expect(find.text('Total'), findsOneWidget);
+    // The total is written the way each value is.
+    expect(find.text('KES 266.0'), findsOneWidget);
+  });
+
+  testWidgets('the arrow keys step through the rows, and Enter chooses one', (tester) async {
+    ChartSelection<Visit>? chosen;
+    await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+    expect(find.text('186'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+    expect(find.text('305'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(chosen?.index, 1);
+    expect(chosen?.row.month, 'Feb');
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(chosen, isNull);
+  });
+
+  testWidgets('a tap tells the app the row and the bar under it', (tester) async {
+    ChartSelection<Visit>? chosen;
+    await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(BarChart<Visit>));
+    // March's first bar, Desktop, low down where both bars stand.
+    await tester.tapAt(Offset(box.left + box.width * .58, box.bottom - 50));
+    await tester.pump();
+    expect(chosen?.row.month, 'Mar');
+    expect(chosen?.series, 'Desktop');
+  });
+
+  testWidgets('the legend hides and shows a series, and one always stays', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(app(bars(extra: [ChartLegend()], semanticLabel: 'Visits')));
+    await tester.pumpAndSettle();
+    String summary() => tester.getSemantics(find.bySemanticsLabel('Visits')).getSemanticsData().value;
+    expect(summary(), contains('Mobile 80'));
+    await tester.tap(find.text('Mobile'));
+    await tester.pumpAndSettle();
+    expect(summary(), isNot(contains('Mobile 80')));
+    await tester.tap(find.text('Desktop'));
+    await tester.pumpAndSettle();
+    expect(summary(), contains('Desktop 186'));
+    await tester.tap(find.text('Mobile'));
+    await tester.pumpAndSettle();
+    expect(summary(), contains('Mobile 80'));
+    semantics.dispose();
+  });
+
+  testWidgets('stacked series add up, and expanded ones make 100%', (tester) async {
+    await tester.pumpWidget(
+      app(
+        AreaChart<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          stackOffset: StackOffset.expand,
+          children: [
+            ChartTooltip(),
+            Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
+            Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(AreaChart<Visit>));
+    await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
+    // 186 of 266, and 80 of 266.
+    expect(find.text('70%'), findsOneWidget);
+    expect(find.text('30%'), findsOneWidget);
+  });
+
+  testWidgets('a time axis places rows by when they fall', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final days = <Price>[prices[0], prices[1], prices[8]];
+    await tester.pumpWidget(
+      app(
+        LineChart<Price>(
+          data: days,
+          x: (r) => r.day,
+          semanticLabel: 'Close',
+          children: [XAxis(), ChartTooltip(), Line(label: 'Close', value: (r) => r.close)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(LineChart<Price>));
+    // A third of the way along is the 3rd or 4th of March: closest to the 2nd, not the
+    // 9th, though the 9th is the next row.
+    await mouseAt(tester, Offset(box.left + box.width * .3, box.top + 100));
+    expect(find.text('103'), findsOneWidget);
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Close')).getSemanticsData().value,
+      contains('1 Mar'),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('zooming with the wheel and panning by drag move the window', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var reached = 0;
+    final many = <Price>[for (var i = 0; i < 30; i++) prices[i]];
+    await tester.pumpWidget(
+      app(
+        LineChart<Price>(
+          data: many,
+          x: (r) => r.day,
+          zoom: true,
+          onReachStart: () => reached++,
+          children: [XAxis(last: 10), Line(label: 'Close', value: (r) => r.close)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final box = tester.getRect(find.byType(LineChart<Price>));
+    // Dragging right shows earlier rows, and reaching the first asks for more.
+    await tester.dragFrom(box.center, Offset(box.width * 3, 0));
+    await tester.pumpAndSettle();
+    expect(reached, greaterThan(0));
+    // The wheel zooms in about the pointer.
+    final mouse = await mouseAt(tester, box.center);
+    await tester.sendEventToBinding(
+      PointerScrollEvent(position: box.center, scrollDelta: const Offset(0, -300)),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await mouse.removePointer();
+    semantics.dispose();
+  });
+
+  testWidgets('new rows move from the old values rather than jumping', (tester) async {
+    Widget chart(List<Visit> data) => app(
+      BarChart<Visit>(data: data, x: (r) => r.month, children: [Bar(label: 'Desktop', value: (r) => r.desktop)]),
+    );
+    await tester.pumpWidget(chart(visits));
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(chart([for (final v in visits) (month: v.month, desktop: v.desktop * 2, mobile: v.mobile)]));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.hasRunningAnimations, isTrue);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('with less motion asked for, it draws at once', (tester) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: app(bars()),
+      ),
+    );
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('a table shows every row and series', (tester) async {
+    await tester.pumpWidget(
+      app(
+        ChartTable<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          heading: 'Month',
+          children: [
+            Bar(label: 'Desktop', value: (r) => r.desktop),
+            Bar(label: 'Mobile', value: (r) => r.mobile),
+          ],
+        ),
+      ),
+    );
+    expect(find.text('Month'), findsOneWidget);
+    expect(find.text('305'), findsOneWidget);
+    expect(find.text('190'), findsOneWidget);
+  });
+
+  test('values fall into bins of equal width', () {
+    final b = chartBins([1, 2, 2, 3, 9, 10], bins: 3);
+    expect([for (final x in b) x.count], [4, 0, 2]);
+    expect(b.first.from, 1);
+    expect(b.last.to, 10);
+    // Sturges: 1 + log2(8) bins for eight values.
+    expect(chartBins([for (var i = 0; i < 8; i++) i]).length, 4);
+  });
+
+  testWidgets('a histogram draws its bins and the normal curve', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        HistogramChart(
+          values: const [12, 15, 15, 18, 19, 21, 22, 22, 23, 25, 28, 31, 40],
+          bins: 4,
+          normalCurve: true,
+          semanticLabel: 'Minutes',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Minutes')).getSemanticsData().value,
+      contains('Count 6'),
+    );
+    semantics.dispose();
+  });
+
+  test('round scales: 1, 2, 2.5 or 5 times a power of ten', () {
+    expect(chartTicks(0, 305), [0, 100, 200, 300, 400]);
+    expect(chartTicks(0, 1), [0, .25, .5, .75, 1]);
+    expect(chartNumber(12480), '12.5k');
+    expect(chartThousands(12480), '12,480');
+  });
+}
+''',
+    },
+    previewWidget: 'ChartDemo',
+    preview: r'''// The chart picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/card.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+
+typedef _Month = ({String month, double desktop, double mobile, double mpesa, double card});
+typedef _Method = ({String method, double amount});
+
+const _months = <_Month>[
+  (month: 'Jan', desktop: 186, mobile: 80, mpesa: 120, card: 60),
+  (month: 'Feb', desktop: 305, mobile: 200, mpesa: 160, card: 80),
+  (month: 'Mar', desktop: 237, mobile: 120, mpesa: 150, card: 70),
+  (month: 'Apr', desktop: 73, mobile: 190, mpesa: 210, card: 90),
+  (month: 'May', desktop: 209, mobile: 130, mpesa: 240, card: 110),
+  (month: 'Jun', desktop: 214, mobile: 140, mpesa: 260, card: 100),
+];
+
+const _methods = <_Method>[
+  (method: 'M-Pesa', amount: 275),
+  (method: 'Card', amount: 200),
+  (method: 'Bank', amount: 90),
+];
+
+class ChartDemo extends StatelessWidget {
+  const ChartDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 820,
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Card(
+            children: [
+              const CardHeader(title: Text('Visitors'), description: Text('January to June')),
+              CardContent(
+                child: BarChart<_Month>(
+                  height: 200,
+                  data: _months,
+                  x: (r) => r.month,
+                  semanticLabel: 'Visitors by month',
+                  children: [
+                    CartesianGrid(),
+                    XAxis(),
+                    ChartTooltip(),
+                    Bar(label: 'Desktop', value: (r) => r.desktop),
+                    Bar(label: 'Mobile', value: (r) => r.mobile),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Card(
+            children: [
+              const CardHeader(title: Text('Sales'), description: Text('KES, thousands')),
+              CardContent(
+                child: AreaChart<_Month>(
+                  height: 200,
+                  data: _months,
+                  x: (r) => r.month,
+                  semanticLabel: 'Sales by month',
+                  children: [
+                    CartesianGrid(),
+                    XAxis(),
+                    ChartTooltip(),
+                    Area(label: 'Card', value: (r) => r.card, stackId: 'a'),
+                    Area(label: 'M-Pesa', value: (r) => r.mpesa, stackId: 'a'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        SizedBox(
+          width: 220,
+          child: Card(
+            children: [
+              const CardHeader(title: Text('Payments'), description: Text('This month')),
+              CardContent(
+                child: BarChart<_Method>(
+                  height: 150,
+                  data: _methods,
+                  x: (r) => r.method,
+                  layout: ChartLayout.vertical,
+                  semanticLabel: 'Payments by method',
+                  children: [
+                    XAxis(),
+                    ChartTooltip(hideLabel: true),
+                    Bar(label: 'KES', value: (r) => r.amount, labels: [ChartLabels(position: ChartLabelPosition.right)]),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'pie-chart': Component(
+    description: "Slices of a whole: a pie or a donut, rings inside rings, slices drawn out, padded or rounded, with labels inside or outside and a figure in the middle.",
+    requires: ["theme","chart"],
+    packages: [],
+    block: false,
+    files: {
+      'pie_chart.dart': r'''// Ashlar UI: Pie chart. Copied into your app by `ashlar add pie-chart`; it is yours to change.
+// ashlar: ignore-file. Laid out the same in any language, as charts are read.
+//
+// Slices of a whole, as a pie or a donut, a ring inside a ring if you like: your rows and
+// a Pie, as in shadcn/ui. The tooltip, legend and labels are chart's.
+
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+
+import 'chart.dart';
+import 'theme.dart';
+
 /// One ring of a pie: a slice per row.
-class Pie<T> extends ChartPart<T> {
+class Pie<T> extends ChartPart<T> implements ChartColumn<T> {
   const Pie({
     required this.value,
     required this.name,
@@ -27712,71 +28438,12 @@ class Pie<T> extends ChartPart<T> {
 
   /// A thin line of the page between slices.
   final bool separators;
-}
 
-/// A radar's shape: one value per row, round the circle.
-class Radar<T> extends ChartPart<T> {
-  const Radar({
-    required this.label,
-    required this.value,
-    this.color,
-    this.icon,
-    this.fill = true,
-    this.opacity = .6,
-    this.dots = false,
-    this.dot,
-    this.width = 2,
-    this.dashed = false,
-  });
+  @override
+  String get columnName => 'Value';
 
-  final String label;
-  final ChartValue<T> value;
-  final Color? color;
-  final IconData? icon;
-
-  /// The shape filled; false draws its outline alone.
-  final bool fill;
-  final double opacity;
-  final bool dots;
-  final ChartDot<T>? dot;
-  final double width;
-  final bool dashed;
-}
-
-/// Arcs round a centre: a ring per row, or the series sharing one ring when they have
-/// a [stackId].
-class RadialBar<T> extends ChartPart<T> {
-  const RadialBar({
-    required this.value,
-    this.label,
-    this.color,
-    this.colorOf,
-    this.icon,
-    this.stackId,
-    this.background = true,
-    this.round = true,
-    this.labels = const [],
-  });
-
-  final ChartValue<T> value;
-
-  /// Its name, when there are several series.
-  final String? label;
-  final Color? color;
-
-  /// A colour per row's ring.
-  final Color? Function(T row)? colorOf;
-  final IconData? icon;
-  final String? stackId;
-
-  /// A faint full ring behind each arc, to show what a full one would be.
-  final bool background;
-
-  /// Rounded ends.
-  final bool round;
-
-  /// Text on each arc: [ChartLabelPosition.insideStart] writes it at the arc's start.
-  final List<ChartLabels<T>> labels;
+  @override
+  num? columnValue(T row) => value(row);
 }
 
 /// Slices of a whole: put a [Pie] in it, two for a ring inside a ring.
@@ -27820,13 +28487,13 @@ class PieChart<T> extends StatefulWidget {
 }
 
 class _PieState<T> extends State<PieChart<T>>
-    with TickerProviderStateMixin, _Grows<PieChart<T>> {
+    with TickerProviderStateMixin, ChartGrowth<PieChart<T>> {
   int? _at;
   int _ring = 0;
   final _hidden = <int>{};
   ChartSelection<T>? _selected;
 
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
+  String Function(num) get _format => widget.format ?? chartPlain;
 
   @override
   Widget build(BuildContext context) {
@@ -28135,7 +28802,7 @@ class _PiePainter extends CustomPainter {
             if (s == null) continue;
             if (l.position == ChartLabelPosition.inside) {
               final at = centre + dir * ((ring.inner + out) / 2);
-              _write(canvas, s, at, inside.copyWith(color: l.color));
+              chartText(canvas, s, at, inside.copyWith(color: l.color));
             } else {
               final edge = centre + dir * out;
               final at = centre + dir * (out + 14 + l.offset);
@@ -28148,7 +28815,7 @@ class _PiePainter extends CustomPainter {
                     ..strokeWidth = 1,
                 );
               }
-              _write(
+              chartText(
                 canvas,
                 s,
                 at,
@@ -28196,6 +28863,256 @@ Path _slice(Offset c, double inner, double outer, double from, double to, double
   }
   return p..close();
 }
+''',
+    },
+    testNeeds: ["app","chart"],
+    tests: {
+      'pie_chart_test.dart': r'''// Tests for Pie chart. Copied into your app by `ashlar add pie-chart` with the component:
+// they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/pie_chart.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 480, child: child)),
+    );
+
+typedef Visit = ({String month, double desktop, double mobile});
+
+const visits = <Visit>[
+  (month: 'Jan', desktop: 186, mobile: 80),
+  (month: 'Feb', desktop: 305, mobile: 200),
+  (month: 'Mar', desktop: 237, mobile: 120),
+  (month: 'Apr', desktop: 73, mobile: 190),
+];
+
+Future<void> mouseAt(WidgetTester tester, Offset at) async {
+  final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: Offset.zero);
+  await mouse.moveTo(at);
+  await tester.pump();
+}
+
+String summary(WidgetTester tester, String label) =>
+    tester.getSemantics(find.bySemanticsLabel(label)).getSemanticsData().value;
+
+void main() {
+  testWidgets('it draws in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          PieChart<Visit>(
+            data: visits,
+            center: const Text('801'),
+            children: [
+              ChartLegend(),
+              Pie(
+                value: (r) => r.desktop,
+                name: (r) => r.month,
+                innerRadius: .6,
+                paddingAngle: 2,
+                cornerRadius: 4,
+                labels: [ChartLabels(text: (r, _) => r.month)],
+              ),
+              Pie(value: (r) => r.mobile, name: (r) => r.month, innerRadius: .3, outerRadius: .55),
+            ],
+          ),
+          mode: mode,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('a slice under the pointer shows its name and value', (tester) async {
+    await tester.pumpWidget(
+      app(
+        PieChart<Visit>(
+          data: visits.take(2).toList(),
+          children: [ChartTooltip(), Pie(value: (r) => r.desktop, name: (r) => r.month)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final pie = tester.getRect(find.byType(PieChart<Visit>));
+    // 186 of 491, clockwise from the top: the right side is January's.
+    await mouseAt(tester, pie.center + Offset(pie.height * .3, 0));
+    // The title and the row both name it.
+    expect(find.text('Jan'), findsNWidgets(2));
+    expect(find.text('186'), findsOneWidget);
+  });
+
+  testWidgets('a screen reader hears every slice, and the legend hides one', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        PieChart<Visit>(
+          data: visits,
+          semanticLabel: 'Desktop',
+          children: [ChartLegend(), Pie(value: (r) => r.desktop, name: (r) => r.month)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(summary(tester, 'Desktop'), 'Jan 186, Feb 305, Mar 237, Apr 73');
+    await tester.tap(find.text('Feb'));
+    await tester.pumpAndSettle();
+    expect(summary(tester, 'Desktop'), contains('Feb 0'));
+    semantics.dispose();
+  });
+
+  testWidgets('a table shows a pie as a column', (tester) async {
+    await tester.pumpWidget(
+      app(
+        ChartTable<Visit>(
+          data: visits,
+          x: (r) => r.month,
+          children: [Pie(value: (r) => r.desktop, name: (r) => r.month)],
+        ),
+      ),
+    );
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('305'), findsOneWidget);
+  });
+}
+''',
+    },
+    previewWidget: 'PieChartDemo',
+    preview: r'''// The visitors picture ashlar update --preview draws.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/card.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/pie_chart.dart';
+
+typedef _Browser = ({String browser, double visitors});
+
+const _browsers = <_Browser>[
+  (browser: 'Chrome', visitors: 275),
+  (browser: 'Safari', visitors: 200),
+  (browser: 'Firefox', visitors: 187),
+  (browser: 'Edge', visitors: 173),
+  (browser: 'Other', visitors: 90),
+];
+
+class PieChartDemo extends StatelessWidget {
+  const PieChartDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 300,
+    child: Card(
+      children: [
+        const CardHeader(title: Text('Visitors'), description: Text('By browser, this month')),
+        CardContent(
+          child: Center(
+            child: PieChart<_Browser>(
+              data: _browsers,
+              size: 200,
+              semanticLabel: 'Visitors by browser',
+              center: const Text('925'),
+              children: [
+                ChartTooltip(hideLabel: true),
+                ChartLegend(),
+                Pie(value: (r) => r.visitors, name: (r) => r.browser, innerRadius: .6),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'radar-chart': Component(
+    description: "Several values per series round a circle: polygon or circle grids, filled bands, rings of your choosing, a scale along a spoke, labels of your own, dots and outlines.",
+    requires: ["theme","chart"],
+    packages: [],
+    block: false,
+    files: {
+      'radar_chart.dart': r'''// Ashlar UI: Radar chart. Copied into your app by `ashlar add radar-chart`; it is yours to change.
+// ashlar: ignore-file. Laid out the same in any language, as charts are read.
+//
+// Several values for each series round a circle, joined into a shape: your rows (one an
+// axis) and a Radar each, over a PolarGrid, as in shadcn/ui.
+
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+
+import 'chart.dart';
+import 'theme.dart';
+
+/// A radar's labels round the edge.
+class PolarAngleAxis<T> extends ChartPart<T> {
+  const PolarAngleAxis({this.hide = false, this.tickFormatter});
+
+  final bool hide;
+
+  /// Writes an axis's label from its name and row: `'$name\n${row.score}'` puts the
+  /// value under it.
+  final String Function(String name, T row)? tickFormatter;
+}
+
+/// A radar's scale along one spoke.
+class PolarRadiusAxis<T> extends ChartPart<T> {
+  const PolarRadiusAxis({
+    this.angle = 90,
+    this.tickCount = 4,
+    this.tickFormatter,
+    this.max,
+  });
+
+  /// The spoke it is written along, in degrees clockwise from the top.
+  final double angle;
+  final int tickCount;
+  final String Function(num value)? tickFormatter;
+
+  /// The value at the edge; null is a round number above the largest.
+  final num? max;
+}
+
+/// A radar's shape: one value per row, round the circle.
+class Radar<T> extends ChartPart<T> implements ChartColumn<T> {
+  const Radar({
+    required this.label,
+    required this.value,
+    this.color,
+    this.icon,
+    this.fill = true,
+    this.opacity = .6,
+    this.dots = false,
+    this.dot,
+    this.width = 2,
+    this.dashed = false,
+  });
+
+  final String label;
+  final ChartValue<T> value;
+  final Color? color;
+  final IconData? icon;
+
+  /// The shape filled; false draws its outline alone.
+  final bool fill;
+  final double opacity;
+  final bool dots;
+  final ChartDot<T>? dot;
+  final double width;
+  final bool dashed;
+
+  @override
+  String get columnName => label;
+
+  @override
+  num? columnValue(T row) => value(row);
+}
 
 /// Several values for each series round a circle, joined into a shape: how a series
 /// spreads across the axes, and how series compare. Each row is an axis.
@@ -28239,11 +29156,11 @@ class RadarChart<T> extends StatefulWidget {
 }
 
 class _RadarState<T> extends State<RadarChart<T>>
-    with TickerProviderStateMixin, _Grows<RadarChart<T>> {
+    with TickerProviderStateMixin, ChartGrowth<RadarChart<T>> {
   int? _at;
   final _hidden = <String>{};
 
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
+  String Function(num) get _format => widget.format ?? chartPlain;
 
   @override
   Widget build(BuildContext context) {
@@ -28537,7 +29454,7 @@ class _RadarPainter extends CustomPainter {
             canvas.drawPath(_ring(r * sorted[k + 1], g.type), Paint()..color = page);
           }
         }
-        canvas.drawPath(g.dashed ? _dashed(ring) : ring, stroke);
+        canvas.drawPath(g.dashed ? chartDashed(ring) : ring, stroke);
       }
       if (g.radialLines) {
         for (var i = 0; i < n; i++) {
@@ -28568,16 +29485,16 @@ class _RadarPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = p.width
         ..strokeJoin = StrokeJoin.round;
-      canvas.drawPath(p.dashed ? _dashed(shape) : shape, outline);
+      canvas.drawPath(p.dashed ? chartDashed(shape) : shape, outline);
       if (p.dots || p.dot != null || at != null) {
         final d = p.dot ?? const ChartDot<dynamic>();
         for (final (i, q) in pts.indexed) {
           if (!(p.dots || p.dot != null) && i != at) continue;
           final color = dotColors[s][i] ?? colors[s];
           if (d.icon != null) {
-            _icon(canvas, d.icon!, q, d.radius * 3, color);
+            chartGlyph(canvas, d.icon!, q, d.radius * 3, color);
           } else {
-            _mark(canvas, d.shape, q, i == at ? d.radius + 1 : d.radius, Paint()..color = color);
+            chartMark(canvas, d.shape, q, i == at ? d.radius + 1 : d.radius, Paint()..color = color);
           }
         }
       }
@@ -28588,7 +29505,7 @@ class _RadarPainter extends CustomPainter {
       final dir = Offset(math.cos(a), math.sin(a));
       for (final v in ticks) {
         if (v == 0) continue;
-        _write(
+        chartText(
           canvas,
           ra.tickFormatter?.call(v) ?? chartNumber(v),
           centre + dir * (r * v / top) + const Offset(4, 0),
@@ -28601,6 +29518,221 @@ class _RadarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RadarPainter old) => true;
+}
+''',
+    },
+    testNeeds: ["app","chart"],
+    tests: {
+      'radar_chart_test.dart': r'''// Tests for Radar chart. Copied into your app by `ashlar add radar-chart` with the component:
+// they check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/radar_chart.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 480, child: child)),
+    );
+
+typedef Visit = ({String month, double desktop, double mobile});
+
+const visits = <Visit>[
+  (month: 'Jan', desktop: 186, mobile: 80),
+  (month: 'Feb', desktop: 305, mobile: 200),
+  (month: 'Mar', desktop: 237, mobile: 120),
+  (month: 'Apr', desktop: 73, mobile: 190),
+];
+
+Future<void> mouseAt(WidgetTester tester, Offset at) async {
+  final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+  await mouse.addPointer(location: Offset.zero);
+  await mouse.moveTo(at);
+  await tester.pump();
+}
+
+String summary(WidgetTester tester, String label) =>
+    tester.getSemantics(find.bySemanticsLabel(label)).getSemanticsData().value;
+
+void main() {
+  testWidgets('it draws in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          RadarChart<Visit>(
+            data: visits,
+            axis: (r) => r.month,
+            children: [
+              PolarGrid(type: PolarGridType.circle, fill: true),
+              PolarAngleAxis(tickFormatter: (name, r) => '$name\n${r.desktop.round()}'),
+              PolarRadiusAxis(),
+              ChartLegend(),
+              Radar(label: 'Desktop', value: (r) => r.desktop, dots: true),
+              Radar(label: 'Mobile', value: (r) => r.mobile, fill: false, dashed: true),
+            ],
+          ),
+          mode: mode,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('a radar shows every series at the axis under the pointer', (tester) async {
+    await tester.pumpWidget(
+      app(
+        RadarChart<Visit>(
+          data: visits,
+          axis: (r) => r.month,
+          children: [
+            ChartTooltip(),
+            Radar(label: 'Desktop', value: (r) => r.desktop),
+            Radar(label: 'Mobile', value: (r) => r.mobile),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final r = tester.getRect(find.byType(RadarChart<Visit>));
+    // Straight up is the first axis.
+    await mouseAt(tester, r.center - Offset(0, r.height * .3));
+    expect(find.text('186'), findsOneWidget);
+    expect(find.text('80'), findsOneWidget);
+  });
+
+  testWidgets('a screen reader hears each axis', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      app(
+        RadarChart<Visit>(
+          data: visits,
+          axis: (r) => r.month,
+          semanticLabel: 'Visits',
+          children: [Radar(label: 'Desktop', value: (r) => r.desktop)],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(summary(tester, 'Visits'), startsWith('Jan: Desktop 186; Feb: Desktop 305'));
+    semantics.dispose();
+  });
+}
+''',
+    },
+    previewWidget: 'RadarChartDemo',
+    preview: r'''// The skills picture ashlar update --preview draws.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/card.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/radar_chart.dart';
+
+typedef _Skill = ({String skill, double now, double then});
+
+const _skills = <_Skill>[
+  (skill: 'Speed', now: 80, then: 60),
+  (skill: 'Range', now: 62, then: 75),
+  (skill: 'Price', now: 70, then: 55),
+  (skill: 'Comfort', now: 90, then: 70),
+  (skill: 'Safety', now: 75, then: 85),
+  (skill: 'Space', now: 58, then: 66),
+];
+
+class RadarChartDemo extends StatelessWidget {
+  const RadarChartDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 320,
+    child: Card(
+      children: [
+        const CardHeader(title: Text('Skills'), description: Text('This year and last')),
+        CardContent(
+          child: Center(
+            child: RadarChart<_Skill>(
+              data: _skills,
+              axis: (r) => r.skill,
+              semanticLabel: 'Skills',
+              children: [
+                PolarGrid(),
+                PolarAngleAxis(),
+                ChartTooltip(),
+                ChartLegend(),
+                Radar(label: 'This year', value: (r) => r.now),
+                Radar(label: 'Last year', value: (r) => r.then, fill: false),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
+  'radial-chart': Component(
+    description: "Values as arcs round a centre: a ring per row or series sharing one ring, round the whole circle or part of it, with a track, a grid, names at the start and a figure in the middle.",
+    requires: ["theme","chart"],
+    packages: [],
+    block: false,
+    files: {
+      'radial_chart.dart': r'''// Ashlar UI: Radial chart. Copied into your app by `ashlar add radial-chart`; it is yours to change.
+// ashlar: ignore-file. Laid out the same in any language, as charts are read.
+//
+// Values as arcs round a centre: a ring per row, or the series sharing one ring, round
+// the whole circle or part of it, as in shadcn/ui's radial charts.
+
+import 'dart:math' as math;
+
+import 'package:flutter/widgets.dart';
+
+import 'chart.dart';
+import 'theme.dart';
+
+/// Arcs round a centre: a ring per row, or the series sharing one ring when they have
+/// a [stackId].
+class RadialBar<T> extends ChartPart<T> implements ChartColumn<T> {
+  const RadialBar({
+    required this.value,
+    this.label,
+    this.color,
+    this.colorOf,
+    this.icon,
+    this.stackId,
+    this.background = true,
+    this.round = true,
+    this.labels = const [],
+  });
+
+  final ChartValue<T> value;
+
+  /// Its name, when there are several series.
+  final String? label;
+  final Color? color;
+
+  /// A colour per row's ring.
+  final Color? Function(T row)? colorOf;
+  final IconData? icon;
+  final String? stackId;
+
+  /// A faint full ring behind each arc, to show what a full one would be.
+  final bool background;
+
+  /// Rounded ends.
+  final bool round;
+
+  /// Text on each arc: [ChartLabelPosition.insideStart] writes it at the arc's start.
+  final List<ChartLabels<T>> labels;
+
+  @override
+  String get columnName => label ?? 'Value';
+
+  @override
+  num? columnValue(T row) => value(row);
 }
 
 /// Values as arcs round a centre: a ring per row, or the series sharing a ring when
@@ -28662,11 +29794,11 @@ class RadialBarChart<T> extends StatefulWidget {
 }
 
 class _RadialState<T> extends State<RadialBarChart<T>>
-    with TickerProviderStateMixin, _Grows<RadialBarChart<T>> {
+    with TickerProviderStateMixin, ChartGrowth<RadialBarChart<T>> {
   int? _at;
   int? _atBar;
 
-  String Function(num) get _format => widget.format ?? _CartesianState._plain;
+  String Function(num) get _format => widget.format ?? chartPlain;
 
   @override
   Widget build(BuildContext context) {
@@ -28968,7 +30100,7 @@ class _RadialPainter extends CustomPainter {
         final rad = outer - i * ringW;
         final path = Path()
           ..addArc(Rect.fromCircle(center: centre, radius: rad), _rad(start), arc * math.pi / 180);
-        canvas.drawPath(g.dashed ? _dashed(path) : path, p);
+        canvas.drawPath(g.dashed ? chartDashed(path) : path, p);
       }
     }
     for (var i = 0; i < n; i++) {
@@ -29028,7 +30160,7 @@ class _RadialPainter extends CustomPainter {
       }
     }
     for (final (s, p, l) in labels) {
-      _write(
+      chartText(
         canvas,
         s,
         p,
@@ -29043,219 +30175,16 @@ class _RadialPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RadialPainter old) => true;
 }
-
-// ---------------------------------------------------------------------------------------
-// The values as a table
-// ---------------------------------------------------------------------------------------
-
-/// A chart's values as a table: a row per data row, a column per series. Give it the
-/// same rows and parts as the chart, to show beside it or in its place for those who
-/// would rather read the numbers.
-///
-/// ```dart
-/// ChartTable<Visit>(data: visits, x: (r) => r.month, children: parts)
-/// ```
-class ChartTable<T> extends StatelessWidget {
-  const ChartTable({
-    super.key,
-    required this.data,
-    required this.x,
-    required this.children,
-    this.heading = '',
-    this.format,
-  });
-
-  final List<T> data;
-
-  /// Each row's label, the first column.
-  final Object Function(T row) x;
-
-  /// The chart's parts: each series, pie, radar or radial bar becomes a column.
-  final List<ChartPart<T>> children;
-
-  /// The first column's heading.
-  final String heading;
-  final String Function(num value)? format;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final write = format ?? _CartesianState._plain;
-    final columns = <(String, num? Function(int))>[];
-    for (final p in children) {
-      switch (p) {
-        case DerivedSeries<T>():
-          for (final s in p.derive(data)) {
-            columns.add((s.label, (i) => s.values?[i] ?? s.value?.call(data[i])));
-          }
-        case Candlestick<T>():
-          columns
-            ..add(('${p.label} open', (i) => p.open(data[i])))
-            ..add(('${p.label} high', (i) => p.high(data[i])))
-            ..add(('${p.label} low', (i) => p.low(data[i])))
-            ..add(('${p.label} close', (i) => p.close(data[i])));
-        case BoxPlot<T>():
-          columns.add(('${p.label} median', (i) {
-            final s = p.samples(data[i]);
-            return s.isEmpty ? null : _Box(s).median;
-          }));
-        case CartesianSeries<T>():
-          columns.add((p.label, (i) => p.values?[i] ?? p.value?.call(data[i])));
-        case Pie<T>():
-          columns.add(('Value', (i) => p.value(data[i])));
-        case Radar<T>():
-          columns.add((p.label, (i) => p.value(data[i])));
-        case RadialBar<T>():
-          columns.add((p.label ?? 'Value', (i) => p.value(data[i])));
-        default:
-          break;
-      }
-    }
-    String label(Object v) => v is DateTime ? chartDate(v) : '$v';
-    final head = t.text.xs.copyWith(color: c.mutedForeground, fontWeight: FontWeight.w500);
-    final body = t.text.xs.copyWith(
-      color: c.foreground,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    Widget cell(String s, TextStyle style, {bool end = false}) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Text(s, style: style, textAlign: end ? TextAlign.end : TextAlign.start),
-    );
-    return Table(
-      defaultColumnWidth: const IntrinsicColumnWidth(),
-      border: TableBorder(horizontalInside: BorderSide(color: c.border)),
-      children: [
-        TableRow(
-          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
-          children: [
-            cell(heading, head),
-            for (final (name, _) in columns) cell(name, head, end: true),
-          ],
-        ),
-        for (var i = 0; i < data.length; i++)
-          TableRow(
-            children: [
-              cell(label(x(data[i])), body),
-              for (final (_, read) in columns)
-                cell(read(i) == null ? '' : write(read(i)!), body, end: true),
-            ],
-          ),
-      ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------------------
-// Histograms
-// ---------------------------------------------------------------------------------------
-
-/// One bar of a histogram: the values from [from] up to [to], and how many there were.
-typedef ChartBin = ({double from, double to, int count});
-
-/// Splits [values] into [bins] bins of equal width over their span: Sturges' rule
-/// (1 + log2 n) when not given.
-List<ChartBin> chartBins(List<num> values, {int? bins}) {
-  if (values.isEmpty) return const [];
-  final lo = values.reduce(math.min).toDouble(), hi = values.reduce(math.max).toDouble();
-  final n = bins ?? (1 + (math.log(values.length) / math.ln2).ceil());
-  final width = hi == lo ? 1.0 : (hi - lo) / n;
-  final counts = List.filled(n, 0);
-  for (final v in values) {
-    counts[((v - lo) / width).floor().clamp(0, n - 1)]++;
-  }
-  return [
-    for (var i = 0; i < n; i++) (from: lo + i * width, to: lo + (i + 1) * width, count: counts[i]),
-  ];
-}
-
-/// How often values fall in each span: bars side by side over a number line, and the
-/// normal curve with the same mean and spread over them if you like.
-///
-/// ```dart
-/// HistogramChart(values: deliveryMinutes, label: 'Orders', normalCurve: true)
-/// ```
-class HistogramChart extends StatelessWidget {
-  const HistogramChart({
-    super.key,
-    required this.values,
-    this.bins,
-    this.label = 'Count',
-    this.color,
-    this.height = 250,
-    this.normalCurve = false,
-    this.grid = true,
-    this.tickFormatter,
-    this.semanticLabel,
-  });
-
-  final List<num> values;
-
-  /// How many bars; Sturges' rule when null.
-  final int? bins;
-
-  /// The bars' name in the tooltip.
-  final String label;
-  final Color? color;
-  final double height;
-
-  /// The bell curve a normal spread with these values' mean and deviation would make.
-  final bool normalCurve;
-  final bool grid;
-
-  /// Writes a value on the number line.
-  final String Function(num value)? tickFormatter;
-  final String? semanticLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final b = chartBins(values, bins: bins);
-    final n = values.length;
-    final mean = n == 0 ? 0.0 : values.fold<double>(0, (a, v) => a + v) / n;
-    final sd = n == 0
-        ? 0.0
-        : math.sqrt(values.fold<double>(0, (a, v) => a + (v - mean) * (v - mean)) / n);
-    final width = b.isEmpty ? 1.0 : b.first.to - b.first.from;
-    String write(num v) => tickFormatter?.call(v) ?? chartNumber(v);
-    return BarChart<ChartBin>(
-      data: b,
-      x: (r) => (r.from + r.to) / 2,
-      height: height,
-      barCategoryGap: .04,
-      semanticLabel: semanticLabel,
-      children: [
-        if (grid) CartesianGrid(),
-        XAxis(tickFormatter: (v) => write(v as num)),
-        YAxis(),
-        ChartTooltip(
-          labelFormatter: (_, r) => r == null ? '' : '${write(r.from)} to ${write(r.to)}',
-        ),
-        Bar(label: label, value: (r) => r.count, color: color, radius: 2),
-        if (normalCurve && sd > 0)
-          Line(
-            label: 'Normal',
-            values: [
-              for (final r in b)
-                n * width / (sd * math.sqrt(2 * math.pi)) *
-                    math.exp(-math.pow((r.from + r.to) / 2 - mean, 2) / (2 * sd * sd)),
-            ],
-            dashed: true,
-            width: 1.5,
-          ),
-      ],
-    );
-  }
-}
 ''',
     },
-    testNeeds: ["app"],
+    testNeeds: ["app","chart"],
     tests: {
-      'chart_test.dart': r'''// Tests for Chart. Copied into your app by `ashlar add chart` with the component: they
-// check what it promises, so change them as you change it.
+      'radial_chart_test.dart': r'''// Tests for Radial chart. Copied into your app by `ashlar add radial-chart` with the component:
+// they check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/radial_chart.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29274,562 +30203,121 @@ const visits = <Visit>[
   (month: 'Apr', desktop: 73, mobile: 190),
 ];
 
-typedef Price = ({DateTime day, double open, double high, double low, double close});
-
-final prices = <Price>[
-  for (var i = 0; i < 30; i++)
-    (
-      day: DateTime(2026, 3, 1 + i),
-      open: 100.0 + i,
-      high: 104.0 + i,
-      low: 98.0 + i,
-      close: 102.0 + i,
-    ),
-];
-
-BarChart<Visit> bars({
-  List<ChartPart<Visit>> extra = const [],
-  ValueChanged<ChartSelection<Visit>?>? onSelect,
-  String? semanticLabel,
-}) => BarChart<Visit>(
-  data: visits,
-  x: (r) => r.month,
-  onSelect: onSelect,
-  semanticLabel: semanticLabel,
-  children: [
-    CartesianGrid(),
-    XAxis(),
-    ChartTooltip(),
-    Bar(label: 'Desktop', value: (r) => r.desktop),
-    Bar(label: 'Mobile', value: (r) => r.mobile),
-    ...extra,
-  ],
-);
-
-Future<TestGesture> mouseAt(WidgetTester tester, Offset at) async {
+Future<void> mouseAt(WidgetTester tester, Offset at) async {
   final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
   await mouse.addPointer(location: Offset.zero);
   await mouse.moveTo(at);
   await tester.pump();
-  return mouse;
 }
 
+String summary(WidgetTester tester, String label) =>
+    tester.getSemantics(find.bySemanticsLabel(label)).getSemanticsData().value;
+
 void main() {
-  testWidgets('every kind draws in light and dark', (tester) async {
+  testWidgets('it draws in light and dark', (tester) async {
     for (final mode in AshlarThemeMode.values) {
-      for (final chart in <Widget>[
-        bars(),
-        BarChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          layout: ChartLayout.vertical,
-          children: [
-            XAxis(),
-            YAxis(),
-            Bar(
-              label: 'Desktop',
-              value: (r) => r.desktop,
-              stackId: 'a',
-              labels: [ChartLabels(position: ChartLabelPosition.insideStart, text: (r, _) => r.month)],
-            ),
-            Bar(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
-          ],
+      await tester.pumpWidget(
+        app(
+          RadialBarChart<Visit>(
+            data: visits,
+            name: (r) => r.month,
+            startAngle: -90,
+            endAngle: 90,
+            center: const Text('801'),
+            children: [
+              PolarGrid(type: PolarGridType.circle),
+              ChartLegend(),
+              RadialBar(
+                value: (r) => r.desktop,
+                labels: [ChartLabels(position: ChartLabelPosition.insideStart, text: (r, _) => r.month)],
+              ),
+            ],
+          ),
+          mode: mode,
         ),
-        LineChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          children: [
-            XAxis(),
-            YAxis(),
-            Line(label: 'Desktop', value: (r) => r.desktop, dots: true),
-            Line(label: 'Mobile', value: (r) => r.mobile, curve: ChartCurve.step),
-          ],
-        ),
-        AreaChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          stackOffset: StackOffset.expand,
-          children: [
-            Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
-            Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
-          ],
-        ),
-        ScatterChart<Visit>(
-          data: visits,
-          x: (r) => r.desktop,
-          children: [
-            XAxis(),
-            YAxis(),
-            Scatter(label: 'Visits', value: (r) => r.mobile, size: (r) => r.desktop),
-            Trendline(value: (r) => r.mobile),
-          ],
-        ),
-        ComposedChart<Price>(
-          data: prices,
-          x: (r) => r.day,
-          children: [
-            XAxis(),
-            YAxis(),
-            YAxis(id: 'b', right: true, type: AxisType.log),
-            Candlestick(label: 'KES', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
-            Ohlc(label: 'O', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close, yAxisId: 'b'),
-            ReferenceArea(y1: 110, y2: 115),
-            ReferenceLine(x: prices[10].day),
-            Brush(),
-            Crosshair(),
-          ],
-        ),
-        ComposedChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          children: [
-            XAxis(),
-            BoxPlot(label: 'Spread', samples: (r) => [r.mobile, r.desktop, (r.mobile + r.desktop) / 2]),
-            Waterfall(label: 'Change', value: (r) => r.desktop - r.mobile, total: (r) => r.month == 'Apr'),
-            Line(label: 'Mean', value: (r) => r.mobile, error: (r) => 10),
-          ],
-        ),
-        PieChart<Visit>(
-          data: visits,
-          center: const Text('801'),
-          children: [
-            ChartLegend(),
-            Pie(
-              value: (r) => r.desktop,
-              name: (r) => r.month,
-              innerRadius: .6,
-              labels: [ChartLabels(text: (r, _) => r.month)],
-            ),
-          ],
-        ),
-        RadarChart<Visit>(
-          data: visits,
-          axis: (r) => r.month,
-          children: [
-            PolarGrid(type: PolarGridType.circle, fill: true),
-            PolarAngleAxis(),
-            PolarRadiusAxis(),
-            Radar(label: 'Desktop', value: (r) => r.desktop, dots: true),
-          ],
-        ),
-        RadialBarChart<Visit>(
-          data: visits,
-          name: (r) => r.month,
-          startAngle: -90,
-          endAngle: 90,
-          children: [PolarGrid(), RadialBar(value: (r) => r.desktop)],
-        ),
-      ]) {
-        await tester.pumpWidget(app(chart, mode: mode));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull, reason: '$chart $mode');
-      }
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
     }
   });
 
-  testWidgets('a screen reader hears what it shows and every value', (tester) async {
+  testWidgets('a screen reader hears each value against its whole', (tester) async {
     final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(app(bars(semanticLabel: 'Visitors by month')));
-    await tester.pumpAndSettle();
-    final node = tester
-        .getSemantics(find.bySemanticsLabel('Visitors by month'))
-        .getSemanticsData();
-    expect(node.value, contains('Jan: Desktop 186, Mobile 80'));
-    expect(node.value, contains('Apr: Desktop 73, Mobile 190'));
-    semantics.dispose();
-  });
-
-  testWidgets('hovering a row shows its values; leaving hides them', (tester) async {
-    await tester.pumpWidget(app(bars()));
-    await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(BarChart<Visit>));
-    // The second of four rows.
-    final mouse = await mouseAt(tester, Offset(box.left + box.width * .375, box.top + 100));
-    expect(find.text('305'), findsOneWidget);
-    expect(find.text('200'), findsOneWidget);
-    await mouse.moveTo(Offset.zero);
-    await tester.pump();
-    expect(find.text('305'), findsNothing);
-  });
-
-  testWidgets('the tooltip writes its values and title your way', (tester) async {
     await tester.pumpWidget(
       app(
-        BarChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          children: [
-            ChartTooltip(
-              labelFormatter: (label, r) => '$label 2026',
-              formatter: (v, series, r) => 'KES $v',
-              total: true,
-            ),
-            Bar(label: 'Desktop', value: (r) => r.desktop),
-            Bar(label: 'Mobile', value: (r) => r.mobile),
-          ],
+        RadialBarChart<Visit>(
+          data: visits.take(1).toList(),
+          name: (r) => r.month,
+          max: 2000,
+          semanticLabel: 'Visits',
+          children: [RadialBar(value: (r) => r.desktop)],
         ),
       ),
     );
     await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(BarChart<Visit>));
-    await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
-    expect(find.text('Jan 2026'), findsOneWidget);
-    expect(find.text('KES 186.0'), findsOneWidget);
-    expect(find.text('Total'), findsOneWidget);
-    // The total is written the way each value is.
-    expect(find.text('KES 266.0'), findsOneWidget);
-  });
-
-  testWidgets('the arrow keys step through the rows, and Enter chooses one', (tester) async {
-    ChartSelection<Visit>? chosen;
-    await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
-    await tester.pumpAndSettle();
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-    await tester.pump();
-    expect(find.text('186'), findsOneWidget);
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-    await tester.pump();
-    expect(find.text('305'), findsOneWidget);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    expect(chosen?.index, 1);
-    expect(chosen?.row.month, 'Feb');
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    expect(chosen, isNull);
-  });
-
-  testWidgets('a tap tells the app the row and the bar under it', (tester) async {
-    ChartSelection<Visit>? chosen;
-    await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
-    await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(BarChart<Visit>));
-    // March's first bar, Desktop, low down where both bars stand.
-    await tester.tapAt(Offset(box.left + box.width * .58, box.bottom - 50));
-    await tester.pump();
-    expect(chosen?.row.month, 'Mar');
-    expect(chosen?.series, 'Desktop');
-  });
-
-  testWidgets('the legend hides and shows a series, and one always stays', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(app(bars(extra: [ChartLegend()], semanticLabel: 'Visits')));
-    await tester.pumpAndSettle();
-    String summary() => tester.getSemantics(find.bySemanticsLabel('Visits')).getSemanticsData().value;
-    expect(summary(), contains('Mobile 80'));
-    await tester.tap(find.text('Mobile'));
-    await tester.pumpAndSettle();
-    expect(summary(), isNot(contains('Mobile 80')));
-    await tester.tap(find.text('Desktop'));
-    await tester.pumpAndSettle();
-    expect(summary(), contains('Desktop 186'));
-    await tester.tap(find.text('Mobile'));
-    await tester.pumpAndSettle();
-    expect(summary(), contains('Mobile 80'));
+    expect(summary(tester, 'Visits'), 'Jan 186 of 2,000');
     semantics.dispose();
   });
 
-  testWidgets('stacked series add up, and expanded ones make 100%', (tester) async {
+  testWidgets('stacked bars share a ring, and the one under the pointer is shown', (tester) async {
     await tester.pumpWidget(
       app(
-        AreaChart<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          stackOffset: StackOffset.expand,
+        RadialBarChart<Visit>(
+          data: visits.take(1).toList(),
           children: [
             ChartTooltip(),
-            Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
-            Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
+            RadialBar(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
+            RadialBar(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
           ],
         ),
       ),
     );
     await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(AreaChart<Visit>));
-    await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
-    // 186 of 266, and 80 of 266.
-    expect(find.text('70%'), findsOneWidget);
-    expect(find.text('30%'), findsOneWidget);
-  });
-
-  testWidgets('a time axis places rows by when they fall', (tester) async {
-    final semantics = tester.ensureSemantics();
-    final days = <Price>[prices[0], prices[1], prices[8]];
-    await tester.pumpWidget(
-      app(
-        LineChart<Price>(
-          data: days,
-          x: (r) => r.day,
-          semanticLabel: 'Close',
-          children: [XAxis(), ChartTooltip(), Line(label: 'Close', value: (r) => r.close)],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(LineChart<Price>));
-    // A third of the way along is the 3rd or 4th of March: closest to the 2nd, not the
-    // 9th, though the 9th is the next row.
-    await mouseAt(tester, Offset(box.left + box.width * .3, box.top + 100));
-    expect(find.text('103'), findsOneWidget);
-    expect(
-      tester.getSemantics(find.bySemanticsLabel('Close')).getSemanticsData().value,
-      contains('1 Mar'),
-    );
-    semantics.dispose();
-  });
-
-  testWidgets('zooming with the wheel and panning by drag move the window', (tester) async {
-    final semantics = tester.ensureSemantics();
-    var reached = 0;
-    final many = <Price>[for (var i = 0; i < 30; i++) prices[i]];
-    await tester.pumpWidget(
-      app(
-        LineChart<Price>(
-          data: many,
-          x: (r) => r.day,
-          zoom: true,
-          onReachStart: () => reached++,
-          children: [XAxis(last: 10), Line(label: 'Close', value: (r) => r.close)],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final box = tester.getRect(find.byType(LineChart<Price>));
-    // Dragging right shows earlier rows, and reaching the first asks for more.
-    await tester.dragFrom(box.center, Offset(box.width * 3, 0));
-    await tester.pumpAndSettle();
-    expect(reached, greaterThan(0));
-    // The wheel zooms in about the pointer.
-    final mouse = await mouseAt(tester, box.center);
-    await tester.sendEventToBinding(
-      PointerScrollEvent(position: box.center, scrollDelta: const Offset(0, -300)),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    await mouse.removePointer();
-    semantics.dispose();
-  });
-
-  testWidgets('new rows move from the old values rather than jumping', (tester) async {
-    Widget chart(List<Visit> data) => app(
-      BarChart<Visit>(data: data, x: (r) => r.month, children: [Bar(label: 'Desktop', value: (r) => r.desktop)]),
-    );
-    await tester.pumpWidget(chart(visits));
-    await tester.pumpAndSettle();
-    await tester.pumpWidget(chart([for (final v in visits) (month: v.month, desktop: v.desktop * 2, mobile: v.mobile)]));
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(tester.hasRunningAnimations, isTrue);
-    await tester.pumpAndSettle();
-  });
-
-  testWidgets('with less motion asked for, it draws at once', (tester) async {
-    await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(disableAnimations: true),
-        child: app(bars()),
-      ),
-    );
-    await tester.pump();
-    expect(tester.hasRunningAnimations, isFalse);
-  });
-
-  testWidgets('a slice under the pointer shows its name and value', (tester) async {
-    await tester.pumpWidget(
-      app(
-        PieChart<Visit>(
-          data: visits.take(2).toList(),
-          children: [ChartTooltip(), Pie(value: (r) => r.desktop, name: (r) => r.month)],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final pie = tester.getRect(find.byType(PieChart<Visit>));
-    // 186 of 491, clockwise from the top: the right side is January's.
-    await mouseAt(tester, pie.center + Offset(pie.height * .3, 0));
-    // The title and the row both name it.
-    expect(find.text('Jan'), findsNWidgets(2));
+    final r = tester.getRect(find.byType(RadialBarChart<Visit>));
+    // Desktop is 186 of 266, clockwise from the top: the right side is its.
+    await mouseAt(tester, r.center + Offset(r.height * .4, 0));
+    expect(find.text('Desktop'), findsOneWidget);
     expect(find.text('186'), findsOneWidget);
-  });
-
-  testWidgets('a radar shows every series at the axis under the pointer', (tester) async {
-    await tester.pumpWidget(
-      app(
-        RadarChart<Visit>(
-          data: visits,
-          axis: (r) => r.month,
-          children: [
-            ChartTooltip(),
-            Radar(label: 'Desktop', value: (r) => r.desktop),
-            Radar(label: 'Mobile', value: (r) => r.mobile),
-          ],
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final r = tester.getRect(find.byType(RadarChart<Visit>));
-    // Straight up is the first axis.
-    await mouseAt(tester, r.center - Offset(0, r.height * .3));
-    expect(find.text('186'), findsOneWidget);
-    expect(find.text('80'), findsOneWidget);
-  });
-
-  testWidgets('a table shows every row and series', (tester) async {
-    await tester.pumpWidget(
-      app(
-        ChartTable<Visit>(
-          data: visits,
-          x: (r) => r.month,
-          heading: 'Month',
-          children: [
-            Bar(label: 'Desktop', value: (r) => r.desktop),
-            Bar(label: 'Mobile', value: (r) => r.mobile),
-          ],
-        ),
-      ),
-    );
-    expect(find.text('Month'), findsOneWidget);
-    expect(find.text('305'), findsOneWidget);
-    expect(find.text('190'), findsOneWidget);
-  });
-
-  test('values fall into bins of equal width', () {
-    final b = chartBins([1, 2, 2, 3, 9, 10], bins: 3);
-    expect([for (final x in b) x.count], [4, 0, 2]);
-    expect(b.first.from, 1);
-    expect(b.last.to, 10);
-    // Sturges: 1 + log2(8) bins for eight values.
-    expect(chartBins([for (var i = 0; i < 8; i++) i]).length, 4);
-  });
-
-  testWidgets('a histogram draws its bins and the normal curve', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(
-      app(
-        HistogramChart(
-          values: const [12, 15, 15, 18, 19, 21, 22, 22, 23, 25, 28, 31, 40],
-          bins: 4,
-          normalCurve: true,
-          semanticLabel: 'Minutes',
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    expect(
-      tester.getSemantics(find.bySemanticsLabel('Minutes')).getSemanticsData().value,
-      contains('Count 6'),
-    );
-    semantics.dispose();
-  });
-
-  test('round scales: 1, 2, 2.5 or 5 times a power of ten', () {
-    expect(chartTicks(0, 305), [0, 100, 200, 300, 400]);
-    expect(chartTicks(0, 1), [0, .25, .5, .75, 1]);
-    expect(chartNumber(12480), '12.5k');
-    expect(chartThousands(12480), '12,480');
   });
 }
 ''',
     },
-    previewWidget: 'ChartDemo',
-    preview: r'''// The chart picture ashlar update --preview draws, from the site's demo.
+    previewWidget: 'RadialChartDemo',
+    preview: r'''// The visitors picture ashlar update --preview draws.
 import 'package:flutter/widgets.dart';
 
 import 'package:ashlar_ui_gallery/ui/card.dart';
 import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/radial_chart.dart';
 
-typedef _Month = ({String month, double desktop, double mobile, double mpesa, double card});
-typedef _Method = ({String method, double amount});
+typedef _Browser = ({String browser, double visitors});
 
-const _months = <_Month>[
-  (month: 'Jan', desktop: 186, mobile: 80, mpesa: 120, card: 60),
-  (month: 'Feb', desktop: 305, mobile: 200, mpesa: 160, card: 80),
-  (month: 'Mar', desktop: 237, mobile: 120, mpesa: 150, card: 70),
-  (month: 'Apr', desktop: 73, mobile: 190, mpesa: 210, card: 90),
-  (month: 'May', desktop: 209, mobile: 130, mpesa: 240, card: 110),
-  (month: 'Jun', desktop: 214, mobile: 140, mpesa: 260, card: 100),
+const _browsers = <_Browser>[
+  (browser: 'Chrome', visitors: 275),
+  (browser: 'Safari', visitors: 200),
+  (browser: 'Firefox', visitors: 187),
+  (browser: 'Edge', visitors: 173),
+  (browser: 'Other', visitors: 90),
 ];
 
-const _methods = <_Method>[
-  (method: 'M-Pesa', amount: 275),
-  (method: 'Card', amount: 200),
-  (method: 'Bank', amount: 90),
-];
-
-class ChartDemo extends StatelessWidget {
-  const ChartDemo({super.key});
+class RadialChartDemo extends StatelessWidget {
+  const RadialChartDemo({super.key});
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 820,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    width: 300,
+    child: Card(
       children: [
-        Expanded(
-          child: Card(
-            children: [
-              const CardHeader(title: Text('Visitors'), description: Text('January to June')),
-              CardContent(
-                child: BarChart<_Month>(
-                  height: 200,
-                  data: _months,
-                  x: (r) => r.month,
-                  semanticLabel: 'Visitors by month',
-                  children: [
-                    CartesianGrid(),
-                    XAxis(),
-                    ChartTooltip(),
-                    Bar(label: 'Desktop', value: (r) => r.desktop),
-                    Bar(label: 'Mobile', value: (r) => r.mobile),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Card(
-            children: [
-              const CardHeader(title: Text('Sales'), description: Text('KES, thousands')),
-              CardContent(
-                child: AreaChart<_Month>(
-                  height: 200,
-                  data: _months,
-                  x: (r) => r.month,
-                  semanticLabel: 'Sales by month',
-                  children: [
-                    CartesianGrid(),
-                    XAxis(),
-                    ChartTooltip(),
-                    Area(label: 'Card', value: (r) => r.card, stackId: 'a'),
-                    Area(label: 'M-Pesa', value: (r) => r.mpesa, stackId: 'a'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        SizedBox(
-          width: 220,
-          child: Card(
-            children: [
-              const CardHeader(title: Text('Payments'), description: Text('This month')),
-              CardContent(
-                child: Center(
-                  child: PieChart<_Method>(
-                    size: 150,
-                    data: _methods,
-                    semanticLabel: 'Payments by method',
-                    center: const Text('565'),
-                    children: [
-                      ChartTooltip(hideLabel: true),
-                      Pie(value: (r) => r.amount, name: (r) => r.method, innerRadius: .6),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        const CardHeader(title: Text('Visitors'), description: Text('By browser, this month')),
+        CardContent(
+          child: Center(
+            child: RadialBarChart<_Browser>(
+              data: _browsers,
+              name: (r) => r.browser,
+              size: 220,
+              semanticLabel: 'Visitors by browser',
+              children: [ChartTooltip(hideLabel: true), RadialBar(value: (r) => r.visitors)],
+            ),
           ),
         ),
       ],

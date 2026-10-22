@@ -142,6 +142,18 @@
  "chart": [
   "app"
  ],
+ "pie-chart": [
+  "app",
+  "chart"
+ ],
+ "radar-chart": [
+  "app",
+  "chart"
+ ],
+ "radial-chart": [
+  "app",
+  "chart"
+ ],
  "sparkline": [
   "app"
  ],
