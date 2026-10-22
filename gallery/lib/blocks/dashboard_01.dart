@@ -401,6 +401,9 @@ class _Visitors extends StatefulWidget {
   State<_Visitors> createState() => _VisitorsState();
 }
 
+/// A day's visitors, the chart's row.
+typedef _Visits = ({DateTime day, double desktop, double mobile});
+
 class _VisitorsState extends State<_Visitors> {
   var _range = 90;
 
@@ -471,17 +474,26 @@ class _VisitorsState extends State<_Visitors> {
                 ),
         ),
         CardContent(
-          child: AreaChart(
+          child: AreaChart<_Visits>(
             semanticLabel: 'Visitors by day',
-            stacked: true,
-            labels: [for (final d in days) '${_months[d.month - 1]} ${d.day}'],
-            series: [
-              ChartSeries('Desktop', [
-                for (final d in days) sum(_desktop, d).toDouble(),
-              ]),
-              ChartSeries('Mobile', [
-                for (final d in days) sum(_mobile, d).toDouble(),
-              ]),
+            data: [
+              for (final d in days)
+                (
+                  day: d,
+                  desktop: sum(_desktop, d).toDouble(),
+                  mobile: sum(_mobile, d).toDouble(),
+                ),
+            ],
+            x: (r) => r.day,
+            children: [
+              CartesianGrid(),
+              XAxis(tickFormatter: (d) => '${_months[(d as DateTime).month - 1]} ${d.day}'),
+              ChartTooltip(
+                indicator: ChartIndicator.dot,
+                labelFormatter: (_, r) => '${_months[r!.day.month - 1]} ${r.day.day}',
+              ),
+              Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
+              Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
             ],
           ),
         ),
