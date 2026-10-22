@@ -31965,6 +31965,304 @@ class TreemapDemo extends StatelessWidget {
 }
 ''',
   ),
+  'chart-export': Component(
+    description: "A chart, or any widget, as a PNG or a one-page PDF, with no package: the bytes are yours to save, share or upload.",
+    requires: [],
+    packages: [],
+    block: false,
+    files: {
+      'chart_export.dart': r'''// Ashlar UI: Chart export. Copied into your app by `ashlar add chart-export`; it is yours
+// to change.
+//
+// A chart (or any widget) as a PNG or a one-page PDF, with no package: the picture from
+// Flutter's own renderer, the PDF written here. What you do with the bytes (save, share,
+// upload) is up to your app.
+
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
+
+/// Takes pictures of the [ChartExport] it is given to.
+///
+/// ```dart
+/// final export = ChartExportController();
+/// ChartExport(controller: export, child: BarChart(...));
+/// final bytes = await export.pdf(title: 'Visitors');
+/// ```
+class ChartExportController {
+  final _key = GlobalKey();
+
+  RenderRepaintBoundary get _boundary {
+    final r = _key.currentContext?.findRenderObject();
+    if (r is! RenderRepaintBoundary) {
+      throw StateError('The ChartExport for this controller is not on screen.');
+    }
+    return r;
+  }
+
+  /// The chart as an image, [pixelRatio] pixels to each logical one.
+  Future<ui.Image> image({double pixelRatio = 2}) =>
+      _boundary.toImage(pixelRatio: pixelRatio);
+
+  /// The chart as a PNG.
+  Future<Uint8List> png({double pixelRatio = 2}) async {
+    final image = await this.image(pixelRatio: pixelRatio);
+    try {
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      return data!.buffer.asUint8List();
+    } finally {
+      image.dispose();
+    }
+  }
+
+  /// The chart as a one-page PDF the size of the chart, on [background] (the chart's
+  /// transparent parts are painted it), with [title] in the document's details.
+  Future<Uint8List> pdf({
+    double pixelRatio = 2,
+    String? title,
+    Color background = const Color(0xFFFFFFFF),
+  }) async {
+    final image = await this.image(pixelRatio: pixelRatio);
+    try {
+      final data = await image.toByteData(format: ui.ImageByteFormat.rawStraightRgba);
+      return chartPdf(
+        rgba: data!.buffer.asUint8List(),
+        width: image.width,
+        height: image.height,
+        pixelRatio: pixelRatio,
+        title: title,
+        background: background,
+      );
+    } finally {
+      image.dispose();
+    }
+  }
+}
+
+/// Marks what a [ChartExportController] takes pictures of.
+class ChartExport extends StatelessWidget {
+  const ChartExport({super.key, required this.controller, required this.child});
+
+  final ChartExportController controller;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      RepaintBoundary(key: controller._key, child: child);
+}
+
+/// A one-page PDF holding a picture given as straight (not premultiplied) RGBA bytes,
+/// [width] by [height] pixels; the page is the picture's size at 96 pixels an inch,
+/// divided by [pixelRatio].
+Uint8List chartPdf({
+  required Uint8List rgba,
+  required int width,
+  required int height,
+  double pixelRatio = 1,
+  String? title,
+  Color background = const Color(0xFFFFFFFF),
+}) {
+  // PDF pictures have no transparency here: lay each pixel on the background.
+  final rgb = Uint8List(width * height * 3);
+  final br = (background.r * 255).round(),
+      bg = (background.g * 255).round(),
+      bb = (background.b * 255).round();
+  for (var p = 0, q = 0; p < rgba.length; p += 4, q += 3) {
+    final a = rgba[p + 3];
+    rgb[q] = (rgba[p] * a + br * (255 - a)) ~/ 255;
+    rgb[q + 1] = (rgba[p + 1] * a + bg * (255 - a)) ~/ 255;
+    rgb[q + 2] = (rgba[p + 2] * a + bb * (255 - a)) ~/ 255;
+  }
+  // Points are 1/72 inch; a logical pixel is 1/96.
+  String n(double v) => v.toStringAsFixed(2);
+  final pw = width / pixelRatio * .75, ph = height / pixelRatio * .75;
+  final out = BytesBuilder(copy: false);
+  final offsets = <int>[];
+  void raw(String s) => out.add(latin1.encode(s));
+  void obj(String body) {
+    offsets.add(out.length);
+    raw('${offsets.length} 0 obj\n$body\nendobj\n');
+  }
+
+  // Text in a PDF string: brackets and backslashes escaped, other characters dropped
+  // unless they fit Latin-1.
+  String text(String s) => s
+      .replaceAll(r'\', r'\\')
+      .replaceAll('(', r'\(')
+      .replaceAll(')', r'\)')
+      .runes
+      .map((r) => r < 256 ? String.fromCharCode(r) : '?')
+      .join();
+
+  raw('%PDF-1.4\n%âãÏÓ\n');
+  obj('<< /Type /Catalog /Pages 2 0 R >>');
+  obj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n(pw)} ${n(ph)}] '
+    '/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>',
+  );
+  offsets.add(out.length);
+  raw(
+    '4 0 obj\n<< /Type /XObject /Subtype /Image /Width $width /Height $height '
+    '/ColorSpace /DeviceRGB /BitsPerComponent 8 /Length ${rgb.length} >>\nstream\n',
+  );
+  out.add(rgb);
+  raw('\nendstream\nendobj\n');
+  final draw = 'q ${n(pw)} 0 0 ${n(ph)} 0 0 cm /Im0 Do Q';
+  obj('<< /Length ${draw.length} >>\nstream\n$draw\nendstream');
+  obj('<< /Title (${text(title ?? 'Chart')}) /Producer (Ashlar UI) >>');
+  final xref = out.length;
+  raw('xref\n0 ${offsets.length + 1}\n0000000000 65535 f \n');
+  for (final o in offsets) {
+    raw('${o.toString().padLeft(10, '0')} 00000 n \n');
+  }
+  raw(
+    'trailer\n<< /Size ${offsets.length + 1} /Root 1 0 R /Info ${offsets.length} 0 R >>\n'
+    'startxref\n$xref\n%%EOF\n',
+  );
+  return out.toBytes();
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'chart_export_test.dart': r'''// Tests for Chart export. Copied into your app by `ashlar add chart-export` with the
+// component: they check what it promises, so change them as you change it.
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/chart_export.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('a PNG and a PDF of what it wraps', (tester) async {
+    final export = ChartExportController();
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Center(
+          child: ChartExport(
+            controller: export,
+            child: Container(width: 120, height: 60, color: const Color(0xFF336699)),
+          ),
+        ),
+      ),
+    );
+    final png = (await tester.runAsync(() => export.png(pixelRatio: 1)))!;
+    expect(png.sublist(1, 4), utf8.encode('PNG'));
+    final pdf = (await tester.runAsync(() => export.pdf(pixelRatio: 1, title: 'Sales')))!;
+    final text = latin1.decode(pdf);
+    expect(text, startsWith('%PDF-1.4'));
+    expect(text, contains('/Width 120 /Height 60'));
+    expect(text, contains('/MediaBox [0 0 90.00 45.00]'));
+    expect(text, contains('/Title (Sales)'));
+    expect(text.trimRight(), endsWith('%%EOF'));
+  });
+
+  test('a PDF lays transparent pixels on its background, and its table finds each part', () {
+    // Two pixels: opaque red, and fully transparent.
+    final pdf = chartPdf(
+      rgba: Uint8List.fromList([255, 0, 0, 255, 0, 0, 0, 0]),
+      width: 2,
+      height: 1,
+    );
+    final bytes = latin1.decode(pdf);
+    final start = bytes.indexOf('stream\n', bytes.indexOf('/Subtype /Image')) + 7;
+    expect(pdf.sublist(start, start + 6), [255, 0, 0, 255, 255, 255]);
+    // Each offset in the table points at its object.
+    final xref = int.parse(RegExp(r'startxref\n(\d+)').firstMatch(bytes)!.group(1)!);
+    final table = bytes.substring(xref).split('\n').skip(3).take(6);
+    for (final (i, line) in table.indexed) {
+      final at = int.parse(line.substring(0, 10));
+      expect(bytes.substring(at), startsWith('${i + 1} 0 obj'));
+    }
+  });
+
+  testWidgets('without its widget on screen, it says so', (tester) async {
+    expect(() => ChartExportController().png(), throwsStateError);
+  });
+}
+''',
+    },
+    previewWidget: 'ChartExportDemo',
+    preview: r'''// The chart export picture ashlar update --preview draws: a chart with its buttons.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/button.dart';
+import 'package:ashlar_ui_gallery/ui/card.dart';
+import 'package:ashlar_ui_gallery/ui/chart.dart';
+import 'package:ashlar_ui_gallery/ui/chart_export.dart';
+
+typedef _Month = ({String month, double visitors});
+
+const _months = <_Month>[
+  (month: 'Jan', visitors: 186),
+  (month: 'Feb', visitors: 305),
+  (month: 'Mar', visitors: 237),
+  (month: 'Apr', visitors: 73),
+];
+
+class ChartExportDemo extends StatefulWidget {
+  const ChartExportDemo({super.key});
+
+  @override
+  State<ChartExportDemo> createState() => _ChartExportDemoState();
+}
+
+class _ChartExportDemoState extends State<ChartExportDemo> {
+  final _export = ChartExportController();
+  String _made = '';
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 460,
+    child: Card(
+      children: [
+        const CardHeader(title: Text('Visitors'), description: Text('January to April')),
+        CardContent(
+          child: ChartExport(
+            controller: _export,
+            child: BarChart<_Month>(
+              data: _months,
+              x: (r) => r.month,
+              height: 180,
+              children: [XAxis(), Bar(label: 'Visitors', value: (r) => r.visitors)],
+            ),
+          ),
+        ),
+        CardFooter(
+          children: [
+            Button(
+              variant: ButtonVariant.outline,
+              onPressed: () async {
+                final bytes = await _export.png();
+                setState(() => _made = 'PNG, ${bytes.length ~/ 1024} KB');
+              },
+              child: const Text('PNG'),
+            ),
+            const SizedBox(width: 8),
+            Button(
+              variant: ButtonVariant.outline,
+              onPressed: () async {
+                final bytes = await _export.pdf(title: 'Visitors');
+                setState(() => _made = 'PDF, ${bytes.length ~/ 1024} KB');
+              },
+              child: const Text('PDF'),
+            ),
+            const SizedBox(width: 12),
+            Text(_made),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+''',
+  ),
   'sidebar': Component(
     description: "An app's navigation down the side: variants, submenus, actions, a rail.",
     requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
