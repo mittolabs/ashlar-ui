@@ -1,3 +1,79 @@
+## 0.2.0
+
+Charts are rebuilt as your rows and the parts you put in them, and cover far more kinds.
+This breaks code written against 0.1.x charts: see "Moving from 0.1" below.
+
+- `chart`: a chart is your rows and the parts you put in it.
+  `BarChart<Visit>(data: visits, x: (r) => r.month, children: [CartesianGrid(), XAxis(),
+  ChartTooltip(), Bar(label: 'Desktop', value: (r) => r.desktop)])`. Name the row type on
+  the chart; the parts take it from there, and a misspelt field fails to compile.
+  - One engine draws every cartesian chart (`BarChart`, `LineChart`, `AreaChart`,
+    `ComposedChart`, `ScatterChart`), so kinds mix: `Bar`, `Line`, `Area`, `Scatter`
+    (bubbles with `size`), `Candlestick`, `Ohlc`, `HiLo`, `BoxPlot`, `Waterfall`; ranges
+    (`low`) and error bars (`error`); stacks and 100% stacks of bars, lines and areas.
+  - Axes: category, number, time (rows placed by when they fall) and log, several value
+    axes on either side, upright or lying (`layout: ChartLayout.vertical`).
+  - `ReferenceLine`, `ReferenceArea`, `ReferenceDot`, `ChartAnnotation` (any widget at a
+    row and a value), `Trendline` (linear, exponential, logarithmic, polynomial, power,
+    moving average, run past the data), `Brush`, `Crosshair`.
+  - `zoom: true` (wheel, pinch, drag, double tap), `XAxis(last: 30)` to follow the latest
+    rows, `onReachStart` to load earlier ones, `onSelect` with the row and series tapped
+    or chosen with Enter. New values move from the old ones. Many points are thinned to
+    the pixel.
+  - `ChartLabels` write values or your own text at any side of a bar or point;
+    `ChartDot` gives dots a size, shape, icon or a colour per row.
+  - `HistogramChart` (with `chartBins` and the normal curve) and `ChartTable`, the values
+    as a table (any `ChartColumn` is a column).
+  - The drawing helpers the other chart components share are public, for charts of your
+    own: `ChartGrowth`, `chartText`, `chartMark`, `chartGlyph`, `chartDashed`,
+    `chartPlain`, `ChartTooltipCard`, `ChartLegendView`.
+- `pie-chart`: `PieChart` with `Pie` rings (padding, rounded corners, labels inside or
+  outside, a figure in the middle). Was in `chart`.
+- `radar-chart`: `RadarChart` with `PolarGrid`, `PolarAngleAxis`, `PolarRadiusAxis` and
+  `Radar`. Was in `chart`.
+- `radial-chart`: `RadialBarChart` with `RadialBar` (stacked, part rings, names at the
+  start). Was in `chart`.
+- `sparkline`: `Sparkline`, a line, area, bars or wins and losses with no axes.
+- `funnel-chart`: `FunnelChart` with a `Funnel` or `Pyramid`.
+- `heatmap`: `Heatmap` and `CalendarHeatmap`.
+- `treemap`: `Treemap`, grouped if you like.
+- `chart-indicators`: `Sma`, `Ema`, `Wma`, `Tma`, `Bollinger`, `Macd`, `Rsi`,
+  `Stochastic`, `Atr`, `AccumulationDistribution`, `Momentum` and `RateOfChange`.
+- `chart-export`: `ChartExport` and its controller give a chart as PNG or PDF bytes.
+- `dashboard-01`: its chart places the days on a time axis.
+- `color-picker`: `ColorPicker`, a square for saturation and brightness, a hue strip,
+  opacity if asked, a hex field and swatches, each part by pointer, keys or a screen
+  reader; `ColorPickerButton` opens one from a swatch.
+- `ashlar init --preset` and `ashlar apply --preset` take a theme made on
+  ui.ashlar.ke/themes: its base, accent and style, and any colours (light and dark),
+  corners, spacing and shadows changed on them, written into `app_theme.dart`. The
+  preset is kept in `ashlar.yaml`; `--preset none` drops its changes.
+  `package:ashlar_ui/preset.dart` reads and writes the codes.
+
+### Moving from 0.1
+
+| 0.1 | 0.2 |
+|---|---|
+| `labels: [...]`, `series: [ChartSeries('Desktop', [...])]` | `data: rows`, `x: (r) => r.month`, `Bar(label: 'Desktop', value: (r) => r.desktop)` |
+| `stacked: true` | the same `stackId` on each series |
+| `expand: true` | `stackOffset: StackOffset.expand` |
+| `horizontal: true` | `layout: ChartLayout.vertical` |
+| `axis: true` | `YAxis()` |
+| `grid: true` (the default) | `CartesianGrid()`; nothing is drawn unless you put it in |
+| row labels (always drawn) | `XAxis()` |
+| `legend: ChartLegend.bottom` (the default) | `ChartLegend()`; `ChartLegend(position: ChartLegendPosition.top)` |
+| `tooltip: ChartTooltip(...)` (on by default) | `ChartTooltip(...)` in the children |
+| `ChartTooltip(showTitle: false)`, `title:` | `hideLabel: true`, `labelFormatter:` |
+| `dots: true`, `curve:`, `gradient:` | on each `Line` or `Area` |
+| `valueLabels: true` | `labels: [ChartLabels()]` on the series |
+| `ChartSeries(colors: [...])` | `Bar(colorOf: (r) => ...)` |
+| `PieChart`, `RadarChart`, `RadialChart` in `chart` | `ashlar add pie-chart`, `radar-chart`, `radial-chart` |
+| `PieChart(slices: [ChartSlice(...)])` | `PieChart(data:, children: [Pie(value:, name:)])` |
+| `donut: true`, `inner:`, `active:` | `Pie(innerRadius: .6)`, a second `Pie`, `Pie(activeIndex:)` |
+| `PieLabels.amounts`, `PieLabels.titles` | `ChartLabels(position: ChartLabelPosition.inside)`, `ChartLabels(text: ...)` |
+| `RadarChart(labels:, series:, grid:, spokes:, gridFill:)` | `RadarChart(data:, axis:)` with `PolarGrid(type:, radialLines:, fill:)` and `Radar` |
+| `RadialChart(slices:, half: true, track:)` | `RadialBarChart(data:, startAngle: -90, endAngle: 90)` with `RadialBar(background:)` |
+
 ## 0.1.5
 
 - `DrawerSheet`, in `drawer`: a drawer that stays on the page and rests at snap points,
