@@ -2,7 +2,7 @@
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Several values for each series round a circle, joined into a shape: your rows (one an
-// axis) and a Radar each, over a PolarGrid, as in shadcn/ui.
+// axis) and a Radar each, over a PolarGrid.
 
 import 'dart:math' as math;
 

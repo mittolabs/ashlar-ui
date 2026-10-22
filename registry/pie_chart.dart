@@ -2,7 +2,7 @@
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Slices of a whole, as a pie or a donut, a ring inside a ring if you like: your rows and
-// a Pie, as in shadcn/ui. The tooltip, legend and labels are chart's.
+// a Pie. The tooltip, legend and labels are chart's.
 
 import 'dart:math' as math;
 

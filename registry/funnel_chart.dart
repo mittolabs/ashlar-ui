@@ -88,7 +88,7 @@ class FunnelChart<T> extends StatefulWidget {
   State<FunnelChart<T>> createState() => _FunnelState<T>();
 }
 
-/// A [FunnelChart] holding a [Pyramid], under the name Syncfusion uses.
+/// A [FunnelChart] holding a [Pyramid], named for what it draws.
 class PyramidChart<T> extends FunnelChart<T> {
   const PyramidChart({
     super.key,

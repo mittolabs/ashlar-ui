@@ -3,8 +3,8 @@
 // number lines are read; ashlar check leaves this file out.
 //
 // Drawn on the canvas here, with no charting package. A chart is your rows and the parts
-// you put in it, as in shadcn/ui and Recharts: a grid, axes, a tooltip, a legend, and the
-// series that read their values from each row.
+// you put in it: a grid, axes, a tooltip, a legend, and the series that read their values
+// from each row.
 //
 // ```dart
 // typedef Visit = ({String month, double desktop, double mobile});
@@ -58,7 +58,7 @@ abstract interface class ChartColumn<T> {
 
 /// How a line goes from one value to the next.
 enum ChartCurve {
-  /// A smooth curve that never overshoots a value (Recharts' `monotone`).
+  /// A smooth curve that never overshoots a value.
   smooth,
 
   /// Straight from point to point.
@@ -1571,7 +1571,7 @@ class Crosshair<T> extends ChartPart<T> {
 
 /// A chart of rows along one axis and values up the other: bars, lines, areas, marks,
 /// prices, boxes and waterfalls, in any mix. [BarChart], [LineChart], [AreaChart],
-/// [ComposedChart] and [ScatterChart] are this under the names shadcn/ui uses.
+/// [ComposedChart] and [ScatterChart] are this, named for what they mostly draw.
 ///
 /// ```dart
 /// ComposedChart<Sale>(

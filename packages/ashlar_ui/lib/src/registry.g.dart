@@ -23495,7 +23495,7 @@ class _TimePickerDemoState extends State<TimePickerDemo> {
 ''',
   ),
   'chart': Component(
-    description: "Charts as in shadcn/ui: your rows and the parts you put in them. Bar, line, area, composed and scatter charts with bars, lines, areas, marks, bubbles, prices, boxes, waterfalls and ranges; number, time, category and log axes, several of them; reference lines and bands, annotations, trendlines, a brush, zoom and pan, a crosshair and selection. Histograms, and a table of the values. Drawn here, with no charting package.",
+    description: "Charts made of your rows and the parts you put in them. Bar, line, area, composed and scatter charts with bars, lines, areas, marks, bubbles, prices, boxes, waterfalls and ranges; number, time, category and log axes, several of them; reference lines and bands, annotations, trendlines, a brush, zoom and pan, a crosshair and selection. Histograms, and a table of the values. Drawn here, with no charting package.",
     requires: ["theme"],
     packages: [],
     block: false,
@@ -23505,8 +23505,8 @@ class _TimePickerDemoState extends State<TimePickerDemo> {
 // number lines are read; ashlar check leaves this file out.
 //
 // Drawn on the canvas here, with no charting package. A chart is your rows and the parts
-// you put in it, as in shadcn/ui and Recharts: a grid, axes, a tooltip, a legend, and the
-// series that read their values from each row.
+// you put in it: a grid, axes, a tooltip, a legend, and the series that read their values
+// from each row.
 //
 // ```dart
 // typedef Visit = ({String month, double desktop, double mobile});
@@ -23560,7 +23560,7 @@ abstract interface class ChartColumn<T> {
 
 /// How a line goes from one value to the next.
 enum ChartCurve {
-  /// A smooth curve that never overshoots a value (Recharts' `monotone`).
+  /// A smooth curve that never overshoots a value.
   smooth,
 
   /// Straight from point to point.
@@ -25073,7 +25073,7 @@ class Crosshair<T> extends ChartPart<T> {
 
 /// A chart of rows along one axis and values up the other: bars, lines, areas, marks,
 /// prices, boxes and waterfalls, in any mix. [BarChart], [LineChart], [AreaChart],
-/// [ComposedChart] and [ScatterChart] are this under the names shadcn/ui uses.
+/// [ComposedChart] and [ScatterChart] are this, named for what they mostly draw.
 ///
 /// ```dart
 /// ComposedChart<Sale>(
@@ -28380,7 +28380,7 @@ class ChartDemo extends StatelessWidget {
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Slices of a whole, as a pie or a donut, a ring inside a ring if you like: your rows and
-// a Pie, as in shadcn/ui. The tooltip, legend and labels are chart's.
+// a Pie. The tooltip, legend and labels are chart's.
 
 import 'dart:math' as math;
 
@@ -29041,7 +29041,7 @@ class PieChartDemo extends StatelessWidget {
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Several values for each series round a circle, joined into a shape: your rows (one an
-// axis) and a Radar each, over a PolarGrid, as in shadcn/ui.
+// axis) and a Radar each, over a PolarGrid.
 
 import 'dart:math' as math;
 
@@ -29684,7 +29684,7 @@ class RadarChartDemo extends StatelessWidget {
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Values as arcs round a centre: a ring per row, or the series sharing one ring, round
-// the whole circle or part of it, as in shadcn/ui's radial charts.
+// the whole circle or part of it.
 
 import 'dart:math' as math;
 
@@ -30907,7 +30907,7 @@ class FunnelChart<T> extends StatefulWidget {
   State<FunnelChart<T>> createState() => _FunnelState<T>();
 }
 
-/// A [FunnelChart] holding a [Pyramid], under the name Syncfusion uses.
+/// A [FunnelChart] holding a [Pyramid], named for what it draws.
 class PyramidChart<T> extends FunnelChart<T> {
   const PyramidChart({
     super.key,

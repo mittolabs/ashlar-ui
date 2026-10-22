@@ -2,7 +2,7 @@
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
 //
 // Values as arcs round a centre: a ring per row, or the series sharing one ring, round
-// the whole circle or part of it, as in shadcn/ui's radial charts.
+// the whole circle or part of it.
 
 import 'dart:math' as math;
 
