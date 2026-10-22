@@ -124,6 +124,21 @@ void main() {
       },
     );
 
+    testWidgets('a turn sent from far up is brought into view', (tester) async {
+      final items = [for (var i = 0; i < 30; i++) row('old $i', 100)];
+      final controller = await pump(
+        tester,
+        items,
+        start: MessageScrollStart.start,
+      );
+      expect(controller.canScrollEnd, isTrue);
+      // Sent while reading the start: the new turn is far below anything laid out.
+      await pump(tester, [...items, row('q', 40, anchor: true), row('a', 50)]);
+      await tester.pumpAndSettle();
+      expect(find.text('q'), findsOneWidget);
+      expect(topOf(tester, 'q'), lessThan(120));
+    });
+
     testWidgets('older messages load above without moving the view', (
       tester,
     ) async {

@@ -269,10 +269,21 @@ class _MessageScrollerState extends State<MessageScroller> {
 
   /// Brings a new turn near the top, keeping a slice of the row before it in view, and
   /// keeps room below it for what follows.
-  void _anchor(Object id) {
+  void _anchor(Object id, [int tries = 0]) {
     final position = _position;
+    if (!mounted || position == null) return;
     final at = _offsetOf(id);
-    if (!mounted || position == null || at == null) return;
+    if (at == null) {
+      // Below a long answer the new turn is not laid out yet: go to the end, where it is,
+      // and place it once it is.
+      if (tries < 3) {
+        position.jumpTo(position.maxScrollExtent);
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _anchor(id, tries + 1),
+        );
+      }
+      return;
+    }
     final index = widget.items.indexWhere((i) => i.id == id);
     final before = index > 0 ? _heightOf(widget.items[index - 1].id) ?? 0 : 0;
     final peek = before < widget.previousPeek ? before : widget.previousPeek;
