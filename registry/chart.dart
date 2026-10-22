@@ -261,7 +261,8 @@ class ChartTooltip<T> extends ChartPart<T> {
   final bool shared;
 
   /// Your own tooltip in place of the card.
-  final Widget Function(BuildContext context, ChartTooltipData<T> data)? builder;
+  final Widget Function(BuildContext context, ChartTooltipData<T> data)?
+  builder;
 }
 
 /// The series' names and colours. Each is a button that hides and shows its series,
@@ -279,7 +280,8 @@ class ChartLegend<T> extends ChartPart<T> {
   final bool toggle;
 
   /// Your own legend: the items, and whether each is shown.
-  final Widget Function(BuildContext context, List<ChartLegendEntry> entries)? builder;
+  final Widget Function(BuildContext context, List<ChartLegendEntry> entries)?
+  builder;
 }
 
 /// One name in a legend.
@@ -375,8 +377,10 @@ String chartDate(DateTime d, {Duration step = const Duration(days: 1)}) {
   if (step >= const Duration(days: 28)) {
     return d.month == 1 ? '${_months[0]} ${d.year}' : _months[d.month - 1];
   }
-  if (step >= const Duration(days: 1)) return '${d.day} ${_months[d.month - 1]}';
-  if (step >= const Duration(minutes: 1)) return '${two(d.hour)}:${two(d.minute)}';
+  if (step >= const Duration(days: 1))
+    return '${d.day} ${_months[d.month - 1]}';
+  if (step >= const Duration(minutes: 1))
+    return '${two(d.hour)}:${two(d.minute)}';
   return '${two(d.hour)}:${two(d.minute)}:${two(d.second)}';
 }
 
@@ -718,7 +722,13 @@ double _textWidth(String s, TextStyle style) => (TextPainter(
 )..layout()).width;
 
 /// Draws [shape] of radius [r] at [c]: a chart's dot or mark.
-void chartMark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint) {
+void chartMark(
+  Canvas canvas,
+  ChartShape shape,
+  Offset c,
+  double r,
+  Paint paint,
+) {
   switch (shape) {
     case ChartShape.circle:
       canvas.drawCircle(c, r, paint);
@@ -764,7 +774,13 @@ void chartMark(Canvas canvas, ChartShape shape, Offset c, double r, Paint paint)
 }
 
 /// Draws [icon] centred on [c] at [size], from its font.
-void chartGlyph(Canvas canvas, IconData icon, Offset c, double size, Color color) {
+void chartGlyph(
+  Canvas canvas,
+  IconData icon,
+  Offset c,
+  double size,
+  Color color,
+) {
   chartText(
     canvas,
     String.fromCharCode(icon.codePoint),
@@ -890,7 +906,8 @@ Path chartDashed(Path source, {double on = 4, double off = 4}) {
 
 /// Starts a chart's growing in, or shows it whole when motion is reduced: [grown] runs from
 /// 0 to 1 as it appears. For charts in other files, and charts of your own.
-mixin ChartGrowth<W extends StatefulWidget> on State<W>, TickerProviderStateMixin<W> {
+mixin ChartGrowth<W extends StatefulWidget>
+    on State<W>, TickerProviderStateMixin<W> {
   late final grow = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 700),
@@ -1348,11 +1365,7 @@ class HiLo<T> extends Candlestick<T> {
     super.icon,
     super.yAxisId,
     super.hide,
-  }) : super(
-         open: open ?? low,
-         close: close ?? high,
-         style: PriceStyle.hilo,
-       );
+  }) : super(open: open ?? low, close: close ?? high, style: PriceStyle.hilo);
 }
 
 /// A box and whiskers per row, from the row's samples: the middle half in the box, the
@@ -1774,7 +1787,10 @@ class _Box {
     final inside = s.where((v) => v >= q1 - reach && v <= q3 + reach);
     min = inside.isEmpty ? q1 : inside.first;
     max = inside.isEmpty ? q3 : inside.last;
-    out = [for (final v in s) if (v < min || v > max) v];
+    out = [
+      for (final v in s)
+        if (v < min || v > max) v,
+    ];
   }
 
   late final double q1, median, q3, mean, min, max;
@@ -1908,7 +1924,6 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       widget.format ??
       (widget.stackOffset == StackOffset.expand ? _percent : chartPlain);
 
-
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
@@ -1974,9 +1989,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
     double? place(Object? v, [int? i]) => switch (type) {
       AxisType.category =>
         i != null ? i + .5 : (xs.contains(v) ? xs.indexOf(v!) + .5 : null),
-      AxisType.time => v is DateTime ? v.millisecondsSinceEpoch.toDouble() : null,
-      AxisType.log =>
-        v is num && v > 0 ? math.log(v) / math.ln10 : null,
+      AxisType.time =>
+        v is DateTime ? v.millisecondsSinceEpoch.toDouble() : null,
+      AxisType.log => v is num && v > 0 ? math.log(v) / math.ln10 : null,
       AxisType.number => v is num ? v.toDouble() : null,
     };
     final us = [for (var i = 0; i < n; i++) place(xs[i], i) ?? 0.0];
@@ -2024,7 +2039,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       lo = band ? a.toDouble() : us[a] - (hasBars ? room / 2 : 0);
       hi = band ? b + 1.0 : us[b] + (hasBars ? room / 2 : 0);
     } else if (xAxis?.last case final last? when n > last) {
-      lo = band ? (n - last).toDouble() : us[n - last] - (hasBars ? room / 2 : 0);
+      lo = band
+          ? (n - last).toDouble()
+          : us[n - last] - (hasBars ? room / 2 : 0);
     }
     if (hi <= lo) hi = lo + room;
     bool inView(int i) => us[i] >= lo - room && us[i] <= hi + room;
@@ -2042,8 +2059,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
     if (expand) {
       for (final p in parts) {
         final key = switch (p) {
-          Bar(:final stackId?) || Line(:final stackId?) || Area(:final stackId?) =>
-            '${p.yAxisId}/$stackId',
+          Bar(:final stackId?) ||
+          Line(:final stackId?) ||
+          Area(:final stackId?) => '${p.yAxisId}/$stackId',
           _ => null,
         };
         if (key == null || _hidden.contains(p.label)) continue;
@@ -2064,11 +2082,18 @@ class _CartesianState<T> extends State<CartesianChart<T>>
         Waterfall() => _Kind.waterfall,
         _ => _Kind.line,
       };
-      final s = _Series(kind, p, k, p.color ?? c.charts[k % c.charts.length], n);
+      final s = _Series(
+        kind,
+        p,
+        k,
+        p.color ?? c.charts[k % c.charts.length],
+        n,
+      );
       final y = scales[p.yAxisId]!;
       final stackId = switch (p) {
-        Bar(:final stackId) || Line(:final stackId) || Area(:final stackId) =>
-          stackId,
+        Bar(:final stackId) ||
+        Line(:final stackId) ||
+        Area(:final stackId) => stackId,
         _ => null,
       };
       final key = stackId == null ? null : '${p.yAxisId}/$stackId';
@@ -2084,8 +2109,10 @@ class _CartesianState<T> extends State<CartesianChart<T>>
             s.bottom[i] = y.hold(low(row));
             (s.low ??= List.filled(n, null))[i] = low(row)?.toDouble();
           case Candlestick():
-            s.open = (s.open ?? List.filled(n, null))..[i] = p.open(row)?.toDouble();
-            s.high = (s.high ?? List.filled(n, null))..[i] = p.high(row)?.toDouble();
+            s.open = (s.open ?? List.filled(n, null))
+              ..[i] = p.open(row)?.toDouble();
+            s.high = (s.high ?? List.filled(n, null))
+              ..[i] = p.high(row)?.toDouble();
             s.lowPrice = (s.lowPrice ?? List.filled(n, null))
               ..[i] = p.low(row)?.toDouble();
             s.close = (s.close ?? List.filled(n, null))
@@ -2141,9 +2168,12 @@ class _CartesianState<T> extends State<CartesianChart<T>>
           _ => (null, null),
         };
         if (err != null && s.raw[i] != null) {
-          final up = err(row)?.toDouble(), down = (below ?? err)(row)?.toDouble();
+          final up = err(row)?.toDouble(),
+              down = (below ?? err)(row)?.toDouble();
           final at = y.give(s.top[i] ?? 0);
-          (s.errHi ??= List.filled(n, null))[i] = up == null ? null : y.hold(at + up);
+          (s.errHi ??= List.filled(n, null))[i] = up == null
+              ? null
+              : y.hold(at + up);
           (s.errLo ??= List.filled(n, null))[i] = down == null
               ? null
               : y.hold(at - down);
@@ -2164,12 +2194,16 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       // A bubble's area grows with its size.
       if (s.radii case final r?) {
         final known = r.whereType<double>();
-        final big = known.isEmpty ? 1.0 : known.map((v) => v.abs()).reduce(math.max);
+        final big = known.isEmpty
+            ? 1.0
+            : known.map((v) => v.abs()).reduce(math.max);
         final sc = p as Scatter;
         for (var i = 0; i < n; i++) {
           if (r[i] case final v?) {
-            r[i] = sc.minRadius +
-                (sc.maxRadius - sc.minRadius) * math.sqrt(v.abs() / (big == 0 ? 1 : big));
+            r[i] =
+                sc.minRadius +
+                (sc.maxRadius - sc.minRadius) *
+                    math.sqrt(v.abs() / (big == 0 ? 1 : big));
           }
         }
       }
@@ -2233,7 +2267,10 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       // Bars and areas stand on zero; lines do too, unless they ride on prices, boxes or
       // marks, whose scale fits their own range.
       final ranged = on.any(
-        (s) => s.kind == _Kind.price || s.kind == _Kind.box || s.kind == _Kind.scatter,
+        (s) =>
+            s.kind == _Kind.price ||
+            s.kind == _Kind.box ||
+            s.kind == _Kind.scatter,
       );
       final zero =
           y.part?.zero ??
@@ -2279,7 +2316,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
     String yText(_YScale y, double v) {
       final value = y.give(v);
       return y.part?.tickFormatter?.call(value) ??
-          (expand && y.hi == 1 && y.lo == 0 ? _percent(value) : chartNumber(value));
+          (expand && y.hi == 1 && y.lo == 0
+              ? _percent(value)
+              : chartNumber(value));
     }
 
     for (final y in scales.values) {
@@ -2309,7 +2348,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
         ? (xa.width ??
               math.min(
                 120.0,
-                xs.map((v) => _textWidth(xText(v), text)).fold<double>(0, math.max) +
+                xs
+                        .map((v) => _textWidth(xText(v), text))
+                        .fold<double>(0, math.max) +
                     xa.tickMargin,
               ))
         : line + xa.tickMargin;
@@ -2334,39 +2375,38 @@ class _CartesianState<T> extends State<CartesianChart<T>>
     );
 
     final colors = [
-      for (final (k, p) in parts.indexed) p.color ?? c.charts[k % c.charts.length],
+      for (final (k, p) in parts.indexed)
+        p.color ?? c.charts[k % c.charts.length],
     ];
     final legendView = legend == null
         ? null
         : (legend.builder ??
-                  (context, entries) => ChartLegendView(entries: entries))(
-            context,
-            [
-              for (final (k, p) in parts.indexed)
+              (context, entries) =>
+                  ChartLegendView(entries: entries))(context, [
+            for (final (k, p) in parts.indexed)
+              ChartLegendEntry(
+                label: p.label,
+                color: colors[k],
+                icon: p.icon,
+                shown: !_hidden.contains(p.label),
+                onToggle: legend.toggle && parts.length > 1
+                    ? () => setState(() {
+                        if (_hidden.contains(p.label)) {
+                          _hidden.remove(p.label);
+                        } else if (_hidden.length < parts.length - 1) {
+                          // One series always stays.
+                          _hidden.add(p.label);
+                        }
+                      })
+                    : null,
+              ),
+            for (final tr in trends)
+              if (tr.label != null)
                 ChartLegendEntry(
-                  label: p.label,
-                  color: colors[k],
-                  icon: p.icon,
-                  shown: !_hidden.contains(p.label),
-                  onToggle: legend.toggle && parts.length > 1
-                      ? () => setState(() {
-                          if (_hidden.contains(p.label)) {
-                            _hidden.remove(p.label);
-                          } else if (_hidden.length < parts.length - 1) {
-                            // One series always stays.
-                            _hidden.add(p.label);
-                          }
-                        })
-                      : null,
+                  label: tr.label!,
+                  color: tr.color ?? c.mutedForeground,
                 ),
-              for (final tr in trends)
-                if (tr.label != null)
-                  ChartLegendEntry(
-                    label: tr.label!,
-                    color: tr.color ?? c.mutedForeground,
-                  ),
-            ],
-          );
+          ]);
 
     return Semantics(
       container: true,
@@ -2406,7 +2446,8 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                       (u - lo) / (hi - lo) * alongLen;
                   double uAt(Offset p) =>
                       lo +
-                      ((across ? p.dy - plot.top : p.dx - plot.left) / alongLen) *
+                      ((across ? p.dy - plot.top : p.dx - plot.left) /
+                              alongLen) *
                           (hi - lo);
                   final bandPx = room / (hi - lo) * alongLen;
                   Offset at(double u, double v, _YScale y) {
@@ -2446,13 +2487,18 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                     } else if (type == AxisType.log) {
                       for (var v = lo.ceilToDouble(); v <= hi; v++) {
                         final value = math.pow(10, v);
-                        xTicks.add((v, xa.tickFormatter?.call(value) ?? chartNumber(value)));
+                        xTicks.add((
+                          v,
+                          xa.tickFormatter?.call(value) ?? chartNumber(value),
+                        ));
                       }
                     } else {
                       for (final v in chartTicks(
                         lo,
                         hi,
-                        count: xa.tickCount ?? math.max(2, (alongLen / 70).floor()),
+                        count:
+                            xa.tickCount ??
+                            math.max(2, (alongLen / 70).floor()),
                       )) {
                         if (v >= lo && v <= hi) xTicks.add((v, xText(v)));
                       }
@@ -2495,7 +2541,13 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                         if (r.inflate(2).contains(p)) return s.label;
                         continue;
                       }
-                      final q = at(us[i], s.kind == _Kind.price ? (s.top[i]! + s.bottom[i]!) / 2 : s.top[i]!, y);
+                      final q = at(
+                        us[i],
+                        s.kind == _Kind.price
+                            ? (s.top[i]! + s.bottom[i]!) / 2
+                            : s.top[i]!,
+                        y,
+                      );
                       final d = (q - p).distance;
                       if (d < bestD) {
                         bestD = d;
@@ -2506,11 +2558,13 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                   }
 
                   final scatterOnly =
-                      series.isNotEmpty && series.every((s) => s.kind == _Kind.scatter);
+                      series.isNotEmpty &&
+                      series.every((s) => s.kind == _Kind.scatter);
                   void hover(Offset p) {
                     var i = rowAt(p);
                     String? s;
-                    if (i != null && (scatterOnly || tooltip?.shared == false)) {
+                    if (i != null &&
+                        (scatterOnly || tooltip?.shared == false)) {
                       // The closest mark to the pointer, of any row.
                       var bestD = 24.0;
                       int? bestI;
@@ -2552,7 +2606,8 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                   }
 
                   // Zooming and panning move the window, kept inside the rows.
-                  final canMove = widget.zoom || xAxis?.last != null || brush != null;
+                  final canMove =
+                      widget.zoom || xAxis?.last != null || brush != null;
                   void moveTo(double a, double b) {
                     final width = (b - a).clamp(
                       math.min(room * 2, fullHi - fullLo),
@@ -2578,13 +2633,22 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                   }
 
                   final showTip =
-                      tooltip != null && _at != null && _at! < n && series.isNotEmpty;
+                      tooltip != null &&
+                      _at != null &&
+                      _at! < n &&
+                      series.isNotEmpty;
                   final tipAt = !showTip
                       ? Offset.zero
                       : scatterOnly
                       ? at(
                           us[_at!],
-                          series.firstWhere((s) => s.label == _atSeries, orElse: () => series.first).top[_at!] ?? 0,
+                          series
+                                  .firstWhere(
+                                    (s) => s.label == _atSeries,
+                                    orElse: () => series.first,
+                                  )
+                                  .top[_at!] ??
+                              0,
                           scales[series.first.axis]!,
                         )
                       : across
@@ -2598,14 +2662,22 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                   for (final s in series) {
                     final was = _from[s.label];
                     if (was != null && m < 1) {
-                      double? lerp(List<double?> from, List<double?> to, int i) {
+                      double? lerp(
+                        List<double?> from,
+                        List<double?> to,
+                        int i,
+                      ) {
                         final b = to[i];
                         final a = i < from.length ? from[i] : null;
                         return a == null || b == null ? b : a + (b - a) * m;
                       }
 
-                      s.top.setAll(0, [for (var i = 0; i < n; i++) lerp(was.$1, s.top, i)]);
-                      s.bottom.setAll(0, [for (var i = 0; i < n; i++) lerp(was.$2, s.bottom, i)]);
+                      s.top.setAll(0, [
+                        for (var i = 0; i < n; i++) lerp(was.$1, s.top, i),
+                      ]);
+                      s.bottom.setAll(0, [
+                        for (var i = 0; i < n; i++) lerp(was.$2, s.bottom, i),
+                      ]);
                     }
                     drawn[s.label] = (List.of(s.top), List.of(s.bottom));
                   }
@@ -2638,7 +2710,15 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                         place: place,
                         trends: [
                           for (final tr in trends)
-                            (tr, _fit(tr, data, us, scales[tr.yAxisId] ?? scales.values.first)),
+                            (
+                              tr,
+                              _fit(
+                                tr,
+                                data,
+                                us,
+                                scales[tr.yAxisId] ?? scales.values.first,
+                              ),
+                            ),
                         ],
                         hovered: _at,
                         focus: _selected?.index ?? widget.active,
@@ -2653,9 +2733,12 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                                   scales.values.first,
                                   scales.values.first.lo +
                                       (across
-                                              ? (_pointer!.dx - plot.left) / plot.width
-                                              : (plot.bottom - _pointer!.dy) / plot.height) *
-                                          (scales.values.first.hi - scales.values.first.lo),
+                                              ? (_pointer!.dx - plot.left) /
+                                                    plot.width
+                                              : (plot.bottom - _pointer!.dy) /
+                                                    plot.height) *
+                                          (scales.values.first.hi -
+                                              scales.values.first.lo),
                                 ),
                               ),
                         grow: grown,
@@ -2679,11 +2762,17 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                   return Listener(
                     onPointerSignal: widget.zoom
                         ? (e) {
-                            if (e is PointerScrollEvent && plot.contains(e.localPosition)) {
-                              GestureBinding.instance.pointerSignalResolver.register(e, (e) {
-                                final d = (e as PointerScrollEvent).scrollDelta;
-                                zoomAt(e.localPosition, math.exp((d.dy + d.dx) * .0015));
-                              });
+                            if (e is PointerScrollEvent &&
+                                plot.contains(e.localPosition)) {
+                              GestureBinding.instance.pointerSignalResolver
+                                  .register(e, (e) {
+                                    final d =
+                                        (e as PointerScrollEvent).scrollDelta;
+                                    zoomAt(
+                                      e.localPosition,
+                                      math.exp((d.dy + d.dx) * .0015),
+                                    );
+                                  });
                             }
                           }
                         : null,
@@ -2700,16 +2789,23 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                         onDoubleTap: widget.zoom
                             ? () => setState(() => _window = null)
                             : null,
-                        onScaleStart: canMove ? (d) => _pinchWidth = hi - lo : null,
+                        onScaleStart: canMove
+                            ? (d) => _pinchWidth = hi - lo
+                            : null,
                         onScaleUpdate: canMove
                             ? (d) {
                                 if (d.pointerCount > 1 && widget.zoom) {
-                                  final width = _pinchWidth / d.horizontalScale.clamp(.05, 50);
+                                  final width =
+                                      _pinchWidth /
+                                      d.horizontalScale.clamp(.05, 50);
                                   final u = uAt(d.localFocalPoint);
                                   final f = (u - lo) / (hi - lo);
                                   moveTo(u - f * width, u - f * width + width);
                                 } else {
-                                  final du = -(across ? d.focalPointDelta.dy : d.focalPointDelta.dx) /
+                                  final du =
+                                      -(across
+                                          ? d.focalPointDelta.dy
+                                          : d.focalPointDelta.dx) /
                                       alongLen *
                                       (hi - lo);
                                   moveTo(lo + du, hi + du);
@@ -2729,8 +2825,12 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                                   child: Transform.translate(
                                     offset: at(
                                       u,
-                                      (scales[note.yAxisId] ?? scales.values.first).hold(note.y) ?? 0,
-                                      scales[note.yAxisId] ?? scales.values.first,
+                                      (scales[note.yAxisId] ??
+                                                  scales.values.first)
+                                              .hold(note.y) ??
+                                          0,
+                                      scales[note.yAxisId] ??
+                                          scales.values.first,
                                     ),
                                     child: FractionalTranslation(
                                       translation: Offset(
@@ -2750,7 +2850,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                                 child: _BrushView(
                                   rows: [
                                     for (var i = 0; i < n; i++)
-                                      series.isEmpty ? null : series.first.top[i],
+                                      series.isEmpty
+                                          ? null
+                                          : series.first.top[i],
                                   ],
                                   us: us,
                                   fullLo: fullLo,
@@ -2771,7 +2873,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
                                   series,
                                   scales,
                                   xText(xs[_at!]),
-                                  scatterOnly || !tooltip.shared ? _atSeries : null,
+                                  scatterOnly || !tooltip.shared
+                                      ? _atSeries
+                                      : null,
                                 ),
                               ),
                           ],
@@ -2798,18 +2902,24 @@ class _CartesianState<T> extends State<CartesianChart<T>>
     return p.value?.call(widget.data[i]);
   }
 
-  static Object _giveX(double u, AxisType type, List<Object> xs) => switch (type) {
-    AxisType.category =>
-      xs.isEmpty ? '' : xs[u.floor().clamp(0, xs.length - 1)],
-    AxisType.time => DateTime.fromMillisecondsSinceEpoch(u.round()),
-    AxisType.log => math.pow(10, u),
-    AxisType.number => u,
-  };
+  static Object _giveX(double u, AxisType type, List<Object> xs) =>
+      switch (type) {
+        AxisType.category =>
+          xs.isEmpty ? '' : xs[u.floor().clamp(0, xs.length - 1)],
+        AxisType.time => DateTime.fromMillisecondsSinceEpoch(u.round()),
+        AxisType.log => math.pow(10, u),
+        AxisType.number => u,
+      };
 
   KeyEventResult _key(KeyEvent e, int n, bool across) {
-    if (e is! KeyDownEvent && e is! KeyRepeatEvent) return KeyEventResult.ignored;
-    final next = across ? LogicalKeyboardKey.arrowDown : LogicalKeyboardKey.arrowRight;
-    final back = across ? LogicalKeyboardKey.arrowUp : LogicalKeyboardKey.arrowLeft;
+    if (e is! KeyDownEvent && e is! KeyRepeatEvent)
+      return KeyEventResult.ignored;
+    final next = across
+        ? LogicalKeyboardKey.arrowDown
+        : LogicalKeyboardKey.arrowRight;
+    final back = across
+        ? LogicalKeyboardKey.arrowUp
+        : LogicalKeyboardKey.arrowLeft;
     if (n == 0) return KeyEventResult.ignored;
     int? to;
     if (e.logicalKey == next) to = ((_at ?? -1) + 1).clamp(0, n - 1);
@@ -2837,14 +2947,16 @@ class _CartesianState<T> extends State<CartesianChart<T>>
   }
 
   /// What a screen reader hears: every row while there are few, else each series' span.
-  String _summary(List<Object> xs, List<_Series> series, String Function(Object) xText) {
+  String _summary(
+    List<Object> xs,
+    List<_Series> series,
+    String Function(Object) xText,
+  ) {
     if (xs.length <= 60) {
       return [
         for (var i = 0; i < xs.length; i++)
-          '${xText(xs[i])}: ${[
-            for (final s in series)
-              if (s.raw[i] != null) '${s.label} ${_format(s.raw[i]!)}',
-          ].join(', ')}',
+          '${xText(xs[i])}: ${[for (final s in series)
+            if (s.raw[i] != null) '${s.label} ${_format(s.raw[i]!)}'].join(', ')}',
       ].join('; ');
     }
     return [
@@ -2926,7 +3038,9 @@ class _CartesianState<T> extends State<CartesianChart<T>>
       title: tip.hideLabel ? null : data.title,
       items: items,
       indicator: tip.hideIndicator ? ChartIndicator.none : tip.indicator,
-      total: tip.total ? write(items.fold<num>(0, (a, it) => a + it.value), 'Total') : null,
+      total: tip.total
+          ? write(items.fold<num>(0, (a, it) => a + it.value), 'Total')
+          : null,
     );
   }
 }
@@ -2939,7 +3053,9 @@ List<(double, String)> _timeTicks(
   int count,
   String Function(Object)? format,
 ) {
-  const s = Duration(seconds: 1), m = Duration(minutes: 1), h = Duration(hours: 1);
+  const s = Duration(seconds: 1),
+      m = Duration(minutes: 1),
+      h = Duration(hours: 1);
   const d = Duration(days: 1);
   final steps = [
     s, s * 5, s * 15, s * 30, m, m * 5, m * 15, m * 30, //
@@ -2956,7 +3072,11 @@ List<(double, String)> _timeTicks(
       // Steps of a day or more fall on local midnights.
       var t = DateTime.fromMillisecondsSinceEpoch(lo.ceil());
       t = step >= d
-          ? DateTime(t.year, t.month, t.day + (t.hour > 0 || t.minute > 0 ? 1 : 0))
+          ? DateTime(
+              t.year,
+              t.month,
+              t.day + (t.hour > 0 || t.minute > 0 ? 1 : 0),
+            )
           : DateTime.fromMillisecondsSinceEpoch((lo / ms).ceil() * ms);
       while (t.millisecondsSinceEpoch <= hi) {
         out.add((t.millisecondsSinceEpoch.toDouble(), text(t, step)));
@@ -2969,18 +3089,30 @@ List<(double, String)> _timeTicks(
   }
   // Months and years.
   final months = want / (d.inMilliseconds * 30.4);
-  final every = [1, 2, 3, 6, 12, 24, 60, 120].firstWhere(
-    (k) => k >= months,
-    orElse: () => 120,
-  );
+  final every = [
+    1,
+    2,
+    3,
+    6,
+    12,
+    24,
+    60,
+    120,
+  ].firstWhere((k) => k >= months, orElse: () => 120);
   final start = DateTime.fromMillisecondsSinceEpoch(lo.floor());
-  var t = DateTime(start.year, ((start.month - 1) ~/ every.clamp(1, 12)) * every.clamp(1, 12) + 1);
+  var t = DateTime(
+    start.year,
+    ((start.month - 1) ~/ every.clamp(1, 12)) * every.clamp(1, 12) + 1,
+  );
   if (every >= 12) t = DateTime((start.year ~/ (every ~/ 12)) * (every ~/ 12));
   while (t.millisecondsSinceEpoch <= hi) {
     if (t.millisecondsSinceEpoch >= lo) {
       out.add((
         t.millisecondsSinceEpoch.toDouble(),
-        text(t, every >= 12 ? const Duration(days: 365) : const Duration(days: 30)),
+        text(
+          t,
+          every >= 12 ? const Duration(days: 365) : const Duration(days: 30),
+        ),
       ));
     }
     t = DateTime(t.year, t.month + every);
@@ -2990,7 +3122,12 @@ List<(double, String)> _timeTicks(
 
 /// The points a trendline passes through, in axis units: fitted to the rows and run
 /// [Trendline.backward] before and [Trendline.forward] after them.
-List<Offset> _fit<T>(Trendline<T> tr, List<T> data, List<double> us, _YScale y) {
+List<Offset> _fit<T>(
+  Trendline<T> tr,
+  List<T> data,
+  List<double> us,
+  _YScale y,
+) {
   final pts = <(double, double)>[];
   for (var i = 0; i < data.length; i++) {
     final v = tr.value(data[i]);
@@ -3001,7 +3138,12 @@ List<Offset> _fit<T>(Trendline<T> tr, List<T> data, List<double> us, _YScale y) 
     final k = tr.period.clamp(1, pts.length);
     return [
       for (var i = k - 1; i < pts.length; i++)
-        if (y.hold(pts.sublist(i - k + 1, i + 1).fold<double>(0, (a, p) => a + p.$2) / k)
+        if (y.hold(
+              pts
+                      .sublist(i - k + 1, i + 1)
+                      .fold<double>(0, (a, p) => a + p.$2) /
+                  k,
+            )
             case final v?)
           Offset(pts[i].$1, v),
     ];
@@ -3014,7 +3156,11 @@ List<Offset> _fit<T>(Trendline<T> tr, List<T> data, List<double> us, _YScale y) 
   switch (tr.kind) {
     case TrendKind.linear || TrendKind.polynomial:
       final order = tr.kind == TrendKind.linear ? 1 : tr.order.clamp(2, 6);
-      final c = _polyfit([for (final p in pts) p.$1], [for (final p in pts) p.$2], order);
+      final c = _polyfit(
+        [for (final p in pts) p.$1],
+        [for (final p in pts) p.$2],
+        order,
+      );
       if (c == null) return const [];
       f = (x) {
         var v = 0.0;
@@ -3025,12 +3171,20 @@ List<Offset> _fit<T>(Trendline<T> tr, List<T> data, List<double> us, _YScale y) 
       };
     case TrendKind.exponential:
       final ok = pts.where((p) => p.$2 > 0).toList();
-      final c = _polyfit([for (final p in ok) p.$1], [for (final p in ok) math.log(p.$2)], 1);
+      final c = _polyfit(
+        [for (final p in ok) p.$1],
+        [for (final p in ok) math.log(p.$2)],
+        1,
+      );
       if (c == null) return const [];
       f = (x) => math.exp(c[0] + c[1] * x);
     case TrendKind.logarithmic:
       final ok = pts.where((p) => p.$1 > 0).toList();
-      final c = _polyfit([for (final p in ok) math.log(p.$1)], [for (final p in ok) p.$2], 1);
+      final c = _polyfit(
+        [for (final p in ok) math.log(p.$1)],
+        [for (final p in ok) p.$2],
+        1,
+      );
       if (c == null) return const [];
       f = (x) => x > 0 ? c[0] + c[1] * math.log(x) : null;
     case TrendKind.power:
@@ -3223,7 +3377,11 @@ class _CartesianPainter extends CustomPainter {
       return;
     }
     canvas.drawPath(
-      chartDashed(Path()..moveTo(a.dx, a.dy)..lineTo(b.dx, b.dy)),
+      chartDashed(
+        Path()
+          ..moveTo(a.dx, a.dy)
+          ..lineTo(b.dx, b.dy),
+      ),
       Paint()
         ..color = p.color
         ..strokeWidth = p.strokeWidth
@@ -3324,11 +3482,23 @@ class _CartesianPainter extends CustomPainter {
       final u2 = r.x2 == null ? hi : edge(r.x2, true);
       final v1 = r.y1 == null ? y.lo : (y.hold(r.y1) ?? y.lo);
       final v2 = r.y2 == null ? y.hi : (y.hold(r.y2) ?? y.hi);
-      final rect = Rect.fromPoints(at(u1, v1, y), at(u2, v2, y)).intersect(plot);
+      final rect = Rect.fromPoints(
+        at(u1, v1, y),
+        at(u2, v2, y),
+      ).intersect(plot);
       final color = r.color ?? mutedFg;
-      canvas.drawRect(rect, Paint()..color = color.withValues(alpha: r.opacity));
+      canvas.drawRect(
+        rect,
+        Paint()..color = color.withValues(alpha: r.opacity),
+      );
       if (r.label != null) {
-        chartText(canvas, r.label!, rect.topLeft + const Offset(6, 4), text, Alignment.topLeft);
+        chartText(
+          canvas,
+          r.label!,
+          rect.topLeft + const Offset(6, 4),
+          text,
+          Alignment.topLeft,
+        );
       }
     }
 
@@ -3339,8 +3509,18 @@ class _CartesianPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           across
-              ? Rect.fromLTRB(plot.left, c - bandPx / 2 + 2, plot.right, c + bandPx / 2 - 2)
-              : Rect.fromLTRB(c - bandPx / 2 + 2, plot.top, c + bandPx / 2 - 2, plot.bottom),
+              ? Rect.fromLTRB(
+                  plot.left,
+                  c - bandPx / 2 + 2,
+                  plot.right,
+                  c + bandPx / 2 - 2,
+                )
+              : Rect.fromLTRB(
+                  c - bandPx / 2 + 2,
+                  plot.top,
+                  c + bandPx / 2 - 2,
+                  plot.bottom,
+                ),
           const Radius.circular(6),
         ),
         Paint()..color = muted,
@@ -3368,7 +3548,9 @@ class _CartesianPainter extends CustomPainter {
     for (final (tr, pts) in trends) {
       if (pts.length < 2) continue;
       final y = _y(tr.yAxisId);
-      final path = _through([for (final p in pts) at(p.dx, _g(y, p.dy), y)], ChartCurve.linear);
+      final path = _through([
+        for (final p in pts) at(p.dx, _g(y, p.dy), y),
+      ], ChartCurve.linear);
       final p = _stroke(tr.color ?? mutedFg, 1.5);
       canvas.drawPath(tr.dashed ? chartDashed(path, on: 6, off: 4) : path, p);
     }
@@ -3409,7 +3591,13 @@ class _CartesianPainter extends CustomPainter {
           canvas.drawCircle(q, r.radius + 2, Paint()..color = page);
           canvas.drawCircle(q, r.radius, Paint()..color = r.color ?? fg);
           if (r.label != null) {
-            chartText(canvas, r.label!, q - Offset(0, r.radius + 6), strong, Alignment.bottomCenter);
+            chartText(
+              canvas,
+              r.label!,
+              q - Offset(0, r.radius + 6),
+              strong,
+              Alignment.bottomCenter,
+            );
           }
         default:
           break;
@@ -3431,7 +3619,11 @@ class _CartesianPainter extends CustomPainter {
         final y = _y(s.axis);
         final q = at(us[hovered!], _g(y, v), y);
         canvas.drawCircle(q, 5, Paint()..color = page);
-        canvas.drawCircle(q, 4, Paint()..color = s.colors?[hovered!] ?? s.color);
+        canvas.drawCircle(
+          q,
+          4,
+          Paint()..color = s.colors?[hovered!] ?? s.color,
+        );
       }
     }
     canvas.restore();
@@ -3442,11 +3634,26 @@ class _CartesianPainter extends CustomPainter {
       final p = Paint()
         ..color = mutedFg
         ..strokeWidth = 1;
-      _dashLine(canvas, Offset(pointer!.dx, plot.top), Offset(pointer!.dx, plot.bottom), p, crosshair!.dashed);
-      _dashLine(canvas, Offset(plot.left, pointer!.dy), Offset(plot.right, pointer!.dy), p, crosshair!.dashed);
+      _dashLine(
+        canvas,
+        Offset(pointer!.dx, plot.top),
+        Offset(pointer!.dx, plot.bottom),
+        p,
+        crosshair!.dashed,
+      );
+      _dashLine(
+        canvas,
+        Offset(plot.left, pointer!.dy),
+        Offset(plot.right, pointer!.dy),
+        p,
+        crosshair!.dashed,
+      );
       void tag(String s, Offset o, Alignment a) {
         final tp = TextPainter(
-          text: TextSpan(text: s, style: strong.copyWith(color: page)),
+          text: TextSpan(
+            text: s,
+            style: strong.copyWith(color: page),
+          ),
           textDirection: TextDirection.ltr,
         )..layout();
         final box = Rect.fromLTWH(
@@ -3455,7 +3662,10 @@ class _CartesianPainter extends CustomPainter {
           tp.width + 8,
           tp.height + 4,
         );
-        canvas.drawRRect(RRect.fromRectAndRadius(box, const Radius.circular(4)), Paint()..color = fg);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(box, const Radius.circular(4)),
+          Paint()..color = fg,
+        );
         tp.paint(canvas, box.topLeft + const Offset(4, 2));
       }
 
@@ -3478,7 +3688,8 @@ class _CartesianPainter extends CustomPainter {
   }
 
   /// Snaps a hairline to the pixel grid.
-  Offset _px(Offset o) => Offset(o.dx.roundToDouble() + .5, o.dy.roundToDouble() + .5);
+  Offset _px(Offset o) =>
+      Offset(o.dx.roundToDouble() + .5, o.dy.roundToDouble() + .5);
 
   void _bars(Canvas canvas, _Series s) {
     final b = s.part as Bar;
@@ -3519,7 +3730,9 @@ class _CartesianPainter extends CustomPainter {
           }
         }
       }
-      final r = Radius.circular(round ? math.min(b.radius, (across ? rect.height : rect.width) / 2) : 0);
+      final r = Radius.circular(
+        round ? math.min(b.radius, (across ? rect.height : rect.width) / 2) : 0,
+      );
       final shape = across
           ? RRect.fromRectAndCorners(
               rect,
@@ -3535,13 +3748,20 @@ class _CartesianPainter extends CustomPainter {
               bottomLeft: up ? Radius.zero : r,
               bottomRight: up ? Radius.zero : r,
             );
-      canvas.drawRRect(shape, Paint()..color = _dim(s.colors?[i] ?? s.color, i));
+      canvas.drawRRect(
+        shape,
+        Paint()..color = _dim(s.colors?[i] ?? s.color, i),
+      );
     }
   }
 
   /// The visible points of a series in runs between gaps, thinned to about two a
   /// pixel when there are many more.
-  List<List<(int, Offset)>> _runs(_Series s, List<double?> values, {bool keepGaps = true}) {
+  List<List<(int, Offset)>> _runs(
+    _Series s,
+    List<double?> values, {
+    bool keepGaps = true,
+  }) {
     final y = _y(s.axis);
     final runs = <List<(int, Offset)>>[[]];
     final connect = switch (s.part) {
@@ -3600,20 +3820,22 @@ class _CartesianPainter extends CustomPainter {
   void _lines(Canvas canvas, _Series s) {
     final y = _y(s.axis);
     final (curve, width, dashed, dots, dot) = switch (s.part) {
-      Line(:final curve, :final width, :final dashed, :final dots, :final dot) => (
-        curve,
-        width,
-        dashed,
-        dots,
-        dot,
-      ),
-      Area(:final curve, :final width, :final dashed, :final dots, :final dot) => (
-        curve,
-        width,
-        dashed,
-        dots,
-        dot,
-      ),
+      Line(
+        :final curve,
+        :final width,
+        :final dashed,
+        :final dots,
+        :final dot,
+      ) =>
+        (curve, width, dashed, dots, dot),
+      Area(
+        :final curve,
+        :final width,
+        :final dashed,
+        :final dots,
+        :final dot,
+      ) =>
+        (curve, width, dashed, dots, dot),
       _ => (ChartCurve.linear, 2.0, false, false, null),
     };
     final tops = _runs(s, s.top);
@@ -3622,7 +3844,11 @@ class _CartesianPainter extends CustomPainter {
       final zero = _zero(y);
       for (final run in tops) {
         if (run.length < 2 && s.bottom.every((b) => b == null)) continue;
-        final top = _through([for (final p in run) p.$2], curve, across: across);
+        final top = _through(
+          [for (final p in run) p.$2],
+          curve,
+          across: across,
+        );
         final under = [
           for (final (i, _) in run.reversed)
             at(us[i], _g(y, s.bottom[i] ?? zero), y),
@@ -3640,7 +3866,10 @@ class _CartesianPainter extends CustomPainter {
               end: across ? Alignment.centerLeft : Alignment.bottomCenter,
               colors: a.gradient
                   ? [c.withValues(alpha: a.opacity), c.withValues(alpha: .05)]
-                  : [c.withValues(alpha: a.opacity * .75), c.withValues(alpha: a.opacity * .75)],
+                  : [
+                      c.withValues(alpha: a.opacity * .75),
+                      c.withValues(alpha: a.opacity * .75),
+                    ],
             ).createShader(plot),
         );
         if (s.low != null) {
@@ -3654,7 +3883,10 @@ class _CartesianPainter extends CustomPainter {
     for (final run in tops) {
       if (run.length < 2) continue;
       final path = _through([for (final p in run) p.$2], curve, across: across);
-      canvas.drawPath(dashed ? chartDashed(path, on: 6, off: 4) : path, _stroke(s.color, width));
+      canvas.drawPath(
+        dashed ? chartDashed(path, on: 6, off: 4) : path,
+        _stroke(s.color, width),
+      );
     }
     if (dots || dot != null) {
       final d = dot ?? const ChartDot<dynamic>();
@@ -3678,7 +3910,11 @@ class _CartesianPainter extends CustomPainter {
   void _scatter(Canvas canvas, _Series s) {
     final p = s.part as Scatter;
     final y = _y(s.axis);
-    final many = s.radii == null && p.shape == ChartShape.circle && s.colors == null && us.length > 3000;
+    final many =
+        s.radii == null &&
+        p.shape == ChartShape.circle &&
+        s.colors == null &&
+        us.length > 3000;
     if (many) {
       final pts = <Offset>[
         for (var i = 0; i < us.length; i++)
@@ -3700,7 +3936,13 @@ class _CartesianPainter extends CustomPainter {
       final q = at(us[i], _g(y, v), y);
       final r = (s.radii?[i] ?? p.minRadius + .5) * (i == hovered ? 1.25 : 1);
       final color = _dim(s.colors?[i] ?? s.color, i);
-      chartMark(canvas, p.shape, q, r, Paint()..color = color.withValues(alpha: color.a * p.opacity));
+      chartMark(
+        canvas,
+        p.shape,
+        q,
+        r,
+        Paint()..color = color.withValues(alpha: color.a * p.opacity),
+      );
       if (s.radii != null) chartMark(canvas, p.shape, q, r, _stroke(color, 1));
     }
   }
@@ -3732,10 +3974,18 @@ class _CartesianPainter extends CustomPainter {
       }
       final half = across ? Offset(0, w / 2) : Offset(w / 2, 0);
       var body = Rect.fromPoints(po - half, pc + half);
-      if (body.height < 1 && !across) body = Rect.fromCenter(center: body.center, width: body.width, height: 1);
+      if (body.height < 1 && !across)
+        body = Rect.fromCenter(
+          center: body.center,
+          width: body.width,
+          height: 1,
+        );
       if (rising && p.risingColor == null) {
         canvas.drawRect(body, Paint()..color = page);
-        canvas.drawRect(body, _stroke(color, 1.5)..strokeJoin = StrokeJoin.miter);
+        canvas.drawRect(
+          body,
+          _stroke(color, 1.5)..strokeJoin = StrokeJoin.miter,
+        );
       } else {
         canvas.drawRect(body, Paint()..color = color);
       }
@@ -3756,12 +4006,23 @@ class _CartesianPainter extends CustomPainter {
       canvas.drawRect(box, Paint()..color = color.withValues(alpha: .2));
       canvas.drawRect(box, _stroke(color, 1.5)..strokeJoin = StrokeJoin.miter);
       final edge = _stroke(color, 1.5)..strokeCap = StrokeCap.butt;
-      canvas.drawLine(q(b.median) - half, q(b.median) + half, _stroke(color, 2.5)..strokeCap = StrokeCap.butt);
+      canvas.drawLine(
+        q(b.median) - half,
+        q(b.median) + half,
+        _stroke(color, 2.5)..strokeCap = StrokeCap.butt,
+      );
       canvas.drawLine(q(b.q3), q(b.max), edge);
       canvas.drawLine(q(b.q1), q(b.min), edge);
       canvas.drawLine(q(b.max) - half * .6, q(b.max) + half * .6, edge);
       canvas.drawLine(q(b.min) - half * .6, q(b.min) + half * .6, edge);
-      if (p.mean) chartMark(canvas, ChartShape.cross, q(b.mean), 3.5, Paint()..color = fg);
+      if (p.mean)
+        chartMark(
+          canvas,
+          ChartShape.cross,
+          q(b.mean),
+          3.5,
+          Paint()..color = fg,
+        );
       if (p.outliers) {
         for (final v in b.out) {
           canvas.drawCircle(q(v), 3, _stroke(color, 1.5));
@@ -3788,7 +4049,12 @@ class _CartesianPainter extends CustomPainter {
         i,
       );
       canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(math.min(p.radius, (across ? rect.height : rect.width) / 2))),
+        RRect.fromRectAndRadius(
+          rect,
+          Radius.circular(
+            math.min(p.radius, (across ? rect.height : rect.width) / 2),
+          ),
+        ),
         Paint()..color = color,
       );
       if (p.connectors && last != null && grow == 1) {
@@ -3820,13 +4086,20 @@ class _CartesianPainter extends CustomPainter {
       if (s.kind == _Kind.bar) {
         final r = _bar(s, i);
         if (r == null) continue;
-        centre = across ? Offset(r.right, r.center.dy) : Offset(r.center.dx, r.top);
+        centre = across
+            ? Offset(r.right, r.center.dy)
+            : Offset(r.center.dx, r.top);
       }
       final a = hiE?[i] == null ? centre : at(us[i], _g(y, hiE![i]!), y);
       final b = loE?[i] == null ? centre : at(us[i], _g(y, loE![i]!), y);
-      final aAligned = across ? Offset(a.dx, centre.dy) : Offset(centre.dx, a.dy);
-      final bAligned = across ? Offset(b.dx, centre.dy) : Offset(centre.dx, b.dy);
-      final p = _stroke(fg.withValues(alpha: .7), 1.25)..strokeCap = StrokeCap.butt;
+      final aAligned = across
+          ? Offset(a.dx, centre.dy)
+          : Offset(centre.dx, a.dy);
+      final bAligned = across
+          ? Offset(b.dx, centre.dy)
+          : Offset(centre.dx, b.dy);
+      final p = _stroke(fg.withValues(alpha: .7), 1.25)
+        ..strokeCap = StrokeCap.butt;
       canvas.drawLine(aAligned, bAligned, p);
       final cap = across ? const Offset(0, 4) : const Offset(4, 0);
       canvas.drawLine(aAligned - cap, aAligned + cap, p);
@@ -3843,35 +4116,63 @@ class _CartesianPainter extends CustomPainter {
         if (str == null || !_inView(i) || s.top[i] == null) continue;
         final rect = s.barLike
             ? _bar(s, i)
-            : Rect.fromCenter(center: at(us[i], s.top[i]!, y), width: 0, height: 0);
+            : Rect.fromCenter(
+                center: at(us[i], s.top[i]!, y),
+                width: 0,
+                height: 0,
+              );
         if (rect == null) continue;
         final up = (s.top[i] ?? 0) >= (s.bottom[i] ?? _zero(y));
         final o = l.offset;
-        final inside = l.position == ChartLabelPosition.inside ||
+        final inside =
+            l.position == ChartLabelPosition.inside ||
             l.position == ChartLabelPosition.insideStart ||
             l.position == ChartLabelPosition.insideEnd;
-        final style = (inside && s.barLike ? strong.copyWith(color: page) : strong)
-            .copyWith(color: l.color);
+        final style =
+            (inside && s.barLike ? strong.copyWith(color: page) : strong)
+                .copyWith(color: l.color);
         final (Offset p, Alignment a) = switch (l.position) {
-          ChartLabelPosition.top when across => up
-              ? (rect.centerRight + Offset(o, 0), Alignment.centerLeft)
-              : (rect.centerLeft - Offset(o, 0), Alignment.centerRight),
-          ChartLabelPosition.top => up
-              ? (rect.topCenter - Offset(0, o), Alignment.bottomCenter)
-              : (rect.bottomCenter + Offset(0, o), Alignment.topCenter),
-          ChartLabelPosition.bottom when across =>
-            (rect.centerLeft - Offset(o, 0), Alignment.centerRight),
-          ChartLabelPosition.bottom => (rect.bottomCenter + Offset(0, o), Alignment.topCenter),
-          ChartLabelPosition.left => (rect.centerLeft - Offset(o, 0), Alignment.centerRight),
-          ChartLabelPosition.right => (rect.centerRight + Offset(o, 0), Alignment.centerLeft),
+          ChartLabelPosition.top when across =>
+            up
+                ? (rect.centerRight + Offset(o, 0), Alignment.centerLeft)
+                : (rect.centerLeft - Offset(o, 0), Alignment.centerRight),
+          ChartLabelPosition.top =>
+            up
+                ? (rect.topCenter - Offset(0, o), Alignment.bottomCenter)
+                : (rect.bottomCenter + Offset(0, o), Alignment.topCenter),
+          ChartLabelPosition.bottom when across => (
+            rect.centerLeft - Offset(o, 0),
+            Alignment.centerRight,
+          ),
+          ChartLabelPosition.bottom => (
+            rect.bottomCenter + Offset(0, o),
+            Alignment.topCenter,
+          ),
+          ChartLabelPosition.left => (
+            rect.centerLeft - Offset(o, 0),
+            Alignment.centerRight,
+          ),
+          ChartLabelPosition.right => (
+            rect.centerRight + Offset(o, 0),
+            Alignment.centerLeft,
+          ),
           ChartLabelPosition.inside => (rect.center, Alignment.center),
-          ChartLabelPosition.insideStart when across =>
-            (rect.centerLeft + Offset(o, 0), Alignment.centerLeft),
-          ChartLabelPosition.insideStart =>
-            (rect.bottomCenter - Offset(0, o), Alignment.bottomCenter),
-          ChartLabelPosition.insideEnd when across =>
-            (rect.centerRight - Offset(o, 0), Alignment.centerRight),
-          ChartLabelPosition.insideEnd => (rect.topCenter + Offset(0, o), Alignment.topCenter),
+          ChartLabelPosition.insideStart when across => (
+            rect.centerLeft + Offset(o, 0),
+            Alignment.centerLeft,
+          ),
+          ChartLabelPosition.insideStart => (
+            rect.bottomCenter - Offset(0, o),
+            Alignment.bottomCenter,
+          ),
+          ChartLabelPosition.insideEnd when across => (
+            rect.centerRight - Offset(o, 0),
+            Alignment.centerRight,
+          ),
+          ChartLabelPosition.insideEnd => (
+            rect.topCenter + Offset(0, o),
+            Alignment.topCenter,
+          ),
         };
         chartText(canvas, str, p, style, a);
       }
@@ -3886,21 +4187,58 @@ class _CartesianPainter extends CustomPainter {
       final x = xAxis!;
       final m = x.tickMargin;
       if (x.axisLine) {
-        final a = across ? plot.topLeft : (x.top ? plot.topLeft : plot.bottomLeft);
-        final b = across ? plot.bottomLeft : (x.top ? plot.topRight : plot.bottomRight);
+        final a = across
+            ? plot.topLeft
+            : (x.top ? plot.topLeft : plot.bottomLeft);
+        final b = across
+            ? plot.bottomLeft
+            : (x.top ? plot.topRight : plot.bottomRight);
         canvas.drawLine(_px(a), _px(b), axisPaint);
       }
       for (final (u, s) in xTicks) {
         final a = alongPx(u);
         if (across) {
-          chartText(canvas, s, Offset(plot.left - m, a), text, Alignment.centerRight);
-          if (x.tickLine) canvas.drawLine(Offset(plot.left - 6, a), Offset(plot.left, a), axisPaint);
+          chartText(
+            canvas,
+            s,
+            Offset(plot.left - m, a),
+            text,
+            Alignment.centerRight,
+          );
+          if (x.tickLine)
+            canvas.drawLine(
+              Offset(plot.left - 6, a),
+              Offset(plot.left, a),
+              axisPaint,
+            );
         } else if (x.top) {
-          chartText(canvas, s, Offset(a, plot.top - m), text, Alignment.bottomCenter);
-          if (x.tickLine) canvas.drawLine(Offset(a, plot.top - 6), Offset(a, plot.top), axisPaint);
+          chartText(
+            canvas,
+            s,
+            Offset(a, plot.top - m),
+            text,
+            Alignment.bottomCenter,
+          );
+          if (x.tickLine)
+            canvas.drawLine(
+              Offset(a, plot.top - 6),
+              Offset(a, plot.top),
+              axisPaint,
+            );
         } else {
-          chartText(canvas, s, Offset(a, plot.bottom + m), text, Alignment.topCenter);
-          if (x.tickLine) canvas.drawLine(Offset(a, plot.bottom), Offset(a, plot.bottom + 6), axisPaint);
+          chartText(
+            canvas,
+            s,
+            Offset(a, plot.bottom + m),
+            text,
+            Alignment.topCenter,
+          );
+          if (x.tickLine)
+            canvas.drawLine(
+              Offset(a, plot.bottom),
+              Offset(a, plot.bottom + 6),
+              axisPaint,
+            );
         }
       }
     }
@@ -3914,9 +4252,17 @@ class _CartesianPainter extends CustomPainter {
       final m = p.tickMargin;
       if (p.axisLine) {
         if (across) {
-          canvas.drawLine(Offset(plot.left, edge), Offset(plot.right, edge), axisPaint);
+          canvas.drawLine(
+            Offset(plot.left, edge),
+            Offset(plot.right, edge),
+            axisPaint,
+          );
         } else {
-          canvas.drawLine(Offset(edge, plot.top), Offset(edge, plot.bottom), axisPaint);
+          canvas.drawLine(
+            Offset(edge, plot.top),
+            Offset(edge, plot.bottom),
+            axisPaint,
+          );
         }
       }
       for (final v in y.ticks) {
@@ -3998,7 +4344,8 @@ class _BrushViewState extends State<_BrushView> {
         return Semantics(
           slider: true,
           label: 'Rows shown',
-          value: '${((widget.lo - widget.fullLo) / span * 100).round()}% to ${((widget.hi - widget.fullLo) / span * 100).round()}%',
+          value:
+              '${((widget.lo - widget.fullLo) / span * 100).round()}% to ${((widget.hi - widget.fullLo) / span * 100).round()}%',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onHorizontalDragStart: (d) {
@@ -4013,9 +4360,15 @@ class _BrushViewState extends State<_BrushView> {
               final du = d.delta.dx / w * span;
               switch (_grip) {
                 case -1:
-                  widget.onChanged(math.min(widget.lo + du, widget.hi - span / 50), widget.hi);
+                  widget.onChanged(
+                    math.min(widget.lo + du, widget.hi - span / 50),
+                    widget.hi,
+                  );
                 case 1:
-                  widget.onChanged(widget.lo, math.max(widget.hi + du, widget.lo + span / 50));
+                  widget.onChanged(
+                    widget.lo,
+                    math.max(widget.hi + du, widget.lo + span / 50),
+                  );
                 default:
                   widget.onChanged(widget.lo + du, widget.hi + du);
               }
@@ -4077,7 +4430,12 @@ class _BrushPainter extends CustomPainter {
       for (var i = 0; i < rows.length; i++) {
         final v = rows[i];
         if (v == null) continue;
-        final q = Offset(px(us[i]), size.height - 4 - (mx == mn ? .5 : (v - mn) / (mx - mn)) * (size.height - 8));
+        final q = Offset(
+          px(us[i]),
+          size.height -
+              4 -
+              (mx == mn ? .5 : (v - mn) / (mx - mn)) * (size.height - 8),
+        );
         started ? path.lineTo(q.dx, q.dy) : path.moveTo(q.dx, q.dy);
         started = true;
       }
@@ -4094,7 +4452,11 @@ class _BrushPainter extends CustomPainter {
     for (final x in [a, b]) {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset(x, size.height / 2), width: 6, height: size.height * .6),
+          Rect.fromCenter(
+            center: Offset(x, size.height / 2),
+            width: 6,
+            height: size.height * .6,
+          ),
           const Radius.circular(3),
         ),
         Paint()..color = handle,
@@ -4191,7 +4553,10 @@ class ChartTable<T> extends StatelessWidget {
       switch (p) {
         case DerivedSeries<T>():
           for (final s in p.derive(data)) {
-            columns.add((s.label, (i) => s.values?[i] ?? s.value?.call(data[i])));
+            columns.add((
+              s.label,
+              (i) => s.values?[i] ?? s.value?.call(data[i]),
+            ));
           }
         case Candlestick<T>():
           columns
@@ -4200,10 +4565,13 @@ class ChartTable<T> extends StatelessWidget {
             ..add(('${p.label} low', (i) => p.low(data[i])))
             ..add(('${p.label} close', (i) => p.close(data[i])));
         case BoxPlot<T>():
-          columns.add(('${p.label} median', (i) {
-            final s = p.samples(data[i]);
-            return s.isEmpty ? null : _Box(s).median;
-          }));
+          columns.add((
+            '${p.label} median',
+            (i) {
+              final s = p.samples(data[i]);
+              return s.isEmpty ? null : _Box(s).median;
+            },
+          ));
         case CartesianSeries<T>():
           columns.add((p.label, (i) => p.values?[i] ?? p.value?.call(data[i])));
         case final ChartColumn<T> c:
@@ -4213,21 +4581,30 @@ class ChartTable<T> extends StatelessWidget {
       }
     }
     String label(Object v) => v is DateTime ? chartDate(v) : '$v';
-    final head = t.text.xs.copyWith(color: c.mutedForeground, fontWeight: FontWeight.w500);
+    final head = t.text.xs.copyWith(
+      color: c.mutedForeground,
+      fontWeight: FontWeight.w500,
+    );
     final body = t.text.xs.copyWith(
       color: c.foreground,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
     Widget cell(String s, TextStyle style, {bool end = false}) => Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Text(s, style: style, textAlign: end ? TextAlign.end : TextAlign.start),
+      child: Text(
+        s,
+        style: style,
+        textAlign: end ? TextAlign.end : TextAlign.start,
+      ),
     );
     return Table(
       defaultColumnWidth: const IntrinsicColumnWidth(),
       border: TableBorder(horizontalInside: BorderSide(color: c.border)),
       children: [
         TableRow(
-          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.border))),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: c.border)),
+          ),
           children: [
             cell(heading, head),
             for (final (name, _) in columns) cell(name, head, end: true),
@@ -4257,7 +4634,8 @@ typedef ChartBin = ({double from, double to, int count});
 /// (1 + log2 n) when not given.
 List<ChartBin> chartBins(List<num> values, {int? bins}) {
   if (values.isEmpty) return const [];
-  final lo = values.reduce(math.min).toDouble(), hi = values.reduce(math.max).toDouble();
+  final ds = [for (final v in values) v.toDouble()];
+  final lo = ds.reduce(math.min), hi = ds.reduce(math.max);
   final n = bins ?? (1 + (math.log(values.length) / math.ln2).ceil());
   final width = hi == lo ? 1.0 : (hi - lo) / n;
   final counts = List.filled(n, 0);
@@ -4265,7 +4643,8 @@ List<ChartBin> chartBins(List<num> values, {int? bins}) {
     counts[((v - lo) / width).floor().clamp(0, n - 1)]++;
   }
   return [
-    for (var i = 0; i < n; i++) (from: lo + i * width, to: lo + (i + 1) * width, count: counts[i]),
+    for (var i = 0; i < n; i++)
+      (from: lo + i * width, to: lo + (i + 1) * width, count: counts[i]),
   ];
 }
 
@@ -4314,7 +4693,9 @@ class HistogramChart extends StatelessWidget {
     final mean = n == 0 ? 0.0 : values.fold<double>(0, (a, v) => a + v) / n;
     final sd = n == 0
         ? 0.0
-        : math.sqrt(values.fold<double>(0, (a, v) => a + (v - mean) * (v - mean)) / n);
+        : math.sqrt(
+            values.fold<double>(0, (a, v) => a + (v - mean) * (v - mean)) / n,
+          );
     final width = b.isEmpty ? 1.0 : b.first.to - b.first.from;
     String write(num v) => tickFormatter?.call(v) ?? chartNumber(v);
     return BarChart<ChartBin>(
@@ -4328,7 +4709,8 @@ class HistogramChart extends StatelessWidget {
         XAxis(tickFormatter: (v) => write(v as num)),
         YAxis(),
         ChartTooltip(
-          labelFormatter: (_, r) => r == null ? '' : '${write(r.from)} to ${write(r.to)}',
+          labelFormatter: (_, r) =>
+              r == null ? '' : '${write(r.from)} to ${write(r.to)}',
         ),
         Bar(label: label, value: (r) => r.count, color: color, radius: 2),
         if (normalCurve && sd > 0)
@@ -4336,8 +4718,12 @@ class HistogramChart extends StatelessWidget {
             label: 'Normal',
             values: [
               for (final r in b)
-                n * width / (sd * math.sqrt(2 * math.pi)) *
-                    math.exp(-math.pow((r.from + r.to) / 2 - mean, 2) / (2 * sd * sd)),
+                n *
+                    width /
+                    (sd * math.sqrt(2 * math.pi)) *
+                    math.exp(
+                      -math.pow((r.from + r.to) / 2 - mean, 2) / (2 * sd * sd),
+                    ),
             ],
             dashed: true,
             width: 1.5,

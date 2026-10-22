@@ -22,7 +22,13 @@ const visits = <Visit>[
   (month: 'Apr', desktop: 73, mobile: 190),
 ];
 
-typedef Price = ({DateTime day, double open, double high, double low, double close});
+typedef Price = ({
+  DateTime day,
+  double open,
+  double high,
+  double low,
+  double close,
+});
 
 final prices = <Price>[
   for (var i = 0; i < 30; i++)
@@ -78,7 +84,12 @@ void main() {
               label: 'Desktop',
               value: (r) => r.desktop,
               stackId: 'a',
-              labels: [ChartLabels(position: ChartLabelPosition.insideStart, text: (r, _) => r.month)],
+              labels: [
+                ChartLabels(
+                  position: ChartLabelPosition.insideStart,
+                  text: (r, _) => r.month,
+                ),
+              ],
             ),
             Bar(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
           ],
@@ -90,7 +101,11 @@ void main() {
             XAxis(),
             YAxis(),
             Line(label: 'Desktop', value: (r) => r.desktop, dots: true),
-            Line(label: 'Mobile', value: (r) => r.mobile, curve: ChartCurve.step),
+            Line(
+              label: 'Mobile',
+              value: (r) => r.mobile,
+              curve: ChartCurve.step,
+            ),
           ],
         ),
         AreaChart<Visit>(
@@ -108,7 +123,11 @@ void main() {
           children: [
             XAxis(),
             YAxis(),
-            Scatter(label: 'Visits', value: (r) => r.mobile, size: (r) => r.desktop),
+            Scatter(
+              label: 'Visits',
+              value: (r) => r.mobile,
+              size: (r) => r.desktop,
+            ),
             Trendline(value: (r) => r.mobile),
           ],
         ),
@@ -119,8 +138,21 @@ void main() {
             XAxis(),
             YAxis(),
             YAxis(id: 'b', right: true, type: AxisType.log),
-            Candlestick(label: 'KES', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
-            Ohlc(label: 'O', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close, yAxisId: 'b'),
+            Candlestick(
+              label: 'KES',
+              open: (r) => r.open,
+              high: (r) => r.high,
+              low: (r) => r.low,
+              close: (r) => r.close,
+            ),
+            Ohlc(
+              label: 'O',
+              open: (r) => r.open,
+              high: (r) => r.high,
+              low: (r) => r.low,
+              close: (r) => r.close,
+              yAxisId: 'b',
+            ),
             ReferenceArea(y1: 110, y2: 115),
             ReferenceLine(x: prices[10].day),
             Brush(),
@@ -132,8 +164,15 @@ void main() {
           x: (r) => r.month,
           children: [
             XAxis(),
-            BoxPlot(label: 'Spread', samples: (r) => [r.mobile, r.desktop, (r.mobile + r.desktop) / 2]),
-            Waterfall(label: 'Change', value: (r) => r.desktop - r.mobile, total: (r) => r.month == 'Apr'),
+            BoxPlot(
+              label: 'Spread',
+              samples: (r) => [r.mobile, r.desktop, (r.mobile + r.desktop) / 2],
+            ),
+            Waterfall(
+              label: 'Change',
+              value: (r) => r.desktop - r.mobile,
+              total: (r) => r.month == 'Apr',
+            ),
             Line(label: 'Mean', value: (r) => r.mobile, error: (r) => 10),
           ],
         ),
@@ -145,7 +184,9 @@ void main() {
     }
   });
 
-  testWidgets('a screen reader hears what it shows and every value', (tester) async {
+  testWidgets('a screen reader hears what it shows and every value', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     await tester.pumpWidget(app(bars(semanticLabel: 'Visitors by month')));
     await tester.pumpAndSettle();
@@ -157,12 +198,17 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('hovering a row shows its values; leaving hides them', (tester) async {
+  testWidgets('hovering a row shows its values; leaving hides them', (
+    tester,
+  ) async {
     await tester.pumpWidget(app(bars()));
     await tester.pumpAndSettle();
     final box = tester.getRect(find.byType(BarChart<Visit>));
     // The second of four rows.
-    final mouse = await mouseAt(tester, Offset(box.left + box.width * .375, box.top + 100));
+    final mouse = await mouseAt(
+      tester,
+      Offset(box.left + box.width * .375, box.top + 100),
+    );
     expect(find.text('305'), findsOneWidget);
     expect(find.text('200'), findsOneWidget);
     await mouse.moveTo(Offset.zero);
@@ -170,7 +216,9 @@ void main() {
     expect(find.text('305'), findsNothing);
   });
 
-  testWidgets('the tooltip writes its values and title your way', (tester) async {
+  testWidgets('the tooltip writes its values and title your way', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       app(
         BarChart<Visit>(
@@ -198,7 +246,9 @@ void main() {
     expect(find.text('KES 266.0'), findsOneWidget);
   });
 
-  testWidgets('the arrow keys step through the rows, and Enter chooses one', (tester) async {
+  testWidgets('the arrow keys step through the rows, and Enter chooses one', (
+    tester,
+  ) async {
     ChartSelection<Visit>? chosen;
     await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
     await tester.pumpAndSettle();
@@ -216,7 +266,9 @@ void main() {
     expect(chosen, isNull);
   });
 
-  testWidgets('a tap tells the app the row and the bar under it', (tester) async {
+  testWidgets('a tap tells the app the row and the bar under it', (
+    tester,
+  ) async {
     ChartSelection<Visit>? chosen;
     await tester.pumpWidget(app(bars(onSelect: (s) => chosen = s)));
     await tester.pumpAndSettle();
@@ -228,11 +280,18 @@ void main() {
     expect(chosen?.series, 'Desktop');
   });
 
-  testWidgets('the legend hides and shows a series, and one always stays', (tester) async {
+  testWidgets('the legend hides and shows a series, and one always stays', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(app(bars(extra: [ChartLegend()], semanticLabel: 'Visits')));
+    await tester.pumpWidget(
+      app(bars(extra: [ChartLegend()], semanticLabel: 'Visits')),
+    );
     await tester.pumpAndSettle();
-    String summary() => tester.getSemantics(find.bySemanticsLabel('Visits')).getSemanticsData().value;
+    String summary() => tester
+        .getSemantics(find.bySemanticsLabel('Visits'))
+        .getSemanticsData()
+        .value;
     expect(summary(), contains('Mobile 80'));
     await tester.tap(find.text('Mobile'));
     await tester.pumpAndSettle();
@@ -246,7 +305,9 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('stacked series add up, and expanded ones make 100%', (tester) async {
+  testWidgets('stacked series add up, and expanded ones make 100%', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       app(
         AreaChart<Visit>(
@@ -278,7 +339,11 @@ void main() {
           data: days,
           x: (r) => r.day,
           semanticLabel: 'Close',
-          children: [XAxis(), ChartTooltip(), Line(label: 'Close', value: (r) => r.close)],
+          children: [
+            XAxis(),
+            ChartTooltip(),
+            Line(label: 'Close', value: (r) => r.close),
+          ],
         ),
       ),
     );
@@ -289,13 +354,18 @@ void main() {
     await mouseAt(tester, Offset(box.left + box.width * .3, box.top + 100));
     expect(find.text('103'), findsOneWidget);
     expect(
-      tester.getSemantics(find.bySemanticsLabel('Close')).getSemanticsData().value,
+      tester
+          .getSemantics(find.bySemanticsLabel('Close'))
+          .getSemanticsData()
+          .value,
       contains('1 Mar'),
     );
     semantics.dispose();
   });
 
-  testWidgets('zooming with the wheel and panning by drag move the window', (tester) async {
+  testWidgets('zooming with the wheel and panning by drag move the window', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     var reached = 0;
     final many = <Price>[for (var i = 0; i < 30; i++) prices[i]];
@@ -306,7 +376,10 @@ void main() {
           x: (r) => r.day,
           zoom: true,
           onReachStart: () => reached++,
-          children: [XAxis(last: 10), Line(label: 'Close', value: (r) => r.close)],
+          children: [
+            XAxis(last: 10),
+            Line(label: 'Close', value: (r) => r.close),
+          ],
         ),
       ),
     );
@@ -319,7 +392,10 @@ void main() {
     // The wheel zooms in about the pointer.
     final mouse = await mouseAt(tester, box.center);
     await tester.sendEventToBinding(
-      PointerScrollEvent(position: box.center, scrollDelta: const Offset(0, -300)),
+      PointerScrollEvent(
+        position: box.center,
+        scrollDelta: const Offset(0, -300),
+      ),
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -327,13 +403,24 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('new rows move from the old values rather than jumping', (tester) async {
+  testWidgets('new rows move from the old values rather than jumping', (
+    tester,
+  ) async {
     Widget chart(List<Visit> data) => app(
-      BarChart<Visit>(data: data, x: (r) => r.month, children: [Bar(label: 'Desktop', value: (r) => r.desktop)]),
+      BarChart<Visit>(
+        data: data,
+        x: (r) => r.month,
+        children: [Bar(label: 'Desktop', value: (r) => r.desktop)],
+      ),
     );
     await tester.pumpWidget(chart(visits));
     await tester.pumpAndSettle();
-    await tester.pumpWidget(chart([for (final v in visits) (month: v.month, desktop: v.desktop * 2, mobile: v.mobile)]));
+    await tester.pumpWidget(
+      chart([
+        for (final v in visits)
+          (month: v.month, desktop: v.desktop * 2, mobile: v.mobile),
+      ]),
+    );
     await tester.pump(const Duration(milliseconds: 100));
     expect(tester.hasRunningAnimations, isTrue);
     await tester.pumpAndSettle();
@@ -376,9 +463,14 @@ void main() {
     expect(b.last.to, 10);
     // Sturges: 1 + log2(8) bins for eight values.
     expect(chartBins([for (var i = 0; i < 8; i++) i]).length, 4);
+    // A list of doubles, as most data is, and one of whole numbers.
+    expect(chartBins(<double>[1.5, 2.5, 9]).length, 3);
+    expect(chartBins(<int>[1, 2, 9]).length, 3);
   });
 
-  testWidgets('a histogram draws its bins and the normal curve', (tester) async {
+  testWidgets('a histogram draws its bins and the normal curve', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     await tester.pumpWidget(
       app(
@@ -393,7 +485,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(
-      tester.getSemantics(find.bySemanticsLabel('Minutes')).getSemanticsData().value,
+      tester
+          .getSemantics(find.bySemanticsLabel('Minutes'))
+          .getSemanticsData()
+          .value,
       contains('Count 6'),
     );
     semantics.dispose();
