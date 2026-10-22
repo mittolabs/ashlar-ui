@@ -63,6 +63,8 @@ This breaks code written against 0.1.x charts: see "Moving from 0.1" below.
   - `soundwave`: `Soundwave`, a voice's loudness as bars, from levels your audio gives.
   - `chat-01`: a block, an assistant's whole conversation using them; give it your
     model as a stream of text.
+- `wallet-01`: a block, a wallet with its balance (hidden at a tap), how it went this
+  month, send, request, pay and top up, and what came in and went out.
 - `message-scroller`: a turn sent while scrolled far up is brought into view. It stayed
   out of sight below.
 - `ashlar init` writes what a coding agent should know about building with Ashlar UI

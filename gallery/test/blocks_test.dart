@@ -30,6 +30,7 @@ import 'package:ashlar_ui_gallery/blocks/signup_02.dart';
 import 'package:ashlar_ui_gallery/blocks/signup_03.dart';
 import 'package:ashlar_ui_gallery/blocks/signup_04.dart';
 import 'package:ashlar_ui_gallery/blocks/signup_05.dart';
+import 'package:ashlar_ui_gallery/blocks/wallet_01.dart';
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/sidebar.dart';
 import 'package:flutter/widgets.dart';
@@ -64,6 +65,7 @@ final blocks = <String, Widget Function()>{
   'signup-03': () => const Signup03(),
   'signup-04': () => const Signup04(),
   'signup-05': () => const Signup05(),
+  'wallet-01': () => const Wallet01(),
 };
 
 Future<void> pumpAt(
@@ -269,5 +271,18 @@ void main() {
     expect(find.bySemanticsLabel('Send'), findsOneWidget);
     // Stop cancelled the answer, so nothing listens for the close.
     unawaited(pieces.close());
+  });
+
+  testWidgets('the balance hides at a tap, to the eye and the ear', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await pumpAt(tester, const Size(390, 844), const Wallet01());
+    expect(find.bySemanticsLabel('KES 24,350.00'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Hide the balance'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Balance hidden'), findsOneWidget);
+    expect(find.textContaining('24,350', findRichText: true), findsNothing);
+    handle.dispose();
   });
 }
