@@ -49,6 +49,7 @@ class Kbd extends StatelessWidget {
         maxLines: 1,
         child: Align(
           widthFactor: 1,
+          heightFactor: 1,
           child: IconTheme.merge(
             data: IconThemeData(color: t.colors.mutedForeground, size: 12),
             child: child,

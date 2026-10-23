@@ -2097,7 +2097,7 @@ enum ButtonVariant {
   /// An action that deletes or cannot be undone.
   destructive,
 
-  /// Text that acts like a link.
+  /// Text that acts like a link, with no padding at its sides so it sits among words.
   link,
 }
 
@@ -2275,7 +2275,10 @@ class Button extends StatelessWidget {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            padding: EdgeInsets.symmetric(horizontal: padding),
+            // A link is text: no padding at its sides, so it lines up with the words around it.
+            padding: EdgeInsets.symmetric(
+              horizontal: variant == ButtonVariant.link ? 0 : padding,
+            ),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: joinedRadius(context, t.radiusMd),
@@ -4647,6 +4650,8 @@ class _LabelDemoState extends State<LabelDemo> {
     files: {
       'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 import 'label.dart';
@@ -4755,7 +4760,7 @@ class Field extends StatelessWidget {
           )
         : axis == Axis.vertical
         ? _stacked(label, notes)
-        : _sideBySide(label, notes);
+        : _sideBySide(label, notes, t.minTapTarget);
     if (card) {
       body = GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -4787,7 +4792,7 @@ class Field extends StatelessWidget {
     ],
   );
 
-  Widget _sideBySide(Widget? label, List<Widget> notes) => Row(
+  Widget _sideBySide(Widget? label, List<Widget> notes, double target) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       child,
@@ -4797,9 +4802,13 @@ class Field extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Lines the label up with the middle of a 16 tall control.
+            // Lines the label's first line (20 tall) up with the middle of the control:
+            // a 16 tall control, or the larger press area it is centred in for a finger.
             if (label != null)
-              Padding(padding: const EdgeInsets.only(top: 1), child: label),
+              Padding(
+                padding: EdgeInsets.only(top: math.max(1, (target - 20) / 2)),
+                child: label,
+              ),
             for (final n in notes) ...[const SizedBox(height: 6), n],
           ],
         ),
@@ -5429,7 +5438,7 @@ import 'theme.dart';
 ///
 /// ```dart
 /// Avatar(image: NetworkImage(user.photoUrl), fallback: 'MT', semanticLabel: 'Maya Thompson')
-/// Avatar(fallback: 'WM', size: 40)
+/// Avatar(fallback: 'MT', size: 40)
 /// ```
 class Avatar extends StatelessWidget {
   const Avatar({
@@ -6126,6 +6135,7 @@ class Kbd extends StatelessWidget {
         maxLines: 1,
         child: Align(
           widthFactor: 1,
+          heightFactor: 1,
           child: IconTheme.merge(
             data: IconThemeData(color: t.colors.mutedForeground, size: 12),
             child: child,
@@ -9543,7 +9553,7 @@ class _SelectDemoState extends State<SelectDemo> {
         SelectOption('bom', 'Mumbai'),
         SelectOption('kyo', 'Kyoto'),
         SelectOption('lag', 'Lagos'),
-        SelectOption('eld', 'Uasin Gishu'),
+        SelectOption('mex', 'Mexico City'),
       ],
       onChanged: (v) => setState(() => city = v),
     ),
@@ -11215,7 +11225,7 @@ class TypographyDemo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        H2('The market at Gikomba'),
+        H2('The flea market at dawn'),
         SizedBox(height: 12),
         Lead('Before sunrise the stalls are already up, and the first buyers are haggling.'),
         SizedBox(height: 16),
@@ -11844,7 +11854,7 @@ class ItemDemo extends StatelessWidget {
         const SizedBox(height: 12),
         Item(
           variant: ItemVariant.muted,
-          leading: const Avatar(fallback: 'WM'),
+          leading: const Avatar(fallback: 'MT'),
           title: const Text('Maya Thompson'),
           description: const Text('Invited you to the Design team.'),
           trailing: Button(size: ButtonSize.sm, onPressed: () {}, child: const Text('Accept')),
@@ -12441,7 +12451,7 @@ class _CollapsibleState extends State<Collapsible>
         widget.builder(context, _open, _toggle),
         SizeTransition(
           sizeFactor: _size,
-          alignment: Alignment.topCenter,
+          alignment: AlignmentDirectional.topStart,
           child: Visibility(
             // Fully closed: kept, but not drawn, focused or read.
             visible: !_c.isDismissed,
@@ -15676,7 +15686,7 @@ class HoverCardDemo extends StatelessWidget {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Avatar(fallback: 'WM', size: 40),
+          const Avatar(fallback: 'MT', size: 40),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -16780,7 +16790,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
       (
         number: 'INV${i.toString().padLeft(3, '0')}',
         status: i % 5 == 0 ? 'Overdue' : (i % 3 == 0 ? 'Pending' : 'Paid'),
-        amount: 500 + (i * 737) % 4000,
+        amount: 50 + (i * 737) % 400,
       ),
   ];
 
@@ -18185,7 +18195,7 @@ import 'theme.dart';
 /// ```dart
 /// InputGroup(
 ///   start: Text('https://'),
-///   end: Text('.co.ke'),
+///   end: Text('.com'),
 ///   child: Input(decorated: false, placeholder: 'example'),
 /// )
 /// InputGroup(
@@ -18329,7 +18339,7 @@ void main() {
             width: 320,
             child: InputGroup(
               start: Text('https://'),
-              end: Text('.co.ke'),
+              end: Text('.com'),
               child: Input(decorated: false, placeholder: 'example'),
             ),
           ),
@@ -18391,7 +18401,7 @@ class InputGroupDemo extends StatelessWidget {
       children: [
         const InputGroup(
           start: Text('https://'),
-          end: Text('.co.ke'),
+          end: Text('.com'),
           child: Input(decorated: false, placeholder: 'yourshop'),
         ),
         const SizedBox(height: 16),
@@ -33920,12 +33930,12 @@ import 'package:ashlar_ui_gallery/ui/treemap.dart';
 typedef _Spend = ({String item, String category, double amount});
 
 const _spend = <_Spend>[
-  (item: 'Rent', category: 'Home', amount: 45000),
-  (item: 'Power', category: 'Home', amount: 4200),
-  (item: 'Fuel', category: 'Transport', amount: 12000),
-  (item: 'Fares', category: 'Transport', amount: 3500),
-  (item: 'Groceries', category: 'Food', amount: 18000),
-  (item: 'Eating out', category: 'Food', amount: 7600),
+  (item: 'Rent', category: 'Home', amount: 4500),
+  (item: 'Power', category: 'Home', amount: 420),
+  (item: 'Fuel', category: 'Transport', amount: 1200),
+  (item: 'Fares', category: 'Transport', amount: 350),
+  (item: 'Groceries', category: 'Food', amount: 1800),
+  (item: 'Eating out', category: 'Food', amount: 760),
 ];
 
 class TreemapDemo extends StatelessWidget {
@@ -36042,7 +36052,7 @@ class _SidebarDemoState extends State<SidebarDemo> {
         header: Text('Acme Shop', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
         footer: const Row(
           children: [
-            Avatar(fallback: 'WM', size: 28),
+            Avatar(fallback: 'MT', size: 28),
             SizedBox(width: 8),
             Expanded(child: Text('Maya Thompson', maxLines: 1, overflow: TextOverflow.ellipsis)),
           ],
@@ -37077,7 +37087,8 @@ class _Header extends StatelessWidget {
               style: t.text.base.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(width: 8),
-            Flexible(
+            // Takes the room between the title and the actions, and gives way first.
+            Expanded(
               child: Text(
                 'Thursday 2 July',
                 maxLines: 1,
@@ -37085,7 +37096,6 @@ class _Header extends StatelessWidget {
                 style: t.text.sm.copyWith(color: c.mutedForeground),
               ),
             ),
-            const Spacer(),
             if (wide) ...[
               const Badge(
                 variant: BadgeVariant.outline,
@@ -37143,7 +37153,7 @@ class _Figures extends StatelessWidget {
       'Reorder',
       false,
       'Coffee, olive oil and more',
-      'Order from the wholesaler by Friday',
+      'Reorder by Friday',
     ),
   ];
 
@@ -37153,7 +37163,7 @@ class _Figures extends StatelessWidget {
     final c = t.colors;
     return LayoutBuilder(
       builder: (context, box) {
-        final across = box.maxWidth >= 1100 ? 4 : (box.maxWidth >= 640 ? 2 : 1);
+        final across = box.maxWidth >= 960 ? 4 : (box.maxWidth >= 640 ? 2 : 1);
         const gap = 16.0;
         final width = (box.maxWidth - 48 - gap * (across - 1)) / across;
         return Padding(
@@ -37344,6 +37354,7 @@ class _SalesState extends State<_Sales> {
         ),
         CardContent(
           child: BarChart<_Takings>(
+            height: 240,
             semanticLabel: 'Sales paid by card and in cash',
             data: _rows(_range),
             x: (r) => r.when,
@@ -38215,25 +38226,37 @@ class _Code extends StatelessWidget {
         borderRadius: BorderRadius.circular(t.radiusLg),
         border: Border.all(color: c.border),
       ),
-      child: Stack(
+      // The copy button in a bar of its own, so the code never scrolls under it.
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 4, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Request',
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ),
+                Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.iconSm,
+                  semanticLabel: 'Copy the request',
+                  onPressed: () => Clipboard.setData(ClipboardData(text: code)),
+                  child: const AshlarIcon(AshlarIconsRoundedStroke.copy),
+                ),
+              ],
+            ),
+          ),
+          Container(height: 1, color: c.border),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(16, 16, 56, 16),
+            padding: const EdgeInsets.all(16),
             child: Text(
               code,
               style: t.text.sm.copyWith(fontFamily: 'monospace', height: 1.6),
-            ),
-          ),
-          PositionedDirectional(
-            top: 8,
-            end: 8,
-            child: Button(
-              variant: ButtonVariant.ghost,
-              size: ButtonSize.iconSm,
-              semanticLabel: 'Copy the request',
-              onPressed: () => Clipboard.setData(ClipboardData(text: code)),
-              child: const AshlarIcon(AshlarIconsRoundedStroke.copy),
             ),
           ),
         ],
@@ -38560,13 +38583,25 @@ import '../ui/separator.dart';
 import '../ui/sidebar.dart';
 import '../ui/theme.dart';
 
-/// The paper's sections, each with its desks.
+/// The paper's sections, each with its icon and its desks.
 const _sections = [
-  ('News', ['City', 'Region', 'Politics']),
-  ('Business', ['Markets', 'Farming', 'Tech']),
-  ('Sport', ['Football', 'Athletics', 'Rugby']),
-  ('Opinion', ['Columns', 'Letters']),
-  ('Life', ['Food', 'Travel', 'Music']),
+  ('News', AshlarIconsRoundedStroke.newspaper, ['City', 'Region', 'Politics']),
+  (
+    'Business',
+    AshlarIconsRoundedStroke.briefcase,
+    ['Markets', 'Farming', 'Tech'],
+  ),
+  (
+    'Sport',
+    AshlarIconsRoundedStroke.trophy,
+    ['Football', 'Athletics', 'Rugby'],
+  ),
+  (
+    'Opinion',
+    AshlarIconsRoundedStroke.messageSquareQuote,
+    ['Columns', 'Letters'],
+  ),
+  ('Life', AshlarIconsRoundedStroke.coffee, ['Food', 'Travel', 'Music']),
 ];
 
 /// A newsroom whose sections open their desks as menus.
@@ -38591,14 +38626,16 @@ class _NewsroomState extends State<Newsroom> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final (section, desks) in _sections)
+              for (final (section, icon, desks) in _sections)
                 DropdownMenu(
                   side: PopoverSide.right,
                   width: 192,
                   builder: (context, menu) => Button(
                     variant: ButtonVariant.ghost,
+                    size: ButtonSize.sm,
                     expand: true,
                     onPressed: menu.open,
+                    leading: AshlarIcon(icon),
                     trailing: const AshlarIcon(
                       AshlarIconsRoundedStroke.chevronRight,
                     ),
@@ -38630,7 +38667,7 @@ class _NewsroomState extends State<Newsroom> {
       ],
       footer: const _MorningBrief(),
       child: _Desk(
-        section: _sections.firstWhere((s) => s.$2.contains(_desk)).$1,
+        section: _sections.firstWhere((s) => s.$3.contains(_desk)).$1,
         desk: _desk,
       ),
     );
@@ -39455,6 +39492,19 @@ class _SupportInboxState extends State<SupportInbox> {
                             children: [
                               Row(
                                 children: [
+                                  Expanded(
+                                    child: Text(
+                                      from,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: t.text.sm.copyWith(
+                                        fontWeight: answered
+                                            ? FontWeight.w500
+                                            : FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  // Waiting on a reply: a dot by the time, so
+                                  // every name starts in the same place.
                                   if (!answered) ...[
                                     Container(
                                       width: 8,
@@ -39466,15 +39516,6 @@ class _SupportInboxState extends State<SupportInbox> {
                                     ),
                                     const SizedBox(width: 6),
                                   ],
-                                  Expanded(
-                                    child: Text(
-                                      from,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: t.text.sm.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
                                   Text(sent, style: t.text.xs),
                                 ],
                               ),
@@ -40331,47 +40372,59 @@ class _Diff extends StatelessWidget {
                 borderRadius: BorderRadius.circular(t.radiusLg),
                 border: Border.all(color: c.border),
               ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final (i, (mark, line)) in _lines.indexed)
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 720),
-                        color: switch (mark) {
-                          '+' => c.primary.withValues(alpha: .08),
-                          '-' => c.destructive.withValues(alpha: .08),
-                          _ => null,
-                        },
-                        padding: const EdgeInsetsDirectional.only(end: 16),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 44,
-                              child: Text(
-                                '${41 + i}',
-                                textAlign: TextAlign.end,
-                                style: mono.copyWith(color: c.mutedForeground),
+              // Every row as wide as the widest line or the box, whichever is
+              // wider, so a changed line is marked right across.
+              child: LayoutBuilder(
+                builder: (context, box) => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: box.maxWidth),
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, (mark, line)) in _lines.indexed)
+                            Container(
+                              color: switch (mark) {
+                                '+' => c.primary.withValues(alpha: .08),
+                                '-' => c.destructive.withValues(alpha: .08),
+                                _ => null,
+                              },
+                              padding: const EdgeInsetsDirectional.only(
+                                end: 16,
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 44,
+                                    child: Text(
+                                      '${41 + i}',
+                                      textAlign: TextAlign.end,
+                                      style: mono.copyWith(
+                                        color: c.mutedForeground,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 28,
+                                    child: Text(
+                                      mark,
+                                      textAlign: TextAlign.center,
+                                      style: mono.copyWith(
+                                        color: mark == '-'
+                                            ? c.destructive
+                                            : c.foreground,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(line, style: mono),
+                                ],
                               ),
                             ),
-                            SizedBox(
-                              width: 28,
-                              child: Text(
-                                mark,
-                                textAlign: TextAlign.center,
-                                style: mono.copyWith(
-                                  color: mark == '-'
-                                      ? c.destructive
-                                      : c.foreground,
-                                ),
-                              ),
-                            ),
-                            Text(line, style: mono),
-                          ],
-                        ),
+                        ],
                       ),
-                  ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -40565,7 +40618,7 @@ class _Salon extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
                 ),
-                Text('Kileleshwa', style: t.text.xs),
+                Text('High Street', style: t.text.xs),
               ],
             ),
           ),
@@ -40678,30 +40731,54 @@ class _Day extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        client,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: t.text.xs.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: c.secondaryForeground,
-                                        ),
-                                      ),
-                                      if (length >= 1)
-                                        Text(
-                                          '$service, ${_time(from)}',
-                                          maxLines: 2,
+                                  // An hour or more has room for two lines;
+                                  // a shorter one says it all on one.
+                                  child: length >= 1
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              client,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: t.text.xs.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color: c.secondaryForeground,
+                                              ),
+                                            ),
+                                            Text(
+                                              '$service, ${_time(from)}',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: t.text.xs.copyWith(
+                                                color: c.mutedForeground,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: client,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: c.secondaryForeground,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    '  $service, ${_time(from)}',
+                                              ),
+                                            ],
+                                          ),
+                                          maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: t.text.xs.copyWith(
                                             color: c.mutedForeground,
                                           ),
                                         ),
-                                    ],
-                                  ),
                                 ),
                               ),
                         ],
@@ -40744,15 +40821,133 @@ import '../ui/separator.dart';
 import '../ui/switch.dart';
 import '../ui/theme.dart';
 
-/// The settings' sections.
+/// One setting: words to type, one of a few choices, or on and off.
+sealed class _Setting {
+  const _Setting(this.label, [this.hint]);
+
+  final String label;
+  final String? hint;
+}
+
+class _Words extends _Setting {
+  const _Words(super.label, this.value, [super.hint]);
+
+  final String value;
+}
+
+class _Choice extends _Setting {
+  const _Choice(super.label, this.value, this.options, [super.hint]);
+
+  final String value;
+  final List<String> options;
+}
+
+class _Toggle extends _Setting {
+  const _Toggle(super.label, this.on, [super.hint]);
+
+  final bool on;
+}
+
+/// The settings' sections: a name, an icon, what the section is for, and its settings.
 const _sections = [
-  ('Shop', AshlarIconsRoundedStroke.store),
-  ('Payments', AshlarIconsRoundedStroke.creditCard),
-  ('Receipts', AshlarIconsRoundedStroke.receipt),
-  ('Staff', AshlarIconsRoundedStroke.users),
-  ('Stock alerts', AshlarIconsRoundedStroke.bell),
-  ('Delivery', AshlarIconsRoundedStroke.bike),
-  ('Language', AshlarIconsRoundedStroke.globe),
+  (
+    'Shop',
+    AshlarIconsRoundedStroke.store,
+    'What customers see, and when you are open.',
+    <_Setting>[
+      _Words('Shop name', 'Corner Pantry'),
+      _Words('Address', '14 Elm Street'),
+      _Words('Opening hours', '7:00 to 20:00', 'Shown on receipts and online.'),
+      _Toggle('Open on Sundays', true),
+    ],
+  ),
+  (
+    'Payments',
+    AshlarIconsRoundedStroke.creditCard,
+    'How customers pay you, and what happens after.',
+    <_Setting>[
+      _Words(
+        'Payout account',
+        '•••• 4410',
+        'The bank account card payments go to each day.',
+      ),
+      _Words('Name on card statements', 'CORNER PANTRY'),
+      _Toggle(
+        'Ask for the owner\'s PIN to refund',
+        true,
+        'Staff cannot send money back on their own.',
+      ),
+    ],
+  ),
+  (
+    'Receipts',
+    AshlarIconsRoundedStroke.receipt,
+    'What goes on a receipt, and how it reaches the customer.',
+    <_Setting>[
+      _Words('A line at the foot', 'Thank you for shopping with us.'),
+      _Toggle('Print one for every sale', false),
+      _Toggle(
+        'Send one by SMS',
+        true,
+        'The customer gets the items and total on their phone.',
+      ),
+      _Toggle('Show the tax on each line', true),
+    ],
+  ),
+  (
+    'Staff',
+    AshlarIconsRoundedStroke.users,
+    'What the people at the till can do.',
+    <_Setting>[
+      _Toggle('Sign in at the till with a PIN', true),
+      _Toggle('Give discounts', true),
+      _Choice('Largest discount', '10%', [
+        '5%',
+        '10%',
+        '20%',
+      ], 'On any one sale.'),
+    ],
+  ),
+  (
+    'Stock alerts',
+    AshlarIconsRoundedStroke.bell,
+    'When to warn you that something is running low.',
+    <_Setting>[
+      _Words('Warn when an item falls to', '5', 'Counted in units.'),
+      _Toggle('Email a list each morning', true),
+      _Toggle('Warn a week before a use-by date', false),
+    ],
+  ),
+  (
+    'Delivery',
+    AshlarIconsRoundedStroke.bike,
+    'Orders taken to the door.',
+    <_Setting>[
+      _Words('Delivery fee', '\$3.50'),
+      _Words('Free over', '\$40.00'),
+      _Toggle('Pay on delivery', false, 'Drivers can take a card at the door.'),
+    ],
+  ),
+  (
+    'Language',
+    AshlarIconsRoundedStroke.globe,
+    'How the till and the receipts read.',
+    <_Setting>[
+      _Choice('Language', 'English', [
+        'English',
+        'Español',
+        'Français',
+        'Kiswahili',
+        'Português',
+      ]),
+      _Choice('Currency', 'USD', ['USD', 'EUR', 'GBP', 'KES', 'INR']),
+      _Choice('Dates', 'July 2, 2026', [
+        'July 2, 2026',
+        '2 July 2026',
+        '2026-07-02',
+      ]),
+    ],
+  ),
 ];
 
 /// A page with a button that opens the shop's settings.
@@ -40783,123 +40978,145 @@ class _Settings extends StatefulWidget {
 
 class _SettingsState extends State<_Settings> {
   var _section = 'Payments';
-  var _smsReceipts = true;
-  var _payOnDelivery = false;
-  var _pinToRefund = true;
+
+  // What each setting holds now, by its section and label.
+  final _words = <String, TextEditingController>{
+    for (final (name, _, _, settings) in _sections)
+      for (final s in settings.whereType<_Words>())
+        '$name/${s.label}': TextEditingController(text: s.value),
+  };
+  final _choices = <String, String>{
+    for (final (name, _, _, settings) in _sections)
+      for (final s in settings.whereType<_Choice>())
+        '$name/${s.label}': s.value,
+  };
+  final _toggles = <String, bool>{
+    for (final (name, _, _, settings) in _sections)
+      for (final s in settings.whereType<_Toggle>()) '$name/${s.label}': s.on,
+  };
+
+  @override
+  void dispose() {
+    for (final c in _words.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Widget _setting(BuildContext context, _Setting s) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final key = '$_section/${s.label}';
+    final hint = s.hint == null ? null : Text(s.hint!);
+    return switch (s) {
+      _Words() => Field(
+        label: Text(s.label),
+        description: hint,
+        child: Input(controller: _words[key], semanticLabel: s.label),
+      ),
+      _Choice(:final options) => Field(
+        label: Text(s.label),
+        description: hint,
+        child: Select<String>(
+          value: _choices[key],
+          semanticLabel: s.label,
+          options: [for (final o in options) SelectOption(o, o)],
+          onChanged: (v) => setState(() => _choices[key] = v),
+        ),
+      ),
+      _Toggle() => Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.label,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                if (s.hint != null)
+                  Text(
+                    s.hint!,
+                    style: t.text.sm.copyWith(color: c.mutedForeground),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Switch(
+            value: _toggles[key]!,
+            semanticLabel: s.label,
+            onChanged: (v) => setState(() => _toggles[key] = v),
+          ),
+        ],
+      ),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final wide = MediaQuery.sizeOf(context).width >= 768;
-    Widget toggle(String label, String hint, bool on, ValueChanged<bool> set) =>
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      hint,
-                      style: t.text.sm.copyWith(color: c.mutedForeground),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Switch(value: on, semanticLabel: label, onChanged: set),
-            ],
-          ),
-        );
-    final content = Column(
+    final (_, _, about, settings) = _sections.firstWhere(
+      (s) => s.$1 == _section,
+    );
+    final heading = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
       children: [
         if (!wide) ...[
           Select<String>(
             value: _section,
             semanticLabel: 'Section',
             options: [
-              for (final (name, _) in _sections) SelectOption(name, name),
+              for (final (name, _, _, _) in _sections) SelectOption(name, name),
             ],
             onChanged: (v) => setState(() => _section = v),
           ),
           const SizedBox(height: 16),
         ],
         Text(_section, style: t.text.lg.copyWith(fontWeight: FontWeight.w600)),
-        Text(
-          _section == 'Payments'
-              ? 'How customers pay you, and what happens after.'
-              : 'Settings for ${_section.toLowerCase()}.',
-          style: t.text.sm.copyWith(color: c.mutedForeground),
-        ),
+        Text(about, style: t.text.sm.copyWith(color: c.mutedForeground)),
         const SizedBox(height: 16),
         const Separator(),
+      ],
+    );
+    final fields = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         const SizedBox(height: 16),
-        if (_section != 'Payments')
-          Text(
-            'Nothing to change here yet.',
-            style: t.text.sm.copyWith(color: c.mutedForeground),
-          )
-        else ...[
-          const Field(
-            label: Text('Payout account'),
-            description: Text('The bank account card payments go to each day.'),
-            child: Input(
-              placeholder: '000123456789',
-              keyboardType: TextInputType.number,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Field(
-            label: Text('Name customers see'),
-            child: Input(placeholder: 'CORNER PANTRY'),
-          ),
-          const SizedBox(height: 8),
-          toggle(
-            'Send a receipt by SMS',
-            'The customer gets the items and total on their phone.',
-            _smsReceipts,
-            (v) => setState(() => _smsReceipts = v),
-          ),
-          toggle(
-            'Pay on delivery',
-            'Drivers can take a card at the door.',
-            _payOnDelivery,
-            (v) => setState(() => _payOnDelivery = v),
-          ),
-          toggle(
-            'Ask for the owner\'s PIN to refund',
-            'Staff cannot send money back on their own.',
-            _pinToRefund,
-            (v) => setState(() => _pinToRefund = v),
-          ),
+        for (final (i, s) in settings.indexed) ...[
+          if (i > 0) const SizedBox(height: 20),
+          _setting(context, s),
         ],
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Button(
-              variant: ButtonVariant.outline,
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            const SizedBox(width: 8),
-            Button(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Save'),
-            ),
-          ],
+      ],
+    );
+    final actions = Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Button(
+          variant: ButtonVariant.outline,
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        const SizedBox(width: 8),
+        Button(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Save'),
         ),
       ],
     );
-    if (!wide) return SingleChildScrollView(child: content);
+    if (!wide) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [heading, fields, actions],
+        ),
+      );
+    }
+    // A fixed height, so the dialog keeps its size from section to section: the
+    // fields scroll between the heading and the actions.
     return SizedBox(
       height: 520,
       child: Row(
@@ -40909,7 +41126,7 @@ class _SettingsState extends State<_Settings> {
             width: 200,
             child: ListView(
               children: [
-                for (final (name, icon) in _sections)
+                for (final (name, icon, _, _) in _sections)
                   Button(
                     variant: name == _section
                         ? ButtonVariant.secondary
@@ -40927,7 +41144,16 @@ class _SettingsState extends State<_Settings> {
             ),
           ),
           const SizedBox(width: 24),
-          Expanded(child: SingleChildScrollView(child: content)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                heading,
+                Expanded(child: SingleChildScrollView(child: fields)),
+                actions,
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -41225,7 +41451,10 @@ class _Rent extends StatelessWidget {
                   children: [
                     CardHeader(
                       description: Text(label),
-                      title: Text(value, style: t.text.lg),
+                      title: Text(
+                        value,
+                        style: t.text.xl.copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),
@@ -41236,6 +41465,13 @@ class _Rent extends StatelessWidget {
         const SizedBox(height: 16),
         Card(
           children: [
+            CardHeader(
+              title: const Text('Units'),
+              description: Text(
+                '${_units.length} units, '
+                '${_units.where((u) => u.$2.isEmpty).length} empty',
+              ),
+            ),
             CardContent(
               child: Column(
                 children: [
@@ -41483,6 +41719,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                           ),
                           const SizedBox(height: 16),
                           Wrap(
+                            spacing: 6,
                             alignment: WrapAlignment.center,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
@@ -41512,7 +41749,7 @@ class _PhoneSignInState extends State<PhoneSignIn> {
                 children: [
                   Button(
                     variant: ButtonVariant.link,
-                    onPressed: widget.onHelp,
+                    onPressed: () => widget.onHelp?.call(),
                     child: const Text('Lost your phone?'),
                   ),
                 ],
@@ -41620,7 +41857,7 @@ class _SplitSignInState extends State<SplitSignIn> {
             alignment: AlignmentDirectional.centerEnd,
             child: Button(
               variant: ButtonVariant.link,
-              onPressed: widget.onForgot,
+              onPressed: () => widget.onForgot?.call(),
               child: const Text('Forgot it?'),
             ),
           ),
@@ -41645,18 +41882,19 @@ class _SplitSignInState extends State<SplitSignIn> {
             expand: true,
             variant: ButtonVariant.outline,
             leading: const AshlarIcon(AshlarIconsRoundedStroke.brandGoogle),
-            onPressed: widget.onGoogle,
+            onPressed: () => widget.onGoogle?.call(),
             child: const Text('Continue with Google'),
           ),
           const SizedBox(height: 16),
           Wrap(
+            spacing: 6,
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const Text('First time here?'),
               Button(
                 variant: ButtonVariant.link,
-                onPressed: widget.onCreate,
+                onPressed: () => widget.onCreate?.call(),
                 child: const Text('Create an account'),
               ),
             ],
@@ -41911,7 +42149,7 @@ class AccountPicker extends StatelessWidget {
                               leading: const AshlarIcon(
                                 AshlarIconsRoundedStroke.brandGoogle,
                               ),
-                              onPressed: onGoogle,
+                              onPressed: () => onGoogle?.call(),
                               child: const Text('Google'),
                             ),
                           ),
@@ -41923,7 +42161,7 @@ class AccountPicker extends StatelessWidget {
                               leading: const AshlarIcon(
                                 AshlarIconsRoundedStroke.brandApple,
                               ),
-                              onPressed: onApple,
+                              onPressed: () => onApple?.call(),
                               child: const Text('Apple'),
                             ),
                           ),
@@ -41936,7 +42174,7 @@ class AccountPicker extends StatelessWidget {
                         leading: const AshlarIcon(
                           AshlarIconsRoundedStroke.mail,
                         ),
-                        onPressed: onEmail,
+                        onPressed: () => onEmail?.call(),
                         child: const Text('Use an email address'),
                       ),
                     ],
@@ -42055,7 +42293,10 @@ class _TillPinState extends State<TillPin> {
           constraints: const BoxConstraints(maxWidth: 320),
           child: Column(
             children: [
-              Text('Who is serving?', style: t.text.lg),
+              Text(
+                'Who is serving?',
+                style: t.text.lg.copyWith(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 12,
@@ -42244,7 +42485,10 @@ class _MagicLinkSignInState extends State<MagicLinkSignIn> {
                   children: [
                     mark(AshlarIconsRoundedStroke.mailCheck),
                     const SizedBox(height: 16),
-                    Text('Check your email', style: t.text.xl),
+                    Text(
+                      'Check your email',
+                      style: t.text.xl.copyWith(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'We sent a sign-in link to $_email. It works once, for 15 minutes. '
@@ -42277,7 +42521,7 @@ class _MagicLinkSignInState extends State<MagicLinkSignIn> {
                       Text(
                         'Sign in without a password',
                         textAlign: TextAlign.center,
-                        style: t.text.xl,
+                        style: t.text.xl.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -42512,13 +42756,14 @@ class _PhoneSignUpState extends State<PhoneSignUp> {
                 children: [
                   Flexible(
                     child: Wrap(
+                      spacing: 6,
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         const Text('Already have one?'),
                         Button(
                           variant: ButtonVariant.link,
-                          onPressed: widget.onSignIn,
+                          onPressed: () => widget.onSignIn?.call(),
                           child: const Text('Sign in'),
                         ),
                       ],
@@ -42692,13 +42937,14 @@ class _BusinessSignUpState extends State<BusinessSignUp> {
           ),
           const SizedBox(height: 12),
           Wrap(
+            spacing: 6,
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const Text('Already with us?'),
               Button(
                 variant: ButtonVariant.link,
-                onPressed: widget.onSignIn,
+                onPressed: () => widget.onSignIn?.call(),
                 child: const Text('Sign in'),
               ),
             ],
@@ -42753,7 +42999,7 @@ class _BusinessSignUpState extends State<BusinessSignUp> {
                           const SizedBox(height: 24),
                           for (final (icon, text) in [
                             (
-                              AshlarIconsRoundedStroke.smartphone,
+                              AshlarIconsRoundedStroke.creditCard,
                               'Card and bank payments matched to sales on their own',
                             ),
                             (
@@ -42868,7 +43114,7 @@ class _TeamInviteState extends State<TeamInvite> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 440),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -42955,7 +43201,7 @@ class _TeamInviteState extends State<TeamInvite> {
                 Center(
                   child: Button(
                     variant: ButtonVariant.link,
-                    onPressed: widget.onDecline,
+                    onPressed: () => widget.onDecline?.call(),
                     child: const Text('Not you? Decline the invitation'),
                   ),
                 ),
@@ -43192,7 +43438,10 @@ class _MemberSignUpState extends State<MemberSignUp> {
                 'Step ${_step + 1} of 3',
                 style: t.text.xs.copyWith(color: c.mutedForeground),
               ),
-              Text(_steps[_step], style: t.text.xl),
+              Text(
+                _steps[_step],
+                style: t.text.xl.copyWith(fontWeight: FontWeight.w600),
+              ),
               const SizedBox(height: 20),
               body,
               const SizedBox(height: 24),
@@ -43213,13 +43462,14 @@ class _MemberSignUpState extends State<MemberSignUp> {
               ),
               const SizedBox(height: 16),
               Wrap(
+                spacing: 6,
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   const Text('Already a member?'),
                   Button(
                     variant: ButtonVariant.link,
-                    onPressed: widget.onSignIn,
+                    onPressed: () => widget.onSignIn?.call(),
                     child: const Text('Sign in'),
                   ),
                 ],
@@ -43508,7 +43758,7 @@ All three went out with the same driver, and **1063** is still on the road. Want
                     variant: ButtonVariant.ghost,
                     size: ButtonSize.icon,
                     semanticLabel: 'Attach a file',
-                    onPressed: widget.onAttach,
+                    onPressed: () => widget.onAttach?.call(),
                     child: const AshlarIcon(AshlarIconsRoundedStroke.paperclip),
                   ),
                 ],
@@ -43784,7 +44034,7 @@ class _WalletState extends State<Wallet> {
             Button(
               variant: ButtonVariant.ghost,
               size: ButtonSize.sm,
-              onPressed: widget.onSeeAll,
+              onPressed: () => widget.onSeeAll?.call(),
               child: const Text('See all'),
             ),
           ],
@@ -43860,37 +44110,44 @@ class _WalletState extends State<Wallet> {
           final pad = wide ? 32.0 : 16.0;
           return SingleChildScrollView(
             padding: EdgeInsets.all(pad),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: wide ? 1040 : 520),
-                child: wide
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 380,
-                            child: Column(
-                              children: [
-                                balance,
-                                const SizedBox(height: 16),
-                                actions,
-                              ],
+            // In the middle of a screen taller than it is, from its top on a
+            // shorter one.
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: wide ? box.maxHeight - pad * 2 : 0,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: wide ? 1040 : 520),
+                  child: wide
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 380,
+                              child: Column(
+                                children: [
+                                  balance,
+                                  const SizedBox(height: 16),
+                                  actions,
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 40),
-                          Expanded(child: activity),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          balance,
-                          const SizedBox(height: 16),
-                          actions,
-                          const SizedBox(height: 24),
-                          activity,
-                        ],
-                      ),
+                            const SizedBox(width: 40),
+                            Expanded(child: activity),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            balance,
+                            const SizedBox(height: 16),
+                            actions,
+                            const SizedBox(height: 24),
+                            activity,
+                          ],
+                        ),
+                ),
               ),
             ),
           );
@@ -44213,15 +44470,16 @@ class Bubble extends StatelessWidget {
     if (reactions != null) {
       final top = reactionsSide == BubbleReactionsSide.top;
       bubble = Padding(
-        // Three quarters of the pill hangs past the edge, so it covers little of the text.
-        padding: EdgeInsets.only(top: top ? 20 : 0, bottom: top ? 0 : 20),
+        // The pill (about 36 tall) hangs past the edge so it overlaps only the bubble's
+        // padding, never the text.
+        padding: EdgeInsets.only(top: top ? 30 : 0, bottom: top ? 0 : 30),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             bubble,
             PositionedDirectional(
-              top: top ? -20 : null,
-              bottom: top ? null : -20,
+              top: top ? -30 : null,
+              bottom: top ? null : -30,
               end: end ? null : 12,
               start: end ? 12 : null,
               child: Container(
@@ -44366,10 +44624,10 @@ void main() {
       final reaction = tester.getRect(find.text('+2'));
       final next = tester.getRect(find.text('Next'));
       expect(reaction.bottom, lessThanOrEqualTo(next.top));
-      expect(
-        reaction.top,
-        lessThan(tester.getRect(find.text('Shipped')).bottom + 12),
-      );
+      // Clear of the message's text, yet still over the bubble's edge.
+      final text = tester.getRect(find.text('Shipped'));
+      expect(reaction.top, greaterThan(text.bottom));
+      expect(reaction.top, lessThan(text.bottom + 20));
     });
 
     testWidgets('a bubble with onPressed is a button', (tester) async {
@@ -47904,7 +48162,7 @@ class ToolCallDemo extends StatelessWidget {
           output: '{"count": 38, "late": 3}',
         ),
         const SizedBox(height: 10),
-        const ToolCall(title: 'Find the rider', name: 'get_rider', status: ToolCallStatus.running),
+        const ToolCall(title: 'Find the driver', name: 'get_driver', status: ToolCallStatus.running),
         const SizedBox(height: 10),
         ToolCall(
           title: 'Message three customers',
@@ -47961,7 +48219,7 @@ class Source {
 ///
 /// ```dart
 /// Sources(
-///   sources: [Source(title: 'Returns policy', url: 'https://shop.co.ke/returns')],
+///   sources: [Source(title: 'Returns policy', url: 'https://shop.example.com/returns')],
 ///   onOpen: (source) => launch(source.url!),
 /// )
 /// ```
@@ -48197,7 +48455,7 @@ Widget app(Widget child) => AshlarApp(
 );
 
 const _sources = [
-  Source(title: 'Returns policy', url: 'https://www.shop.co.ke/returns'),
+  Source(title: 'Returns policy', url: 'https://www.shop.example.com/returns'),
   Source(title: 'Order 1042', detail: 'Orders, 12 October'),
 ];
 
@@ -48211,7 +48469,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Returns policy').hitTestable(), findsOneWidget);
       // Where it is from, taken from its address when not given.
-      expect(find.text('shop.co.ke'), findsOneWidget);
+      expect(find.text('shop.example.com'), findsOneWidget);
       expect(find.text('Orders, 12 October'), findsOneWidget);
     });
 
@@ -48236,7 +48494,7 @@ void main() {
         app(const Sources(sources: _sources, initiallyOpen: true)),
       );
       expect(
-        find.bySemanticsLabel('1. Returns policy, shop.co.ke'),
+        find.bySemanticsLabel('1. Returns policy, shop.example.com'),
         findsOneWidget,
       );
       handle.dispose();
@@ -48294,7 +48552,7 @@ class SourcesDemo extends StatelessWidget {
             initiallyOpen: true,
             onOpen: (_) {},
             sources: const [
-              Source(title: 'Returns policy', url: 'https://www.shop.co.ke/returns'),
+              Source(title: 'Returns policy', url: 'https://www.shop.example.com/returns'),
               Source(title: 'Order 1042', detail: 'Orders, 12 October'),
             ],
           ),
