@@ -102,7 +102,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     'prefix',
     if (command == 'init') ...['blocks', 'tests'],
   };
-  final words = [
+  final named = [
     for (var i = 0; i < rest.length; i++)
       if (!rest[i].startsWith('--') &&
           !(i > 0 &&
@@ -110,6 +110,19 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
               options.contains(rest[i - 1].substring(2))))
         rest[i],
   ];
+  // A name an item went by before finds it, and says what it is called now.
+  final renamed = {
+    for (final MapEntry(key: name, value: item) in registry.entries)
+      for (final old in item.replaces) old: name,
+  };
+  final aliases = ['add', 'view', 'diff', 'update'].contains(command);
+  final words = [
+    for (final word in named)
+      if (aliases && renamed[word] != null) renamed[word]! else word,
+  ];
+  for (final word in named.where((w) => aliases && renamed.containsKey(w))) {
+    o.writeln('$word is now ${renamed[word]}.');
+  }
   final needsFlutter = ![
     'list',
     'search',

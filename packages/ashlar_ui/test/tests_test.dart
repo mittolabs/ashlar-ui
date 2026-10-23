@@ -80,9 +80,9 @@ void main() {
     expect(config['path'], 'lib/widgets/ui');
     expect(config['blocks'], 'lib/screens');
     expect(config['tests'], 'test/ui');
-    await ashlar(dir, ['add', 'login-01', 'swipe-actions']);
+    await ashlar(dir, ['add', 'phone-sign-in', 'swipe-actions']);
     expect(
-      File('${dir.path}/lib/screens/login_01.dart').readAsStringSync(),
+      File('${dir.path}/lib/screens/phone_sign_in.dart').readAsStringSync(),
       contains("import '../widgets/ui/"),
     );
     expect(

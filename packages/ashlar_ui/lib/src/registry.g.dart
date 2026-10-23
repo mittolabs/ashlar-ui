@@ -10,6 +10,7 @@ const registry = <String, Component>{
     requires: [],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'theme.dart': r'''// Ashlar UI: the theme. Copied into your app by `ashlar init`; it is yours to change.
 // Every colour, radius and text style the components use comes from here.
@@ -1528,6 +1529,7 @@ const _accents = <AshlarAccent, (_Accent, _Accent)>{
     requires: ["theme","selection"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'app.dart': r'''// Ashlar UI: the app shell. Copied into your app by `ashlar init`; it is yours to change.
 // Use it in place of MaterialApp or CupertinoApp: it builds on WidgetsApp alone.
@@ -1847,6 +1849,7 @@ void main() {
     requires: ["theme","group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'pressable.dart': r'''// Ashlar UI: what every control is built on. Copied in by `ashlar add` with the first
 // component that needs it; it is yours to change.
@@ -2068,6 +2071,7 @@ class _PressableState extends State<Pressable> {
     requires: ["theme","pressable","group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'button.dart': r'''// Ashlar UI: Button. Copied into your app by `ashlar add button`; it is yours to change.
 
@@ -2560,6 +2564,7 @@ class ButtonDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'badge.dart': r'''// Ashlar UI: Badge. Copied into your app by `ashlar add badge`; it is yours to change.
 
@@ -2686,6 +2691,7 @@ class BadgeDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'card.dart': r'''// Ashlar UI: Card. Copied into your app by `ashlar add card`; it is yours to change.
 
@@ -3027,7 +3033,7 @@ class CardDemo extends StatelessWidget {
         const CardHeader(
           title: Text('Send money'),
           description: Text('To a phone number or a bank account.'),
-          action: Badge(variant: BadgeVariant.secondary, child: Text('KES')),
+          action: Badge(variant: BadgeVariant.secondary, child: Text('USD')),
         ),
         const CardContent(child: Input(placeholder: 'Phone number')),
         CardFooter(
@@ -3048,6 +3054,7 @@ class CardDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'separator.dart': r'''// Ashlar UI: Separator. Copied into your app by `ashlar add separator`; it is yours to change.
 
@@ -3131,6 +3138,7 @@ class SeparatorDemo extends StatelessWidget {
     requires: ["theme","selection"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'input.dart': r'''// Ashlar UI: Input. Copied into your app by `ashlar add input`; it is yours to change.
 //
@@ -3492,10 +3500,10 @@ void main() {
         );
         expect(find.text('Email'), findsOneWidget);
         await tester.tap(find.byType(Input));
-        await tester.enterText(find.byType(EditableText), 'a@solutech.co.ke');
+        await tester.enterText(find.byType(EditableText), 'a@example.com');
         await tester.pump();
         expect(find.text('Email'), findsNothing);
-        expect(seen.last, 'a@solutech.co.ke');
+        expect(seen.last, 'a@example.com');
       },
     );
 
@@ -3645,6 +3653,7 @@ class InputDemo extends StatelessWidget {
     requires: ["theme","pressable"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'checkbox.dart': r'''// Ashlar UI: Checkbox. Copied into your app by `ashlar add checkbox`; it is yours to change.
 
@@ -3988,6 +3997,7 @@ class _CheckboxDemoState extends State<CheckboxDemo> {
     requires: ["theme","pressable"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'switch.dart': r'''// Ashlar UI: Switch. Copied into your app by `ashlar add switch`; it is yours to change.
 
@@ -4129,6 +4139,7 @@ class _SwitchDemoState extends State<SwitchDemo> {
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'dialog.dart': r'''// Ashlar UI: Dialog. Copied into your app by `ashlar add dialog`; it is yours to change.
 
@@ -4556,6 +4567,7 @@ class DialogDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'label.dart': r'''// Ashlar UI: Label. Copied into your app by `ashlar add label`; it is yours to change.
 
@@ -4631,6 +4643,7 @@ class _LabelDemoState extends State<LabelDemo> {
     requires: ["theme","label"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'field.dart': r'''// Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
@@ -4646,7 +4659,7 @@ import 'theme.dart';
 /// the label beside it (checkboxes, switches, radios).
 ///
 /// ```dart
-/// Field(label: Text('Email'), description: Text('We send receipts here.'), child: Input(placeholder: 'you@solutech.co.ke'))
+/// Field(label: Text('Email'), description: Text('We send receipts here.'), child: Input(placeholder: 'you@example.com'))
 /// Field(axis: Axis.horizontal, label: Text('Accept the terms'), child: Checkbox(value: agreed, onChanged: agree))
 /// ```
 class Field extends StatelessWidget {
@@ -4958,7 +4971,7 @@ void main() {
             child: Field(
               label: Text('Email'),
               error: Text('Enter an email'),
-              child: Input(placeholder: 'you@solutech.co.ke'),
+              child: Input(placeholder: 'you@example.com'),
             ),
           ),
         ),
@@ -5034,7 +5047,7 @@ void main() {
                 child: const Field(
                   responsive: true,
                   label: Text('Name'),
-                  child: Input(placeholder: 'Wanjiru'),
+                  child: Input(placeholder: 'Maya'),
                 ),
               ),
             ),
@@ -5076,13 +5089,13 @@ class _FieldDemoState extends State<FieldDemo> {
         const Field(
           label: Text('Email'),
           description: Text('We send receipts here.'),
-          child: Input(placeholder: 'you@solutech.co.ke'),
+          child: Input(placeholder: 'you@example.com'),
         ),
         const SizedBox(height: 20),
         const Field(
           label: Text('Phone'),
-          error: Text('Enter a number like 0712 345 678.'),
-          child: Input(placeholder: '0712 345 678', error: true),
+          error: Text('Enter a number like +1 415 555 0123.'),
+          child: Input(placeholder: '+1 415 555 0123', error: true),
         ),
         const SizedBox(height: 20),
         Field(
@@ -5102,6 +5115,7 @@ class _FieldDemoState extends State<FieldDemo> {
     requires: ["input","theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'textarea.dart': r'''// Ashlar UI: Textarea. Copied into your app by `ashlar add textarea`; it is yours to change.
 
@@ -5403,6 +5417,7 @@ class TextareaDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'avatar.dart': r'''// Ashlar UI: Avatar. Copied into your app by `ashlar add avatar`; it is yours to change.
 
@@ -5413,7 +5428,7 @@ import 'theme.dart';
 /// A person's picture in a circle, or their initials while it loads or when it fails.
 ///
 /// ```dart
-/// Avatar(image: NetworkImage(user.photoUrl), fallback: 'WM', semanticLabel: 'Wanjiru Mwangi')
+/// Avatar(image: NetworkImage(user.photoUrl), fallback: 'MT', semanticLabel: 'Maya Thompson')
 /// Avatar(fallback: 'WM', size: 40)
 /// ```
 class Avatar extends StatelessWidget {
@@ -5659,10 +5674,10 @@ void main() {
         const AvatarGroup(
           max: 2,
           children: [
-            Avatar(fallback: 'WM', semanticLabel: 'Wanjiru'),
-            Avatar(fallback: 'OK', semanticLabel: 'Otieno'),
-            Avatar(fallback: 'AN', semanticLabel: 'Achieng'),
-            Avatar(fallback: 'KM', semanticLabel: 'Kamau', badge: AvatarDot()),
+            Avatar(fallback: 'MT', semanticLabel: 'Maya'),
+            Avatar(fallback: 'KM', semanticLabel: 'Kofi'),
+            Avatar(fallback: 'AN', semanticLabel: 'Aiko'),
+            Avatar(fallback: 'LH', semanticLabel: 'Luis', badge: AvatarDot()),
           ],
         ),
       ),
@@ -5670,11 +5685,11 @@ void main() {
     expect(find.text('+2'), findsOneWidget);
     expect(find.text('AN'), findsNothing);
     expect(
-      tester.getRect(find.text('OK')).left,
-      lessThan(tester.getRect(find.text('WM')).right + 4),
+      tester.getRect(find.text('KM')).left,
+      lessThan(tester.getRect(find.text('MT')).right + 4),
     );
     expect(
-      find.bySemanticsLabel('Wanjiru, Otieno, Achieng, Kamau'),
+      find.bySemanticsLabel('Maya, Kofi, Aiko, Luis'),
       findsOneWidget,
     );
     semantics.dispose();
@@ -5695,11 +5710,11 @@ class AvatarDemo extends StatelessWidget {
   Widget build(BuildContext context) => const Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+      Avatar(fallback: 'MT', semanticLabel: 'Maya Thompson'),
       SizedBox(width: 12),
-      Avatar(fallback: 'OK', size: 40, semanticLabel: 'Otieno Kamau'),
+      Avatar(fallback: 'KM', size: 40, semanticLabel: 'Kofi Mensah'),
       SizedBox(width: 12),
-      Avatar(fallback: 'AN', size: 48, semanticLabel: 'Achieng Njeri'),
+      Avatar(fallback: 'AN', size: 48, semanticLabel: 'Aiko Nakamura'),
     ],
   );
 }
@@ -5710,6 +5725,7 @@ class AvatarDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'skeleton.dart': r'''// Ashlar UI: Skeleton. Copied into your app by `ashlar add skeleton`; it is yours to change.
 
@@ -5814,6 +5830,7 @@ class SkeletonDemo extends StatelessWidget {
     requires: [],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'spinner.dart': r'''// Ashlar UI: Spinner. Copied into your app by `ashlar add spinner`; it is yours to change.
 
@@ -5907,6 +5924,7 @@ class SpinnerDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'alert.dart': r'''// Ashlar UI: Alert. Copied into your app by `ashlar add alert`; it is yours to change.
 
@@ -5926,7 +5944,7 @@ enum AlertVariant {
 /// reader reads it out when it appears.
 ///
 /// ```dart
-/// Alert(icon: AshlarIcon(AshlarIconsRoundedStroke.info), title: Text('Payment received'), description: Text('KES 2,400 from 0712 345 678.'))
+/// Alert(icon: AshlarIcon(AshlarIconsRoundedStroke.info), title: Text('Payment received'), description: Text('\$240 from Maya Thompson.'))
 /// Alert(variant: AlertVariant.destructive, icon: AshlarIcon(AshlarIconsRoundedStroke.circleAlert), title: Text('The card was declined'))
 /// ```
 class Alert extends StatelessWidget {
@@ -6035,7 +6053,7 @@ class AlertDemo extends StatelessWidget {
         Alert(
           icon: AshlarIcon(AshlarIconsRoundedStroke.circleCheck),
           title: Text('Payment received'),
-          description: Text('KES 2,400 from 0712 345 678.'),
+          description: Text('\$240 from Maya Thompson.'),
         ),
         SizedBox(height: 12),
         Alert(
@@ -6055,6 +6073,7 @@ class AlertDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'kbd.dart': r'''// Ashlar UI: Kbd. Copied into your app by `ashlar add kbd`; it is yours to change.
 
@@ -6155,6 +6174,7 @@ class KbdDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'radio.dart': r'''// Ashlar UI: Radio. Copied into your app by `ashlar add radio`; it is yours to change.
 //
@@ -6490,7 +6510,7 @@ class _RadioDemoState extends State<RadioDemo> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Radio(value: 'monthly', label: Text('Monthly'), description: Text('KES 500 a month.')),
+        Radio(value: 'monthly', label: Text('Monthly'), description: Text('\$5 a month.')),
         SizedBox(height: 12),
         Radio(value: 'yearly', label: Text('Yearly'), description: Text('Two months free.')),
         SizedBox(height: 12),
@@ -6506,6 +6526,7 @@ class _RadioDemoState extends State<RadioDemo> {
     requires: ["theme","pressable"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'tabs.dart': r'''// Ashlar UI: Tabs. Copied into your app by `ashlar add tabs`; it is yours to change.
 
@@ -7052,7 +7073,7 @@ class TabsDemo extends StatelessWidget {
             'Change your name here.',
             const Field(
               label: Text('Name'),
-              child: Input(placeholder: 'Wanjiru Mwangi'),
+              child: Input(placeholder: 'Maya Thompson'),
             ),
           ),
         ),
@@ -7085,6 +7106,7 @@ class TabsDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'popover.dart': r'''// Ashlar UI: Popover. Copied into your app by `ashlar add popover`; it is yours to change.
 //
@@ -7630,6 +7652,7 @@ class PopoverDemo extends StatelessWidget {
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'dropdown_menu.dart': r'''// Ashlar UI: Dropdown Menu. Copied into your app by `ashlar add dropdown-menu`; it is
 // yours to change.
@@ -8673,6 +8696,7 @@ class DropdownMenuDemo extends StatelessWidget {
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'select.dart': r'''// Ashlar UI: Select. Copied into your app by `ashlar add select`; it is yours to change.
 
@@ -8728,10 +8752,10 @@ enum SelectSize {
 ///
 /// ```dart
 /// Select<String>(
-///   value: county,
-///   placeholder: 'Choose a county',
-///   options: [SelectOption('nbo', 'Nairobi', group: 'Cities'), SelectOption('ksm', 'Kisumu', group: 'Cities')],
-///   onChanged: (v) => setState(() => county = v),
+///   value: city,
+///   placeholder: 'Choose a city',
+///   options: [SelectOption('lis', 'Lisbon', group: 'Cities'), SelectOption('kyo', 'Kyoto', group: 'Cities')],
+///   onChanged: (v) => setState(() => city = v),
 /// )
 /// ```
 class Select<T> extends StatefulWidget {
@@ -9287,12 +9311,12 @@ void main() {
       width: 200,
       child: Select<String>(
         value: value,
-        placeholder: 'Choose a county',
-        semanticLabel: 'County',
+        placeholder: 'Choose a city',
+        semanticLabel: 'City',
         options: const [
-          SelectOption('nbo', 'Nairobi'),
-          SelectOption('msa', 'Mombasa'),
-          SelectOption('ksm', 'Kisumu'),
+          SelectOption('lis', 'Lisbon'),
+          SelectOption('bom', 'Mumbai'),
+          SelectOption('kyo', 'Kyoto'),
         ],
         onChanged: onChanged,
       ),
@@ -9310,14 +9334,14 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Choose a county'), findsOneWidget);
-      await tester.tap(find.text('Choose a county'));
+      expect(find.text('Choose a city'), findsOneWidget);
+      await tester.tap(find.text('Choose a city'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Mombasa'));
+      await tester.tap(find.text('Mumbai'));
       await tester.pumpAndSettle();
-      expect(value, 'msa');
-      expect(find.text('Mombasa'), findsOneWidget);
-      expect(find.text('Kisumu'), findsNothing);
+      expect(value, 'bom');
+      expect(find.text('Mumbai'), findsOneWidget);
+      expect(find.text('Kyoto'), findsNothing);
     });
 
     testWidgets('the list is at least as wide as the trigger', (tester) async {
@@ -9330,7 +9354,7 @@ void main() {
     testWidgets(
       'by keyboard: down arrow opens on the chosen option, and focus comes back',
       (tester) async {
-        String? value = 'nbo';
+        String? value = 'lis';
         await tester.pumpWidget(
           app(
             StatefulBuilder(
@@ -9343,12 +9367,12 @@ void main() {
         await tester.pump();
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pumpAndSettle();
-        expect(find.text('Kisumu'), findsOneWidget);
+        expect(find.text('Kyoto'), findsOneWidget);
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pumpAndSettle();
-        expect(value, 'msa');
+        expect(value, 'bom');
         final focused = FocusManager.instance.primaryFocus!.context!;
         expect(
           focused.findAncestorWidgetOfExactType<Select<String>>(),
@@ -9361,10 +9385,10 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(app(select('ksm', (_) {})));
-      final node = tester.getSemantics(find.text('Kisumu')).getSemanticsData();
-      expect(node.label, 'County');
-      expect(node.value, 'Kisumu');
+      await tester.pumpWidget(app(select('kyo', (_) {})));
+      final node = tester.getSemantics(find.text('Kyoto')).getSemanticsData();
+      expect(node.label, 'City');
+      expect(node.value, 'Kyoto');
       semantics.dispose();
     });
   });
@@ -9505,23 +9529,23 @@ class SelectDemo extends StatefulWidget {
 }
 
 class _SelectDemoState extends State<SelectDemo> {
-  String? county;
+  String? city;
 
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 220,
     child: Select<String>(
-      value: county,
-      placeholder: 'Choose a county',
-      semanticLabel: 'County',
+      value: city,
+      placeholder: 'Choose a city',
+      semanticLabel: 'City',
       options: const [
-        SelectOption('nbo', 'Nairobi'),
-        SelectOption('msa', 'Mombasa'),
-        SelectOption('ksm', 'Kisumu'),
-        SelectOption('nku', 'Nakuru'),
+        SelectOption('lis', 'Lisbon'),
+        SelectOption('bom', 'Mumbai'),
+        SelectOption('kyo', 'Kyoto'),
+        SelectOption('lag', 'Lagos'),
         SelectOption('eld', 'Uasin Gishu'),
       ],
-      onChanged: (v) => setState(() => county = v),
+      onChanged: (v) => setState(() => city = v),
     ),
   );
 }
@@ -9532,6 +9556,7 @@ class _SelectDemoState extends State<SelectDemo> {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'tooltip.dart': r'''// Ashlar UI: Tooltip. Copied into your app by `ashlar add tooltip`; it is yours to change.
 //
@@ -9762,6 +9787,7 @@ class TooltipDemo extends StatelessWidget {
     requires: ["theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'toast.dart': r'''// Ashlar UI: Toast. Copied into your app by `ashlar add toast`; it is yours to change.
 
@@ -9816,7 +9842,7 @@ class ToastHandle {
 /// and holds them. A swipe sends one away, and a screen reader reads each out.
 ///
 /// ```dart
-/// showToast(context, title: 'Payment sent', description: 'KES 2,400 to Wanjiru.', type: ToastType.success)
+/// showToast(context, title: 'Payment sent', description: '\$240 to Maya.', type: ToastType.success)
 /// showToast(context, title: 'Event deleted', action: Button(size: ButtonSize.sm, onPressed: undo, child: Text('Undo')))
 /// ```
 ToastHandle showToast(
@@ -10348,7 +10374,7 @@ void main() {
               onPressed: () => showToast(
                 context,
                 title: 'Payment sent',
-                description: 'KES 2,400',
+                description: '\$240',
               ),
               child: const Text('Pay'),
             ),
@@ -10569,7 +10595,7 @@ class ToastDemo extends StatelessWidget {
     onPressed: () => showToast(
       context,
       title: 'Payment sent',
-      description: 'KES 2,400 to Wanjiru Mwangi.',
+      description: '\$240 to Maya Thompson.',
       action: Button(size: ButtonSize.sm, onPressed: () {}, child: const Text('Undo')),
     ),
     child: const Text('Send payment'),
@@ -10582,6 +10608,7 @@ class ToastDemo extends StatelessWidget {
     requires: [],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'group.dart': r'''// Ashlar UI: joined controls. Copied in by `ashlar add` with Button Group or Toggle
 // Group; it is yours to change.
@@ -10695,6 +10722,7 @@ Border joinedBorder(BuildContext context, Color color) =>
     requires: ["group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'button_group.dart': r'''// Ashlar UI: Button Group. Copied into your app by `ashlar add button-group`; it is yours
 // to change.
@@ -10774,6 +10802,7 @@ class ButtonGroupDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'typography.dart': r'''// Ashlar UI: Typography. Copied into your app by `ashlar add typography`; it is yours to
 // change.
@@ -11149,8 +11178,8 @@ void main() {
           child: TypographyTable(
             headings: ['County', 'People'],
             rows: [
-              ['Nairobi', '4.4m'],
-              ['Mombasa', '1.2m'],
+              ['Tokyo', '37.4m'],
+              ['Lagos', '15.9m'],
             ],
           ),
         ),
@@ -11164,7 +11193,7 @@ void main() {
           .isHeader,
       isTrue,
     );
-    expect(find.text('Mombasa'), findsOneWidget);
+    expect(find.text('Lagos'), findsOneWidget);
     semantics.dispose();
   });
 }
@@ -11206,6 +11235,7 @@ class TypographyDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'empty.dart': r'''// Ashlar UI: Empty. Copied into your app by `ashlar add empty`; it is yours to change.
 
@@ -11427,6 +11457,7 @@ class EmptyDemo extends StatelessWidget {
     requires: ["theme","pressable"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'item.dart': r'''// Ashlar UI: Item. Copied into your app by `ashlar add item`; it is yours to change.
 
@@ -11814,7 +11845,7 @@ class ItemDemo extends StatelessWidget {
         Item(
           variant: ItemVariant.muted,
           leading: const Avatar(fallback: 'WM'),
-          title: const Text('Wanjiru Mwangi'),
+          title: const Text('Maya Thompson'),
           description: const Text('Invited you to the Design team.'),
           trailing: Button(size: ButtonSize.sm, onPressed: () {}, child: const Text('Accept')),
         ),
@@ -11829,6 +11860,7 @@ class ItemDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'progress.dart': r'''// Ashlar UI: Progress. Copied into your app by `ashlar add progress`; it is yours to change.
 
@@ -12040,6 +12072,7 @@ class ProgressDemo extends StatelessWidget {
     requires: ["theme","pressable","dropdown-menu"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'breadcrumb.dart': r'''// Ashlar UI: Breadcrumb. Copied into your app by `ashlar add breadcrumb`; it is yours to
 // change.
@@ -12302,6 +12335,7 @@ class BreadcrumbDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'collapsible.dart': r'''// Ashlar UI: Collapsible. Copied into your app by `ashlar add collapsible`; it is yours to
 // change.
@@ -12524,7 +12558,7 @@ class CollapsibleDemo extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [row('#4021 · KES 2,400'), row('#4022 · KES 860'), row('#4023 · KES 1,150')],
+          children: [row('#4021 · \$240'), row('#4022 · \$86'), row('#4023 · \$115')],
         ),
       ),
     );
@@ -12537,6 +12571,7 @@ class CollapsibleDemo extends StatelessWidget {
     requires: ["theme","pressable","collapsible"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'accordion.dart': r'''// Ashlar UI: Accordion. Copied into your app by `ashlar add accordion`; it is yours to change.
 
@@ -12851,6 +12886,7 @@ class AccordionDemo extends StatelessWidget {
     requires: ["theme","pressable","group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'toggle.dart': r'''// Ashlar UI: Toggle. Copied into your app by `ashlar add toggle`; it is yours to change.
 
@@ -13019,6 +13055,7 @@ class _ToggleDemoState extends State<ToggleDemo> {
     requires: ["toggle","group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'toggle_group.dart': r'''// Ashlar UI: Toggle Group. Copied into your app by `ashlar add toggle-group`; it is yours to
 // change.
@@ -13353,6 +13390,7 @@ class _ToggleGroupDemoState extends State<ToggleGroupDemo> {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'slider.dart': r'''// Ashlar UI: Slider. Copied into your app by `ashlar add slider`; it is yours to change.
 
@@ -13942,7 +13980,7 @@ class SliderDemo extends StatefulWidget {
 }
 
 class _SliderDemoState extends State<SliderDemo> {
-  double volume = .5, price = 4000;
+  double volume = .5, price = 200;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -13953,16 +13991,16 @@ class _SliderDemoState extends State<SliderDemo> {
       children: [
         Slider(value: volume, onChanged: (v) => setState(() => volume = v), semanticLabel: 'Volume'),
         const SizedBox(height: 24),
-        Text('Up to KES ${price.round()}'),
+        Text('Up to \$${price.round()}'),
         const SizedBox(height: 8),
         Slider(
           value: price,
           min: 0,
-          max: 10000,
-          step: 500,
+          max: 500,
+          step: 25,
           onChanged: (v) => setState(() => price = v),
           semanticLabel: 'Highest price',
-          semanticFormat: (v) => 'KES ${v.round()}',
+          semanticFormat: (v) => '\$${v.round()}',
         ),
       ],
     ),
@@ -13975,6 +14013,7 @@ class _SliderDemoState extends State<SliderDemo> {
     requires: ["theme","input","popover","pressable"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'color_picker.dart': r'''// Ashlar UI: Color Picker. Copied into your app by `ashlar add color-picker`; it is yours to
 // change.
@@ -14851,6 +14890,7 @@ class _ColorPickerDemoState extends State<ColorPickerDemo> {
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'pagination.dart': r'''// Ashlar UI: Pagination. Copied into your app by `ashlar add pagination`; it is yours to
 // change.
@@ -15144,6 +15184,7 @@ class _PaginationDemoState extends State<PaginationDemo> {
     requires: ["dialog","button"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'alert_dialog.dart': r'''// Ashlar UI: Alert Dialog. Copied into your app by `ashlar add alert-dialog`; it is yours to
 // change.
@@ -15394,6 +15435,7 @@ class AlertDialogDemo extends StatelessWidget {
     requires: ["theme","popover"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'hover_card.dart': r'''// Ashlar UI: Hover Card. Copied into your app by `ashlar add hover-card`; it is yours to
 // change.
@@ -15411,8 +15453,8 @@ import 'theme.dart';
 ///
 /// ```dart
 /// HoverCard(
-///   content: (context) => Text('Wanjiru Mwangi. Designer at Mittolabs.'),
-///   child: Button(variant: ButtonVariant.link, onPressed: openProfile, child: Text('@wanjiru')),
+///   content: (context) => Text('Maya Thompson. Designer at Mittolabs.'),
+///   child: Button(variant: ButtonVariant.link, onPressed: openProfile, child: Text('@maya')),
 /// )
 /// ```
 class HoverCard extends StatefulWidget {
@@ -15557,14 +15599,14 @@ void main() {
             child: Button(
               variant: ButtonVariant.link,
               onPressed: () {},
-              child: const Text('@wanjiru'),
+              child: const Text('@maya'),
             ),
           ),
         ),
       );
       final mouse = await mouseAt(
         tester,
-        tester.getCenter(find.text('@wanjiru')),
+        tester.getCenter(find.text('@maya')),
       );
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text('Profile card'), findsNothing);
@@ -15640,8 +15682,8 @@ class HoverCardDemo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('@wanjiru', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
-                const Text('Designs mobile money apps. Based in Nairobi.'),
+                Text('@maya', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
+                const Text('Designs payment apps. Based in Lisbon.'),
                 const SizedBox(height: 6),
                 Text('Joined March 2024', style: t.text.xs.copyWith(color: t.colors.mutedForeground)),
               ],
@@ -15650,7 +15692,7 @@ class HoverCardDemo extends StatelessWidget {
         ],
       );
     },
-    child: Button(variant: ButtonVariant.link, onPressed: () {}, child: const Text('@wanjiru')),
+    child: Button(variant: ButtonVariant.link, onPressed: () {}, child: const Text('@maya')),
   );
 }
 ''',
@@ -15660,6 +15702,7 @@ class HoverCardDemo extends StatelessWidget {
     requires: ["popover","dropdown-menu"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'context_menu.dart': r'''// Ashlar UI: Context Menu. Copied into your app by `ashlar add context-menu`; it is yours to
 // change.
@@ -15912,6 +15955,7 @@ class ContextMenuDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'scroll_area.dart': r'''// Ashlar UI: Scroll Area. Copied into your app by `ashlar add scroll-area`; it is yours to
 // change.
@@ -16158,6 +16202,7 @@ class ScrollAreaDemo extends StatelessWidget {
     requires: ["theme","pressable","checkbox"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'data_table.dart': r'''// Ashlar UI: Data Table. Copied into your app by `ashlar add data-table`; it is yours to
 // change. (Flutter's widgets layer has a Table for layout; this one is for data.)
@@ -16557,10 +16602,10 @@ void main() {
           DataColumn(Text('Amount'), numeric: true),
         ],
         rows: const [
-          [Text('INV001'), Text('Paid'), Text('KES 2,500')],
-          [Text('INV002'), Text('Pending'), Text('KES 1,500')],
+          [Text('INV001'), Text('Paid'), Text('\$2,500')],
+          [Text('INV002'), Text('Pending'), Text('\$1,500')],
         ],
-        footer: const [Text('Total'), SizedBox(), Text('KES 4,000')],
+        footer: const [Text('Total'), SizedBox(), Text('\$4,000')],
         caption: const Text('Recent invoices.'),
         onRowPressed: onRowPressed,
       ),
@@ -16580,7 +16625,7 @@ void main() {
             .isHeader,
         isTrue,
       );
-      final amount = tester.getRect(find.text('KES 2,500')),
+      final amount = tester.getRect(find.text('\$2,500')),
           cell = tester.getRect(find.byType(DataTable));
       expect(amount.right, closeTo(cell.right - 8, 1));
       semantics.dispose();
@@ -16809,7 +16854,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
                       child: Text(r.status),
                     ),
                   ),
-                  Text('KES ${r.amount}'),
+                  Text('\$${r.amount}'),
                 ],
             ],
           ),
@@ -16830,6 +16875,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
     requires: ["theme","button"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'sheet.dart': r'''// Ashlar UI: Sheet. Copied into your app by `ashlar add sheet`; it is yours to change.
 
@@ -17272,12 +17318,12 @@ class SheetDemo extends StatelessWidget {
           children: [
             Field(
               label: Text('Name'),
-              child: Input(placeholder: 'Wanjiru Mwangi'),
+              child: Input(placeholder: 'Maya Thompson'),
             ),
             SizedBox(height: 16),
             Field(
               label: Text('Username'),
-              child: Input(placeholder: '@wanjiru'),
+              child: Input(placeholder: '@maya'),
             ),
           ],
         ),
@@ -17297,6 +17343,7 @@ class SheetDemo extends StatelessWidget {
     requires: ["theme","pressable"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'drawer.dart': r'''// Ashlar UI: Drawer. Copied into your app by `ashlar add drawer`; it is yours to change.
 
@@ -18121,6 +18168,7 @@ class DrawerDemo extends StatelessWidget {
     requires: ["theme","input"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'input_group.dart': r'''// Ashlar UI: Input Group. Copied into your app by `ashlar add input-group`; it is yours to
 // change.
@@ -18374,6 +18422,7 @@ class InputGroupDemo extends StatelessWidget {
     requires: ["theme","group"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'input_otp.dart': r'''// Ashlar UI: Input OTP. Copied into your app by `ashlar add input-otp`; it is yours to change.
 
@@ -18705,6 +18754,7 @@ class InputOtpDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'resizable.dart': r'''// Ashlar UI: Resizable. Copied into your app by `ashlar add resizable`; it is yours to change.
 
@@ -19084,6 +19134,7 @@ class ResizableDemo extends StatelessWidget {
     requires: ["theme","input","dialog"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'command.dart': r'''// Ashlar UI: Command. Copied into your app by `ashlar add command`; it is yours to change.
 
@@ -19762,6 +19813,7 @@ class CommandDemo extends StatelessWidget {
     requires: ["theme","pressable","popover","command"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'combobox.dart': r'''// Ashlar UI: Combobox. Copied into your app by `ashlar add combobox`; it is yours to change.
 
@@ -19809,11 +19861,11 @@ class ComboboxOption<T> {
 ///
 /// ```dart
 /// Combobox<String>(
-///   value: county,
-///   placeholder: 'Choose a county',
-///   options: [for (final c in counties) ComboboxOption(c.code, c.name)],
-///   onChanged: (v) => setState(() => county = v),
-///   onCleared: () => setState(() => county = null),
+///   value: country,
+///   placeholder: 'Choose a country',
+///   options: [for (final c in countries) ComboboxOption(c.code, c.name)],
+///   onChanged: (v) => setState(() => country = v),
+///   onCleared: () => setState(() => country = null),
 /// )
 /// Combobox<String>.multiple(values: tags, options: allTags, onValuesChanged: (v) => setState(() => tags = v))
 /// ```
@@ -20212,12 +20264,12 @@ void main() {
           child: StatefulBuilder(
             builder: (context, set) => Combobox<String>(
               value: value,
-              placeholder: 'Choose a county',
-              semanticLabel: 'County',
+              placeholder: 'Choose a city',
+              semanticLabel: 'City',
               options: const [
-                ComboboxOption('nbo', 'Nairobi'),
-                ComboboxOption('msa', 'Mombasa'),
-                ComboboxOption('ksm', 'Kisumu'),
+                ComboboxOption('lis', 'Lisbon'),
+                ComboboxOption('bom', 'Mumbai'),
+                ComboboxOption('kyo', 'Kyoto'),
               ],
               onChanged: (v) => set(() => value = v),
             ),
@@ -20225,7 +20277,7 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Choose a county'));
+    await tester.tap(find.text('Choose a city'));
     await tester.pumpAndSettle();
     // As wide as the trigger, not the screen.
     expect(
@@ -20241,16 +20293,16 @@ void main() {
           .width,
       240,
     );
-    await tester.enterText(find.byType(EditableText), 'mom');
+    await tester.enterText(find.byType(EditableText), 'mum');
     await tester.pump();
-    expect(find.text('Nairobi'), findsNothing);
-    await tester.tap(find.text('Mombasa'));
+    expect(find.text('Lisbon'), findsNothing);
+    await tester.tap(find.text('Mumbai'));
     await tester.pumpAndSettle();
-    expect(value, 'msa');
-    expect(find.text('Kisumu'), findsNothing);
-    final node = tester.getSemantics(find.text('Mombasa')).getSemanticsData();
-    expect(node.label, 'County');
-    expect(node.value, 'Mombasa');
+    expect(value, 'bom');
+    expect(find.text('Kyoto'), findsNothing);
+    final node = tester.getSemantics(find.text('Mumbai')).getSemanticsData();
+    expect(node.label, 'City');
+    expect(node.value, 'Mumbai');
     semantics.dispose();
   });
 
@@ -20341,23 +20393,23 @@ class ComboboxDemo extends StatefulWidget {
 }
 
 class _ComboboxDemoState extends State<ComboboxDemo> {
-  String? county;
+  String? country;
 
-  static const counties = [
-    'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Embu', 'Garissa', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', //
-    'Kilifi', 'Kisii', 'Kisumu', 'Kitui', 'Lamu', 'Machakos', 'Meru', 'Mombasa', 'Nairobi', 'Nakuru', 'Nyeri',
+  static const countries = [
+    'Argentina', 'Australia', 'Brazil', 'Canada', 'Egypt', 'France', 'Germany', 'Ghana', 'India', 'Indonesia', //
+    'Japan', 'Kenya', 'Mexico', 'Morocco', 'Nigeria', 'Peru', 'Philippines', 'Portugal', 'South Africa', 'Spain', 'Vietnam',
   ];
 
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 240,
     child: Combobox<String>(
-      value: county,
-      placeholder: 'Choose a county',
-      searchPlaceholder: 'Search counties',
-      semanticLabel: 'County',
-      options: [for (final c in counties) ComboboxOption(c, c)],
-      onChanged: (v) => setState(() => county = v),
+      value: country,
+      placeholder: 'Choose a country',
+      searchPlaceholder: 'Search countries',
+      semanticLabel: 'Country',
+      options: [for (final c in countries) ComboboxOption(c, c)],
+      onChanged: (v) => setState(() => country = v),
     ),
   );
 }
@@ -20368,6 +20420,7 @@ class _ComboboxDemoState extends State<ComboboxDemo> {
     requires: ["theme","pressable","popover","dropdown-menu"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'menubar.dart': r'''// Ashlar UI: Menubar. Copied into your app by `ashlar add menubar`; it is yours to change.
 
@@ -20688,6 +20741,7 @@ class MenubarDemo extends StatelessWidget {
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'navigation_menu.dart': r'''// Ashlar UI: Navigation Menu. Copied into your app by `ashlar add navigation-menu`; it is
 // yours to change.
@@ -21240,6 +21294,7 @@ class NavigationMenuDemo extends StatelessWidget {
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'carousel.dart': r'''// Ashlar UI: Carousel. Copied into your app by `ashlar add carousel`; it is yours to change.
 
@@ -21622,6 +21677,7 @@ class CarouselDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'selection.dart': r'''// Ashlar UI: selection. Copied in by `ashlar add` with Input and with AshlarApp; it is
 // yours to change. The handles and the cut, copy and paste menu, for text fields and for
@@ -21809,6 +21865,7 @@ class AshlarSelectionMenu extends StatelessWidget {
     requires: ["theme","button","select"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'calendar.dart': r'''// Ashlar UI: Calendar. Copied into your app by `ashlar add calendar`; it is yours to change.
 
@@ -23186,6 +23243,7 @@ class _CalendarDemoState extends State<CalendarDemo> {
     requires: ["theme","pressable","popover","calendar","select"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'date_picker.dart': r'''// Ashlar UI: Date Picker. Copied into your app by `ashlar add date-picker`; it is yours to
 // change.
@@ -23582,6 +23640,7 @@ class _DatePickerDemoState extends State<DatePickerDemo> {
     requires: ["theme","pressable","popover"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'time_picker.dart': r'''// Ashlar UI: Time Picker. Copied into your app by `ashlar add time-picker`; it is yours to
 // change.
@@ -24375,6 +24434,7 @@ class _TimePickerDemoState extends State<TimePickerDemo> {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'chart.dart': r'''// Ashlar UI: Chart. Copied into your app by `ashlar add chart`; it is yours to change.
 // ashlar: ignore-file. Charts are drawn left to right in any language, as time and
@@ -24626,7 +24686,7 @@ class ChartTooltip<T> extends ChartPart<T> {
   /// Writes the label at the top: 'July 2026' for 'Jul'.
   final String Function(String label, T? row)? labelFormatter;
 
-  /// Writes a series' value: 'KES 2,400'. Null uses the chart's format.
+  /// Writes a series' value: '$2,400'. Null uses the chart's format.
   final String Function(num value, String series, T? row)? formatter;
 
   /// A last row adding the values up.
@@ -25441,7 +25501,7 @@ class YAxis<T> extends ChartPart<T> {
   /// Keeps the scale but draws nothing.
   final bool hide;
 
-  /// Writes a value: `(v) => 'KES ${v}k'`.
+  /// Writes a value: `(v) => '\$${v}k'`.
   final String Function(num value)? tickFormatter;
 
   /// About how many steps the scale has.
@@ -26039,7 +26099,7 @@ class CartesianChart<T> extends StatefulWidget {
   /// at the start of [data]. The view stays where it was.
   final FutureOr<void> Function()? onReachStart;
 
-  /// How a value is written in the tooltip, on the chart and read out: "KES 2,400".
+  /// How a value is written in the tooltip, on the chart and read out: "$2,400".
   /// Shares are written as percentages unless you say.
   final String Function(num value)? format;
 
@@ -29263,7 +29323,7 @@ void main() {
             YAxis(),
             YAxis(id: 'b', right: true, type: AxisType.log),
             Candlestick(
-              label: 'KES',
+              label: 'USD',
               open: (r) => r.open,
               high: (r) => r.high,
               low: (r) => r.low,
@@ -29351,7 +29411,7 @@ void main() {
           children: [
             ChartTooltip(
               labelFormatter: (label, r) => '$label 2026',
-              formatter: (v, series, r) => 'KES $v',
+              formatter: (v, series, r) => '\$$v',
               total: true,
             ),
             Bar(label: 'Desktop', value: (r) => r.desktop),
@@ -29364,10 +29424,10 @@ void main() {
     final box = tester.getRect(find.byType(BarChart<Visit>));
     await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
     expect(find.text('Jan 2026'), findsOneWidget);
-    expect(find.text('KES 186.0'), findsOneWidget);
+    expect(find.text('\$186.0'), findsOneWidget);
     expect(find.text('Total'), findsOneWidget);
     // The total is written the way each value is.
-    expect(find.text('KES 266.0'), findsOneWidget);
+    expect(find.text('\$266.0'), findsOneWidget);
   });
 
   testWidgets('the arrow keys step through the rows, and Enter chooses one', (
@@ -29634,20 +29694,20 @@ import 'package:flutter/widgets.dart';
 import 'package:ashlar_ui_gallery/ui/card.dart';
 import 'package:ashlar_ui_gallery/ui/chart.dart';
 
-typedef _Month = ({String month, double desktop, double mobile, double mpesa, double card});
+typedef _Month = ({String month, double desktop, double mobile, double wallet, double card});
 typedef _Method = ({String method, double amount});
 
 const _months = <_Month>[
-  (month: 'Jan', desktop: 186, mobile: 80, mpesa: 120, card: 60),
-  (month: 'Feb', desktop: 305, mobile: 200, mpesa: 160, card: 80),
-  (month: 'Mar', desktop: 237, mobile: 120, mpesa: 150, card: 70),
-  (month: 'Apr', desktop: 73, mobile: 190, mpesa: 210, card: 90),
-  (month: 'May', desktop: 209, mobile: 130, mpesa: 240, card: 110),
-  (month: 'Jun', desktop: 214, mobile: 140, mpesa: 260, card: 100),
+  (month: 'Jan', desktop: 186, mobile: 80, wallet: 120, card: 60),
+  (month: 'Feb', desktop: 305, mobile: 200, wallet: 160, card: 80),
+  (month: 'Mar', desktop: 237, mobile: 120, wallet: 150, card: 70),
+  (month: 'Apr', desktop: 73, mobile: 190, wallet: 210, card: 90),
+  (month: 'May', desktop: 209, mobile: 130, wallet: 240, card: 110),
+  (month: 'Jun', desktop: 214, mobile: 140, wallet: 260, card: 100),
 ];
 
 const _methods = <_Method>[
-  (method: 'M-Pesa', amount: 275),
+  (method: 'Wallet', amount: 275),
   (method: 'Card', amount: 200),
   (method: 'Bank', amount: 90),
 ];
@@ -29687,7 +29747,7 @@ class ChartDemo extends StatelessWidget {
         Expanded(
           child: Card(
             children: [
-              const CardHeader(title: Text('Sales'), description: Text('KES, thousands')),
+              const CardHeader(title: Text('Sales'), description: Text('USD, thousands')),
               CardContent(
                 child: AreaChart<_Month>(
                   height: 200,
@@ -29699,7 +29759,7 @@ class ChartDemo extends StatelessWidget {
                     XAxis(),
                     ChartTooltip(),
                     Area(label: 'Card', value: (r) => r.card, stackId: 'a'),
-                    Area(label: 'M-Pesa', value: (r) => r.mpesa, stackId: 'a'),
+                    Area(label: 'Wallet', value: (r) => r.wallet, stackId: 'a'),
                   ],
                 ),
               ),
@@ -29722,7 +29782,7 @@ class ChartDemo extends StatelessWidget {
                   children: [
                     XAxis(),
                     ChartTooltip(hideLabel: true),
-                    Bar(label: 'KES', value: (r) => r.amount, labels: [ChartLabels(position: ChartLabelPosition.right)]),
+                    Bar(label: 'USD', value: (r) => r.amount, labels: [ChartLabels(position: ChartLabelPosition.right)]),
                   ],
                 ),
               ),
@@ -29740,6 +29800,7 @@ class ChartDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'pie_chart.dart': r'''// Ashlar UI: Pie chart. Copied into your app by `ashlar add pie-chart`; it is yours to change.
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
@@ -30401,6 +30462,7 @@ class PieChartDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'radar_chart.dart': r'''// Ashlar UI: Radar chart. Copied into your app by `ashlar add radar-chart`; it is yours to change.
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
@@ -31044,6 +31106,7 @@ class RadarChartDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'radial_chart.dart': r'''// Ashlar UI: Radial chart. Copied into your app by `ashlar add radial-chart`; it is yours to change.
 // ashlar: ignore-file. Laid out the same in any language, as charts are read.
@@ -31213,7 +31276,9 @@ class _RadialState<T> extends State<RadialBarChart<T>>
 
     (int, int?)? hit(Offset p) {
       final d = p - centre;
-      if (d.distance > outer + 4 || d.distance < inner - 4 || n == 0) return null;
+      if (d.distance > outer + 4 || d.distance < inner - 4 || n == 0) {
+        return null;
+      }
       // Rows from the outside in.
       final ring = ((outer - d.distance) / ringW).floor().clamp(0, n - 1);
       var a = (math.atan2(d.dy, d.dx) + math.pi / 2) * 180 / math.pi;
@@ -31696,6 +31761,7 @@ class RadialChartDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'sparkline.dart': r'''// Ashlar UI: Sparkline. Copied into your app by `ashlar add sparkline`; it is yours to
 // change.
@@ -32200,7 +32266,7 @@ class SparklineDemo extends StatelessWidget {
         Expanded(
           child: Card(
             children: [
-              CardHeader(title: Text('KES 48,200'), description: Text('Revenue, last 12 days')),
+              CardHeader(title: Text('\$48,200'), description: Text('Revenue, last 12 days')),
               CardContent(
                 child: Sparkline(
                   values: [31, 34, 30, 38, 42, 40, 45, 43, 47, 46, 52, 48],
@@ -32238,6 +32304,7 @@ class SparklineDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'funnel_chart.dart': r'''// Ashlar UI: Funnel chart. Copied into your app by `ashlar add funnel-chart`; it is yours
 // to change.
@@ -32762,6 +32829,7 @@ class FunnelChartDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'heatmap.dart': r'''// Ashlar UI: Heatmap. Copied into your app by `ashlar add heatmap`; it is yours to change.
 // ashlar: ignore-file. Drawn left to right in any language, as time is read.
@@ -32922,7 +32990,9 @@ class _HeatmapState<T> extends State<Heatmap<T>> {
                     onTapDown: (d) => setState(() => _at = hit(d.localPosition)),
                     onTapUp: (d) {
                       final i = hit(d.localPosition);
-                      if (i != null) widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                      if (i != null) {
+                        widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                      }
                     },
                     child: Stack(
                       clipBehavior: Clip.none,
@@ -33059,7 +33129,9 @@ class _GridPainter extends CustomPainter {
       _text(canvas, s, Offset(gutter - 8, y), text, Alignment.centerRight);
     }
     for (final (k, (s, x)) in colLabels.indexed) {
-      if (k % colEvery == 0) _text(canvas, s, Offset(x, labelY), text, Alignment.topCenter);
+      if (k % colEvery == 0) {
+        _text(canvas, s, Offset(x, labelY), text, Alignment.topCenter);
+      }
     }
   }
 
@@ -33352,7 +33424,9 @@ class _CalendarPainter extends CustomPainter {
       }
     }
     for (final (d, s) in names.indexed) {
-      if (s.isNotEmpty) _text(canvas, s, Offset(left - 6, top + d * step + cell / 2), Alignment.centerRight);
+      if (s.isNotEmpty) {
+        _text(canvas, s, Offset(left - 6, top + d * step + cell / 2), Alignment.centerRight);
+      }
     }
   }
 
@@ -33478,6 +33552,7 @@ class HeatmapDemo extends StatelessWidget {
     requires: ["theme","chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'treemap.dart': r'''// Ashlar UI: Treemap. Copied into your app by `ashlar add treemap`; it is yours to change.
 // ashlar: ignore-file. Laid out the same in any language.
@@ -33613,7 +33688,9 @@ class _TreemapState<T> extends State<Treemap<T>> {
                 onTapDown: (d) => setState(() => _at = hit(d.localPosition)),
                 onTapUp: (d) {
                   final i = hit(d.localPosition);
-                  if (i != null) widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                  if (i != null) {
+                    widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                  }
                 },
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -33859,7 +33936,7 @@ class TreemapDemo extends StatelessWidget {
     width: 480,
     child: Card(
       children: [
-        const CardHeader(title: Text('Spending'), description: Text('KES, October')),
+        const CardHeader(title: Text('Spending'), description: Text('USD, October')),
         CardContent(
           child: Treemap<_Spend>(
             data: _spend,
@@ -33880,6 +33957,7 @@ class TreemapDemo extends StatelessWidget {
     requires: [],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'chart_export.dart': r'''// Ashlar UI: Chart export. Copied into your app by `ashlar add chart-export`; it is yours
 // to change.
@@ -34178,6 +34256,7 @@ class _ChartExportDemoState extends State<ChartExportDemo> {
     requires: ["chart"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'chart_indicators.dart': r'''// Ashlar UI: Chart indicators. Copied into your app by `ashlar add chart-indicators`; it
 // is yours to change.
@@ -34194,7 +34273,7 @@ class _ChartExportDemoState extends State<ChartExportDemo> {
 //   children: [
 //     YAxis(),
 //     YAxis(id: 'rsi', right: true, domain: (0, 100)),
-//     Candlestick(label: 'KES', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
+//     Candlestick(label: 'Price', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
 //     Sma(value: (r) => r.close, period: 20),
 //     Rsi(value: (r) => r.close, yAxisId: 'rsi'),
 //   ],
@@ -34806,7 +34885,7 @@ class ChartIndicatorsDemo extends StatelessWidget {
     width: 640,
     child: Card(
       children: [
-        const CardHeader(title: Text('KES 104.20'), description: Text('With Bollinger bands and RSI')),
+        const CardHeader(title: Text('\$104.20'), description: Text('With Bollinger bands and RSI')),
         CardContent(
           child: ComposedChart<_Day>(
             data: _days,
@@ -34834,6 +34913,7 @@ class ChartIndicatorsDemo extends StatelessWidget {
     requires: ["theme","pressable","button","sheet","tooltip","skeleton"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'sidebar.dart': r'''// Ashlar UI: Sidebar. Copied into your app by `ashlar add sidebar`; it is yours to change.
 
@@ -35964,7 +36044,7 @@ class _SidebarDemoState extends State<SidebarDemo> {
           children: [
             Avatar(fallback: 'WM', size: 28),
             SizedBox(width: 8),
-            Expanded(child: Text('Wanjiru Mwangi', maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Expanded(child: Text('Maya Thompson', maxLines: 1, overflow: TextOverflow.ellipsis)),
           ],
         ),
         groups: [
@@ -36013,6 +36093,7 @@ class _SidebarDemoState extends State<SidebarDemo> {
     requires: ["field","input"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'form.dart': r'''// Ashlar UI: Form. Copied into your app by `ashlar add form`; it is yours to change.
 //
@@ -36175,7 +36256,7 @@ class FormItemState<T> extends FormFieldState<T> {
 /// ```dart
 /// FormText(
 ///   label: Text('Email'),
-///   placeholder: 'you@solutech.co.ke',
+///   placeholder: 'you@example.com',
 ///   keyboardType: TextInputType.emailAddress,
 ///   validator: Validate.all([Validate.required(), Validate.email()]),
 ///   onSaved: (v) => email = v!,
@@ -36451,7 +36532,7 @@ void main() {
       expect(Validate.minLength(3)('ab'), 'At least 3 characters.');
       expect(Validate.minLength(3)('abc'), isNull);
       expect(Validate.maxLength(1)('ab'), 'At most 1 character.');
-      expect(Validate.email()('ama@solutech.co.ke'), isNull);
+      expect(Validate.email()('ama@example.com'), isNull);
       expect(Validate.email()('ama@'), 'Enter an email address.');
       expect(Validate.email()(''), isNull);
       expect(Validate.min(18)(17), 'At least 18.');
@@ -36523,7 +36604,7 @@ void main() {
     await tester.pump();
     expect(find.text('Enter your name.'), findsNothing);
     expect(find.text('Enter an email address.'), findsOneWidget);
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.pump();
     expect(find.text('Enter an email address.'), findsNothing);
     await tester.tap(find.byType(Checkbox));
@@ -36551,7 +36632,7 @@ void main() {
     final results = <bool>[];
     final saved = await pumpForm(tester, results: results);
     await tester.enterText(input('Name'), 'Ama');
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.tap(find.text('Choose'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Design').last);
@@ -36563,7 +36644,7 @@ void main() {
     expect(results, [true]);
     expect(saved, {
       'name': 'Ama',
-      'email': 'ama@solutech.co.ke',
+      'email': 'ama@example.com',
       'team': 'design',
       'terms': true,
     });
@@ -36573,7 +36654,7 @@ void main() {
     tester,
   ) async {
     await pumpForm(tester);
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.tap(find.byType(Checkbox));
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();
@@ -36655,13 +36736,13 @@ class _FormDemoState extends State<FormDemo> {
         children: [
           FormText(
             label: const Text('Name'),
-            placeholder: 'Wanjiru Kamau',
+            placeholder: 'Maya Thompson',
             validator: Validate.required('Enter your name.'),
           ),
           const SizedBox(height: 20),
           FormText(
             label: const Text('Email'),
-            placeholder: 'you@solutech.co.ke',
+            placeholder: 'you@example.com',
             keyboardType: TextInputType.emailAddress,
             validator: Validate.all([
               Validate.required('Enter your email.'),
@@ -36707,143 +36788,4757 @@ class _FormDemoState extends State<FormDemo> {
 }
 ''',
   ),
-  'login-01': Component(
-    description: "A sign-in card in the middle of the page.",
-    requires: ["button","card","form"],
-    packages: [],
+  'shop-dashboard': Component(
+    description: "A shop's day: sales by card and cash, four figures, a chart and the orders to deliver.",
+    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
+    packages: ["ashlar_icons"],
     block: true,
+    replaces: ["dashboard-01"],
     files: {
-      'blocks/login_01.dart': r'''// Ashlar UI block: login-01. Copied into your app by `ashlar add login-01`; it is yours to
-// change. A sign-in card in the middle of the page.
+      'blocks/shop_dashboard.dart': r'''// Ashlar UI block: shop-dashboard. Copied into your app by `ashlar add shop-dashboard`; it
+// is yours to change. A shop's day at a glance: what sold and how it was paid, the hours it
+// sold in, what is waiting to go out and what is running low.
+//
+// The shop, figures and orders are sample data, there to be replaced with yours.
 
+import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
 import '../ui/button.dart';
 import '../ui/card.dart';
-import '../ui/form.dart';
+import '../ui/chart.dart';
+import '../ui/data_table.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/select.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/tabs.dart';
+import '../ui/theme.dart';
+import '../ui/toggle_group.dart';
 
-/// A sign-in card: email and password, checked when sent.
-class Login01 extends StatefulWidget {
-  const Login01({
-    super.key,
-    this.onLogin,
-    this.onForgot,
-    this.onSignUp,
-    this.onGoogle,
-  });
-
-  /// Told the email and password once both are right.
-  final void Function(String email, String password)? onLogin;
-  final VoidCallback? onForgot, onSignUp, onGoogle;
+/// A shop's dashboard: the till and the stock down the side, the day set into it as a card.
+class ShopDashboard extends StatelessWidget {
+  const ShopDashboard({super.key});
 
   @override
-  State<Login01> createState() => _Login01State();
+  Widget build(BuildContext context) => SidebarLayout(
+    variant: SidebarVariant.inset,
+    collapse: SidebarCollapse.offcanvas,
+    header: const _Shop(),
+    groups: [
+      const SidebarGroup.custom(_NewSale()),
+      SidebarGroup([
+        SidebarItem(
+          'Today',
+          icon: AshlarIconsRoundedStroke.sun,
+          active: true,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Orders',
+          icon: AshlarIconsRoundedStroke.shoppingBag,
+          badge: '7',
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Stock',
+          icon: AshlarIconsRoundedStroke.package,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Customers',
+          icon: AshlarIconsRoundedStroke.users,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Suppliers',
+          icon: AshlarIconsRoundedStroke.truck,
+          onPressed: () {},
+        ),
+      ]),
+      SidebarGroup(label: 'Payments', [
+        for (final (label, icon) in [
+          ('Payments in', AshlarIconsRoundedStroke.arrowDownLeft),
+          ('Statements', AshlarIconsRoundedStroke.fileText),
+          ('Card readers', AshlarIconsRoundedStroke.creditCard),
+        ])
+          SidebarItem(label, icon: icon, onPressed: () {}),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Settings',
+          icon: AshlarIconsRoundedStroke.settings,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Help',
+          icon: AshlarIconsRoundedStroke.circleQuestionMark,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    footer: const _Owner(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _Header(),
+        const Separator(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: const [
+                _Figures(),
+                SizedBox(height: 24),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: _Sales(),
+                ),
+                SizedBox(height: 24),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: _Orders(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
-class _Login01State extends State<Login01> {
-  final _form = GlobalKey<FormState>();
-  var _email = '', _password = '';
-
-  void _send() {
-    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
-  }
+class _Shop extends StatelessWidget {
+  const _Shop();
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 384),
-        child: Card(
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.primary,
+              borderRadius: BorderRadius.circular(t.radiusMd),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.store,
+              size: 18,
+              color: c.primaryForeground,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Corner Pantry',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  'Elm Street',
+                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NewSale extends StatelessWidget {
+  const _NewSale();
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Button(
+          expand: true,
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+          onPressed: () {},
+          child: const Text('New sale'),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Button(
+        variant: ButtonVariant.outline,
+        size: ButtonSize.icon,
+        semanticLabel: 'Scan a barcode',
+        onPressed: () {},
+        child: const AshlarIcon(AshlarIconsRoundedStroke.scanBarcode),
+      ),
+    ],
+  );
+}
+
+class _Owner extends StatelessWidget {
+  const _Owner();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Rosa Delgado',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
           children: [
-            const CardHeader(
-              title: Text('Login to your account'),
-              description: Text(
-                'Enter your email below to login to your account',
+            const Avatar(fallback: 'RD'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Rosa Delgado',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'Owner',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
               ),
             ),
-            CardContent(
-              child: Form(
-                key: _form,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    FormText(
-                      label: const Text('Email'),
-                      placeholder: 'you@solutech.co.ke',
-                      keyboardType: TextInputType.emailAddress,
-                      autofillHints: const [AutofillHints.email],
-                      validator: Validate.all([
-                        Validate.required('Enter your email.'),
-                        Validate.email(),
-                      ]),
-                      onSaved: (v) => _email = v!,
-                    ),
-                    const SizedBox(height: 24),
-                    FormText(
-                      label: const Text('Password'),
-                      obscureText: true,
-                      autofillHints: const [AutofillHints.password],
-                      onSubmitted: (_) => _send(),
-                      validator: Validate.required('Enter your password.'),
-                      onSaved: (v) => _password = v!,
-                    ),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: Button(
-                        variant: ButtonVariant.link,
-                        onPressed: widget.onForgot,
-                        child: const Text('Forgot your password?'),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
+          onPressed: () {},
+          child: const Text('My account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.users),
+          onPressed: () {},
+          child: const Text('Staff'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.store),
+          onPressed: () {},
+          child: const Text('Switch shop'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Sign out'),
+        ),
+      ],
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final wide = MediaQuery.sizeOf(context).width >= 760;
+    return SizedBox(
+      height: 52,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          children: [
+            const SidebarTrigger(),
+            const SizedBox(width: 8),
+            const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+            const SizedBox(width: 12),
+            Text(
+              'Today',
+              style: t.text.base.copyWith(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Thursday 2 July',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t.text.sm.copyWith(color: c.mutedForeground),
+              ),
+            ),
+            const Spacer(),
+            if (wide) ...[
+              const Badge(
+                variant: BadgeVariant.outline,
+                leading: AshlarIcon(AshlarIconsRoundedStroke.circleCheck),
+                child: Text('Open since 7:02'),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Button(
+              variant: ButtonVariant.outline,
+              size: ButtonSize.sm,
+              onPressed: () {},
+              child: const Text('Close the day'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The day in four figures, each with what it is measured against: four across, two, or
+/// one, as there is room.
+class _Figures extends StatelessWidget {
+  const _Figures();
+
+  static const _figures = [
+    (
+      'Sales today',
+      '\$4,835',
+      '+12%',
+      true,
+      'Up on last Thursday',
+      '132 sales since 7:02',
+    ),
+    (
+      'Paid by card',
+      '\$3,142',
+      '65%',
+      true,
+      'Two in three sales',
+      '\$1,693 in cash',
+    ),
+    (
+      'Orders to deliver',
+      '7',
+      '2 late',
+      false,
+      'Two past their time',
+      'Next driver back at 2:30',
+    ),
+    (
+      'Running low',
+      '4 items',
+      'Reorder',
+      false,
+      'Coffee, olive oil and more',
+      'Order from the wholesaler by Friday',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final across = box.maxWidth >= 1100 ? 4 : (box.maxWidth >= 640 ? 2 : 1);
+        const gap = 16.0;
+        final width = (box.maxWidth - 48 - gap * (across - 1)) / across;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final (label, value, tag, good, line, note) in _figures)
+                SizedBox(
+                  width: width,
+                  child: Card(
+                    children: [
+                      CardHeader(
+                        description: Text(label),
+                        title: Text(value, style: t.text.xxl),
+                        action: Badge(
+                          variant: good
+                              ? BadgeVariant.outline
+                              : BadgeVariant.secondary,
+                          child: Text(tag),
+                        ),
+                      ),
+                      CardFooter(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  line,
+                                  style: t.text.sm.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  note,
+                                  style: t.text.sm.copyWith(
+                                    color: c.mutedForeground,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Sales paid by card and in cash, by the hour today, by the day this week, or by the
+/// day this month.
+class _Sales extends StatefulWidget {
+  const _Sales();
+
+  @override
+  State<_Sales> createState() => _SalesState();
+}
+
+/// One bar's sales, in dollars.
+typedef _Takings = ({String when, double card, double cash});
+
+class _SalesState extends State<_Sales> {
+  var _range = 'today';
+
+  static const _ranges = [
+    ('today', 'Today'),
+    ('week', 'This week'),
+    ('month', 'This month'),
+  ];
+
+  // Sample takings: busy first thing, at lunch and after work.
+  static List<_Takings> _rows(String range) => switch (range) {
+    'today' => [
+      for (var hour = 7; hour <= 20; hour++)
+        (
+          when: hour < 12
+              ? '${hour}am'
+              : hour == 12
+              ? '12pm'
+              : '${hour - 12}pm',
+          card:
+              [
+                1800,
+                4200,
+                2100,
+                1500,
+                1900,
+                3600,
+                3200,
+                1700,
+                1400,
+                1900,
+                3100,
+                2900,
+                1220,
+                900,
+              ][hour - 7] /
+              10,
+          cash:
+              [
+                1600,
+                2200,
+                900,
+                800,
+                1100,
+                1700,
+                1500,
+                700,
+                600,
+                1000,
+                1800,
+                1500,
+                900,
+                630,
+              ][hour - 7] /
+              10,
+        ),
+    ],
+    'week' => [
+      for (final (i, day) in [
+        'Mon',
+        'Tue',
+        'Wed',
+        'Thu',
+        'Fri',
+        'Sat',
+        'Sun',
+      ].indexed)
+        (
+          when: day,
+          card: [29800, 27400, 30100, 31420, 0, 0, 0][i] / 10,
+          cash: [15900, 14800, 16200, 16930, 0, 0, 0][i] / 10,
+        ),
+    ],
+    _ => [
+      for (var day = 1; day <= 30; day++)
+        (
+          when: '$day',
+          card: day > 2 ? 0 : (2600 + (day * 317) % 900).toDouble(),
+          cash: day > 2 ? 0 : (1300 + (day * 221) % 600).toDouble(),
+        ),
+    ],
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final narrow = MediaQuery.sizeOf(context).width < 640;
+    return Card(
+      children: [
+        CardHeader(
+          title: const Text('Sales'),
+          description: Text(switch (_range) {
+            'today' => 'By the hour since opening',
+            'week' => 'By the day, Monday to today',
+            _ => 'By the day, this month so far',
+          }),
+          // Buttons where there is room, a select where there is not.
+          action: narrow
+              ? SizedBox(
+                  width: 140,
+                  child: Select<String>(
+                    value: _range,
+                    size: SelectSize.sm,
+                    semanticLabel: 'Range',
+                    options: [for (final (v, l) in _ranges) SelectOption(v, l)],
+                    onChanged: (v) => setState(() => _range = v),
+                  ),
+                )
+              : ToggleGroup<String>(
+                  values: {_range},
+                  semanticLabel: 'Range',
+                  onChanged: (v) {
+                    if (v.isNotEmpty) setState(() => _range = v.first);
+                  },
+                  items: [
+                    for (final (v, l) in _ranges) ToggleGroupItem(v, Text(l)),
+                  ],
+                ),
+        ),
+        CardContent(
+          child: BarChart<_Takings>(
+            semanticLabel: 'Sales paid by card and in cash',
+            data: _rows(_range),
+            x: (r) => r.when,
+            children: [
+              CartesianGrid(),
+              XAxis(),
+              ChartTooltip(indicator: ChartIndicator.dot),
+              ChartLegend(),
+              Bar(label: 'Card', value: (r) => r.card, stackId: 'paid'),
+              Bar(label: 'Cash', value: (r) => r.cash, stackId: 'paid'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Today's orders, by tab: what is still to go out, and everything.
+class _Orders extends StatefulWidget {
+  const _Orders();
+
+  @override
+  State<_Orders> createState() => _OrdersState();
+}
+
+class _OrdersState extends State<_Orders> {
+  var _picked = <int>{};
+
+  static const _rows = [
+    (
+      '#1042',
+      'Maya Thompson',
+      'Flour 5lb, milk, bread',
+      18,
+      'Card',
+      'Out for delivery',
+    ),
+    ('#1041', 'Kenji Sato', 'Olive oil, sugar 4lb', 24, 'Card', 'Packed'),
+    ('#1040', 'Amara Okoye', 'Rice 10lb, black tea', 31, 'Cash', 'Late'),
+    ('#1039', 'Luis Herrera', 'Eggs (dozen), spinach', 12, 'Card', 'Packed'),
+    (
+      '#1038',
+      'Priya Nair',
+      'Soap, toothpaste, tissue',
+      17,
+      'On account',
+      'Late',
+    ),
+    ('#1037', 'Sam Becker', 'Bread, milk', 7, 'Cash', 'Delivered'),
+    ('#1036', 'Achieng Otieno', 'Flour 5lb, beans', 11, 'Card', 'Delivered'),
+    ('#1035', 'Omar Haddad', 'Charcoal, matches', 9, 'Cash', 'Delivered'),
+  ];
+
+  static String _dollars(int v) =>
+      '\$${v.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',')}';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget table(bool waiting) => Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: DataTable(
+        selected: _picked,
+        onSelectChanged: (s) => setState(() => _picked = s),
+        columns: const [
+          DataColumn(Text('Order')),
+          DataColumn(Text('Customer'), flex: 2),
+          DataColumn(Text('Items'), flex: 3),
+          DataColumn(Text('Total'), numeric: true, flex: 2),
+          DataColumn(Text('Paid by'), flex: 2),
+          DataColumn(Text('Status'), flex: 2),
+        ],
+        rows: [
+          for (final (order, customer, items, total, paid, status) in _rows)
+            if (!waiting || status != 'Delivered')
+              [
+                Text(
+                  order,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text(customer, overflow: TextOverflow.ellipsis),
+                Text(
+                  items,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(color: c.mutedForeground),
+                ),
+                Text(_dollars(total)),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Badge(
+                    variant: BadgeVariant.outline,
+                    child: Text(paid),
+                  ),
+                ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Badge(
+                    variant: status == 'Late'
+                        ? BadgeVariant.destructive
+                        : status == 'Delivered'
+                        ? BadgeVariant.secondary
+                        : BadgeVariant.outline,
+                    leading: AshlarIcon(switch (status) {
+                      'Delivered' => AshlarIconsRoundedStroke.check,
+                      'Out for delivery' => AshlarIconsRoundedStroke.bike,
+                      'Late' => AshlarIconsRoundedStroke.clockAlert,
+                      _ => AshlarIconsRoundedStroke.package,
+                    }),
+                    child: Text(status),
+                  ),
+                ),
+              ],
+        ],
+      ),
+    );
+    return Tabs(
+      variant: TabsVariant.line,
+      tabs: [
+        TabItem(label: const Text('To deliver'), content: table(true)),
+        TabItem(label: const Text('All today'), content: table(false)),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'clinic': Component(
+    description: "A clinic's front desk: branches, sections that fold, and today's appointments.",
+    requires: ["avatar","badge","breadcrumb","button","card","dropdown-menu","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-07"],
+    files: {
+      'blocks/clinic.dart': r'''// Ashlar UI block: clinic. Copied into your app by `ashlar add clinic`; it is yours to
+// change. A clinic's app: its sidebar collapses to a strip of icons, a branch switcher
+// at the top, its sections with their pages, the patients seen lately, and today's
+// appointments on the page.
+//
+// The clinic, its patients and appointments are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The clinic's sections, each with its pages.
+const _sections = [
+  (
+    'Appointments',
+    AshlarIconsRoundedStroke.calendarDays,
+    ['Today', 'This week', 'Waiting list'],
+  ),
+  (
+    'Patients',
+    AshlarIconsRoundedStroke.users,
+    ['All patients', 'New patient', 'Referrals'],
+  ),
+  ('Lab', AshlarIconsRoundedStroke.flaskConical, ['Requests', 'Results']),
+  (
+    'Pharmacy',
+    AshlarIconsRoundedStroke.pill,
+    ['Prescriptions', 'Stock', 'Orders'],
+  ),
+  (
+    'Billing',
+    AshlarIconsRoundedStroke.receipt,
+    ['Invoices', 'Insurance claims', 'Payments'],
+  ),
+];
+
+/// Patients seen lately, to go back to.
+const _recent = [
+  ('Achieng Otieno', 'AO'),
+  ('Daniel Kim', 'DK'),
+  ('Fatuma Hassan', 'FH'),
+];
+
+/// A clinic's app: a sidebar that collapses to icons, each with its label in a tooltip.
+class Clinic extends StatelessWidget {
+  const Clinic({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    header: const _Branches(),
+    groups: [
+      SidebarGroup(label: 'Clinic', [
+        for (final (i, (label, icon, pages)) in _sections.indexed)
+          SidebarItem(
+            label,
+            icon: icon,
+            initiallyOpen: i == 0,
+            children: [
+              for (final (k, page) in pages.indexed)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: i == 0 && k == 0,
+                  onPressed: () {},
+                ),
+            ],
+          ),
+      ]),
+      SidebarGroup(label: 'Seen lately', [
+        for (final (name, _) in _recent)
+          SidebarItem(
+            name,
+            icon: AshlarIconsRoundedStroke.circleUser,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $name',
+              onPressed: () {},
+            ),
+          ),
+      ]),
+    ],
+    footer: const _Doctor(),
+    child: const _Today(),
+  );
+}
+
+/// The branch you are working at, and a menu to change it.
+class _Branches extends StatefulWidget {
+  const _Branches();
+
+  @override
+  State<_Branches> createState() => _BranchesState();
+}
+
+class _BranchesState extends State<_Branches> {
+  static const _branches = [
+    ('Lakeside Family Clinic', 'Downtown'),
+    ('Lakeside Family Clinic', 'Northgate'),
+    ('Lakeside Family Clinic', 'Riverside'),
+  ];
+  var _branch = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (name, place) = _branches[_branch];
+    return DropdownMenu(
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Branch: $place',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(
+                AshlarIconsRoundedStroke.hospital,
+                color: c.sidebarPrimaryForeground,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(place, style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        const MenuLabel(child: Text('Branches')),
+        for (final (i, (_, place)) in _branches.indexed)
+          MenuItem(
+            leading: const AshlarIcon(AshlarIconsRoundedStroke.mapPin),
+            shortcut: Text('⌘${i + 1}'),
+            onPressed: () => setState(() => _branch = i),
+            child: Text(place),
+          ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+          onPressed: () {},
+          child: const Text('Add a branch'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The doctor signed in, and a menu for their account.
+class _Doctor extends StatelessWidget {
+  const _Doctor();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Dr. Sarah Chen',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'SC'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dr. Sarah Chen',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'General practice',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
+          onPressed: () {},
+          child: const Text('My profile'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.calendarClock),
+          onPressed: () {},
+          child: const Text('My hours'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Sign out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Today's appointments, in the order the patients are seen.
+class _Today extends StatelessWidget {
+  const _Today();
+
+  static const _appointments = [
+    ('8:30', 'Achieng Otieno', 'Follow-up, blood pressure', 'Done'),
+    ('9:00', 'Daniel Kim', 'Blood test results', 'Done'),
+    ('9:30', 'Fatuma Hassan', 'Antenatal visit', 'With the doctor'),
+    ('10:00', 'Ethan Brooks', 'Sprained ankle', 'Waiting'),
+    ('10:30', 'Sofia Rossi', 'Child immunisation', 'Waiting'),
+    ('11:00', 'Raj Patel', 'Diabetes review', 'Booked'),
+    ('11:30', 'Grace Liu', 'Skin rash', 'Booked'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 64,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem('Appointments', onPressed: () {}),
+                      const BreadcrumbItem('Today'),
+                    ],
+                  ),
+                ),
+                Button(
+                  size: ButtonSize.sm,
+                  leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+                  onPressed: () {},
+                  child: const Text('Book'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Row(
+                children: [
+                  for (final (i, (label, value)) in [
+                    ('Booked today', '18'),
+                    ('Waiting now', '2'),
+                    ('Seen', '9'),
+                  ].indexed) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Expanded(
+                      child: Card(
+                        size: CardSize.sm,
+                        children: [
+                          CardHeader(
+                            description: Text(label),
+                            title: Text(value, style: t.text.xxl),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Button(
-                      expand: true,
-                      onPressed: _send,
-                      child: const Text('Login'),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              Card(
+                children: [
+                  const CardHeader(
+                    title: Text('Today'),
+                    description: Text('Dr. Chen, room 2'),
+                  ),
+                  CardContent(
+                    child: Column(
+                      children: [
+                        for (final (i, (time, patient, reason, status))
+                            in _appointments.indexed) ...[
+                          if (i > 0) const Separator(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 52,
+                                  child: Text(
+                                    time,
+                                    style: t.text.sm.copyWith(
+                                      color: c.mutedForeground,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Avatar(
+                                  fallback: patient
+                                      .split(' ')
+                                      .map((w) => w[0])
+                                      .join(),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        patient,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.sm.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        reason,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.xs.copyWith(
+                                          color: c.mutedForeground,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Badge(
+                                  variant: switch (status) {
+                                    'With the doctor' => BadgeVariant.primary,
+                                    'Waiting' => BadgeVariant.secondary,
+                                    _ => BadgeVariant.outline,
+                                  },
+                                  child: Text(status),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'api-docs': Component(
+    description: "API documentation: versions, search, sections that fold, and a page with its code.",
+    requires: ["badge","breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-01","sidebar-02","sidebar-03"],
+    files: {
+      'blocks/api_docs.dart': r'''// Ashlar UI block: api-docs. Copied into your app by `ashlar add api-docs`; it is yours
+// to change. An API's documentation: its versions and a search at the top, sections that
+// fold away, and a page with its steps and an example request.
+//
+// The API, its pages and its example are sample content, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/badge.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The documentation's sections, each with its pages.
+const _sections = [
+  ('Start here', ['Your keys', 'Test and live', 'Errors']),
+  (
+    'Payments',
+    ['Take a payment', 'Check a payment', 'Refunds', 'Payment links'],
+  ),
+  ('Payouts', ['Send money', 'Pay a merchant', 'Pay a bill']),
+  ('Webhooks', ['Events', 'Retries', 'Verify a signature']),
+  ('Libraries', ['Dart', 'Node', 'Python']),
+];
+
+/// An API's documentation, its sections folding away.
+class ApiDocs extends StatefulWidget {
+  const ApiDocs({super.key});
+
+  @override
+  State<ApiDocs> createState() => _ApiDocsState();
+}
+
+class _ApiDocsState extends State<ApiDocs> {
+  var _page = 'Take a payment';
+  var _version = 'v3';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    header: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Versions(
+          version: _version,
+          onChanged: (v) => setState(() => _version = v),
+        ),
+        const SizedBox(height: 8),
+        const Input(
+          placeholder: 'Search the API…',
+          semanticLabel: 'Search the API',
+          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+        ),
+      ],
+    ),
+    groups: [
+      SidebarGroup([
+        for (final (section, pages) in _sections)
+          SidebarItem(
+            section,
+            icon: null,
+            initiallyOpen: pages.contains(_page),
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Status',
+          icon: AshlarIconsRoundedStroke.activity,
+          badge: 'Up',
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Changelog',
+          icon: AshlarIconsRoundedStroke.rotateCcwClock,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    child: _Page(
+      section: _sections.firstWhere((s) => s.$2.contains(_page)).$1,
+      page: _page,
+    ),
+  );
+}
+
+/// The API's mark and name, and a menu of its versions.
+class _Versions extends StatelessWidget {
+  const _Versions({required this.version, required this.onChanged});
+
+  final String version;
+  final ValueChanged<String> onChanged;
+
+  static const _versions = [
+    ('v3', 'Current'),
+    ('v2', 'Until June 2027'),
+    ('v1', 'Retired'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Paylane API, version $version',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: c.sidebarPrimary,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: AshlarIcon(
+                AshlarIconsRoundedStroke.braces,
+                color: c.sidebarPrimaryForeground,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Paylane API',
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(version, style: t.text.xs),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        for (final (v, note) in _versions)
+          MenuItem(
+            onPressed: () => onChanged(v),
+            trailing: v == version
+                ? const AshlarIcon(AshlarIconsRoundedStroke.check)
+                : null,
+            child: Text('$v  ·  $note'),
+          ),
+      ],
+    );
+  }
+}
+
+/// The page: where it sits along the top, then its steps and an example request.
+class _Page extends StatelessWidget {
+  const _Page({required this.section, required this.page});
+
+  final String section;
+  final String page;
+
+  static const _request = """curl https://api.paylane.example/v3/payments \\
+  -H "Authorization: Bearer \$PAYLANE_KEY" \\
+  -d phone=+14155550123 \\
+  -d amount=1350 \\
+  -d reference=ORDER-1042""";
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget step(int n, String title, String text) => Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: c.border),
+            ),
+            child: Text('$n', style: t.text.xs),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(text, style: t.text.sm.copyWith(color: c.mutedForeground)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem(section, onPressed: () {}),
+                      BreadcrumbItem(page),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+            child: Align(
+              alignment: AlignmentDirectional.topStart,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Badge(
+                      variant: BadgeVariant.outline,
+                      child: Text('POST /v3/payments'),
                     ),
                     const SizedBox(height: 12),
-                    Button(
-                      expand: true,
-                      variant: ButtonVariant.outline,
-                      onPressed: widget.onGoogle,
-                      child: const Text('Login with Google'),
+                    Text(page, style: t.text.xxl),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Ask a customer to pay from their phone. They get a prompt in their '
+                      'wallet app, approve it, and you hear back on your webhook within seconds.',
+                      style: t.text.base.copyWith(color: c.mutedForeground),
                     ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                    const SizedBox(height: 24),
+                    step(
+                      1,
+                      'Send the request',
+                      'The phone number in full, the amount in cents, and your own '
+                          'reference to match the payment later.',
+                    ),
+                    step(
+                      2,
+                      'The customer approves it',
+                      'They have two minutes to approve it before the payment expires.',
+                    ),
+                    step(
+                      3,
+                      'Hear the result',
+                      'A payment.succeeded or payment.failed event arrives on your webhook.',
+                    ),
+                    const SizedBox(height: 8),
+                    _Code(_request),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// An example request, with a button to copy it.
+class _Code extends StatelessWidget {
+  const _Code(this.code);
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: c.muted,
+        borderRadius: BorderRadius.circular(t.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 16, 56, 16),
+            child: Text(
+              code,
+              style: t.text.sm.copyWith(fontFamily: 'monospace', height: 1.6),
+            ),
+          ),
+          PositionedDirectional(
+            top: 8,
+            end: 8,
+            child: Button(
+              variant: ButtonVariant.ghost,
+              size: ButtonSize.iconSm,
+              semanticLabel: 'Copy the request',
+              onPressed: () => Clipboard.setData(ClipboardData(text: code)),
+              child: const AshlarIcon(AshlarIconsRoundedStroke.copy),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'staff-handbook': Component(
+    description: "A handbook in a floating sidebar, with the page's contents on the right when there is room.",
+    requires: ["breadcrumb","input","pressable","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-04","sidebar-05","sidebar-14"],
+    files: {
+      'blocks/staff_handbook.dart': r'''// Ashlar UI block: staff-handbook. Copied into your app by `ashlar add staff-handbook`; it
+// is yours to change. A handbook to read: its chapters in a floating sidebar with a
+// search, a page of plain text, and what is on the page down its other side on a wide
+// screen.
+//
+// The school and its handbook are sample content, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/input.dart';
+import '../ui/pressable.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The handbook's chapters, each with its pages.
+const _chapters = [
+  ('Welcome', ['Our school', 'Your first week', 'Who to ask']),
+  ('Teaching', ['Lesson plans', 'Marking', 'Exams', 'Reports home']),
+  ('Pupils', ['Attendance', 'Discipline', 'Welfare']),
+  ('Staff', ['Leave', 'Pay', 'Training']),
+  ('Safety', ['Fire drill', 'First aid', 'Visitors']),
+];
+
+/// What is on the Leave page, for the contents beside it.
+const _onThisPage = [
+  'Annual leave',
+  'Sick leave',
+  'Asking for leave',
+  'Who covers your classes',
+];
+
+/// A staff handbook: chapters that fold away in a floating sidebar.
+class StaffHandbook extends StatefulWidget {
+  const StaffHandbook({super.key});
+
+  @override
+  State<StaffHandbook> createState() => _StaffHandbookState();
+}
+
+class _StaffHandbookState extends State<StaffHandbook> {
+  var _page = 'Leave';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    variant: SidebarVariant.floating,
+    header: const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _School(),
+        SizedBox(height: 8),
+        Input(
+          placeholder: 'Search the handbook…',
+          semanticLabel: 'Search the handbook',
+          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+        ),
+      ],
+    ),
+    groups: [
+      SidebarGroup([
+        for (final (chapter, pages) in _chapters)
+          SidebarItem(
+            chapter,
+            icon: null,
+            initiallyOpen: pages.contains(_page),
+            children: [
+              for (final page in pages)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: page == _page,
+                  onPressed: () => setState(() => _page = page),
+                ),
+            ],
+          ),
+      ]),
+    ],
+    child: _Page(
+      chapter: _chapters.firstWhere((c) => c.$2.contains(_page)).$1,
+      page: _page,
+    ),
+  );
+}
+
+class _School extends StatelessWidget {
+  const _School();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.bookOpen,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Hillcrest Academy',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Staff handbook, 2026', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page to read, with what is on it beside it where there is room.
+class _Page extends StatelessWidget {
+  const _Page({required this.chapter, required this.page});
+
+  final String chapter;
+  final String page;
+
+  static const _sections = [
+    (
+      'Annual leave',
+      'Teaching staff take their leave in the school holidays. Others have 21 working '
+          'days a year, taken when the head of department agrees.',
+    ),
+    (
+      'Sick leave',
+      'Tell the deputy head before 7am on the first day you are away. From the third '
+          'day, bring a note from a doctor or clinic.',
+    ),
+    (
+      'Asking for leave',
+      'Ask at least two weeks ahead, in the staff portal, so cover can be found. Leave for '
+          'a funeral or a family emergency can be asked for on the day.',
+    ),
+    (
+      'Who covers your classes',
+      'Leave work for each lesson with the deputy head. A colleague from your department '
+          'takes the class; an exam class is never left without a teacher.',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final article = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(page, style: t.text.xxl),
+        const SizedBox(height: 8),
+        Text(
+          'Updated by the deputy head in January. Ask the office if anything here is unclear.',
+          style: t.text.sm.copyWith(color: c.mutedForeground),
+        ),
+        for (final (title, text) in _sections) ...[
+          const SizedBox(height: 24),
+          Text(title, style: t.text.lg.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Text(text, style: t.text.base.copyWith(height: 1.6)),
+        ],
+      ],
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem(chapter, onPressed: () {}),
+                      BreadcrumbItem(page),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, box) => SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+              child: box.maxWidth >= 900
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Don't have an account?"),
-                        Button(
-                          variant: ButtonVariant.link,
-                          onPressed: widget.onSignUp,
-                          child: const Text('Sign up'),
+                        Expanded(
+                          child: Align(
+                            alignment: AlignmentDirectional.topStart,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 640),
+                              child: article,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 32),
+                        const SizedBox(width: 200, child: _Contents()),
+                      ],
+                    )
+                  : article,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// What is on the page, each a link down to it.
+class _Contents extends StatelessWidget {
+  const _Contents();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'On this page',
+          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        for (final (i, title) in _onThisPage.indexed)
+          Pressable(
+            onPressed: () {},
+            semanticLabel: title,
+            builder: (context, state) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                title,
+                style: t.text.sm.copyWith(
+                  color: i == 0 || state.hovered
+                      ? c.foreground
+                      : c.mutedForeground,
+                  decoration: state.focused ? TextDecoration.underline : null,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'newsroom': Component(
+    description: "A newspaper's sections as menus, the morning brief, and the latest stories.",
+    requires: ["avatar","badge","breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-06"],
+    files: {
+      'blocks/newsroom.dart': r'''// Ashlar UI block: newsroom. Copied into your app by `ashlar add newsroom`; it is yours to
+// change. A newsroom's desk: its sections open their desks as menus from the sidebar, the
+// morning brief's sign-up sits at its foot, and the page lists the desk's stories.
+//
+// The paper, its desks and stories are sample content, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The paper's sections, each with its desks.
+const _sections = [
+  ('News', ['City', 'Region', 'Politics']),
+  ('Business', ['Markets', 'Farming', 'Tech']),
+  ('Sport', ['Football', 'Athletics', 'Rugby']),
+  ('Opinion', ['Columns', 'Letters']),
+  ('Life', ['Food', 'Travel', 'Music']),
+];
+
+/// A newsroom whose sections open their desks as menus.
+class Newsroom extends StatefulWidget {
+  const Newsroom({super.key});
+
+  @override
+  State<Newsroom> createState() => _NewsroomState();
+}
+
+class _NewsroomState extends State<Newsroom> {
+  var _desk = 'Farming';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    return SidebarLayout(
+      collapse: SidebarCollapse.offcanvas,
+      header: const _Paper(),
+      groups: [
+        SidebarGroup.custom(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (section, desks) in _sections)
+                DropdownMenu(
+                  side: PopoverSide.right,
+                  width: 192,
+                  builder: (context, menu) => Button(
+                    variant: ButtonVariant.ghost,
+                    expand: true,
+                    onPressed: menu.open,
+                    trailing: const AshlarIcon(
+                      AshlarIconsRoundedStroke.chevronRight,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        section,
+                        style: t.text.sm.copyWith(
+                          fontWeight: desks.contains(_desk)
+                              ? FontWeight.w600
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                  items: [
+                    MenuLabel(child: Text(section)),
+                    for (final desk in desks)
+                      MenuItem(
+                        selected: desk == _desk,
+                        onPressed: () => setState(() => _desk = desk),
+                        child: Text(desk),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+      footer: const _MorningBrief(),
+      child: _Desk(
+        section: _sections.firstWhere((s) => s.$2.contains(_desk)).$1,
+        desk: _desk,
+      ),
+    );
+  }
+}
+
+class _Paper extends StatelessWidget {
+  const _Paper();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.newspaper,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'The Harbor Post',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Newsroom', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A small card asking for a number to send the morning brief to.
+class _MorningBrief extends StatelessWidget {
+  const _MorningBrief();
+
+  @override
+  Widget build(BuildContext context) => Card(
+    size: CardSize.sm,
+    children: [
+      const CardHeader(
+        title: Text('The morning brief'),
+        description: Text('Five stories before 6am, on WhatsApp.'),
+      ),
+      CardContent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Input(
+              placeholder: 'Your WhatsApp number',
+              semanticLabel: 'Phone number',
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 8),
+            Button(
+              size: ButtonSize.sm,
+              variant: ButtonVariant.secondary,
+              expand: true,
+              onPressed: () {},
+              child: const Text('Send it to me'),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// The desk's stories, newest first, each where it is on its way to print.
+class _Desk extends StatelessWidget {
+  const _Desk({required this.section, required this.desk});
+
+  final String section;
+  final String desk;
+
+  static const _stories = [
+    (
+      'Wheat prices fall as the harvest comes in early',
+      'Wairimu Ndungu',
+      '10 min ago',
+      'In review',
+    ),
+    (
+      'Avocado growers find a new market overseas',
+      'Jonah Price',
+      '1 hr ago',
+      'Draft',
+    ),
+    (
+      'What the new water rules mean for small farms',
+      'Wairimu Ndungu',
+      '3 hrs ago',
+      'Published',
+    ),
+    (
+      'Coffee auction: a better week for growers',
+      'Amina Yusuf',
+      'Yesterday',
+      'Published',
+    ),
+    ('A dairy co-op goes cashless', 'Elena Petrova', 'Yesterday', 'Published'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem(section, onPressed: () {}),
+                      BreadcrumbItem(desk),
+                    ],
+                  ),
+                ),
+                Button(
+                  size: ButtonSize.sm,
+                  leading: const AshlarIcon(AshlarIconsRoundedStroke.penLine),
+                  onPressed: () {},
+                  child: const Text('New story'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              for (final (i, (headline, writer, ago, stage))
+                  in _stories.indexed) ...[
+                if (i > 0) const Separator(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              headline,
+                              style: t.text.base.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Avatar(
+                                  size: 20,
+                                  fallback: writer
+                                      .split(' ')
+                                      .map((w) => w[0])
+                                      .join(),
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    '$writer  ·  $ago',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: t.text.xs.copyWith(
+                                      color: c.mutedForeground,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Badge(
+                        variant: switch (stage) {
+                          'Published' => BadgeVariant.secondary,
+                          'In review' => BadgeVariant.primary,
+                          _ => BadgeVariant.outline,
+                        },
+                        child: Text(stage),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'school-office': Component(
+    description: "A school office inset as a card: fees collected, who owes most, support at the foot.",
+    requires: ["avatar","badge","breadcrumb","button","card","dropdown-menu","popover","progress","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-08"],
+    files: {
+      'blocks/school_office.dart': r'''// Ashlar UI block: school-office. Copied into your app by `ashlar add school-office`; it
+// is yours to change. A school office's app: the page set into the sidebar as a card,
+// support and feedback at the sidebar's foot, and the term's fees on the page.
+//
+// The school, its pupils and fees are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/popover.dart';
+import '../ui/progress.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The office's sections, each with its pages.
+const _sections = [
+  (
+    'Fees',
+    AshlarIconsRoundedStroke.wallet,
+    ['Balances', 'Payments in', 'Reminders'],
+  ),
+  (
+    'Pupils',
+    AshlarIconsRoundedStroke.users,
+    ['All pupils', 'Admissions', 'Transfers'],
+  ),
+  (
+    'Classes',
+    AshlarIconsRoundedStroke.school,
+    ['Timetable', 'Attendance', 'Teachers'],
+  ),
+  (
+    'Exams',
+    AshlarIconsRoundedStroke.clipboardCheck,
+    ['Results', 'Report cards'],
+  ),
+];
+
+/// The school's classes, to go straight to.
+const _classes = ['Grade 4 East', 'Grade 5 West', 'Grade 6 East'];
+
+/// A school office's app: the page inset as a card beside the sidebar.
+class SchoolOffice extends StatelessWidget {
+  const SchoolOffice({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    variant: SidebarVariant.inset,
+    header: const _School(),
+    groups: [
+      SidebarGroup(label: 'Office', [
+        for (final (i, (label, icon, pages)) in _sections.indexed)
+          SidebarItem(
+            label,
+            icon: icon,
+            initiallyOpen: i == 0,
+            children: [
+              for (final (k, page) in pages.indexed)
+                SidebarItem(
+                  page,
+                  icon: null,
+                  active: i == 0 && k == 0,
+                  onPressed: () {},
+                ),
+            ],
+          ),
+      ]),
+      SidebarGroup(label: 'Classes', [
+        for (final name in _classes)
+          SidebarItem(
+            name,
+            icon: AshlarIconsRoundedStroke.bookBookmark,
+            onPressed: () {},
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Support',
+          icon: AshlarIconsRoundedStroke.lifeBuoy,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Feedback',
+          icon: AshlarIconsRoundedStroke.send,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    footer: const _Bursar(),
+    child: const _Balances(),
+  );
+}
+
+class _School extends StatelessWidget {
+  const _School();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.graduationCap,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Maple Grove Elementary',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Term 2, 2026', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Bursar extends StatelessWidget {
+  const _Bursar();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Helen Brooks',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'HB'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Helen Brooks',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'Bursar',
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
+          onPressed: () {},
+          child: const Text('My account'),
+        ),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+          onPressed: () {},
+          child: const Text('Notifications'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Sign out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The term's fees: how much is in, and who still owes.
+class _Balances extends StatelessWidget {
+  const _Balances();
+
+  static const _owing = [
+    ('Olivia Martin', 'Grade 5 West', 1850, 'Reminded Monday'),
+    ('Diego Alvarez', 'Grade 4 East', 1200, 'Paying in parts'),
+    ('Amina Abdi', 'Grade 6 East', 975, 'Not yet reminded'),
+    ('Kevin Nguyen', 'Grade 4 East', 620, 'Promised by Friday'),
+    ('Faith Chebet', 'Grade 5 West', 340, 'Not yet reminded'),
+  ];
+
+  static String _dollars(int v) =>
+      '\$${v.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',')}';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem('Fees', onPressed: () {}),
+                      const BreadcrumbItem('Balances'),
+                    ],
+                  ),
+                ),
+                Button(
+                  size: ButtonSize.sm,
+                  variant: ButtonVariant.outline,
+                  leading: const AshlarIcon(
+                    AshlarIconsRoundedStroke.messageSquare,
+                  ),
+                  onPressed: () {},
+                  child: const Text('Remind all'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                children: [
+                  CardHeader(
+                    description: const Text('Collected this term'),
+                    title: Text('\$241,860', style: t.text.xxl),
+                    action: const Badge(
+                      variant: BadgeVariant.outline,
+                      child: Text('78%'),
+                    ),
+                  ),
+                  CardContent(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Progress(value: .78),
+                        const SizedBox(height: 8),
+                        Text(
+                          '\$68,240 still owed by 41 families. Term ends 7 August.',
+                          style: t.text.sm.copyWith(color: c.mutedForeground),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Card(
+                children: [
+                  const CardHeader(
+                    title: Text('Most owed'),
+                    description: Text('The largest balances first'),
+                  ),
+                  CardContent(
+                    child: Column(
+                      children: [
+                        for (final (i, (pupil, grade, owed, note))
+                            in _owing.indexed) ...[
+                          if (i > 0) const Separator(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              children: [
+                                Avatar(
+                                  fallback: pupil
+                                      .split(' ')
+                                      .map((w) => w[0])
+                                      .join(),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        pupil,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.sm.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        '$grade  ·  $note',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.xs.copyWith(
+                                          color: c.mutedForeground,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _dollars(owed),
+                                  style: t.text.sm.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'support-inbox': Component(
+    description: "A support inbox: queues, tickets to pick from, and the conversation with a reply.",
+    requires: ["avatar","badge","button","input","label","pressable","separator","sidebar","switch","textarea","theme","tooltip"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-09"],
+    files: {
+      'blocks/support_inbox.dart': r'''// Ashlar UI block: support-inbox. Copied into your app by `ashlar add support-inbox`; it is
+// yours to change. A support desk with two sidebars side by side: a strip of queues that
+// stays, the queue's tickets beside it, which fold away, and the open ticket's
+// conversation with a reply box on the page.
+//
+// The company, its customers and their tickets are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/button.dart';
+import '../ui/input.dart';
+import '../ui/label.dart';
+import '../ui/pressable.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/switch.dart';
+import '../ui/textarea.dart';
+import '../ui/theme.dart';
+import '../ui/tooltip.dart';
+
+/// The desk's queues.
+const _queues = [
+  ('Open', AshlarIconsRoundedStroke.inbox),
+  ('Mine', AshlarIconsRoundedStroke.user),
+  ('Waiting on the customer', AshlarIconsRoundedStroke.hourglass),
+  ('Solved', AshlarIconsRoundedStroke.circleCheck),
+];
+
+/// Tickets: who from, when, about what, the start of the message, whether answered, and
+/// the order it is about.
+const _tickets = [
+  (
+    'Achieng Otieno',
+    '9:34',
+    'Parcel shows delivered, not here',
+    'The app says it was left at the gate at 8:50 but there is nothing here and the guard saw no driver.',
+    false,
+    'SWP-48213',
+  ),
+  (
+    'Daniel Kim',
+    '9:10',
+    'Driver asked me to pay again',
+    'I paid by card when I ordered and the driver asked for cash at the door.',
+    false,
+    'SWP-48197',
+  ),
+  (
+    'Fatuma Hassan',
+    'Yesterday',
+    'Change my delivery address',
+    'I have moved across town. Can tomorrow\'s delivery go to the new address?',
+    true,
+    'SWP-48102',
+  ),
+  (
+    'Tom Becker',
+    'Yesterday',
+    'Refund not received',
+    'You said the refund would be back in three days. It has been five.',
+    true,
+    'SWP-47988',
+  ),
+  (
+    'Ana Souza',
+    'Monday',
+    'Thank you',
+    'The driver called ahead and waited while I came down. Please pass it on.',
+    true,
+    'SWP-47901',
+  ),
+];
+
+/// A strip of queues beside the queue's tickets, and the open ticket on the page.
+class SupportInbox extends StatefulWidget {
+  const SupportInbox({super.key});
+
+  @override
+  State<SupportInbox> createState() => _SupportInboxState();
+}
+
+class _SupportInboxState extends State<SupportInbox> {
+  var _queue = 'Open';
+  var _unanswered = false;
+  var _open = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final tickets = [
+      for (final (i, ticket) in _tickets.indexed)
+        if (!_unanswered || !ticket.$5) (i, ticket),
+    ];
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The queues: always there, on a phone too.
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: c.sidebar,
+            border: BorderDirectional(end: BorderSide(color: c.sidebarBorder)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: c.sidebarPrimary,
+                      borderRadius: BorderRadius.circular(t.radiusLg),
+                    ),
+                    child: AshlarIcon(
+                      AshlarIconsRoundedStroke.packageCheck,
+                      color: c.sidebarPrimaryForeground,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  for (final (name, icon) in _queues)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Tooltip(
+                        message: name,
+                        side: TooltipSide.right,
+                        child: Button(
+                          variant: name == _queue
+                              ? ButtonVariant.secondary
+                              : ButtonVariant.ghost,
+                          size: ButtonSize.icon,
+                          semanticLabel: name,
+                          onPressed: () => setState(() => _queue = name),
+                          child: AshlarIcon(icon),
+                        ),
+                      ),
+                    ),
+                  const Spacer(),
+                  const Avatar(fallback: 'MT', semanticLabel: 'Mei Tanaka'),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: SidebarLayout(
+            collapse: SidebarCollapse.offcanvas,
+            width: 320,
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _queue,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.text.base.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Label(child: Text('Unanswered')),
+                    const SizedBox(width: 8),
+                    Switch(
+                      size: SwitchSize.sm,
+                      value: _unanswered,
+                      semanticLabel: 'Unanswered only',
+                      onChanged: (v) => setState(() => _unanswered = v),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Input(
+                  placeholder: 'Search by name or order…',
+                  semanticLabel: 'Search tickets',
+                  leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+                ),
+              ],
+            ),
+            groups: [
+              SidebarGroup.custom(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (
+                          k,
+                          (i, (from, sent, subject, text, answered, _)),
+                        )
+                        in tickets.indexed) ...[
+                      if (k > 0) const Separator(),
+                      Pressable(
+                        onPressed: () => setState(() => _open = i),
+                        selected: i == _open,
+                        semanticLabel: '$from: $subject',
+                        builder: (context, state) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: i == _open || state.hovered
+                                ? c.sidebarAccent
+                                : null,
+                            borderRadius: BorderRadius.circular(t.radiusMd),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (!answered) ...[
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: c.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      from,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: t.text.sm.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(sent, style: t.text.xs),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                subject,
+                                style: t.text.sm.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                text,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.text.xs.copyWith(
+                                  color: c.mutedForeground,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            child: _Ticket(index: _open),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The open ticket: who it is and the order, the conversation, and a reply.
+class _Ticket extends StatelessWidget {
+  const _Ticket({required this.index});
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final (from, sent, subject, text, _, order) = _tickets[index];
+    Widget message(String who, String body, String at, {required bool ours}) =>
+        Align(
+          alignment: ours
+              ? AlignmentDirectional.centerEnd
+              : AlignmentDirectional.centerStart,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ours ? c.primary : c.muted,
+                borderRadius: BorderRadius.circular(t.radiusLg),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    body,
+                    style: t.text.sm.copyWith(
+                      color: ours ? c.primaryForeground : c.foreground,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$who  ·  $at',
+                    style: t.text.xs.copyWith(
+                      color: (ours ? c.primaryForeground : c.mutedForeground)
+                          .withValues(alpha: .8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 64,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        subject,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '$from  ·  order $order',
+                        overflow: TextOverflow.ellipsis,
+                        style: t.text.xs.copyWith(color: c.mutedForeground),
+                      ),
+                    ],
+                  ),
+                ),
+                const Badge(
+                  variant: BadgeVariant.outline,
+                  child: Text('Delivery'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              message(from, text, sent, ours: false),
+              if (index == 0) ...[
+                message(
+                  'Mei, Swift Parcel support',
+                  'Sorry about this. I have called the driver and asked where exactly he '
+                      'left it. Give me ten minutes.',
+                  '9:41',
+                  ours: true,
+                ),
+                message(
+                  from,
+                  'Okay, thank you. I am home all morning.',
+                  '9:43',
+                  ours: false,
+                ),
+              ],
+            ],
+          ),
+        ),
+        const Separator(),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Expanded(
+                child: Textarea(
+                  placeholder: 'Write a reply…',
+                  semanticLabel: 'Reply',
+                  minLines: 1,
+                  maxLines: 4,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Button(
+                leading: const AshlarIcon(AshlarIconsRoundedStroke.send),
+                onPressed: () {},
+                child: const Text('Send'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'field-notes': Component(
+    description: "Notes from a farm visit, with a checklist and the page's actions in a popover.",
+    requires: ["badge","breadcrumb","button","checkbox","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-10"],
+    files: {
+      'blocks/field_notes.dart': r'''// Ashlar UI block: field-notes. Copied into your app by `ashlar add field-notes`; it is
+// yours to change. A field officer's notes: today's visits and follow-ups at the top,
+// pinned farms and the wards under them, the open note on the page, and its actions in a
+// panel that opens from its header.
+//
+// The co-op, its farms and the note are sample content, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/badge.dart';
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/checkbox.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// Farms pinned to come back to.
+const _pinned = [
+  'Wairimu Njuguna, Githunguri',
+  'Kamau dairy unit, Lari',
+  'St. Mary\'s school garden',
+];
+
+/// The wards, each with the farms visited there.
+const _wards = [
+  ('Githunguri', ['Wairimu Njuguna', 'Peter Gitau', 'Ruth Wanjiku']),
+  ('Limuru', ['Tea nursery, Tigoni', 'Samuel Mbugua']),
+  ('Lari', ['Kamau dairy unit', 'Grace Nyambura']),
+];
+
+/// Field notes: the farms down the side, the open note on the page.
+class FieldNotes extends StatelessWidget {
+  const FieldNotes({super.key});
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    header: const _CoOp(),
+    groups: [
+      SidebarGroup([
+        SidebarItem(
+          'Search notes',
+          icon: AshlarIconsRoundedStroke.search,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Today\'s visits',
+          icon: AshlarIconsRoundedStroke.mapPinned,
+          active: true,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Follow-ups',
+          icon: AshlarIconsRoundedStroke.calendarClock,
+          badge: '4',
+          onPressed: () {},
+        ),
+      ]),
+      SidebarGroup(label: 'Pinned', [
+        for (final farm in _pinned)
+          SidebarItem(
+            farm,
+            icon: AshlarIconsRoundedStroke.sprout,
+            onPressed: () {},
+            action: SidebarAction(
+              icon: AshlarIconsRoundedStroke.ellipsis,
+              label: 'More for $farm',
+              onPressed: () {},
+            ),
+          ),
+      ]),
+      SidebarGroup(label: 'Wards', [
+        for (final (i, (ward, farms)) in _wards.indexed)
+          SidebarItem(
+            ward,
+            icon: AshlarIconsRoundedStroke.map,
+            initiallyOpen: i == 0,
+            children: [
+              for (final farm in farms)
+                SidebarItem(farm, icon: null, onPressed: () {}),
+            ],
+          ),
+      ]),
+      SidebarGroup(atEnd: true, [
+        SidebarItem(
+          'Photos',
+          icon: AshlarIconsRoundedStroke.images,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Settings',
+          icon: AshlarIconsRoundedStroke.settings,
+          onPressed: () {},
+        ),
+        SidebarItem(
+          'Trash',
+          icon: AshlarIconsRoundedStroke.trash,
+          onPressed: () {},
+        ),
+      ]),
+    ],
+    child: const _Note(),
+  );
+}
+
+class _CoOp extends StatelessWidget {
+  const _CoOp();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.leaf,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Kilimo Bora Co-op',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Joseph Kariuki, field officer', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The open note: what was seen on the farm, what was advised, and when to come back.
+class _Note extends StatefulWidget {
+  const _Note();
+
+  @override
+  State<_Note> createState() => _NoteState();
+}
+
+class _NoteState extends State<_Note> {
+  final _seen = [
+    ('Maize at knee height, planted in rows', true),
+    ('Fall armyworm on about one plant in ten', true),
+    ('Two of the five cows due for deworming', false),
+    ('Water tank half full after the rains', true),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget heading(String text) => Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
+      child: Text(text, style: t.text.lg.copyWith(fontWeight: FontWeight.w600)),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                const SidebarTrigger(),
+                const SizedBox(width: 8),
+                const SizedBox(
+                  height: 16,
+                  child: Separator(axis: Axis.vertical),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Breadcrumb(
+                    items: [
+                      BreadcrumbItem('Githunguri', onPressed: () {}),
+                      const BreadcrumbItem('Wairimu Njuguna'),
+                    ],
+                  ),
+                ),
+                const _Actions(),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+            child: Align(
+              alignment: AlignmentDirectional.topStart,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Wairimu Njuguna\'s farm', style: t.text.xxl),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: const [
+                        Badge(
+                          variant: BadgeVariant.outline,
+                          child: Text('Visited Tue 30 June'),
+                        ),
+                        Badge(
+                          variant: BadgeVariant.outline,
+                          child: Text('2 acres'),
+                        ),
+                        Badge(
+                          variant: BadgeVariant.outline,
+                          child: Text('Maize and dairy'),
+                        ),
+                      ],
+                    ),
+                    heading('What I saw'),
+                    for (final (i, (item, done)) in _seen.indexed)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: done,
+                              semanticLabel: item,
+                              onChanged: (v) =>
+                                  setState(() => _seen[i] = (item, v)),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(child: Text(item, style: t.text.base)),
+                          ],
+                        ),
+                      ),
+                    heading('What I advised'),
+                    Text(
+                      'Spray the armyworm this week, early in the morning, and check the '
+                      'funnels again in five days. Deworm the two cows before the vet\'s '
+                      'next round. Keep the tank covered.',
+                      style: t.text.base.copyWith(height: 1.6),
+                    ),
+                    heading('Come back'),
+                    Text(
+                      'Monday 6 July, to check the spraying worked.',
+                      style: t.text.base.copyWith(color: c.mutedForeground),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// When the note was edited, a pin, and its actions in a popover.
+class _Actions extends StatelessWidget {
+  const _Actions();
+
+  static const _groups = [
+    [
+      ('Send to the farmer by SMS', AshlarIconsRoundedStroke.messageSquare),
+      ('Add a photo', AshlarIconsRoundedStroke.camera),
+    ],
+    [
+      ('Copy link', AshlarIconsRoundedStroke.link),
+      ('Move to another ward', AshlarIconsRoundedStroke.folderInput),
+      ('Delete', AshlarIconsRoundedStroke.trash),
+    ],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final wide = MediaQuery.sizeOf(context).width >= 768;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (wide)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: Text(
+              'Edited 2 hours ago',
+              style: t.text.sm.copyWith(color: t.colors.mutedForeground),
+            ),
+          ),
+        Button(
+          variant: ButtonVariant.ghost,
+          size: ButtonSize.icon,
+          semanticLabel: 'Pin this farm',
+          onPressed: () {},
+          child: const AshlarIcon(AshlarIconsRoundedStroke.pin),
+        ),
+        Popover(
+          align: PopoverAlign.end,
+          width: 240,
+          builder: (context, menu) => Button(
+            variant: ButtonVariant.ghost,
+            size: ButtonSize.icon,
+            semanticLabel: 'Note actions',
+            onPressed: menu.open,
+            child: const AshlarIcon(AshlarIconsRoundedStroke.ellipsis),
+          ),
+          content: (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, group) in _groups.indexed) ...[
+                if (i > 0)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Separator(),
+                  ),
+                for (final (label, icon) in group)
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.sm,
+                    expand: true,
+                    leading: AshlarIcon(icon),
+                    onPressed: () {},
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(label),
+                    ),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'code-review': Component(
+    description: "A change under review: the files as a tree, the changed ones above, and the diff.",
+    requires: ["avatar","badge","button","pressable","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-11"],
+    files: {
+      'blocks/code_review.dart': r'''// Ashlar UI block: code-review. Copied into your app by `ashlar add code-review`; it is
+// yours to change. A change to review: the files it touches above the project's tree,
+// whose folders open and close, and the picked file's changes on the page, line by line.
+//
+// The project and its change are sample content, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/button.dart';
+import '../ui/pressable.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// A file, or a folder of more.
+class _Node {
+  const _Node(this.name, [this.children]);
+
+  final String name;
+  final List<_Node>? children;
+}
+
+/// The project under review.
+const _tree = [
+  _Node('lib', [
+    _Node('main.dart'),
+    _Node('checkout', [
+      _Node('checkout_screen.dart'),
+      _Node('bank_transfer.dart'),
+      _Node('order_total.dart'),
+    ]),
+    _Node('data', [_Node('payments.dart'), _Node('orders.dart')]),
+  ]),
+  _Node('test', [_Node('checkout_test.dart')]),
+  _Node('pubspec.yaml'),
+];
+
+/// The files the change touches, with the lines added and taken out.
+const _changes = [
+  ('lib/checkout/bank_transfer.dart', '+48', '-0'),
+  ('lib/checkout/checkout_screen.dart', '+12', '-4'),
+  ('lib/data/payments.dart', '+9', '-2'),
+  ('test/checkout_test.dart', '+31', '-0'),
+];
+
+/// A change under review, its files down the side.
+class CodeReview extends StatefulWidget {
+  const CodeReview({super.key});
+
+  @override
+  State<CodeReview> createState() => _CodeReviewState();
+}
+
+class _CodeReviewState extends State<CodeReview> {
+  var _file = 'lib/checkout/checkout_screen.dart';
+
+  @override
+  Widget build(BuildContext context) => SidebarLayout(
+    collapse: SidebarCollapse.offcanvas,
+    groups: [
+      SidebarGroup(label: 'Changed', [
+        for (final (path, added, _) in _changes)
+          SidebarItem(
+            path.split('/').last,
+            icon: AshlarIconsRoundedStroke.fileDiff,
+            badge: added,
+            active: path == _file,
+            onPressed: () => setState(() => _file = path),
+          ),
+      ]),
+      SidebarGroup.custom(
+        label: 'Project',
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final node in _tree)
+              _Branch(
+                node: node,
+                path: node.name,
+                picked: _file,
+                onPicked: (p) => setState(() => _file = p),
+              ),
+          ],
+        ),
+      ),
+    ],
+    child: _Diff(file: _file),
+  );
+}
+
+/// One row of the tree: a file to pick, or a folder that opens onto its own rows.
+class _Branch extends StatefulWidget {
+  const _Branch({
+    required this.node,
+    required this.path,
+    required this.picked,
+    required this.onPicked,
+  });
+
+  final _Node node;
+  final String path, picked;
+  final ValueChanged<String> onPicked;
+
+  @override
+  State<_Branch> createState() => _BranchState();
+}
+
+class _BranchState extends State<_Branch> {
+  // Folders on the way to the picked file start open.
+  late var _open = widget.picked.startsWith('${widget.path}/');
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final children = widget.node.children;
+    final folder = children != null;
+    final picked = widget.path == widget.picked;
+    final row = Pressable(
+      onPressed: folder
+          ? () => setState(() => _open = !_open)
+          : () => widget.onPicked(widget.path),
+      expanded: folder ? _open : null,
+      selected: folder ? null : picked,
+      semanticLabel: widget.node.name,
+      builder: (context, states) => Container(
+        height: 32,
+        padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
+        decoration: BoxDecoration(
+          color: picked || states.hovered
+              ? c.sidebarAccent
+              : const Color(0x00000000),
+          borderRadius: BorderRadius.circular(t.radiusMd),
+          border: states.focused ? Border.all(color: c.sidebarRing) : null,
+        ),
+        child: Row(
+          children: [
+            if (folder) ...[
+              AnimatedRotation(
+                turns: _open ? .25 : 0,
+                duration: t.duration,
+                child: AshlarIcon(
+                  isRtl(context)
+                      ? AshlarIconsRoundedStroke.chevronLeft
+                      : AshlarIconsRoundedStroke.chevronRight,
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            AshlarIcon(
+              folder
+                  ? (_open
+                        ? AshlarIconsRoundedStroke.folderOpen
+                        : AshlarIconsRoundedStroke.folder)
+                  : AshlarIconsRoundedStroke.file,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(widget.node.name, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!folder) return row;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row,
+        if (_open)
+          Container(
+            margin: const EdgeInsetsDirectional.only(start: 15),
+            padding: const EdgeInsetsDirectional.only(start: 6),
+            decoration: BoxDecoration(
+              border: BorderDirectional(
+                start: BorderSide(color: c.sidebarBorder),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final child in children)
+                  _Branch(
+                    node: child,
+                    path: '${widget.path}/${child.name}',
+                    picked: widget.picked,
+                    onPicked: widget.onPicked,
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The page beside the sidebar: the trigger and where you are along the top, and room
+
+/// The change itself: what it is and who made it along the top, then the picked file's
+/// lines, those taken out and those added marked.
+class _Diff extends StatelessWidget {
+  const _Diff({required this.file});
+
+  final String file;
+
+  /// The lines shown: ' ' kept, '-' taken out, '+' added.
+  static const _lines = [
+    (' ', 'class CheckoutScreen extends StatelessWidget {'),
+    (' ', '  const CheckoutScreen({super.key, required this.order});'),
+    (' ', ''),
+    (' ', '  @override'),
+    (' ', '  Widget build(BuildContext context) => Column('),
+    (' ', '    children: ['),
+    (' ', '      OrderTotal(order: order),'),
+    ('-', "      Button(onPressed: pay, child: Text('Pay')),"),
+    ('+', '      Button('),
+    ('+', '        onPressed: () => BankTransfer.show(context, order),'),
+    ('+', "        child: Text('Pay by bank transfer'),"),
+    ('+', '      ),'),
+    (
+      '+',
+      "      Button.link(onPressed: payByCard, child: Text('Pay by card')),",
+    ),
+    (' ', '    ],'),
+    (' ', '  );'),
+    (' ', '}'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final mono = t.text.sm.copyWith(fontFamily: 'monospace', height: 1.7);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Row(
+            children: [
+              const SidebarTrigger(),
+              const SizedBox(width: 8),
+              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pay by bank transfer at checkout',
+                      overflow: TextOverflow.ellipsis,
+                      style: t.text.base.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Avatar(size: 18, fallback: 'WO'),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'Wangari Ochieng wants to merge bank-transfer into main',
+                            overflow: TextOverflow.ellipsis,
+                            style: t.text.xs.copyWith(color: c.mutedForeground),
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Button(
+                size: ButtonSize.sm,
+                leading: const AshlarIcon(AshlarIconsRoundedStroke.check),
+                onPressed: () {},
+                child: const Text('Approve'),
+              ),
+            ],
+          ),
         ),
-      ),
-    ),
-  );
+        const Separator(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  file,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontFamily: 'monospace'),
+                ),
+              ),
+              const Badge(variant: BadgeVariant.outline, child: Text('+12 -4')),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(t.radiusLg),
+                border: Border.all(color: c.border),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final (i, (mark, line)) in _lines.indexed)
+                      Container(
+                        constraints: const BoxConstraints(minWidth: 720),
+                        color: switch (mark) {
+                          '+' => c.primary.withValues(alpha: .08),
+                          '-' => c.destructive.withValues(alpha: .08),
+                          _ => null,
+                        },
+                        padding: const EdgeInsetsDirectional.only(end: 16),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 44,
+                              child: Text(
+                                '${41 + i}',
+                                textAlign: TextAlign.end,
+                                style: mono.copyWith(color: c.mutedForeground),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 28,
+                              child: Text(
+                                mark,
+                                textAlign: TextAlign.center,
+                                style: mono.copyWith(
+                                  color: mark == '-'
+                                      ? c.destructive
+                                      : c.foreground,
+                                ),
+                              ),
+                            ),
+                            Text(line, style: mono),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 ''',
     },
   ),
-  'login-02': Component(
-    description: "Sign in on one side, a picture on the other.",
+  'salon-bookings': Component(
+    description: "A salon's day: a month to pick from, who is working, a column of bookings each.",
+    requires: ["breadcrumb","button","calendar","checkbox","field","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-12","sidebar-15"],
+    files: {
+      'blocks/salon_bookings.dart': r'''// Ashlar UI block: salon-bookings. Copied into your app by `ashlar add salon-bookings`; it
+// is yours to change. A salon's bookings: a month to pick a day from and the staff to
+// show in the sidebar, and the picked day on the page, a column for each of them.
+//
+// The salon, its staff and bookings are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/breadcrumb.dart';
+import '../ui/button.dart';
+import '../ui/calendar.dart';
+import '../ui/checkbox.dart';
+import '../ui/field.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The salon's staff, and what each does.
+const _staff = [
+  ('Chloe', 'Braids'),
+  ('Marcus', 'Barber'),
+  ('Joy', 'Nails'),
+  ('Leila', 'Massage'),
+];
+
+/// The day's bookings: who with, from what hour, for how long, the client and the service.
+const _bookings = [
+  ('Chloe', 9.0, 3.0, 'Achieng O.', 'Knotless braids'),
+  ('Chloe', 13.0, 2.0, 'Fatuma H.', 'Cornrows'),
+  ('Marcus', 9.5, .5, 'Kamau M.', 'Haircut'),
+  ('Marcus', 10.5, .5, 'Brian K.', 'Haircut and beard'),
+  ('Marcus', 14.0, .5, 'Raj P.', 'Haircut'),
+  ('Joy', 10.0, 1.0, 'Grace L.', 'Gel manicure'),
+  ('Joy', 12.0, 1.5, 'Sofia R.', 'Pedicure'),
+  ('Leila', 11.0, 1.0, 'Amina A.', 'Back massage'),
+  ('Leila', 15.0, 1.0, 'Hana S.', 'Full body massage'),
+];
+
+/// A salon's bookings, the day picked from a month in the sidebar.
+class SalonBookings extends StatefulWidget {
+  const SalonBookings({super.key});
+
+  @override
+  State<SalonBookings> createState() => _SalonBookingsState();
+}
+
+class _SalonBookingsState extends State<SalonBookings> {
+  var _day = DateTime(2026, 7, 4);
+  final _shown = {'Chloe', 'Marcus', 'Joy'};
+
+  @override
+  Widget build(BuildContext context) {
+    final names = DateNames.of(context);
+    final t = AshlarTheme.of(context);
+    return SidebarLayout(
+      collapse: SidebarCollapse.offcanvas,
+      header: const _Salon(),
+      groups: [
+        SidebarGroup.custom(
+          Calendar(selected: _day, onSelected: (d) => setState(() => _day = d)),
+        ),
+        const SidebarGroup.custom(Separator()),
+        SidebarGroup.custom(
+          label: 'Staff',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (name, does) in _staff)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: 8,
+                    top: 4,
+                    bottom: 4,
+                  ),
+                  child: Field(
+                    axis: Axis.horizontal,
+                    label: Text(name),
+                    description: Text(does, style: t.text.xs),
+                    child: Checkbox(
+                      value: _shown.contains(name),
+                      onChanged: (v) => setState(
+                        () => v ? _shown.add(name) : _shown.remove(name),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+      footer: Button(
+        expand: true,
+        leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
+        onPressed: () {},
+        child: const Text('New booking'),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 56,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const SidebarTrigger(),
+                  const SizedBox(width: 8),
+                  const SizedBox(
+                    height: 16,
+                    child: Separator(axis: Axis.vertical),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Breadcrumb(
+                      items: [
+                        BreadcrumbItem(names.monthYear(_day), onPressed: () {}),
+                        BreadcrumbItem(names.date(_day)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Separator(),
+          Expanded(
+            child: _Day(
+              staff: [
+                for (final (name, _) in _staff)
+                  if (_shown.contains(name)) name,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Salon extends StatelessWidget {
+  const _Salon();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: c.sidebarPrimary,
+              borderRadius: BorderRadius.circular(t.radiusLg),
+            ),
+            child: AshlarIcon(
+              AshlarIconsRoundedStroke.scissors,
+              color: c.sidebarPrimaryForeground,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Lumen Salon & Barber',
+                  overflow: TextOverflow.ellipsis,
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                ),
+                Text('Kileleshwa', style: t.text.xs),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The day from opening to closing, a column for each of [staff], their bookings placed
+/// at their hours.
+class _Day extends StatelessWidget {
+  const _Day({required this.staff});
+
+  final List<String> staff;
+
+  static const _open = 9, _close = 18, _hour = 64.0;
+
+  static String _time(double h) {
+    final hour = h.floor();
+    final minutes = ((h - hour) * 60).round();
+    final twelve = hour > 12 ? hour - 12 : hour;
+    return '$twelve${minutes == 0 ? '' : ':${minutes.toString().padLeft(2, '0')}'}${hour < 12 ? 'am' : 'pm'}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    const gutter = 52.0;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(8, 8, 16, 24),
+      child: Column(
+        children: [
+          // Who each column is.
+          Row(
+            children: [
+              const SizedBox(width: gutter),
+              for (final name in staff)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      name,
+                      textAlign: TextAlign.center,
+                      style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(
+            height: (_close - _open) * _hour,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: gutter,
+                  child: Stack(
+                    children: [
+                      for (var h = _open; h < _close; h++)
+                        Positioned(
+                          top: h == _open ? 0 : (h - _open) * _hour - 7,
+                          right: 8,
+                          child: Text(
+                            _time(h.toDouble()),
+                            style: t.text.xs.copyWith(color: c.mutedForeground),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                for (final name in staff)
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: BorderDirectional(
+                          start: BorderSide(color: c.border),
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          for (var h = 0; h < _close - _open; h++)
+                            Positioned(
+                              top: h * _hour,
+                              left: 0,
+                              right: 0,
+                              child: Container(height: 1, color: c.border),
+                            ),
+                          for (final (who, from, length, client, service)
+                              in _bookings)
+                            if (who == name)
+                              Positioned(
+                                top: (from - _open) * _hour + 2,
+                                height: length * _hour - 4,
+                                left: 4,
+                                right: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(
+                                    color: c.secondary,
+                                    borderRadius: BorderRadius.circular(
+                                      t.radiusMd,
+                                    ),
+                                    border: BorderDirectional(
+                                      start: BorderSide(
+                                        color: c.primary,
+                                        width: 3,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        client,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.xs.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: c.secondaryForeground,
+                                        ),
+                                      ),
+                                      if (length >= 1)
+                                        Text(
+                                          '$service, ${_time(from)}',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: t.text.xs.copyWith(
+                                            color: c.mutedForeground,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'shop-settings': Component(
+    description: "Settings in a dialog, their sections down its side.",
+    requires: ["button","dialog","field","input","select","separator","switch","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-13"],
+    files: {
+      'blocks/shop_settings.dart': r'''// Ashlar UI block: shop-settings. Copied into your app by `ashlar add shop-settings`; it is
+// yours to change. A shop's settings in a dialog: their sections down its side (a list to
+// pick from on a phone), the open one's settings beside them.
+//
+// The shop and its settings are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/dialog.dart';
+import '../ui/field.dart';
+import '../ui/input.dart';
+import '../ui/select.dart';
+import '../ui/separator.dart';
+import '../ui/switch.dart';
+import '../ui/theme.dart';
+
+/// The settings' sections.
+const _sections = [
+  ('Shop', AshlarIconsRoundedStroke.store),
+  ('Payments', AshlarIconsRoundedStroke.creditCard),
+  ('Receipts', AshlarIconsRoundedStroke.receipt),
+  ('Staff', AshlarIconsRoundedStroke.users),
+  ('Stock alerts', AshlarIconsRoundedStroke.bell),
+  ('Delivery', AshlarIconsRoundedStroke.bike),
+  ('Language', AshlarIconsRoundedStroke.globe),
+];
+
+/// A page with a button that opens the shop's settings.
+class ShopSettings extends StatelessWidget {
+  const ShopSettings({super.key});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Button(
+      variant: ButtonVariant.outline,
+      leading: const AshlarIcon(AshlarIconsRoundedStroke.settings),
+      onPressed: () => showAshlarDialog<void>(
+        context: context,
+        builder: (context) => const Dialog(maxWidth: 800, content: _Settings()),
+      ),
+      child: const Text('Shop settings'),
+    ),
+  );
+}
+
+/// The settings: sections down the side where there is room, the open one beside them.
+class _Settings extends StatefulWidget {
+  const _Settings();
+
+  @override
+  State<_Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<_Settings> {
+  var _section = 'Payments';
+  var _smsReceipts = true;
+  var _payOnDelivery = false;
+  var _pinToRefund = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final wide = MediaQuery.sizeOf(context).width >= 768;
+    Widget toggle(String label, String hint, bool on, ValueChanged<bool> set) =>
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      hint,
+                      style: t.text.sm.copyWith(color: c.mutedForeground),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Switch(value: on, semanticLabel: label, onChanged: set),
+            ],
+          ),
+        );
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!wide) ...[
+          Select<String>(
+            value: _section,
+            semanticLabel: 'Section',
+            options: [
+              for (final (name, _) in _sections) SelectOption(name, name),
+            ],
+            onChanged: (v) => setState(() => _section = v),
+          ),
+          const SizedBox(height: 16),
+        ],
+        Text(_section, style: t.text.lg.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          _section == 'Payments'
+              ? 'How customers pay you, and what happens after.'
+              : 'Settings for ${_section.toLowerCase()}.',
+          style: t.text.sm.copyWith(color: c.mutedForeground),
+        ),
+        const SizedBox(height: 16),
+        const Separator(),
+        const SizedBox(height: 16),
+        if (_section != 'Payments')
+          Text(
+            'Nothing to change here yet.',
+            style: t.text.sm.copyWith(color: c.mutedForeground),
+          )
+        else ...[
+          const Field(
+            label: Text('Payout account'),
+            description: Text('The bank account card payments go to each day.'),
+            child: Input(
+              placeholder: '000123456789',
+              keyboardType: TextInputType.number,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Field(
+            label: Text('Name customers see'),
+            child: Input(placeholder: 'CORNER PANTRY'),
+          ),
+          const SizedBox(height: 8),
+          toggle(
+            'Send a receipt by SMS',
+            'The customer gets the items and total on their phone.',
+            _smsReceipts,
+            (v) => setState(() => _smsReceipts = v),
+          ),
+          toggle(
+            'Pay on delivery',
+            'Drivers can take a card at the door.',
+            _payOnDelivery,
+            (v) => setState(() => _payOnDelivery = v),
+          ),
+          toggle(
+            'Ask for the owner\'s PIN to refund',
+            'Staff cannot send money back on their own.',
+            _pinToRefund,
+            (v) => setState(() => _pinToRefund = v),
+          ),
+        ],
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Button(
+              variant: ButtonVariant.outline,
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            const SizedBox(width: 8),
+            Button(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ],
+    );
+    if (!wide) return SingleChildScrollView(child: content);
+    return SizedBox(
+      height: 520,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 200,
+            child: ListView(
+              children: [
+                for (final (name, icon) in _sections)
+                  Button(
+                    variant: name == _section
+                        ? ButtonVariant.secondary
+                        : ButtonVariant.ghost,
+                    size: ButtonSize.sm,
+                    expand: true,
+                    leading: AshlarIcon(icon),
+                    onPressed: () => setState(() => _section = name),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(name, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          Expanded(child: SingleChildScrollView(child: content)),
+        ],
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'rent-tracker': Component(
+    description: "Rent collected across units, under a header that runs over the sidebar.",
+    requires: ["avatar","badge","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
+    packages: ["ashlar_icons"],
+    block: true,
+    replaces: ["sidebar-16"],
+    files: {
+      'blocks/rent_tracker.dart': r'''// Ashlar UI block: rent-tracker. Copied into your app by `ashlar add rent-tracker`; it is
+// yours to change. A letting agent's app: a header across the top that stays as the page
+// scrolls, the sidebar under it, and this month's rent by unit on the page.
+//
+// The buildings, tenants and rent are sample data, there to be replaced.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/avatar.dart';
+import '../ui/badge.dart';
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/dropdown_menu.dart';
+import '../ui/input.dart';
+import '../ui/popover.dart';
+import '../ui/separator.dart';
+import '../ui/sidebar.dart';
+import '../ui/theme.dart';
+
+/// The agent's buildings.
+const _buildings = ['Elm Court', 'Riverside Flats', 'Park Road Villas'];
+
+/// The units in the open building: unit, tenant, monthly rent, and how they stand.
+const _units = [
+  ('A1', 'Noah Williams', 1450, 'Paid'),
+  ('A2', 'Kamau Mwangi', 1450, 'Paid'),
+  ('A3', 'Lena Fischer', 1680, 'Part paid'),
+  ('B1', 'Carlos Mendes', 1200, 'Due on the 5th'),
+  ('B2', 'Aisha Bello', 1200, 'Two months behind'),
+  ('B3', '', 1200, 'Empty'),
+  ('C1', 'Otieno Ouma', 1950, 'Paid'),
+];
+
+String _dollars(int v) =>
+    '\$${v.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',')}';
+
+/// A header over a sidebar and its page.
+class RentTracker extends StatefulWidget {
+  const RentTracker({super.key});
+
+  @override
+  State<RentTracker> createState() => _RentTrackerState();
+}
+
+class _RentTrackerState extends State<RentTracker> {
+  // The header is above the sidebar, so its button reaches the sidebar by this key.
+  final _sidebar = GlobalKey<SidebarLayoutState>();
+  var _building = 'Elm Court';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final wide = MediaQuery.sizeOf(context).width >= 640;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.icon,
+                  semanticLabel: 'Show or hide the sidebar',
+                  onPressed: () => _sidebar.currentState?.toggle(),
+                  child: const AshlarIcon(AshlarIconsRoundedStroke.panelLeft),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: c.primary,
+                    borderRadius: BorderRadius.circular(t.radiusMd),
+                  ),
+                  child: AshlarIcon(
+                    AshlarIconsRoundedStroke.house,
+                    size: 16,
+                    color: c.primaryForeground,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Greenway Rentals',
+                  style: t.text.sm.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                if (wide) ...[
+                  const SizedBox(
+                    width: 260,
+                    child: Input(
+                      placeholder: 'Find a tenant or unit…',
+                      semanticLabel: 'Find a tenant or unit',
+                      leading: AshlarIcon(AshlarIconsRoundedStroke.search),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.icon,
+                  semanticLabel: 'Notifications',
+                  onPressed: () {},
+                  child: const AshlarIcon(AshlarIconsRoundedStroke.bell),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Separator(),
+        Expanded(
+          child: SidebarLayout(
+            key: _sidebar,
+            groups: [
+              SidebarGroup(label: 'Buildings', [
+                for (final name in _buildings)
+                  SidebarItem(
+                    name,
+                    icon: AshlarIconsRoundedStroke.buildingComplex,
+                    active: name == _building,
+                    onPressed: () => setState(() => _building = name),
+                  ),
+              ]),
+              SidebarGroup(label: 'Money', [
+                SidebarItem(
+                  'Rent',
+                  icon: AshlarIconsRoundedStroke.wallet,
+                  onPressed: () {},
+                ),
+                SidebarItem(
+                  'Deposits',
+                  icon: AshlarIconsRoundedStroke.landmark,
+                  onPressed: () {},
+                ),
+                SidebarItem(
+                  'Statements to owners',
+                  icon: AshlarIconsRoundedStroke.fileText,
+                  onPressed: () {},
+                ),
+              ]),
+              SidebarGroup(label: 'Upkeep', [
+                SidebarItem(
+                  'Repairs',
+                  icon: AshlarIconsRoundedStroke.wrench,
+                  badge: '3',
+                  onPressed: () {},
+                ),
+                SidebarItem(
+                  'Water and power',
+                  icon: AshlarIconsRoundedStroke.droplet,
+                  onPressed: () {},
+                ),
+              ]),
+              SidebarGroup(atEnd: true, [
+                SidebarItem(
+                  'Help',
+                  icon: AshlarIconsRoundedStroke.lifeBuoy,
+                  onPressed: () {},
+                ),
+              ]),
+            ],
+            footer: const _Agent(),
+            child: _Rent(building: _building),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Agent extends StatelessWidget {
+  const _Agent();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return DropdownMenu(
+      side: PopoverSide.top,
+      width: 224,
+      builder: (context, menu) => Button(
+        variant: ButtonVariant.ghost,
+        expand: true,
+        semanticLabel: 'Account: Hannah Lee',
+        onPressed: menu.open,
+        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
+        child: Row(
+          children: [
+            const Avatar(fallback: 'HL'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hannah Lee',
+                    overflow: TextOverflow.ellipsis,
+                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'Property manager',
+                    style: t.text.xs.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      items: [
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
+          onPressed: () {},
+          child: const Text('My account'),
+        ),
+        const MenuSeparator(),
+        MenuItem(
+          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
+          onPressed: () {},
+          child: const Text('Sign out'),
+        ),
+      ],
+    );
+  }
+}
+
+/// This month's rent in [building]: what has come in, and how each unit stands.
+class _Rent extends StatelessWidget {
+  const _Rent({required this.building});
+
+  final String building;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(building, style: t.text.xxl),
+                  Text(
+                    'Rent for July',
+                    style: t.text.sm.copyWith(color: c.mutedForeground),
+                  ),
+                ],
+              ),
+            ),
+            Button(
+              size: ButtonSize.sm,
+              variant: ButtonVariant.outline,
+              leading: const AshlarIcon(AshlarIconsRoundedStroke.messageSquare),
+              onPressed: () {},
+              child: const Text('Remind those due'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            for (final (i, (label, value)) in [
+              ('Collected', '\$21,600'),
+              ('Still due', '\$14,100'),
+              ('Empty units', '1'),
+            ].indexed) ...[
+              if (i > 0) const SizedBox(width: 12),
+              Expanded(
+                child: Card(
+                  size: CardSize.sm,
+                  children: [
+                    CardHeader(
+                      description: Text(label),
+                      title: Text(value, style: t.text.lg),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 16),
+        Card(
+          children: [
+            CardContent(
+              child: Column(
+                children: [
+                  for (final (i, (unit, tenant, rent, status))
+                      in _units.indexed) ...[
+                    if (i > 0) const Separator(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 36,
+                            child: Text(
+                              unit,
+                              style: t.text.sm.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  tenant.isEmpty ? 'No tenant' : tenant,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: t.text.sm.copyWith(
+                                    color: tenant.isEmpty
+                                        ? c.mutedForeground
+                                        : c.foreground,
+                                  ),
+                                ),
+                                Text(
+                                  '${_dollars(rent)} a month',
+                                  style: t.text.xs.copyWith(
+                                    color: c.mutedForeground,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Badge(
+                            variant: switch (status) {
+                              'Paid' => BadgeVariant.secondary,
+                              'Two months behind' => BadgeVariant.destructive,
+                              _ => BadgeVariant.outline,
+                            },
+                            child: Text(status),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+''',
+    },
+  ),
+  'phone-sign-in': Component(
+    description: "Sign in with a phone number, then the code texted to it.",
+    requires: ["button","card","form","input-otp","theme"],
+    packages: [],
+    block: true,
+    replaces: ["login-01"],
+    files: {
+      'blocks/phone_sign_in.dart': r'''// Ashlar UI block: phone-sign-in. Copied into your app by `ashlar add phone-sign-in`; it is
+// yours to change. Sign in with a phone number: the number first, then the six-digit code
+// sent to it by SMS.
+//
+// Sending and checking the code are yours: onSendCode and onVerify.
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/form.dart';
+import '../ui/input_otp.dart';
+import '../ui/select.dart';
+import '../ui/theme.dart';
+
+/// Where a number can be from, and its country code. Add the ones you serve.
+const _countries = [
+  ('United States', '1'),
+  ('United Kingdom', '44'),
+  ('India', '91'),
+  ('Nigeria', '234'),
+  ('Kenya', '254'),
+  ('Germany', '49'),
+  ('Brazil', '55'),
+  ('Philippines', '63'),
+  ('Mexico', '52'),
+  ('Japan', '81'),
+];
+
+/// A sign-in card: a phone number, then the code sent to it.
+class PhoneSignIn extends StatefulWidget {
+  const PhoneSignIn({
+    super.key,
+    this.dialCode = '1',
+    this.onSendCode,
+    this.onVerify,
+    this.onHelp,
+  });
+
+  /// The country code picked to begin with, without the +.
+  final String dialCode;
+
+  /// Told the number in full (+14155550123) once it looks like a phone number.
+  final ValueChanged<String>? onSendCode;
+
+  /// Told the number and the code once all six digits are in.
+  final void Function(String phone, String code)? onVerify;
+  final VoidCallback? onHelp;
+
+  @override
+  State<PhoneSignIn> createState() => _PhoneSignInState();
+}
+
+class _PhoneSignInState extends State<PhoneSignIn> {
+  final _form = GlobalKey<FormState>();
+  String? _phone;
+  var _number = '';
+  late var _dial = widget.dialCode;
+
+  /// The number in full, its country code first: 415 555 0123 in the United States as
+  /// +14155550123. A leading 0, as many countries write it at home, is left off.
+  String _full(String typed) {
+    final digits = typed.replaceAll(RegExp(r'\D'), '');
+    return '+$_dial${digits.startsWith('0') ? digits.substring(1) : digits}';
+  }
+
+  void _send() {
+    if (!_form.currentState!.submit()) return;
+    final phone = _full(_number);
+    setState(() => _phone = phone);
+    widget.onSendCode?.call(phone);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final phone = _phone;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 384),
+          child: Card(
+            children: [
+              CardHeader(
+                title: Text(phone == null ? 'Sign in' : 'Enter the code'),
+                description: Text(
+                  phone == null
+                      ? 'We will text you a code. No password to remember.'
+                      : 'Sent by SMS to $phone. It works for 10 minutes.',
+                ),
+              ),
+              CardContent(
+                child: phone == null
+                    ? Form(
+                        key: _form,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            FormItem<String>(
+                              label: const Text('Country'),
+                              initialValue: _dial,
+                              builder: (field) => Select<String>(
+                                value: field.value,
+                                semanticLabel: 'Country',
+                                options: [
+                                  for (final (name, code) in _countries)
+                                    SelectOption(code, '$name +$code'),
+                                ],
+                                onChanged: (v) {
+                                  field.didChange(v);
+                                  setState(() => _dial = v);
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            FormText(
+                              label: const Text('Phone number'),
+                              placeholder: 'Without the country code',
+                              leading: Text(
+                                '+$_dial',
+                                style: t.text.sm.copyWith(
+                                  color: c.mutedForeground,
+                                ),
+                              ),
+                              keyboardType: TextInputType.phone,
+                              autofillHints: const [
+                                AutofillHints.telephoneNumber,
+                              ],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[\d ]'),
+                                ),
+                              ],
+                              onChanged: (v) => _number = v,
+                              onSubmitted: (_) => _send(),
+                              validator: Validate.all([
+                                Validate.required('Enter your phone number.'),
+                                (v) {
+                                  final digits = v!.replaceAll(
+                                    RegExp(r'\D'),
+                                    '',
+                                  );
+                                  return digits.length >= 6 &&
+                                          digits.length <= 14
+                                      ? null
+                                      : 'That does not look like a phone number.';
+                                },
+                              ]),
+                            ),
+                            const SizedBox(height: 16),
+                            Button(
+                              expand: true,
+                              onPressed: _send,
+                              child: const Text('Text me a code'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: InputOtp(
+                              autofocus: true,
+                              groups: const [3, 3],
+                              onCompleted: (code) =>
+                                  widget.onVerify?.call(phone, code),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                'No SMS?',
+                                style: t.text.sm.copyWith(
+                                  color: c.mutedForeground,
+                                ),
+                              ),
+                              Button(
+                                variant: ButtonVariant.link,
+                                onPressed: () => widget.onSendCode?.call(phone),
+                                child: const Text('Send it again'),
+                              ),
+                            ],
+                          ),
+                          Button(
+                            variant: ButtonVariant.ghost,
+                            onPressed: () => setState(() => _phone = null),
+                            child: const Text('Use another number'),
+                          ),
+                        ],
+                      ),
+              ),
+              CardFooter(
+                alignment: MainAxisAlignment.center,
+                children: [
+                  Button(
+                    variant: ButtonVariant.link,
+                    onPressed: widget.onHelp,
+                    child: const Text('Lost your phone?'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'split-sign-in': Component(
+    description: "Sign in on one side, your picture or a customer's word on the other.",
     requires: ["button","form","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["login-02"],
     files: {
-      'blocks/login_02.dart': r'''// Ashlar UI block: login-02. Copied into your app by `ashlar add login-02`; it is yours to
-// change. Two columns: the form on one side, a picture on the other. On a narrow screen
-// only the form shows.
+      'blocks/split_sign_in.dart': r'''// Ashlar UI block: split-sign-in. Copied into your app by `ashlar add split-sign-in`; it is
+// yours to change. Two columns: the sign-in form on one side, and on the other your picture,
+// or a word from a customer. On a narrow screen only the form shows.
+//
+// The company and the customer's words are sample content; signing in is yours.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
@@ -36853,34 +41548,35 @@ import '../ui/form.dart';
 import '../ui/separator.dart';
 import '../ui/theme.dart';
 
-/// A sign-in page beside a picture.
-class Login02 extends StatefulWidget {
-  const Login02({
+/// A sign-in page beside a picture or a customer's word.
+class SplitSignIn extends StatefulWidget {
+  const SplitSignIn({
     super.key,
     this.picture,
-    this.onLogin,
+    this.onSignIn,
     this.onForgot,
-    this.onSignUp,
+    this.onCreate,
     this.onGoogle,
   });
 
-  /// Shown beside the form on a wide screen: `Image.asset('assets/login.jpg', fit: BoxFit.cover)`.
+  /// Shown beside the form on a wide screen in place of the customer's word:
+  /// `Image.asset('assets/sign_in.jpg', fit: BoxFit.cover)`.
   final Widget? picture;
 
-  /// Told the email and password once both are right.
-  final void Function(String email, String password)? onLogin;
-  final VoidCallback? onForgot, onSignUp, onGoogle;
+  /// Told the email and password once both are given.
+  final void Function(String email, String password)? onSignIn;
+  final VoidCallback? onForgot, onCreate, onGoogle;
 
   @override
-  State<Login02> createState() => _Login02State();
+  State<SplitSignIn> createState() => _SplitSignInState();
 }
 
-class _Login02State extends State<Login02> {
+class _SplitSignInState extends State<SplitSignIn> {
   final _form = GlobalKey<FormState>();
   var _email = '', _password = '';
 
   void _send() {
-    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+    if (_form.currentState!.submit()) widget.onSignIn?.call(_email, _password);
   }
 
   @override
@@ -36893,21 +41589,16 @@ class _Login02State extends State<Login02> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Login to your account',
-            textAlign: TextAlign.center,
-            style: t.text.xxl,
-          ),
+          Text('Welcome back', style: t.text.xxl),
           const SizedBox(height: 8),
           Text(
-            'Enter your email below to login to your account',
-            textAlign: TextAlign.center,
+            'Sign in to see your trips and bookings.',
             style: t.text.sm.copyWith(color: c.mutedForeground),
           ),
           const SizedBox(height: 24),
           FormText(
             label: const Text('Email'),
-            placeholder: 'you@solutech.co.ke',
+            placeholder: 'you@example.com',
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             validator: Validate.all([
@@ -36916,7 +41607,7 @@ class _Login02State extends State<Login02> {
             ]),
             onSaved: (v) => _email = v!,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           FormText(
             label: const Text('Password'),
             obscureText: true,
@@ -36930,57 +41621,80 @@ class _Login02State extends State<Login02> {
             child: Button(
               variant: ButtonVariant.link,
               onPressed: widget.onForgot,
-              child: const Text('Forgot your password?'),
+              child: const Text('Forgot it?'),
             ),
           ),
-          const SizedBox(height: 8),
-          Button(expand: true, onPressed: _send, child: const Text('Login')),
-          const SizedBox(height: 24),
-          const _Or(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 4),
+          Button(expand: true, onPressed: _send, child: const Text('Sign in')),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Expanded(child: Separator()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'or',
+                  style: t.text.sm.copyWith(color: c.mutedForeground),
+                ),
+              ),
+              const Expanded(child: Separator()),
+            ],
+          ),
+          const SizedBox(height: 16),
           Button(
             expand: true,
             variant: ButtonVariant.outline,
+            leading: const AshlarIcon(AshlarIconsRoundedStroke.brandGoogle),
             onPressed: widget.onGoogle,
-            child: const Text('Login with Google'),
+            child: const Text('Continue with Google'),
           ),
           const SizedBox(height: 16),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Text("Don't have an account?"),
+              const Text('First time here?'),
               Button(
                 variant: ButtonVariant.link,
-                onPressed: widget.onSignUp,
-                child: const Text('Sign up'),
+                onPressed: widget.onCreate,
+                child: const Text('Create an account'),
               ),
             ],
           ),
         ],
       ),
     );
-    final side = Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _Logo(),
-          Expanded(
-            child: Center(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: form,
-                ),
+    final side = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            children: [
+              const AshlarIcon(AshlarIconsRoundedStroke.tentTree, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Safari Lane',
+                style: t.text.base.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 360),
+                child: form,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
     return LayoutBuilder(
-      builder: (context, box) => box.maxWidth < 1024
+      builder: (context, box) => box.maxWidth < 900
           ? side
           : Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36991,11 +41705,36 @@ class _Login02State extends State<Login02> {
                     color: c.muted,
                     child:
                         widget.picture ??
-                        Center(
-                          child: AshlarIcon(
-                            AshlarIconsRoundedStroke.image,
-                            size: 48,
-                            color: c.mutedForeground,
+                        Padding(
+                          padding: const EdgeInsets.all(48),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AshlarIcon(
+                                AshlarIconsRoundedStroke.quote,
+                                size: 28,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'We booked the Mara for the whole family before lunch, '
+                                'and the driver was waiting at Narok at seven the next morning.',
+                                style: t.text.xl.copyWith(height: 1.4),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Sofia Lindqvist, Stockholm',
+                                style: t.text.sm.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                'Three trips with Safari Lane',
+                                style: t.text.sm.copyWith(
+                                  color: c.mutedForeground,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                   ),
@@ -37005,109 +41744,61 @@ class _Login02State extends State<Login02> {
     );
   }
 }
-
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: c.primary,
-            borderRadius: BorderRadius.circular(t.radiusMd),
-          ),
-          child: AshlarIcon(
-            AshlarIconsRoundedStroke.galleryVerticalEnd,
-            size: 16,
-            color: c.primaryForeground,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'Acme Inc.',
-          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-}
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
-    );
-  }
-}
 ''',
     },
   ),
-  'login-03': Component(
-    description: "A sign-in card on a muted page, other accounts first.",
-    requires: ["button","card","form","separator","theme"],
+  'account-picker': Component(
+    description: "Carry on as an account already used here, or sign in another way.",
+    requires: ["avatar","button","card","pressable","separator","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["login-03"],
     files: {
-      'blocks/login_03.dart': r'''// Ashlar UI block: login-03. Copied into your app by `ashlar add login-03`; it is yours to
-// change. A sign-in card on a muted page: other accounts first, then email.
+      'blocks/account_picker.dart': r'''// Ashlar UI block: account-picker. Copied into your app by `ashlar add account-picker`; it
+// is yours to change. Welcome back: the accounts used on this device to continue as with a
+// tap, and other ways in under them.
+//
+// The accounts are sample data; signing in is yours.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import '../ui/avatar.dart';
 import '../ui/button.dart';
 import '../ui/card.dart';
-import '../ui/form.dart';
+import '../ui/pressable.dart';
 import '../ui/separator.dart';
 import '../ui/theme.dart';
 
-/// A sign-in card with Apple and Google above the email form.
-class Login03 extends StatefulWidget {
-  const Login03({
-    super.key,
-    this.onLogin,
-    this.onForgot,
-    this.onSignUp,
-    this.onApple,
-    this.onGoogle,
-  });
+/// An account used on this device before.
+class KnownAccount {
+  const KnownAccount(this.name, this.detail);
 
-  /// Told the email and password once both are right.
-  final void Function(String email, String password)? onLogin;
-  final VoidCallback? onForgot, onSignUp, onApple, onGoogle;
+  final String name;
 
-  @override
-  State<Login03> createState() => _Login03State();
+  /// What tells it apart: its email, its business, its role.
+  final String detail;
 }
 
-class _Login03State extends State<Login03> {
-  final _form = GlobalKey<FormState>();
-  var _email = '', _password = '';
+/// The accounts to continue as, and other ways in.
+class AccountPicker extends StatelessWidget {
+  const AccountPicker({
+    super.key,
+    this.accounts = const [
+      KnownAccount('Lucía Fernández', 'Personal'),
+      KnownAccount('Lucía Fernández', 'Fernández Hardware, owner'),
+      KnownAccount('Kenji Sato', 'Shared tablet'),
+    ],
+    this.onContinue,
+    this.onRemove,
+    this.onGoogle,
+    this.onApple,
+    this.onEmail,
+  });
 
-  void _send() {
-    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
-  }
+  final List<KnownAccount> accounts;
+  final ValueChanged<KnownAccount>? onContinue, onRemove;
+  final VoidCallback? onGoogle, onApple, onEmail;
 
   @override
   Widget build(BuildContext context) {
@@ -37120,365 +41811,363 @@ class _Login03State extends State<Login03> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 384),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Card(
               children: [
-                const Center(child: _Logo()),
-                const SizedBox(height: 24),
-                Card(
-                  children: [
-                    const CardHeader(
-                      title: Center(child: Text('Welcome back')),
-                      description: Center(
-                        child: Text('Login with your Apple or Google account'),
-                      ),
-                    ),
-                    CardContent(
-                      child: Form(
-                        key: _form,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Button(
-                              expand: true,
-                              variant: ButtonVariant.outline,
-                              leading: const AshlarIcon(
-                                AshlarIconsRoundedStroke.apple,
-                              ),
-                              onPressed: widget.onApple,
-                              child: const Text('Login with Apple'),
-                            ),
-                            const SizedBox(height: 12),
-                            Button(
-                              expand: true,
-                              variant: ButtonVariant.outline,
-                              onPressed: widget.onGoogle,
-                              child: const Text('Login with Google'),
-                            ),
-                            const SizedBox(height: 24),
-                            const _Or(),
-                            const SizedBox(height: 24),
-                            FormText(
-                              label: const Text('Email'),
-                              placeholder: 'you@solutech.co.ke',
-                              keyboardType: TextInputType.emailAddress,
-                              autofillHints: const [AutofillHints.email],
-                              validator: Validate.all([
-                                Validate.required('Enter your email.'),
-                                Validate.email(),
-                              ]),
-                              onSaved: (v) => _email = v!,
-                            ),
-                            const SizedBox(height: 24),
-                            FormText(
-                              label: const Text('Password'),
-                              obscureText: true,
-                              autofillHints: const [AutofillHints.password],
-                              onSubmitted: (_) => _send(),
-                              validator: Validate.required(
-                                'Enter your password.',
-                              ),
-                              onSaved: (v) => _password = v!,
-                            ),
-                            Align(
-                              alignment: AlignmentDirectional.centerEnd,
-                              child: Button(
-                                variant: ButtonVariant.link,
-                                onPressed: widget.onForgot,
-                                child: const Text('Forgot your password?'),
+                const CardHeader(
+                  title: Text('Welcome back'),
+                  description: Text('Choose an account to carry on with.'),
+                ),
+                CardContent(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final account in accounts)
+                        Pressable(
+                          onPressed: onContinue == null
+                              ? null
+                              : () => onContinue!(account),
+                          semanticLabel:
+                              'Continue as ${account.name}, ${account.detail}',
+                          builder: (context, state) => Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: state.hovered ? c.accent : null,
+                              borderRadius: BorderRadius.circular(t.radiusLg),
+                              border: Border.all(
+                                color: state.focused ? c.ring : c.border,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Button(
-                              expand: true,
-                              onPressed: _send,
-                              child: const Text('Login'),
-                            ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.center,
+                            child: Row(
                               children: [
-                                const Text("Don't have an account?"),
+                                Avatar(
+                                  fallback: account.name
+                                      .split(' ')
+                                      .map((w) => w[0])
+                                      .join(),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        account.name,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.sm.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        account.detail,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.text.xs.copyWith(
+                                          color: c.mutedForeground,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 Button(
-                                  variant: ButtonVariant.link,
-                                  onPressed: widget.onSignUp,
-                                  child: const Text('Sign up'),
+                                  variant: ButtonVariant.ghost,
+                                  size: ButtonSize.iconSm,
+                                  semanticLabel:
+                                      'Forget ${account.name}, ${account.detail}',
+                                  onPressed: onRemove == null
+                                      ? null
+                                      : () => onRemove!(account),
+                                  child: const AshlarIcon(
+                                    AshlarIconsRoundedStroke.x,
+                                  ),
                                 ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Expanded(child: Separator()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              'Or another account',
+                              style: t.text.xs.copyWith(
+                                color: c.mutedForeground,
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: Separator()),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'By clicking continue, you agree to our Terms of Service and '
-                  'Privacy Policy.',
-                  textAlign: TextAlign.center,
-                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Button(
+                              variant: ButtonVariant.outline,
+                              expand: true,
+                              leading: const AshlarIcon(
+                                AshlarIconsRoundedStroke.brandGoogle,
+                              ),
+                              onPressed: onGoogle,
+                              child: const Text('Google'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Button(
+                              variant: ButtonVariant.outline,
+                              expand: true,
+                              leading: const AshlarIcon(
+                                AshlarIconsRoundedStroke.brandApple,
+                              ),
+                              onPressed: onApple,
+                              child: const Text('Apple'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Button(
+                        variant: ButtonVariant.ghost,
+                        expand: true,
+                        leading: const AshlarIcon(
+                          AshlarIconsRoundedStroke.mail,
+                        ),
+                        onPressed: onEmail,
+                        child: const Text('Use an email address'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: c.primary,
-            borderRadius: BorderRadius.circular(t.radiusMd),
-          ),
-          child: AshlarIcon(
-            AshlarIconsRoundedStroke.galleryVerticalEnd,
-            size: 16,
-            color: c.primaryForeground,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'Acme Inc.',
-          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-}
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
     );
   }
 }
 ''',
     },
   ),
-  'login-04': Component(
-    description: "A sign-in card in two halves, the form and a picture.",
-    requires: ["button","form","separator","theme"],
+  'till-pin': Component(
+    description: "Unlock a till: pick who you are, then your PIN on a keypad.",
+    requires: ["avatar","button","pressable","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["login-04"],
     files: {
-      'blocks/login_04.dart': r'''// Ashlar UI block: login-04. Copied into your app by `ashlar add login-04`; it is yours to
-// change. One card in two halves: the form, and a picture beside it on a wide screen.
+      'blocks/till_pin.dart': r'''// Ashlar UI block: till-pin. Copied into your app by `ashlar add till-pin`; it is yours to
+// change. A shared till's lock screen: whoever is serving picks themselves and enters
+// their four-digit PIN on a keypad, as on a counter's tablet.
+//
+// Checking the PIN is yours: onUnlock. The staff are sample data.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import '../ui/avatar.dart';
 import '../ui/button.dart';
-import '../ui/form.dart';
-import '../ui/separator.dart';
+import '../ui/pressable.dart';
 import '../ui/theme.dart';
 
-/// A sign-in card with a picture in its second half.
-class Login04 extends StatefulWidget {
-  const Login04({
+/// The till's lock screen: who is serving, then their PIN.
+class TillPin extends StatefulWidget {
+  const TillPin({
     super.key,
-    this.picture,
-    this.onLogin,
-    this.onForgot,
-    this.onSignUp,
-    this.onApple,
-    this.onGoogle,
-    this.onMeta,
+    this.staff = const ['Rosa Delgado', 'Marcus Reed', 'Achieng Otieno'],
+    this.onUnlock,
   });
 
-  /// Shown in the card's second half on a wide screen.
-  final Widget? picture;
+  final List<String> staff;
 
-  /// Told the email and password once both are right.
-  final void Function(String email, String password)? onLogin;
-  final VoidCallback? onForgot, onSignUp, onApple, onGoogle, onMeta;
+  /// Told who and their PIN once four digits are in. Answer whether it was right: a
+  /// wrong PIN is cleared and said so.
+  final bool Function(String who, String pin)? onUnlock;
 
   @override
-  State<Login04> createState() => _Login04State();
+  State<TillPin> createState() => _TillPinState();
 }
 
-class _Login04State extends State<Login04> {
-  final _form = GlobalKey<FormState>();
-  var _email = '', _password = '';
+class _TillPinState extends State<TillPin> {
+  var _who = 0;
+  var _pin = '';
+  var _wrong = false;
 
-  void _send() {
-    if (_form.currentState!.submit()) widget.onLogin?.call(_email, _password);
+  void _press(String digit) {
+    if (_pin.length == 4) return;
+    setState(() {
+      _wrong = false;
+      _pin += digit;
+    });
+    if (_pin.length == 4) {
+      final right = widget.onUnlock?.call(widget.staff[_who], _pin) ?? true;
+      if (!right) {
+        HapticFeedback.heavyImpact();
+        setState(() {
+          _pin = '';
+          _wrong = true;
+        });
+      }
+    }
+  }
+
+  void _back() {
+    if (_pin.isEmpty) return;
+    setState(() => _pin = _pin.substring(0, _pin.length - 1));
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final form = Padding(
-      padding: const EdgeInsets.all(32),
-      child: Form(
-        key: _form,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Welcome back',
-              textAlign: TextAlign.center,
-              style: t.text.xxl,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Login to your Acme Inc account',
-              textAlign: TextAlign.center,
-              style: t.text.sm.copyWith(color: c.mutedForeground),
-            ),
-            const SizedBox(height: 24),
-            FormText(
-              label: const Text('Email'),
-              placeholder: 'you@solutech.co.ke',
-              keyboardType: TextInputType.emailAddress,
-              autofillHints: const [AutofillHints.email],
-              validator: Validate.all([
-                Validate.required('Enter your email.'),
-                Validate.email(),
-              ]),
-              onSaved: (v) => _email = v!,
-            ),
-            const SizedBox(height: 24),
-            FormText(
-              label: const Text('Password'),
-              obscureText: true,
-              autofillHints: const [AutofillHints.password],
-              onSubmitted: (_) => _send(),
-              validator: Validate.required('Enter your password.'),
-              onSaved: (v) => _password = v!,
-            ),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Button(
-                variant: ButtonVariant.link,
-                onPressed: widget.onForgot,
-                child: const Text('Forgot your password?'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Button(expand: true, onPressed: _send, child: const Text('Login')),
-            const SizedBox(height: 24),
-            const _Or(),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                for (final (i, (label, onPressed)) in [
-                  ('Apple', widget.onApple),
-                  ('Google', widget.onGoogle),
-                  ('Meta', widget.onMeta),
-                ].indexed) ...[
-                  if (i > 0) const SizedBox(width: 12),
-                  Expanded(
-                    child: Button(
-                      expand: true,
-                      variant: ButtonVariant.outline,
-                      semanticLabel: 'Login with $label',
-                      onPressed: onPressed,
-                      child: Text(label),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                const Text("Don't have an account?"),
-                Button(
-                  variant: ButtonVariant.link,
-                  onPressed: widget.onSignUp,
-                  child: const Text('Sign up'),
-                ),
-              ],
-            ),
-          ],
+    final initials = [
+      for (final name in widget.staff) name.split(' ').map((w) => w[0]).join(),
+    ];
+    Widget key(Widget child, VoidCallback onPressed, String label) => Pressable(
+      onPressed: onPressed,
+      semanticLabel: label,
+      builder: (context, state) => AnimatedContainer(
+        duration: t.duration,
+        width: 72,
+        height: 56,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: state.pressed
+              ? c.accent
+              : state.hovered
+              ? c.muted
+              : c.background,
+          borderRadius: BorderRadius.circular(t.radiusLg),
+          border: Border.all(color: state.focused ? c.ring : c.border),
         ),
+        child: child,
       ),
     );
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 768),
+          constraints: const BoxConstraints(maxWidth: 320),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: c.card,
-                  borderRadius: BorderRadius.circular(t.radiusXl),
-                  border: Border.all(color: c.border),
-                  boxShadow: t.shadowSm,
-                ),
-                child: LayoutBuilder(
-                  builder: (context, box) => box.maxWidth < 640
-                      ? form
-                      : IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(child: form),
-                              Expanded(
-                                child: ColoredBox(
-                                  color: c.muted,
-                                  child:
-                                      widget.picture ??
-                                      Center(
-                                        child: AshlarIcon(
-                                          AshlarIconsRoundedStroke.image,
-                                          size: 48,
-                                          color: c.mutedForeground,
-                                        ),
-                                      ),
-                                ),
+              Text('Who is serving?', style: t.text.lg),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final (i, name) in widget.staff.indexed)
+                    Pressable(
+                      onPressed: () => setState(() {
+                        _who = i;
+                        _pin = '';
+                        _wrong = false;
+                      }),
+                      selected: i == _who,
+                      semanticLabel: name,
+                      builder: (context, state) => Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 2,
+                                color: i == _who
+                                    ? c.primary
+                                    : c.primary.withValues(alpha: 0),
                               ),
-                            ],
+                            ),
+                            child: Avatar(fallback: initials[i], size: 48),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            name.split(' ').first,
+                            style: t.text.xs.copyWith(
+                              color: i == _who
+                                  ? c.foreground
+                                  : c.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 28),
+              Semantics(
+                label: 'PIN',
+                value: '${_pin.length} of 4 digits',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var i = 0; i < 4; i++)
+                      AnimatedContainer(
+                        duration: t.duration,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: i < _pin.length ? c.foreground : null,
+                          border: Border.all(
+                            color: _wrong ? c.destructive : c.foreground,
+                            width: 1.5,
                           ),
                         ),
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                'By clicking continue, you agree to our Terms of Service and '
-                'Privacy Policy.',
-                textAlign: TextAlign.center,
-                style: t.text.xs.copyWith(color: c.mutedForeground),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 20,
+                child: _wrong
+                    ? Text(
+                        'That PIN is not right. Try again.',
+                        style: t.text.sm.copyWith(color: c.destructive),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              for (final row in const [
+                ['1', '2', '3'],
+                ['4', '5', '6'],
+                ['7', '8', '9'],
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      for (final d in row)
+                        key(Text(d, style: t.text.xl), () => _press(d), d),
+                    ],
+                  ),
+                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const SizedBox(width: 72),
+                  key(Text('0', style: t.text.xl), () => _press('0'), '0'),
+                  key(
+                    const AshlarIcon(AshlarIconsRoundedStroke.delete),
+                    _back,
+                    'Delete a digit',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Button(
+                variant: ButtonVariant.link,
+                onPressed: () {},
+                child: const Text('Forgot your PIN? Ask the owner'),
               ),
             ],
           ),
@@ -37487,73 +42176,227 @@ class _Login04State extends State<Login04> {
     );
   }
 }
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
-    );
-  }
-}
 ''',
     },
   ),
-  'login-05': Component(
-    description: "Sign in with an email address alone.",
-    requires: ["button","form","separator","theme"],
+  'magic-link-sign-in': Component(
+    description: "Sign in with an email address alone, by a link sent to it.",
+    requires: ["button","form","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["login-05"],
     files: {
-      'blocks/login_05.dart': r'''// Ashlar UI block: login-05. Copied into your app by `ashlar add login-05`; it is yours to
-// change. Email only, for a sign-in link sent by mail, with other accounts below.
+      'blocks/magic_link_sign_in.dart': r'''// Ashlar UI block: magic-link-sign-in. Copied into your app by
+// `ashlar add magic-link-sign-in`; it is yours to change. Sign in with an email address
+// alone: a link is sent to it, and the page says where to look.
+//
+// Sending the link is yours: onSend.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
 import '../ui/button.dart';
 import '../ui/form.dart';
-import '../ui/separator.dart';
 import '../ui/theme.dart';
 
-/// A sign-in page that asks only for an email address.
-class Login05 extends StatefulWidget {
-  const Login05({
-    super.key,
-    this.onLogin,
-    this.onSignUp,
-    this.onApple,
-    this.onGoogle,
-  });
+/// An email address, then a page saying the link is on its way.
+class MagicLinkSignIn extends StatefulWidget {
+  const MagicLinkSignIn({super.key, this.onSend});
 
-  /// Told the email once it is right: send the sign-in link to it.
-  final ValueChanged<String>? onLogin;
-  final VoidCallback? onSignUp, onApple, onGoogle;
+  /// Told the address once it is one.
+  final ValueChanged<String>? onSend;
 
   @override
-  State<Login05> createState() => _Login05State();
+  State<MagicLinkSignIn> createState() => _MagicLinkSignInState();
 }
 
-class _Login05State extends State<Login05> {
+class _MagicLinkSignInState extends State<MagicLinkSignIn> {
   final _form = GlobalKey<FormState>();
   var _email = '';
+  var _sent = false;
 
   void _send() {
-    if (_form.currentState!.submit()) widget.onLogin?.call(_email);
+    if (!_form.currentState!.submit()) return;
+    setState(() => _sent = true);
+    widget.onSend?.call(_email);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    Widget mark(IconData icon) => Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: c.muted,
+        borderRadius: BorderRadius.circular(t.radiusXl),
+      ),
+      child: AshlarIcon(icon, size: 22),
+    );
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360),
+          child: _sent
+              ? Column(
+                  children: [
+                    mark(AshlarIconsRoundedStroke.mailCheck),
+                    const SizedBox(height: 16),
+                    Text('Check your email', style: t.text.xl),
+                    const SizedBox(height: 8),
+                    Text(
+                      'We sent a sign-in link to $_email. It works once, for 15 minutes. '
+                      'Open it on this device.',
+                      textAlign: TextAlign.center,
+                      style: t.text.sm.copyWith(color: c.mutedForeground),
+                    ),
+                    const SizedBox(height: 24),
+                    Button(
+                      expand: true,
+                      variant: ButtonVariant.outline,
+                      onPressed: () => widget.onSend?.call(_email),
+                      child: const Text('Send it again'),
+                    ),
+                    const SizedBox(height: 8),
+                    Button(
+                      variant: ButtonVariant.link,
+                      onPressed: () => setState(() => _sent = false),
+                      child: const Text('Use a different email'),
+                    ),
+                  ],
+                )
+              : Form(
+                  key: _form,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(child: mark(AshlarIconsRoundedStroke.mail)),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Sign in without a password',
+                        textAlign: TextAlign.center,
+                        style: t.text.xl,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Enter your email and we will send you a link that signs you in.',
+                        textAlign: TextAlign.center,
+                        style: t.text.sm.copyWith(color: c.mutedForeground),
+                      ),
+                      const SizedBox(height: 24),
+                      FormText(
+                        label: const Text('Email'),
+                        placeholder: 'you@example.com',
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                        onChanged: (v) => _email = v,
+                        onSubmitted: (_) => _send(),
+                        validator: Validate.all([
+                          Validate.required('Enter your email.'),
+                          Validate.email(),
+                        ]),
+                      ),
+                      const SizedBox(height: 16),
+                      Button(
+                        expand: true,
+                        onPressed: _send,
+                        child: const Text('Send me a link'),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+''',
+    },
+  ),
+  'phone-sign-up': Component(
+    description: "Create an account with a name and a phone number, the terms agreed to.",
+    requires: ["button","card","checkbox","form","theme"],
+    packages: [],
+    block: true,
+    replaces: ["signup-01"],
+    files: {
+      'blocks/phone_sign_up.dart': r'''// Ashlar UI block: phone-sign-up. Copied into your app by `ashlar add phone-sign-up`; it is
+// yours to change. Create an account with a name and a phone number, the terms agreed to,
+// in a card in the middle of the page.
+//
+// Creating the account (and texting a code to check the number) is yours: onSignUp.
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+import '../ui/button.dart';
+import '../ui/card.dart';
+import '../ui/checkbox.dart';
+import '../ui/form.dart';
+import '../ui/select.dart';
+import '../ui/theme.dart';
+
+/// Where a number can be from, and its country code. Add the ones you serve.
+const _countries = [
+  ('United States', '1'),
+  ('United Kingdom', '44'),
+  ('India', '91'),
+  ('Nigeria', '234'),
+  ('Kenya', '254'),
+  ('Germany', '49'),
+  ('Brazil', '55'),
+  ('Philippines', '63'),
+  ('Mexico', '52'),
+  ('Japan', '81'),
+];
+
+/// A sign-up card: a name, a phone number, and the terms.
+class PhoneSignUp extends StatefulWidget {
+  const PhoneSignUp({
+    super.key,
+    this.dialCode = '1',
+    this.onSignUp,
+    this.onSignIn,
+    this.onTerms,
+  });
+
+  /// The country code picked to begin with, without the +.
+  final String dialCode;
+
+  /// Told the name and the number in full (+14155550123) once both are right and the
+  /// terms are agreed to.
+  final void Function(String name, String phone)? onSignUp;
+  final VoidCallback? onSignIn, onTerms;
+
+  @override
+  State<PhoneSignUp> createState() => _PhoneSignUpState();
+}
+
+class _PhoneSignUpState extends State<PhoneSignUp> {
+  final _form = GlobalKey<FormState>();
+  var _name = '', _phone = '';
+  late var _dial = widget.dialCode;
+  late final _terms = TapGestureRecognizer()
+    ..onTap = () => widget.onTerms?.call();
+
+  @override
+  void dispose() {
+    _terms.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    if (!_form.currentState!.submit()) return;
+    final digits = _phone.replaceAll(RegExp(r'\D'), '');
+    // In full, its country code first; a leading 0, as many countries write it at home,
+    // is left off.
+    widget.onSignUp?.call(
+      _name.trim(),
+      '+$_dial${digits.startsWith('0') ? digits.substring(1) : digits}',
+    );
   }
 
   @override
@@ -37565,113 +42408,125 @@ class _Login05State extends State<Login05> {
         padding: const EdgeInsets.all(24),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 384),
-          child: Form(
-            key: _form,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c.primary,
-                      borderRadius: BorderRadius.circular(t.radiusMd),
-                    ),
-                    child: AshlarIcon(
-                      AshlarIconsRoundedStroke.galleryVerticalEnd,
-                      size: 20,
-                      color: c.primaryForeground,
-                    ),
+          child: Card(
+            children: [
+              const CardHeader(
+                title: Text('Create your account'),
+                description: Text(
+                  'Your number is how you sign in. We text you a code to check it.',
+                ),
+              ),
+              CardContent(
+                child: Form(
+                  key: _form,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      FormText(
+                        label: const Text('Your name'),
+                        placeholder: 'As on your ID',
+                        autofillHints: const [AutofillHints.name],
+                        validator: Validate.required('Enter your name.'),
+                        onSaved: (v) => _name = v!,
+                      ),
+                      const SizedBox(height: 16),
+                      FormItem<String>(
+                        label: const Text('Country'),
+                        initialValue: _dial,
+                        builder: (field) => Select<String>(
+                          value: field.value,
+                          semanticLabel: 'Country',
+                          options: [
+                            for (final (name, code) in _countries)
+                              SelectOption(code, '$name +$code'),
+                          ],
+                          onChanged: (v) {
+                            field.didChange(v);
+                            setState(() => _dial = v);
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      FormText(
+                        label: const Text('Phone number'),
+                        placeholder: 'Without the country code',
+                        leading: Text(
+                          '+$_dial',
+                          style: t.text.sm.copyWith(color: c.mutedForeground),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        autofillHints: const [AutofillHints.telephoneNumber],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d ]')),
+                        ],
+                        validator: Validate.all([
+                          Validate.required('Enter your phone number.'),
+                          (v) {
+                            final digits = v!.replaceAll(RegExp(r'\D'), '');
+                            return digits.length >= 6 && digits.length <= 14
+                                ? null
+                                : 'That does not look like a phone number.';
+                          },
+                        ]),
+                        onSaved: (v) => _phone = v!,
+                      ),
+                      const SizedBox(height: 16),
+                      FormItem<bool>(
+                        axis: Axis.horizontal,
+                        initialValue: false,
+                        label: Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(text: 'I agree to the '),
+                              TextSpan(
+                                text: 'terms',
+                                recognizer: _terms,
+                                style: const TextStyle(
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        validator: (v) => v == true
+                            ? null
+                            : 'Agree to the terms to carry on.',
+                        builder: (field) => Checkbox(
+                          value: field.value ?? false,
+                          semanticLabel: 'I agree to the terms',
+                          onChanged: field.didChange,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Button(
+                        expand: true,
+                        onPressed: _send,
+                        child: const Text('Create account'),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Welcome to Acme Inc.',
-                  textAlign: TextAlign.center,
-                  style: t.text.xl.copyWith(fontWeight: FontWeight.w700),
-                ),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Text("Don't have an account?"),
-                    Button(
-                      variant: ButtonVariant.link,
-                      onPressed: widget.onSignUp,
-                      child: const Text('Sign up'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                FormText(
-                  label: const Text('Email'),
-                  placeholder: 'you@solutech.co.ke',
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: const [AutofillHints.email],
-                  onSubmitted: (_) => _send(),
-                  validator: Validate.all([
-                    Validate.required('Enter your email.'),
-                    Validate.email(),
-                  ]),
-                  onSaved: (v) => _email = v!,
-                ),
-                const SizedBox(height: 24),
-                Button(
-                  expand: true,
-                  onPressed: _send,
-                  child: const Text('Login'),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    const Expanded(child: Separator()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        'Or',
-                        style: t.text.sm.copyWith(color: c.mutedForeground),
-                      ),
-                    ),
-                    const Expanded(child: Separator()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Button(
-                        expand: true,
-                        variant: ButtonVariant.outline,
-                        leading: const AshlarIcon(
-                          AshlarIconsRoundedStroke.apple,
+              ),
+              CardFooter(
+                alignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text('Already have one?'),
+                        Button(
+                          variant: ButtonVariant.link,
+                          onPressed: widget.onSignIn,
+                          child: const Text('Sign in'),
                         ),
-                        onPressed: widget.onApple,
-                        semanticLabel: 'Continue with Apple',
-                        child: const Text('Apple'),
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Button(
-                        expand: true,
-                        variant: ButtonVariant.outline,
-                        onPressed: widget.onGoogle,
-                        semanticLabel: 'Continue with Google',
-                        child: const Text('Google'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'By clicking continue, you agree to our Terms of Service and '
-                  'Privacy Policy.',
-                  textAlign: TextAlign.center,
-                  style: t.text.xs.copyWith(color: c.mutedForeground),
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -37681,209 +42536,76 @@ class _Login05State extends State<Login05> {
 ''',
     },
   ),
-  'signup-01': Component(
-    description: "A sign-up card in the middle of the page.",
-    requires: ["button","card","form"],
-    packages: [],
-    block: true,
-    files: {
-      'blocks/signup_01.dart': r'''// Ashlar UI block: signup-01. Copied into your app by `ashlar add signup-01`; it is yours to
-// change. A sign-up card in the middle of the page.
-
-import 'package:flutter/widgets.dart';
-
-import '../ui/button.dart';
-import '../ui/card.dart';
-import '../ui/form.dart';
-
-/// A sign-up card: email and password, checked when sent.
-class Signup01 extends StatefulWidget {
-  const Signup01({super.key, this.onSignUp, this.onLogin, this.onGoogle});
-
-  /// Told the name, email and password once all are right.
-  final void Function(String name, String email, String password)? onSignUp;
-  final VoidCallback? onLogin, onGoogle;
-
-  @override
-  State<Signup01> createState() => _Signup01State();
-}
-
-class _Signup01State extends State<Signup01> {
-  final _form = GlobalKey<FormState>();
-  final _password = TextEditingController();
-  var _name = '', _email = '';
-
-  @override
-  void dispose() {
-    _password.dispose();
-    super.dispose();
-  }
-
-  void _send() {
-    if (_form.currentState!.submit()) {
-      widget.onSignUp?.call(_name, _email, _password.text);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 384),
-        child: Card(
-          children: [
-            const CardHeader(
-              title: Text('Create your account'),
-              description: Text(
-                'Enter your details below to create your account',
-              ),
-            ),
-            CardContent(
-              child: Form(
-                key: _form,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    FormText(
-                      label: const Text('Full Name'),
-                      placeholder: 'Wanjiru Kamau',
-                      autofillHints: const [AutofillHints.name],
-                      validator: Validate.required('Enter your name.'),
-                      onSaved: (v) => _name = v!,
-                    ),
-                    const SizedBox(height: 24),
-                    FormText(
-                      label: const Text('Email'),
-                      description: const Text(
-                        "We'll use this to contact you. We will not share your email with anyone else.",
-                      ),
-                      placeholder: 'you@solutech.co.ke',
-                      keyboardType: TextInputType.emailAddress,
-                      autofillHints: const [AutofillHints.email],
-                      validator: Validate.all([
-                        Validate.required('Enter your email.'),
-                        Validate.email(),
-                      ]),
-                      onSaved: (v) => _email = v!,
-                    ),
-                    const SizedBox(height: 24),
-                    FormText(
-                      controller: _password,
-                      label: const Text('Password'),
-                      description: const Text(
-                        'Must be at least 8 characters long.',
-                      ),
-                      obscureText: true,
-                      autofillHints: const [AutofillHints.newPassword],
-                      validator: Validate.all([
-                        Validate.required('Choose a password.'),
-                        Validate.minLength(8),
-                      ]),
-                    ),
-                    const SizedBox(height: 24),
-                    FormText(
-                      label: const Text('Confirm Password'),
-                      obscureText: true,
-                      autofillHints: const [AutofillHints.newPassword],
-                      onSubmitted: (_) => _send(),
-                      validator: (v) => v == _password.text
-                          ? null
-                          : 'The passwords do not match.',
-                    ),
-                    const SizedBox(height: 24),
-                    Button(
-                      expand: true,
-                      onPressed: _send,
-                      child: const Text('Create Account'),
-                    ),
-                    const SizedBox(height: 12),
-                    Button(
-                      expand: true,
-                      variant: ButtonVariant.outline,
-                      onPressed: widget.onGoogle,
-                      child: const Text('Sign up with Google'),
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        const Text('Already have an account?'),
-                        Button(
-                          variant: ButtonVariant.link,
-                          onPressed: widget.onLogin,
-                          child: const Text('Sign in'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-''',
-    },
-  ),
-  'signup-02': Component(
-    description: "Sign up on one side, a picture on the other.",
-    requires: ["button","form","separator","theme"],
+  'business-sign-up': Component(
+    description: "Open an account for a business, what it gives beside the form.",
+    requires: ["button","form","select","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["signup-02","signup-04"],
     files: {
-      'blocks/signup_02.dart': r'''// Ashlar UI block: signup-02. Copied into your app by `ashlar add signup-02`; it is yours to
-// change. Two columns: the form on one side, a picture on the other. On a narrow screen
-// only the form shows.
+      'blocks/business_sign_up.dart': r'''// Ashlar UI block: business-sign-up. Copied into your app by `ashlar add business-sign-up`;
+// it is yours to change. Open an account for a business: its name, what kind it is, its tax
+// number, and a way to reach it. On a wide screen what the account gives sits beside the form.
+//
+// The product and what it gives are sample content; opening the account is yours.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../ui/button.dart';
 import '../ui/form.dart';
-import '../ui/separator.dart';
+import '../ui/select.dart';
 import '../ui/theme.dart';
 
-/// A sign-up page beside a picture.
-class Signup02 extends StatefulWidget {
-  const Signup02({
-    super.key,
-    this.picture,
-    this.onSignUp,
-    this.onLogin,
-    this.onGoogle,
+/// What the business signs up as.
+class BusinessDetails {
+  const BusinessDetails({
+    required this.name,
+    required this.kind,
+    required this.taxNumber,
+    required this.phone,
+    required this.email,
   });
 
-  /// Shown beside the form on a wide screen: `Image.asset('assets/signup.jpg', fit: BoxFit.cover)`.
-  final Widget? picture;
-
-  /// Told the name, email and password once all are right.
-  final void Function(String name, String email, String password)? onSignUp;
-  final VoidCallback? onLogin, onGoogle;
-
-  @override
-  State<Signup02> createState() => _Signup02State();
+  final String name, kind, taxNumber, phone, email;
 }
 
-class _Signup02State extends State<Signup02> {
-  final _form = GlobalKey<FormState>();
-  final _password = TextEditingController();
-  var _name = '', _email = '';
+/// A business sign-up beside what the account gives.
+class BusinessSignUp extends StatefulWidget {
+  const BusinessSignUp({super.key, this.onSignUp, this.onSignIn});
+
+  /// Told the details once each is right.
+  final ValueChanged<BusinessDetails>? onSignUp;
+  final VoidCallback? onSignIn;
 
   @override
-  void dispose() {
-    _password.dispose();
-    super.dispose();
-  }
+  State<BusinessSignUp> createState() => _BusinessSignUpState();
+}
+
+class _BusinessSignUpState extends State<BusinessSignUp> {
+  final _form = GlobalKey<FormState>();
+  var _name = '', _kind = '', _tax = '', _phone = '', _email = '';
+
+  static const _kinds = [
+    'Shop',
+    'Restaurant',
+    'Pharmacy',
+    'Salon',
+    'Something else',
+  ];
 
   void _send() {
-    if (_form.currentState!.submit()) {
-      widget.onSignUp?.call(_name, _email, _password.text);
-    }
+    if (!_form.currentState!.submit()) return;
+    widget.onSignUp?.call(
+      BusinessDetails(
+        name: _name.trim(),
+        kind: _kind,
+        taxNumber: _tax.toUpperCase(),
+        phone: _phone,
+        email: _email,
+      ),
+    );
   }
 
   @override
@@ -37896,85 +42618,87 @@ class _Signup02State extends State<Signup02> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Create your account',
-            textAlign: TextAlign.center,
-            style: t.text.xxl,
-          ),
+          Text('Open a business account', style: t.text.xxl),
           const SizedBox(height: 8),
           Text(
-            'Enter your details below to create your account',
-            textAlign: TextAlign.center,
+            'It takes about three minutes. Have your tax number to hand.',
             style: t.text.sm.copyWith(color: c.mutedForeground),
           ),
           const SizedBox(height: 24),
           FormText(
-            label: const Text('Full Name'),
-            placeholder: 'Wanjiru Kamau',
-            autofillHints: const [AutofillHints.name],
-            validator: Validate.required('Enter your name.'),
+            label: const Text('Business name'),
+            placeholder: 'As registered',
+            validator: Validate.required('Enter the business name.'),
             onSaved: (v) => _name = v!,
           ),
-          const SizedBox(height: 24),
-          FormText(
-            label: const Text('Email'),
-            description: const Text(
-              "We'll use this to contact you. We will not share your email with anyone else.",
+          const SizedBox(height: 16),
+          FormItem<String>(
+            label: const Text('What kind of business'),
+            validator: (v) => v == null || v.isEmpty ? 'Choose one.' : null,
+            onSaved: (v) => _kind = v ?? '',
+            builder: (field) => Select<String>(
+              value: field.value,
+              placeholder: 'Choose one',
+              error: field.hasError,
+              semanticLabel: 'What kind of business',
+              options: [for (final k in _kinds) SelectOption(k, k)],
+              onChanged: field.didChange,
             ),
-            placeholder: 'you@solutech.co.ke',
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
+          ),
+          const SizedBox(height: 16),
+          FormText(
+            label: const Text('Tax number'),
+            placeholder: '12-3456789',
+            description: const Text(
+              'The number your tax office gave the business: an EIN, VAT or GST number.',
+            ),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9 -]')),
+              LengthLimitingTextInputFormatter(20),
+            ],
             validator: Validate.all([
-              Validate.required('Enter your email.'),
+              Validate.required('Enter the tax number.'),
+              Validate.pattern(
+                RegExp(r'^[A-Za-z0-9][A-Za-z0-9 -]{4,18}[A-Za-z0-9]$'),
+                'A tax number has 6 to 20 letters and digits.',
+              ),
+            ]),
+            onSaved: (v) => _tax = v!,
+          ),
+          const SizedBox(height: 16),
+          FormText(
+            label: const Text('Business phone'),
+            placeholder: '+1 415 555 0123',
+            keyboardType: TextInputType.phone,
+            validator: Validate.required('Enter a phone number.'),
+            onSaved: (v) => _phone = v!,
+          ),
+          const SizedBox(height: 16),
+          FormText(
+            label: const Text('Email for statements'),
+            placeholder: 'accounts@example.com',
+            keyboardType: TextInputType.emailAddress,
+            validator: Validate.all([
+              Validate.required('Enter an email.'),
               Validate.email(),
             ]),
             onSaved: (v) => _email = v!,
           ),
           const SizedBox(height: 24),
-          FormText(
-            controller: _password,
-            label: const Text('Password'),
-            description: const Text('Must be at least 8 characters long.'),
-            obscureText: true,
-            autofillHints: const [AutofillHints.newPassword],
-            validator: Validate.all([
-              Validate.required('Choose a password.'),
-              Validate.minLength(8),
-            ]),
-          ),
-          const SizedBox(height: 24),
-          FormText(
-            label: const Text('Confirm Password'),
-            obscureText: true,
-            autofillHints: const [AutofillHints.newPassword],
-            onSubmitted: (_) => _send(),
-            validator: (v) =>
-                v == _password.text ? null : 'The passwords do not match.',
-          ),
-          const SizedBox(height: 24),
           Button(
             expand: true,
             onPressed: _send,
-            child: const Text('Create Account'),
+            child: const Text('Open the account'),
           ),
-          const SizedBox(height: 24),
-          const _Or(),
-          const SizedBox(height: 24),
-          Button(
-            expand: true,
-            variant: ButtonVariant.outline,
-            onPressed: widget.onGoogle,
-            child: const Text('Sign up with Google'),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Text('Already have an account?'),
+              const Text('Already with us?'),
               Button(
                 variant: ButtonVariant.link,
-                onPressed: widget.onLogin,
+                onPressed: widget.onSignIn,
                 child: const Text('Sign in'),
               ),
             ],
@@ -37982,160 +42706,154 @@ class _Signup02State extends State<Signup02> {
         ],
       ),
     );
-    final side = Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _Logo(),
-          Expanded(
-            child: Center(
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: form,
-                ),
-              ),
-            ),
-          ),
-        ],
+    final page = Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: form,
+        ),
       ),
     );
     return LayoutBuilder(
-      builder: (context, box) => box.maxWidth < 1024
-          ? side
+      builder: (context, box) => box.maxWidth < 900
+          ? page
           : Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: side),
-                Expanded(
+                SizedBox(
+                  width: box.maxWidth * .42,
                   child: ColoredBox(
                     color: c.muted,
-                    child:
-                        widget.picture ??
-                        Center(
-                          child: AshlarIcon(
-                            AshlarIconsRoundedStroke.image,
-                            size: 48,
-                            color: c.mutedForeground,
+                    child: Padding(
+                      padding: const EdgeInsets.all(48),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const AshlarIcon(
+                                AshlarIconsRoundedStroke.store,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Tally Books',
+                                style: t.text.base.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          const Spacer(),
+                          Text(
+                            'Your books, kept as you sell.',
+                            style: t.text.xxl,
+                          ),
+                          const SizedBox(height: 24),
+                          for (final (icon, text) in [
+                            (
+                              AshlarIconsRoundedStroke.smartphone,
+                              'Card and bank payments matched to sales on their own',
+                            ),
+                            (
+                              AshlarIconsRoundedStroke.receipt,
+                              'Tax invoices sent as you sell',
+                            ),
+                            (
+                              AshlarIconsRoundedStroke.chartColumn,
+                              'What you made this month, any day you ask',
+                            ),
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: Row(
+                                children: [
+                                  AshlarIcon(icon, size: 18),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(text, style: t.text.base),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+                Expanded(child: page),
               ],
             ),
-    );
-  }
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: c.primary,
-            borderRadius: BorderRadius.circular(t.radiusMd),
-          ),
-          child: AshlarIcon(
-            AshlarIconsRoundedStroke.galleryVerticalEnd,
-            size: 16,
-            color: c.primaryForeground,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'Acme Inc.',
-          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-}
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
     );
   }
 }
 ''',
     },
   ),
-  'signup-03': Component(
-    description: "A sign-up card on a muted page, other accounts first.",
-    requires: ["button","card","form","separator","theme"],
-    packages: ["ashlar_icons"],
+  'team-invite': Component(
+    description: "Join a team from an invitation: who invited you, then your name and a password.",
+    requires: ["avatar","button","card","form","theme"],
+    packages: [],
     block: true,
+    replaces: ["signup-03"],
     files: {
-      'blocks/signup_03.dart': r'''// Ashlar UI block: signup-03. Copied into your app by `ashlar add signup-03`; it is yours to
-// change. A sign-up card on a muted page: other accounts first, then email.
+      'blocks/team_invite.dart': r'''// Ashlar UI block: team-invite. Copied into your app by `ashlar add team-invite`; it is
+// yours to change. Joining from an invitation: who invited you and to what, the team
+// already there, then your name and a password, on a muted page.
+//
+// The team and the invitation are sample data; joining is yours.
 
-import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import '../ui/avatar.dart';
 import '../ui/button.dart';
 import '../ui/card.dart';
 import '../ui/form.dart';
-import '../ui/separator.dart';
 import '../ui/theme.dart';
 
-/// A sign-up card with Apple and Google above the email form.
-class Signup03 extends StatefulWidget {
-  const Signup03({
+/// An invitation to a team, and the form to accept it.
+class TeamInvite extends StatefulWidget {
+  const TeamInvite({
     super.key,
-    this.onSignUp,
-    this.onLogin,
-    this.onApple,
-    this.onGoogle,
+    this.team = 'Swift Parcel support',
+    this.invitedBy = 'Mei Tanaka',
+    this.email = 'sam@example.com',
+    this.members = const [
+      'Mei Tanaka',
+      'Brian Kiprop',
+      'Amina Yusuf',
+      'Lucas Moreau',
+      'Priya Nair',
+    ],
+    this.onJoin,
+    this.onDecline,
   });
 
-  /// Told the name, email and password once all are right.
-  final void Function(String name, String email, String password)? onSignUp;
-  final VoidCallback? onLogin, onApple, onGoogle;
+  final String team, invitedBy;
+
+  /// The address the invitation went to: the account is made for it.
+  final String email;
+
+  /// Who is in the team already.
+  final List<String> members;
+
+  /// Told the name and password once both are right.
+  final void Function(String name, String password)? onJoin;
+  final VoidCallback? onDecline;
 
   @override
-  State<Signup03> createState() => _Signup03State();
+  State<TeamInvite> createState() => _TeamInviteState();
 }
 
-class _Signup03State extends State<Signup03> {
+class _TeamInviteState extends State<TeamInvite> {
   final _form = GlobalKey<FormState>();
-  final _password = TextEditingController();
-  var _name = '', _email = '';
-
-  @override
-  void dispose() {
-    _password.dispose();
-    super.dispose();
-  }
+  var _name = '', _password = '';
 
   void _send() {
     if (_form.currentState!.submit()) {
-      widget.onSignUp?.call(_name, _email, _password.text);
+      widget.onJoin?.call(_name.trim(), _password);
     }
   }
 
@@ -38143,27 +42861,52 @@ class _Signup03State extends State<Signup03> {
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
+    String initials(String name) => name.split(' ').map((w) => w[0]).join();
     return ColoredBox(
       color: c.muted,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 384),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Center(child: _Logo()),
+                Center(
+                  child: AvatarGroup(
+                    size: 40,
+                    max: 4,
+                    semanticLabel: '${widget.members.length} in the team',
+                    children: [
+                      for (final name in widget.members)
+                        Avatar(fallback: initials(name), semanticLabel: name),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: widget.invitedBy,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const TextSpan(text: ' invited you to join '),
+                      TextSpan(
+                        text: widget.team,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                  style: t.text.lg,
+                ),
                 const SizedBox(height: 24),
                 Card(
                   children: [
-                    const CardHeader(
-                      title: Center(child: Text('Create your account')),
-                      description: Center(
-                        child: Text(
-                          'Enter your details below to create your account',
-                        ),
-                      ),
+                    CardHeader(
+                      title: const Text('Set up your account'),
+                      description: Text('For ${widget.email}'),
                     ),
                     CardContent(
                       child: Form(
@@ -38171,89 +42914,36 @@ class _Signup03State extends State<Signup03> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Button(
-                              expand: true,
-                              variant: ButtonVariant.outline,
-                              leading: const AshlarIcon(
-                                AshlarIconsRoundedStroke.apple,
-                              ),
-                              onPressed: widget.onApple,
-                              child: const Text('Sign up with Apple'),
-                            ),
-                            const SizedBox(height: 12),
-                            Button(
-                              expand: true,
-                              variant: ButtonVariant.outline,
-                              onPressed: widget.onGoogle,
-                              child: const Text('Sign up with Google'),
-                            ),
-                            const SizedBox(height: 24),
-                            const _Or(),
-                            const SizedBox(height: 24),
                             FormText(
-                              label: const Text('Full Name'),
-                              placeholder: 'Wanjiru Kamau',
+                              label: const Text('Your name'),
+                              placeholder: 'How the team will see you',
                               autofillHints: const [AutofillHints.name],
                               validator: Validate.required('Enter your name.'),
                               onSaved: (v) => _name = v!,
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             FormText(
-                              label: const Text('Email'),
-                              description: const Text(
-                                "We'll use this to contact you. We will not share your email with anyone else.",
-                              ),
-                              placeholder: 'you@solutech.co.ke',
-                              keyboardType: TextInputType.emailAddress,
-                              autofillHints: const [AutofillHints.email],
-                              validator: Validate.all([
-                                Validate.required('Enter your email.'),
-                                Validate.email(),
-                              ]),
-                              onSaved: (v) => _email = v!,
-                            ),
-                            const SizedBox(height: 24),
-                            FormText(
-                              controller: _password,
                               label: const Text('Password'),
                               description: const Text(
-                                'Must be at least 8 characters long.',
+                                'At least 10 characters.',
                               ),
-                              obscureText: true,
-                              autofillHints: const [AutofillHints.newPassword],
-                              validator: Validate.all([
-                                Validate.required('Choose a password.'),
-                                Validate.minLength(8),
-                              ]),
-                            ),
-                            const SizedBox(height: 24),
-                            FormText(
-                              label: const Text('Confirm Password'),
                               obscureText: true,
                               autofillHints: const [AutofillHints.newPassword],
                               onSubmitted: (_) => _send(),
-                              validator: (v) => v == _password.text
-                                  ? null
-                                  : 'The passwords do not match.',
+                              validator: Validate.all([
+                                Validate.required('Choose a password.'),
+                                Validate.minLength(
+                                  10,
+                                  'Use at least 10 characters.',
+                                ),
+                              ]),
+                              onSaved: (v) => _password = v!,
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 20),
                             Button(
                               expand: true,
                               onPressed: _send,
-                              child: const Text('Create Account'),
-                            ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                const Text('Already have an account?'),
-                                Button(
-                                  variant: ButtonVariant.link,
-                                  onPressed: widget.onLogin,
-                                  child: const Text('Sign in'),
-                                ),
-                              ],
+                              child: const Text('Join the team'),
                             ),
                           ],
                         ),
@@ -38261,299 +42951,278 @@ class _Signup03State extends State<Signup03> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'By clicking continue, you agree to our Terms of Service and '
-                  'Privacy Policy.',
-                  textAlign: TextAlign.center,
-                  style: t.text.xs.copyWith(color: c.mutedForeground),
+                const SizedBox(height: 12),
+                Center(
+                  child: Button(
+                    variant: ButtonVariant.link,
+                    onPressed: widget.onDecline,
+                    child: const Text('Not you? Decline the invitation'),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: c.primary,
-            borderRadius: BorderRadius.circular(t.radiusMd),
-          ),
-          child: AshlarIcon(
-            AshlarIconsRoundedStroke.galleryVerticalEnd,
-            size: 16,
-            color: c.primaryForeground,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          'Acme Inc.',
-          style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
-}
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
     );
   }
 }
 ''',
     },
   ),
-  'signup-04': Component(
-    description: "A sign-up card in two halves, the form and a picture.",
-    requires: ["button","form","separator","theme"],
+  'member-sign-up': Component(
+    description: "Become a member in three steps: details, ID, then a PIN.",
+    requires: ["button","form","input-otp","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["signup-05"],
     files: {
-      'blocks/signup_04.dart': r'''// Ashlar UI block: signup-04. Copied into your app by `ashlar add signup-04`; it is yours to
-// change. One card in two halves: the form, and a picture beside it on a wide screen.
+      'blocks/member_sign_up.dart': r'''// Ashlar UI block: member-sign-up. Copied into your app by `ashlar add member-sign-up`; it is
+// yours to change. Becoming a member in three steps, under the society's name: your
+// details, your ID, then a PIN, with where you are along the top and a way back.
+//
+// The society is sample content; making the member is yours.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../ui/button.dart';
 import '../ui/form.dart';
-import '../ui/separator.dart';
+import '../ui/input_otp.dart';
 import '../ui/theme.dart';
 
-/// A sign-up card with a picture in its second half.
-class Signup04 extends StatefulWidget {
-  const Signup04({
-    super.key,
-    this.picture,
-    this.onSignUp,
-    this.onLogin,
-    this.onApple,
-    this.onGoogle,
-    this.onMeta,
+/// What a new member gives.
+class NewMember {
+  const NewMember({
+    required this.name,
+    required this.phone,
+    required this.idNumber,
+    required this.pin,
   });
 
-  /// Shown in the card's second half on a wide screen.
-  final Widget? picture;
-
-  /// Told the name, email and password once all are right.
-  final void Function(String name, String email, String password)? onSignUp;
-  final VoidCallback? onLogin, onApple, onGoogle, onMeta;
-
-  @override
-  State<Signup04> createState() => _Signup04State();
+  final String name, phone, idNumber, pin;
 }
 
-class _Signup04State extends State<Signup04> {
-  final _form = GlobalKey<FormState>();
-  final _password = TextEditingController();
-  var _name = '', _email = '';
+/// A three-step sign-up: details, ID, PIN.
+class MemberSignUp extends StatefulWidget {
+  const MemberSignUp({super.key, this.onDone, this.onSignIn});
+
+  /// Told everything once the last step is right.
+  final ValueChanged<NewMember>? onDone;
+  final VoidCallback? onSignIn;
 
   @override
-  void dispose() {
-    _password.dispose();
-    super.dispose();
-  }
+  State<MemberSignUp> createState() => _MemberSignUpState();
+}
 
-  void _send() {
-    if (_form.currentState!.submit()) {
-      widget.onSignUp?.call(_name, _email, _password.text);
+class _MemberSignUpState extends State<MemberSignUp> {
+  final _forms = [GlobalKey<FormState>(), GlobalKey<FormState>()];
+  var _step = 0;
+  var _name = '', _phone = '', _id = '', _pin = '', _again = '';
+  var _pinWrong = false;
+
+  static const _steps = ['Your details', 'Your ID', 'Your PIN'];
+
+  void _next() {
+    if (_step < 2) {
+      if (_forms[_step].currentState!.submit()) setState(() => _step++);
+      return;
     }
+    if (_pin.length != 4 || _pin != _again) {
+      setState(() => _pinWrong = true);
+      return;
+    }
+    widget.onDone?.call(
+      NewMember(name: _name.trim(), phone: _phone, idNumber: _id, pin: _pin),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    final form = Padding(
-      padding: const EdgeInsets.all(32),
-      child: Form(
-        key: _form,
+    final body = switch (_step) {
+      0 => Form(
+        key: _forms[0],
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Create your account',
-              textAlign: TextAlign.center,
-              style: t.text.xxl,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Enter your details below to create your account',
-              textAlign: TextAlign.center,
-              style: t.text.sm.copyWith(color: c.mutedForeground),
-            ),
-            const SizedBox(height: 24),
             FormText(
-              label: const Text('Full Name'),
-              placeholder: 'Wanjiru Kamau',
-              autofillHints: const [AutofillHints.name],
+              initialValue: _name,
+              label: const Text('Full name'),
+              placeholder: 'As on your ID',
               validator: Validate.required('Enter your name.'),
               onSaved: (v) => _name = v!,
             ),
-            const SizedBox(height: 24),
-            FormText(
-              label: const Text('Email'),
-              description: const Text(
-                "We'll use this to contact you. We will not share your email with anyone else.",
-              ),
-              placeholder: 'you@solutech.co.ke',
-              keyboardType: TextInputType.emailAddress,
-              autofillHints: const [AutofillHints.email],
-              validator: Validate.all([
-                Validate.required('Enter your email.'),
-                Validate.email(),
-              ]),
-              onSaved: (v) => _email = v!,
-            ),
-            const SizedBox(height: 24),
-            FormText(
-              controller: _password,
-              label: const Text('Password'),
-              description: const Text('Must be at least 8 characters long.'),
-              obscureText: true,
-              autofillHints: const [AutofillHints.newPassword],
-              validator: Validate.all([
-                Validate.required('Choose a password.'),
-                Validate.minLength(8),
-              ]),
-            ),
-            const SizedBox(height: 24),
-            FormText(
-              label: const Text('Confirm Password'),
-              obscureText: true,
-              autofillHints: const [AutofillHints.newPassword],
-              onSubmitted: (_) => _send(),
-              validator: (v) =>
-                  v == _password.text ? null : 'The passwords do not match.',
-            ),
-            const SizedBox(height: 24),
-            Button(
-              expand: true,
-              onPressed: _send,
-              child: const Text('Create Account'),
-            ),
-            const SizedBox(height: 24),
-            const _Or(),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                for (final (i, (label, onPressed)) in [
-                  ('Apple', widget.onApple),
-                  ('Google', widget.onGoogle),
-                  ('Meta', widget.onMeta),
-                ].indexed) ...[
-                  if (i > 0) const SizedBox(width: 12),
-                  Expanded(
-                    child: Button(
-                      expand: true,
-                      variant: ButtonVariant.outline,
-                      semanticLabel: 'Sign up with $label',
-                      onPressed: onPressed,
-                      child: Text(label),
-                    ),
-                  ),
-                ],
-              ],
-            ),
             const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                const Text('Already have an account?'),
-                Button(
-                  variant: ButtonVariant.link,
-                  onPressed: widget.onLogin,
-                  child: const Text('Sign in'),
-                ),
-              ],
+            FormText(
+              initialValue: _phone,
+              label: const Text('Phone number'),
+              description: const Text(
+                'We text you when money comes in or goes out.',
+              ),
+              placeholder: '+1 415 555 0123',
+              keyboardType: TextInputType.phone,
+              validator: Validate.required('Enter your number.'),
+              onSaved: (v) => _phone = v!,
             ),
           ],
         ),
       ),
-    );
+      1 => Form(
+        key: _forms[1],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FormText(
+              initialValue: _id,
+              label: const Text('ID or passport number'),
+              placeholder: 'As it is on the card',
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+                LengthLimitingTextInputFormatter(20),
+              ],
+              validator: Validate.all([
+                Validate.required('Enter your ID or passport number.'),
+                Validate.pattern(
+                  RegExp(r'^[A-Za-z0-9]{5,20}$'),
+                  'That is too short for an ID or passport number.',
+                ),
+              ]),
+              onSaved: (v) => _id = v!,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'We check it once to open the account. Nothing is shared with anyone else.',
+              style: t.text.sm.copyWith(color: c.mutedForeground),
+            ),
+          ],
+        ),
+      ),
+      _ => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Choose a PIN',
+            style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          InputOtp(
+            length: 4,
+            semanticLabel: 'PIN',
+            error: _pinWrong,
+            onChanged: (v) => setState(() {
+              _pin = v;
+              _pinWrong = false;
+            }),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Once more',
+            style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          InputOtp(
+            length: 4,
+            semanticLabel: 'The PIN again',
+            error: _pinWrong,
+            onChanged: (v) => setState(() {
+              _again = v;
+              _pinWrong = false;
+            }),
+          ),
+          if (_pinWrong) ...[
+            const SizedBox(height: 8),
+            Text(
+              'The two PINs are not the same.',
+              style: t.text.sm.copyWith(color: c.destructive),
+            ),
+          ],
+        ],
+      ),
+    };
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 768),
+          constraints: const BoxConstraints(maxWidth: 400),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: c.card,
-                  borderRadius: BorderRadius.circular(t.radiusXl),
-                  border: Border.all(color: c.border),
-                  boxShadow: t.shadowSm,
-                ),
-                child: LayoutBuilder(
-                  builder: (context, box) => box.maxWidth < 640
-                      ? form
-                      : IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(child: form),
-                              Expanded(
-                                child: ColoredBox(
-                                  color: c.muted,
-                                  child:
-                                      widget.picture ??
-                                      Center(
-                                        child: AshlarIcon(
-                                          AshlarIconsRoundedStroke.image,
-                                          size: 48,
-                                          color: c.mutedForeground,
-                                        ),
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const AshlarIcon(
+                    AshlarIconsRoundedStroke.handCoins,
+                    size: 22,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Unity Credit Union',
+                      style: t.text.lg.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
+              Semantics(
+                label: 'Step ${_step + 1} of 3: ${_steps[_step]}',
+                child: Row(
+                  children: [
+                    for (var i = 0; i < 3; i++) ...[
+                      if (i > 0) const SizedBox(width: 6),
+                      Expanded(
+                        child: AnimatedContainer(
+                          duration: t.duration,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: i <= _step ? c.primary : c.muted,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
               Text(
-                'By clicking continue, you agree to our Terms of Service and '
-                'Privacy Policy.',
-                textAlign: TextAlign.center,
+                'Step ${_step + 1} of 3',
                 style: t.text.xs.copyWith(color: c.mutedForeground),
+              ),
+              Text(_steps[_step], style: t.text.xl),
+              const SizedBox(height: 20),
+              body,
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  if (_step > 0)
+                    Button(
+                      variant: ButtonVariant.outline,
+                      onPressed: () => setState(() => _step--),
+                      child: const Text('Back'),
+                    ),
+                  const Spacer(),
+                  Button(
+                    onPressed: _next,
+                    child: Text(_step < 2 ? 'Next' : 'Become a member'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text('Already a member?'),
+                  Button(
+                    variant: ButtonVariant.link,
+                    onPressed: widget.onSignIn,
+                    child: const Text('Sign in'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -38562,236 +43231,291 @@ class _Signup04State extends State<Signup04> {
     );
   }
 }
-
-/// A line with "Or continue with" across its middle.
-class _Or extends StatelessWidget {
-  const _Or();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Row(
-      children: [
-        const Expanded(child: Separator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'Or continue with',
-            style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-          ),
-        ),
-        const Expanded(child: Separator()),
-      ],
-    );
-  }
-}
 ''',
     },
   ),
-  'signup-05': Component(
-    description: "A sign-up page under a logo, other accounts below.",
-    requires: ["button","form","separator","theme"],
+  'assistant-chat': Component(
+    description: "An assistant's conversation: its thinking, the tools it used, its sources, and an answer that streams in.",
+    requires: ["bubble","button","markdown","message","message-scroller","prompt-input","reasoning","shimmer","sources","theme","tool-call"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["chat-01"],
     files: {
-      'blocks/signup_05.dart': r'''// Ashlar UI block: signup-05. Copied into your app by `ashlar add signup-05`; it is yours to
-// change. The full sign-up form, with other accounts below.
+      'blocks/assistant_chat.dart': r'''// Ashlar UI block: assistant-chat. Copied into your app by `ashlar add assistant-chat`; it
+// is yours to change. An assistant's conversation: its thinking, the tools it used, its
+// sources, and an answer that streams in.
+
+import 'dart:async';
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/widgets.dart';
 
+import '../ui/bubble.dart';
 import '../ui/button.dart';
-import '../ui/form.dart';
-import '../ui/separator.dart';
+import '../ui/markdown.dart';
+import '../ui/message.dart';
+import '../ui/message_scroller.dart';
+import '../ui/prompt_input.dart';
+import '../ui/reasoning.dart';
+import '../ui/shimmer.dart';
+import '../ui/sources.dart';
 import '../ui/theme.dart';
+import '../ui/tool_call.dart';
 
-/// A sign-up page under a logo, with other accounts below.
-class Signup05 extends StatefulWidget {
-  const Signup05({
-    super.key,
-    this.onSignUp,
-    this.onLogin,
-    this.onApple,
-    this.onGoogle,
-  });
+/// One turn of the conversation.
+class _Turn {
+  _Turn.asked(this.text)
+    : mine = true,
+      done = true,
+      tools = const [],
+      sources = const [];
+  _Turn.answer({
+    this.text = '',
+    this.done = false,
+    this.thought,
+    this.took,
+    this.tools = const [],
+    this.sources = const [],
+  }) : mine = false;
 
-  /// Told the name, email and password once all are right.
-  final void Function(String name, String email, String password)? onSignUp;
-  final VoidCallback? onLogin, onApple, onGoogle;
-
-  @override
-  State<Signup05> createState() => _Signup05State();
+  final bool mine;
+  String text;
+  bool done;
+  String? thought;
+  Duration? took;
+  final List<ToolCall> tools;
+  final List<Source> sources;
 }
 
-class _Signup05State extends State<Signup05> {
-  final _form = GlobalKey<FormState>();
-  final _password = TextEditingController();
-  var _name = '', _email = '';
+/// An assistant's conversation, from the first question to an answer streaming in, with a
+/// prompt box under it.
+///
+/// Give [answer] your model: it is asked each question and gives back the answer's text a
+/// piece at a time. Without it the block answers with a written example, so the screen
+/// can be seen working before a model is wired in.
+class AssistantChat extends StatefulWidget {
+  const AssistantChat({
+    super.key,
+    this.answer,
+    this.onAttach,
+    this.onOpenSource,
+  });
+
+  /// Answers [question], as the pieces of text a model streams.
+  final Stream<String> Function(String question)? answer;
+  final VoidCallback? onAttach;
+  final ValueChanged<Source>? onOpenSource;
+
+  @override
+  State<AssistantChat> createState() => _AssistantChatState();
+}
+
+class _AssistantChatState extends State<AssistantChat> {
+  final _turns = <_Turn>[
+    _Turn.asked('Which Downtown orders are late this week?'),
+    _Turn.answer(
+      done: true,
+      thought: 'Late means past its promised time and not yet delivered. I need this week\'s Downtown orders, then compare each promised time with its delivery.',
+      took: const Duration(seconds: 4),
+      tools: const [
+        ToolCall(
+          title: 'Look up this week\'s orders',
+          name: 'list_orders',
+          input: '{"branch": "downtown", "from": "2026-10-19"}',
+          output: '{"count": 38, "late": 3}',
+        ),
+      ],
+      sources: const [
+        Source(title: 'Orders, Downtown', detail: 'This week, 38 orders'),
+        Source(title: 'Deliveries', detail: 'Drivers\' check-ins'),
+      ],
+      text: """Three of this week's 38 orders are late:
+
+| Order | Customer | Promised | Late by |
+|---|---|---|---:|
+| 1042 | Maya T. | Tue 11:00 | 2 h |
+| 1057 | Otieno M. | Wed 15:30 | 45 min |
+| 1063 | Luis H. | Thu 10:00 | 1 h 20 min |
+
+All three went out with the same driver, and **1063** is still on the road. Want me to message the customers?""",
+    ),
+  ];
+  StreamSubscription<String>? _streaming;
+  DateTime? _started;
+
+  bool get _busy => _streaming != null;
+
+  void _ask(String question) {
+    final answer = _Turn.answer();
+    setState(() {
+      _turns
+        ..add(_Turn.asked(question))
+        ..add(answer);
+      _started = DateTime.now();
+    });
+    _streaming = (widget.answer ?? _example)(question).listen(
+      (piece) => setState(() {
+        answer.took ??= DateTime.now().difference(_started!);
+        answer.text += piece;
+      }),
+      onDone: () => _finish(answer),
+      onError: (Object _) {
+        if (answer.text.isEmpty) {
+          answer.text = 'Something went wrong. Try again.';
+        }
+        _finish(answer);
+      },
+    );
+  }
+
+  void _finish(_Turn answer) {
+    _streaming?.cancel();
+    if (mounted) {
+      setState(() {
+        answer.done = true;
+        _streaming = null;
+      });
+    }
+  }
 
   @override
   void dispose() {
-    _password.dispose();
+    _streaming?.cancel();
     super.dispose();
   }
 
-  void _send() {
-    if (_form.currentState!.submit()) {
-      widget.onSignUp?.call(_name, _email, _password.text);
+  /// A written answer, a word at a time, for before a model is wired in.
+  Stream<String> _example(String question) async* {
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    const text =
+        'This is a written example, not a model. Pass `answer` to **AssistantChat** and each question goes to your model, its answer streaming in here as it does now.';
+    for (final word in text.split(' ')) {
+      await Future<void>.delayed(const Duration(milliseconds: 45));
+      yield '$word ';
     }
+  }
+
+  Widget _answer(_Turn turn) {
+    final t = AshlarTheme.of(context);
+    final waiting = !turn.done && turn.text.isEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (turn.thought != null) ...[
+          Reasoning(
+            thinking: !turn.done && turn.text.isEmpty,
+            took: turn.took,
+            child: Text(turn.thought!),
+          ),
+          const SizedBox(height: 10),
+        ],
+        for (final tool in turn.tools) ...[tool, const SizedBox(height: 10)],
+        if (waiting)
+          Shimmer(child: Text('Thinking…', style: t.text.sm))
+        else
+          Markdown(turn.text.trimRight(), streaming: !turn.done),
+        if (turn.sources.isNotEmpty && turn.done) ...[
+          const SizedBox(height: 12),
+          Sources(sources: turn.sources, onOpen: widget.onOpenSource),
+        ],
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 384),
-          child: Form(
-            key: _form,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    Widget column(Widget child) => Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: child,
+      ),
+    );
+    return ColoredBox(
+      color: c.background,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border)),
+            ),
+            child: Row(
               children: [
-                Center(
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c.primary,
-                      borderRadius: BorderRadius.circular(t.radiusMd),
-                    ),
-                    child: AshlarIcon(
-                      AshlarIconsRoundedStroke.galleryVerticalEnd,
-                      size: 20,
-                      color: c.primaryForeground,
-                    ),
-                  ),
+                AshlarIcon(
+                  AshlarIconsRoundedStroke.sparkles,
+                  size: 18,
+                  color: c.foreground,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(width: 8),
                 Text(
-                  'Create your account',
-                  textAlign: TextAlign.center,
-                  style: t.text.xl.copyWith(fontWeight: FontWeight.w700),
-                ),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Text('Already have an account?'),
-                    Button(
-                      variant: ButtonVariant.link,
-                      onPressed: widget.onLogin,
-                      child: const Text('Sign in'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                FormText(
-                  label: const Text('Full Name'),
-                  placeholder: 'Wanjiru Kamau',
-                  autofillHints: const [AutofillHints.name],
-                  validator: Validate.required('Enter your name.'),
-                  onSaved: (v) => _name = v!,
-                ),
-                const SizedBox(height: 24),
-                FormText(
-                  label: const Text('Email'),
-                  description: const Text(
-                    "We'll use this to contact you. We will not share your email with anyone else.",
+                  'Assistant',
+                  style: t.text.sm.copyWith(
+                    color: c.foreground,
+                    fontWeight: FontWeight.w600,
                   ),
-                  placeholder: 'you@solutech.co.ke',
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: const [AutofillHints.email],
-                  validator: Validate.all([
-                    Validate.required('Enter your email.'),
-                    Validate.email(),
-                  ]),
-                  onSaved: (v) => _email = v!,
                 ),
-                const SizedBox(height: 24),
-                FormText(
-                  controller: _password,
-                  label: const Text('Password'),
-                  description: const Text(
-                    'Must be at least 8 characters long.',
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'Orders and deliveries',
+                    style: t.text.sm.copyWith(color: c.mutedForeground),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  obscureText: true,
-                  autofillHints: const [AutofillHints.newPassword],
-                  validator: Validate.all([
-                    Validate.required('Choose a password.'),
-                    Validate.minLength(8),
-                  ]),
-                ),
-                const SizedBox(height: 24),
-                FormText(
-                  label: const Text('Confirm Password'),
-                  obscureText: true,
-                  autofillHints: const [AutofillHints.newPassword],
-                  onSubmitted: (_) => _send(),
-                  validator: (v) => v == _password.text
-                      ? null
-                      : 'The passwords do not match.',
-                ),
-                const SizedBox(height: 24),
-                Button(
-                  expand: true,
-                  onPressed: _send,
-                  child: const Text('Create Account'),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    const Expanded(child: Separator()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        'Or',
-                        style: t.text.sm.copyWith(color: c.mutedForeground),
-                      ),
-                    ),
-                    const Expanded(child: Separator()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Button(
-                        expand: true,
-                        variant: ButtonVariant.outline,
-                        leading: const AshlarIcon(
-                          AshlarIconsRoundedStroke.apple,
-                        ),
-                        onPressed: widget.onApple,
-                        semanticLabel: 'Continue with Apple',
-                        child: const Text('Apple'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Button(
-                        expand: true,
-                        variant: ButtonVariant.outline,
-                        onPressed: widget.onGoogle,
-                        semanticLabel: 'Continue with Google',
-                        child: const Text('Google'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'By clicking continue, you agree to our Terms of Service and '
-                  'Privacy Policy.',
-                  textAlign: TextAlign.center,
-                  style: t.text.xs.copyWith(color: c.mutedForeground),
                 ),
               ],
             ),
           ),
-        ),
+          Expanded(
+            child: MessageScroller(
+              busy: _busy,
+              gap: 24,
+              items: [
+                for (final (i, turn) in _turns.indexed)
+                  MessageScrollerItem(
+                    id: i,
+                    anchor: turn.mine,
+                    child: column(
+                      turn.mine
+                          ? Message(
+                              align: MessageAlign.end,
+                              child: Bubble(
+                                variant: BubbleVariant.muted,
+                                child: Text(turn.text),
+                              ),
+                            )
+                          : _answer(turn),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: column(
+              PromptInput(
+                busy: _busy,
+                onSubmit: _ask,
+                onStop: () {
+                  final last = _turns.last;
+                  _finish(last);
+                },
+                placeholder: 'Ask about orders and deliveries',
+                actions: [
+                  Button(
+                    variant: ButtonVariant.ghost,
+                    size: ButtonSize.icon,
+                    semanticLabel: 'Attach a file',
+                    onPressed: widget.onAttach,
+                    child: const AshlarIcon(AshlarIconsRoundedStroke.paperclip),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -38799,13 +43523,14 @@ class _Signup05State extends State<Signup05> {
 ''',
     },
   ),
-  'wallet-01': Component(
+  'wallet': Component(
     description: "A wallet: the balance, what to do with it, and where the money went.",
     requires: ["avatar","button","pressable","sparkline","theme"],
     packages: ["ashlar_icons"],
     block: true,
+    replaces: ["wallet-01"],
     files: {
-      'blocks/wallet_01.dart': r'''// Ashlar UI block: wallet-01. Copied into your app by `ashlar add wallet-01`; it is yours to
+      'blocks/wallet.dart': r'''// Ashlar UI block: wallet. Copied into your app by `ashlar add wallet`; it is yours to
 // change. A wallet: the balance, what to do with it, and where the money went.
 
 import 'package:ashlar_icons/ashlar_icons.dart';
@@ -38828,12 +43553,12 @@ class WalletEntry {
 /// A wallet: the balance, hidden at a tap, how it went this month, the four things people
 /// do with it, and what came in and went out. Side by side on a wide screen, one under the
 /// other on a phone.
-class Wallet01 extends StatefulWidget {
-  const Wallet01({
+class Wallet extends StatefulWidget {
+  const Wallet({
     super.key,
-    this.balance = 24350,
-    this.currency = 'KES',
-    this.history = const [18200, 21400, 19850, 22600, 20100, 23900, 24350],
+    this.balance = 2435,
+    this.currency = 'USD',
+    this.history = const [1820, 2140, 1985, 2260, 2010, 2390, 2435],
     this.entries = _entries,
     this.onSend,
     this.onRequest,
@@ -38854,15 +43579,20 @@ class Wallet01 extends StatefulWidget {
   final VoidCallback? onSeeAll;
 
   @override
-  State<Wallet01> createState() => _Wallet01State();
+  State<Wallet> createState() => _WalletState();
 }
 
 const _entries = [
-  WalletEntry('Wanjiru Kamau', 'Sent to you', 'Today, 10:42', 2500),
-  WalletEntry('Kenya Power', 'Bill, account 4410 2201', 'Today, 08:15', -3200),
-  WalletEntry('Naivas Westlands', 'Groceries', 'Yesterday, 18:30', -1840),
-  WalletEntry('Otieno Mwangi', 'You sent', 'Yesterday, 12:05', -1000),
-  WalletEntry('Salary', 'Mittolabs', '20 October', 85000),
+  WalletEntry('Maya Thompson', 'Sent to you', 'Today, 10:42', 250),
+  WalletEntry(
+    'City Power & Light',
+    'Bill, account 4410 2201',
+    'Today, 08:15',
+    -86,
+  ),
+  WalletEntry('Corner Pantry', 'Groceries', 'Yesterday, 18:30', -64.2),
+  WalletEntry('Otieno Mwangi', 'You sent', 'Yesterday, 12:05', -100),
+  WalletEntry('Salary', 'Mittolabs', '20 October', 4200),
 ];
 
 /// 24350 as "24,350.00".
@@ -38879,7 +43609,7 @@ String _money(double v) {
   return '$grouped.$cents';
 }
 
-class _Wallet01State extends State<Wallet01> {
+class _WalletState extends State<Wallet> {
   bool _hidden = false;
 
   @override
@@ -39172,5508 +43902,12 @@ class _Wallet01State extends State<Wallet01> {
 ''',
     },
   ),
-  'chat-01': Component(
-    description: "An assistant's conversation: its thinking, the tools it used, its sources, and an answer that streams in.",
-    requires: ["bubble","button","markdown","message","message-scroller","prompt-input","reasoning","shimmer","sources","theme","tool-call"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/chat_01.dart': r'''// Ashlar UI block: chat-01. Copied into your app by `ashlar add chat-01`; it is yours to
-// change. An assistant's conversation: its thinking, the tools it used, its sources, and
-// an answer that streams in.
-
-import 'dart:async';
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/bubble.dart';
-import '../ui/button.dart';
-import '../ui/markdown.dart';
-import '../ui/message.dart';
-import '../ui/message_scroller.dart';
-import '../ui/prompt_input.dart';
-import '../ui/reasoning.dart';
-import '../ui/shimmer.dart';
-import '../ui/sources.dart';
-import '../ui/theme.dart';
-import '../ui/tool_call.dart';
-
-/// One turn of the conversation.
-class _Turn {
-  _Turn.asked(this.text)
-    : mine = true,
-      done = true,
-      tools = const [],
-      sources = const [];
-  _Turn.answer({
-    this.text = '',
-    this.done = false,
-    this.thought,
-    this.took,
-    this.tools = const [],
-    this.sources = const [],
-  }) : mine = false;
-
-  final bool mine;
-  String text;
-  bool done;
-  String? thought;
-  Duration? took;
-  final List<ToolCall> tools;
-  final List<Source> sources;
-}
-
-/// An assistant's conversation, from the first question to an answer streaming in, with a
-/// prompt box under it.
-///
-/// Give [answer] your model: it is asked each question and gives back the answer's text a
-/// piece at a time. Without it the block answers with a written example, so the screen
-/// can be seen working before a model is wired in.
-class Chat01 extends StatefulWidget {
-  const Chat01({super.key, this.answer, this.onAttach, this.onOpenSource});
-
-  /// Answers [question], as the pieces of text a model streams.
-  final Stream<String> Function(String question)? answer;
-  final VoidCallback? onAttach;
-  final ValueChanged<Source>? onOpenSource;
-
-  @override
-  State<Chat01> createState() => _Chat01State();
-}
-
-class _Chat01State extends State<Chat01> {
-  final _turns = <_Turn>[
-    _Turn.asked('Which Westlands orders are late this week?'),
-    _Turn.answer(
-      done: true,
-      thought: 'Late means past its promised time and not yet delivered. I need this week\'s Westlands orders, then compare each promised time with its delivery.',
-      took: const Duration(seconds: 4),
-      tools: const [
-        ToolCall(
-          title: 'Look up this week\'s orders',
-          name: 'list_orders',
-          input: '{"branch": "westlands", "from": "2026-10-19"}',
-          output: '{"count": 38, "late": 3}',
-        ),
-      ],
-      sources: const [
-        Source(title: 'Orders, Westlands', detail: 'This week, 38 orders'),
-        Source(title: 'Deliveries', detail: 'Riders\' check-ins'),
-      ],
-      text: """Three of this week's 38 orders are late:
-
-| Order | Customer | Promised | Late by |
-|---|---|---|---:|
-| 1042 | Wanjiru K. | Tue 11:00 | 2 h |
-| 1057 | Otieno M. | Wed 15:30 | 45 min |
-| 1063 | Njeri W. | Thu 10:00 | 1 h 20 min |
-
-All three went out with the same rider, and **1063** is still on the road. Want me to message the customers?""",
-    ),
-  ];
-  StreamSubscription<String>? _streaming;
-  DateTime? _started;
-
-  bool get _busy => _streaming != null;
-
-  void _ask(String question) {
-    final answer = _Turn.answer();
-    setState(() {
-      _turns
-        ..add(_Turn.asked(question))
-        ..add(answer);
-      _started = DateTime.now();
-    });
-    _streaming = (widget.answer ?? _example)(question).listen(
-      (piece) => setState(() {
-        answer.took ??= DateTime.now().difference(_started!);
-        answer.text += piece;
-      }),
-      onDone: () => _finish(answer),
-      onError: (Object _) {
-        if (answer.text.isEmpty) {
-          answer.text = 'Something went wrong. Try again.';
-        }
-        _finish(answer);
-      },
-    );
-  }
-
-  void _finish(_Turn answer) {
-    _streaming?.cancel();
-    if (mounted) {
-      setState(() {
-        answer.done = true;
-        _streaming = null;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _streaming?.cancel();
-    super.dispose();
-  }
-
-  /// A written answer, a word at a time, for before a model is wired in.
-  Stream<String> _example(String question) async* {
-    await Future<void>.delayed(const Duration(milliseconds: 900));
-    const text =
-        'This is a written example, not a model. Pass `answer` to **Chat01** and each question goes to your model, its answer streaming in here as it does now.';
-    for (final word in text.split(' ')) {
-      await Future<void>.delayed(const Duration(milliseconds: 45));
-      yield '$word ';
-    }
-  }
-
-  Widget _answer(_Turn turn) {
-    final t = AshlarTheme.of(context);
-    final waiting = !turn.done && turn.text.isEmpty;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (turn.thought != null) ...[
-          Reasoning(
-            thinking: !turn.done && turn.text.isEmpty,
-            took: turn.took,
-            child: Text(turn.thought!),
-          ),
-          const SizedBox(height: 10),
-        ],
-        for (final tool in turn.tools) ...[tool, const SizedBox(height: 10)],
-        if (waiting)
-          Shimmer(child: Text('Thinking…', style: t.text.sm))
-        else
-          Markdown(turn.text.trimRight(), streaming: !turn.done),
-        if (turn.sources.isNotEmpty && turn.done) ...[
-          const SizedBox(height: 12),
-          Sources(sources: turn.sources, onOpen: widget.onOpenSource),
-        ],
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    Widget column(Widget child) => Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 720),
-        child: child,
-      ),
-    );
-    return ColoredBox(
-      color: c.background,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: c.border)),
-            ),
-            child: Row(
-              children: [
-                AshlarIcon(
-                  AshlarIconsRoundedStroke.sparkles,
-                  size: 18,
-                  color: c.foreground,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Assistant',
-                  style: t.text.sm.copyWith(
-                    color: c.foreground,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Orders and deliveries',
-                    style: t.text.sm.copyWith(color: c.mutedForeground),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: MessageScroller(
-              busy: _busy,
-              gap: 24,
-              items: [
-                for (final (i, turn) in _turns.indexed)
-                  MessageScrollerItem(
-                    id: i,
-                    anchor: turn.mine,
-                    child: column(
-                      turn.mine
-                          ? Message(
-                              align: MessageAlign.end,
-                              child: Bubble(
-                                variant: BubbleVariant.muted,
-                                child: Text(turn.text),
-                              ),
-                            )
-                          : _answer(turn),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: column(
-              PromptInput(
-                busy: _busy,
-                onSubmit: _ask,
-                onStop: () {
-                  final last = _turns.last;
-                  _finish(last);
-                },
-                placeholder: 'Ask about orders and deliveries',
-                actions: [
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.icon,
-                    semanticLabel: 'Attach a file',
-                    onPressed: widget.onAttach,
-                    child: const AshlarIcon(AshlarIconsRoundedStroke.paperclip),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'dashboard-01': Component(
-    description: "An app home: sidebar, header, four figures, a chart over time and a table.",
-    requires: ["avatar","badge","button","card","chart","data-table","dropdown-menu","popover","select","separator","sidebar","tabs","theme","toggle-group"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/dashboard_01.dart': r'''// Ashlar UI block: dashboard-01. Copied into your app by `ashlar add dashboard-01`; it is
-// yours to change. An app's home: a sidebar, a header, four figures, a chart over time and
-// a table of documents.
-//
-// The figures, chart and rows are sample data, there to be replaced with yours.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/badge.dart';
-import '../ui/button.dart';
-import '../ui/card.dart';
-import '../ui/chart.dart';
-import '../ui/data_table.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/popover.dart';
-import '../ui/select.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/tabs.dart';
-import '../ui/theme.dart';
-import '../ui/toggle_group.dart';
-
-/// A dashboard: navigation down the side, the page set into it as a card.
-class Dashboard01 extends StatelessWidget {
-  const Dashboard01({super.key});
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    variant: SidebarVariant.inset,
-    collapse: SidebarCollapse.offcanvas,
-    header: const _Brand(),
-    groups: [
-      const SidebarGroup.custom(_QuickCreate()),
-      SidebarGroup([
-        SidebarItem(
-          'Dashboard',
-          icon: AshlarIconsRoundedStroke.layoutDashboard,
-          active: true,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Lifecycle',
-          icon: AshlarIconsRoundedStroke.listChecks,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Analytics',
-          icon: AshlarIconsRoundedStroke.chartBar,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Projects',
-          icon: AshlarIconsRoundedStroke.folder,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Team',
-          icon: AshlarIconsRoundedStroke.users,
-          onPressed: () {},
-        ),
-      ]),
-      SidebarGroup(label: 'Documents', [
-        for (final (label, icon) in [
-          ('Data Library', AshlarIconsRoundedStroke.database),
-          ('Reports', AshlarIconsRoundedStroke.fileText),
-          ('Word Assistant', AshlarIconsRoundedStroke.file),
-        ])
-          SidebarItem(
-            label,
-            icon: icon,
-            onPressed: () {},
-            action: SidebarAction(
-              icon: AshlarIconsRoundedStroke.ellipsis,
-              label: 'More for $label',
-              onPressed: () {},
-            ),
-          ),
-      ]),
-      SidebarGroup(atEnd: true, [
-        SidebarItem(
-          'Settings',
-          icon: AshlarIconsRoundedStroke.settings,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Get Help',
-          icon: AshlarIconsRoundedStroke.circleQuestionMark,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Search',
-          icon: AshlarIconsRoundedStroke.search,
-          onPressed: () {},
-        ),
-      ]),
-    ],
-    footer: const _User(),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _Header(title: 'Documents'),
-        const Separator(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: const [
-                _Figures(),
-                SizedBox(height: 24),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: _Visitors(),
-                ),
-                SizedBox(height: 24),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: _Documents(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          const AshlarIcon(AshlarIconsRoundedStroke.command, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            'Acme Inc.',
-            style: t.text.base.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickCreate extends StatelessWidget {
-  const _QuickCreate();
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Button(
-          expand: true,
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.circlePlus),
-          onPressed: () {},
-          child: const Text('Quick Create'),
-        ),
-      ),
-      const SizedBox(width: 8),
-      Button(
-        variant: ButtonVariant.outline,
-        size: ButtonSize.icon,
-        semanticLabel: 'Inbox',
-        onPressed: () {},
-        child: const AshlarIcon(AshlarIconsRoundedStroke.inbox),
-      ),
-    ],
-  );
-}
-
-class _User extends StatelessWidget {
-  const _User();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.circleUser),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return SizedBox(
-      height: 48,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            const SidebarTrigger(),
-            const SizedBox(width: 8),
-            const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: t.text.base.copyWith(fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Four figures, each with how it moved: four across, two, or one, as there is room.
-class _Figures extends StatelessWidget {
-  const _Figures();
-
-  static const _figures = [
-    (
-      'Total Revenue',
-      r'$1,250.00',
-      '+12.5%',
-      true,
-      'Trending up this month',
-      'Visitors for the last 6 months',
-    ),
-    (
-      'New Customers',
-      '1,234',
-      '-20%',
-      false,
-      'Down 20% this period',
-      'Acquisition needs attention',
-    ),
-    (
-      'Active Accounts',
-      '45,678',
-      '+12.5%',
-      true,
-      'Strong user retention',
-      'Engagement exceeds targets',
-    ),
-    (
-      'Growth Rate',
-      '4.5%',
-      '+4.5%',
-      true,
-      'Steady performance increase',
-      'Meets growth projections',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return LayoutBuilder(
-      builder: (context, box) {
-        final across = box.maxWidth >= 1100 ? 4 : (box.maxWidth >= 640 ? 2 : 1);
-        const gap = 16.0;
-        final width = (box.maxWidth - 48 - gap * (across - 1)) / across;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Wrap(
-            spacing: gap,
-            runSpacing: gap,
-            children: [
-              for (final (label, value, change, up, line, note) in _figures)
-                SizedBox(
-                  width: width,
-                  child: Card(
-                    children: [
-                      CardHeader(
-                        description: Text(label),
-                        title: Text(value, style: t.text.xxl),
-                        action: Badge(
-                          variant: BadgeVariant.outline,
-                          leading: AshlarIcon(
-                            up
-                                ? AshlarIconsRoundedStroke.trendingUp
-                                : AshlarIconsRoundedStroke.trendingDown,
-                          ),
-                          child: Text(change),
-                        ),
-                      ),
-                      CardFooter(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        line,
-                                        style: t.text.sm.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    AshlarIcon(
-                                      up
-                                          ? AshlarIconsRoundedStroke.trendingUp
-                                          : AshlarIconsRoundedStroke
-                                                .trendingDown,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  note,
-                                  style: t.text.sm.copyWith(
-                                    color: c.mutedForeground,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Visitors over time, on desktop and mobile, for a range picked at the top.
-class _Visitors extends StatefulWidget {
-  const _Visitors();
-
-  @override
-  State<_Visitors> createState() => _VisitorsState();
-}
-
-/// A day's visitors, the chart's row.
-typedef _Visits = ({DateTime day, double desktop, double mobile});
-
-class _VisitorsState extends State<_Visitors> {
-  var _range = 90;
-
-  static const _ranges = [
-    (90, 'Last 3 months'),
-    (30, 'Last 30 days'),
-    (7, 'Last 7 days'),
-  ];
-
-  static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-
-  // Sample visits: a day's count for each of the last 91 days, ending 30 June.
-  static int _desktop(int day) =>
-      160 + (day * 53) % 240 + (day % 7 == 5 ? 90 : 0);
-  static int _mobile(int day) =>
-      110 + (day * 37) % 200 + (day % 7 == 6 ? 60 : 0);
-
-  @override
-  Widget build(BuildContext context) {
-    final end = DateTime(2026, 6, 30);
-    // A point a week for three months, every other day for 30 days, daily for 7.
-    final step = switch (_range) {
-      90 => 7,
-      30 => 2,
-      _ => 1,
-    };
-    final days = [
-      for (var back = _range - 1; back >= 0; back -= step)
-        end.subtract(Duration(days: back)),
-    ];
-    int sum(int Function(int) count, DateTime d) =>
-        [for (var i = 0; i < step; i++) count(d.day + d.month * 31 + i)]
-            .fold(0, (a, b) => a + b);
-    final narrow = MediaQuery.sizeOf(context).width < 640;
-    return Card(
-      children: [
-        CardHeader(
-          title: const Text('Total Visitors'),
-          description: Text(switch (_range) {
-            90 => 'Total for the last 3 months',
-            30 => 'Total for the last 30 days',
-            _ => 'Total for the last 7 days',
-          }),
-          // Buttons where there is room, a select where there is not.
-          action: narrow
-              ? SizedBox(
-                  width: 150,
-                  child: Select<int>(
-                    value: _range,
-                    size: SelectSize.sm,
-                    semanticLabel: 'Range',
-                    options: [for (final (v, l) in _ranges) SelectOption(v, l)],
-                    onChanged: (v) => setState(() => _range = v),
-                  ),
-                )
-              : ToggleGroup<int>(
-                  values: {_range},
-                  semanticLabel: 'Range',
-                  onChanged: (v) {
-                    if (v.isNotEmpty) setState(() => _range = v.first);
-                  },
-                  items: [
-                    for (final (v, l) in _ranges) ToggleGroupItem(v, Text(l)),
-                  ],
-                ),
-        ),
-        CardContent(
-          child: AreaChart<_Visits>(
-            semanticLabel: 'Visitors by day',
-            data: [
-              for (final d in days)
-                (
-                  day: d,
-                  desktop: sum(_desktop, d).toDouble(),
-                  mobile: sum(_mobile, d).toDouble(),
-                ),
-            ],
-            x: (r) => r.day,
-            children: [
-              CartesianGrid(),
-              XAxis(tickFormatter: (d) => '${_months[(d as DateTime).month - 1]} ${d.day}'),
-              ChartTooltip(
-                indicator: ChartIndicator.dot,
-                labelFormatter: (_, r) => '${_months[r!.day.month - 1]} ${r.day.day}',
-              ),
-              Area(label: 'Mobile', value: (r) => r.mobile, stackId: 'a'),
-              Area(label: 'Desktop', value: (r) => r.desktop, stackId: 'a'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The documents, by tab: the outline as a table, the rest waiting for content.
-class _Documents extends StatefulWidget {
-  const _Documents();
-
-  @override
-  State<_Documents> createState() => _DocumentsState();
-}
-
-class _DocumentsState extends State<_Documents> {
-  var _picked = <int>{};
-
-  static const _rows = [
-    ('Cover page', 'Cover page', 'In Process', 18, 5, 'Eddie Lake'),
-    ('Table of contents', 'Table of contents', 'Done', 29, 24, 'Eddie Lake'),
-    ('Executive summary', 'Narrative', 'Done', 10, 13, 'Eddie Lake'),
-    ('Technical approach', 'Narrative', 'Done', 27, 23, 'Jamik Tashpulatov'),
-    ('Design', 'Narrative', 'In Process', 2, 16, 'Jamik Tashpulatov'),
-    ('Capabilities', 'Narrative', 'In Process', 20, 8, 'Jamik Tashpulatov'),
-    (
-      'Integration with existing systems',
-      'Narrative',
-      'In Process',
-      19,
-      21,
-      'Jamik Tashpulatov',
-    ),
-    (
-      'Innovation and advantages',
-      'Narrative',
-      'Done',
-      25,
-      26,
-      'Assign reviewer',
-    ),
-    (
-      'Overview of EMR system',
-      'Technical content',
-      'Done',
-      7,
-      23,
-      'Assign reviewer',
-    ),
-    ('Risk management plan', 'Narrative', 'Done', 22, 15, 'Assign reviewer'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    Widget waiting(String what) => Container(
-      height: 240,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(t.radiusLg),
-        border: Border.all(color: c.border),
-      ),
-      child: Text(
-        'No $what yet.',
-        style: t.text.sm.copyWith(color: c.mutedForeground),
-      ),
-    );
-    return Tabs(
-      variant: TabsVariant.line,
-      tabs: [
-        TabItem(
-          label: const Text('Outline'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: DataTable(
-              selected: _picked,
-              onSelectChanged: (s) => setState(() => _picked = s),
-              columns: const [
-                DataColumn(Text('Header'), flex: 3),
-                DataColumn(Text('Section Type'), flex: 2),
-                DataColumn(Text('Status'), flex: 2),
-                DataColumn(Text('Target'), numeric: true),
-                DataColumn(Text('Limit'), numeric: true),
-                DataColumn(Text('Reviewer'), flex: 2),
-              ],
-              rows: [
-                for (final (header, type, status, target, limit, reviewer)
-                    in _rows)
-                  [
-                    Text(
-                      header,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Badge(
-                        variant: BadgeVariant.outline,
-                        child: Text(type, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Badge(
-                        variant: BadgeVariant.outline,
-                        leading: AshlarIcon(
-                          status == 'Done'
-                              ? AshlarIconsRoundedStroke.check
-                              : AshlarIconsRoundedStroke.clock,
-                        ),
-                        child: Text(status),
-                      ),
-                    ),
-                    Text('$target'),
-                    Text('$limit'),
-                    Text(
-                      reviewer,
-                      overflow: TextOverflow.ellipsis,
-                      style: reviewer == 'Assign reviewer'
-                          ? t.text.sm.copyWith(color: c.mutedForeground)
-                          : null,
-                    ),
-                  ],
-              ],
-            ),
-          ),
-        ),
-        TabItem(
-          label: const Text('Past Performance'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: waiting('past performance'),
-          ),
-        ),
-        TabItem(
-          label: const Text('Key Personnel'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: waiting('key personnel'),
-          ),
-        ),
-        TabItem(
-          label: const Text('Focus Documents'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: waiting('focus documents'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-01': Component(
-    description: "Documentation navigation grouped by section, with versions and search.",
-    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_01.dart': r'''// Ashlar UI block: sidebar-01. Copied into your app by `ashlar add sidebar-01`; it is yours
-// to change. Documentation navigation grouped by section, with a version switcher and a
-// search field at the top.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/input.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages, one of them open.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    [
-      'Routing',
-      'Data Fetching',
-      'Rendering',
-      'State',
-      'Styling',
-      'Testing',
-      'Accessibility',
-      'Deploying',
-    ],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  (
-    'Architecture',
-    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
-  ),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A sidebar of documentation, grouped by section.
-class Sidebar01 extends StatefulWidget {
-  const Sidebar01({super.key});
-
-  @override
-  State<Sidebar01> createState() => _Sidebar01State();
-}
-
-class _Sidebar01State extends State<Sidebar01> {
-  var _page = 'Data Fetching';
-  var _version = '1.0.1';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    header: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _VersionSwitcher(
-          version: _version,
-          versions: const ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
-          onChanged: (v) => setState(() => _version = v),
-        ),
-        const SizedBox(height: 8),
-        const Input(
-          placeholder: 'Search the docs…',
-          semanticLabel: 'Search the docs',
-          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
-        ),
-      ],
-    ),
-    groups: [
-      for (final (section, pages) in _sections)
-        SidebarGroup(label: section, [
-          for (final page in pages)
-            SidebarItem(
-              page,
-              icon: null,
-              active: page == _page,
-              onPressed: () => setState(() => _page = page),
-            ),
-        ]),
-    ],
-    child: _Page(
-      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-    ),
-  );
-}
-
-/// The product's mark and name, and a menu of its versions.
-class _VersionSwitcher extends StatelessWidget {
-  const _VersionSwitcher({
-    required this.version,
-    required this.versions,
-    required this.onChanged,
-  });
-
-  final String version;
-  final List<String> versions;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Documentation, version $version',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.sidebarPrimary,
-                borderRadius: BorderRadius.circular(t.radiusLg),
-              ),
-              child: AshlarIcon(
-                AshlarIconsRoundedStroke.galleryVerticalEnd,
-                color: c.sidebarPrimaryForeground,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Documentation',
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text('v$version', style: t.text.xs),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        for (final v in versions)
-          MenuItem(
-            selected: v == version,
-            onPressed: () => onChanged(v),
-            child: Text(v),
-          ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-02': Component(
-    description: "Documentation in sections that fold away, with versions and search.",
-    requires: ["breadcrumb","button","dropdown-menu","input","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_02.dart': r'''// Ashlar UI block: sidebar-02. Copied into your app by `ashlar add sidebar-02`; it is yours
-// to change. Documentation navigation in sections that fold away, with a version switcher
-// and a search field at the top.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/input.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages, one of them open.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    [
-      'Routing',
-      'Data Fetching',
-      'Rendering',
-      'State',
-      'Styling',
-      'Testing',
-      'Accessibility',
-      'Deploying',
-    ],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  (
-    'Architecture',
-    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
-  ),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A sidebar of documentation in sections that fold.
-class Sidebar02 extends StatefulWidget {
-  const Sidebar02({super.key});
-
-  @override
-  State<Sidebar02> createState() => _Sidebar02State();
-}
-
-class _Sidebar02State extends State<Sidebar02> {
-  var _page = 'Data Fetching';
-  var _version = '1.0.1';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    header: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _VersionSwitcher(
-          version: _version,
-          versions: const ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
-          onChanged: (v) => setState(() => _version = v),
-        ),
-        const SizedBox(height: 8),
-        const Input(
-          placeholder: 'Search the docs…',
-          semanticLabel: 'Search the docs',
-          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
-        ),
-      ],
-    ),
-    groups: [
-      SidebarGroup([
-        for (final (section, pages) in _sections)
-          SidebarItem(
-            section,
-            icon: null,
-            initiallyOpen: true,
-            children: [
-              for (final page in pages)
-                SidebarItem(
-                  page,
-                  icon: null,
-                  active: page == _page,
-                  onPressed: () => setState(() => _page = page),
-                ),
-            ],
-          ),
-      ]),
-    ],
-    child: _Page(
-      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-    ),
-  );
-}
-
-/// The product's mark and name, and a menu of its versions.
-class _VersionSwitcher extends StatelessWidget {
-  const _VersionSwitcher({
-    required this.version,
-    required this.versions,
-    required this.onChanged,
-  });
-
-  final String version;
-  final List<String> versions;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Documentation, version $version',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.sidebarPrimary,
-                borderRadius: BorderRadius.circular(t.radiusLg),
-              ),
-              child: AshlarIcon(
-                AshlarIconsRoundedStroke.galleryVerticalEnd,
-                color: c.sidebarPrimaryForeground,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Documentation',
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text('v$version', style: t.text.xs),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        for (final v in versions)
-          MenuItem(
-            selected: v == version,
-            onPressed: () => onChanged(v),
-            child: Text(v),
-          ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-03': Component(
-    description: "Documentation with each section's pages listed under it.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_03.dart': r'''// Ashlar UI block: sidebar-03. Copied into your app by `ashlar add sidebar-03`; it is yours
-// to change. Documentation navigation with each section's pages listed under it.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages, one of them open.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    [
-      'Routing',
-      'Data Fetching',
-      'Rendering',
-      'State',
-      'Styling',
-      'Testing',
-      'Accessibility',
-      'Deploying',
-    ],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  (
-    'Architecture',
-    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
-  ),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A sidebar of documentation, each section's pages under it.
-class Sidebar03 extends StatefulWidget {
-  const Sidebar03({super.key});
-
-  @override
-  State<Sidebar03> createState() => _Sidebar03State();
-}
-
-class _Sidebar03State extends State<Sidebar03> {
-  var _page = 'Data Fetching';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    header: const _Brand(),
-    groups: [
-      SidebarGroup([
-        for (final (section, pages) in _sections)
-          SidebarItem(
-            section,
-            icon: null,
-            initiallyOpen: true,
-            children: [
-              for (final page in pages)
-                SidebarItem(
-                  page,
-                  icon: null,
-                  active: page == _page,
-                  onPressed: () => setState(() => _page = page),
-                ),
-            ],
-          ),
-      ]),
-    ],
-    child: _Page(
-      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-    ),
-  );
-}
-
-/// The product's mark, name and version.
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: c.sidebarPrimary,
-              borderRadius: BorderRadius.circular(t.radiusLg),
-            ),
-            child: AshlarIcon(
-              AshlarIconsRoundedStroke.galleryVerticalEnd,
-              color: c.sidebarPrimaryForeground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Documentation',
-                  overflow: TextOverflow.ellipsis,
-                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text('v1.0.0', style: t.text.xs),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-04': Component(
-    description: "A floating sidebar, sections with their pages under them.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_04.dart': r'''// Ashlar UI block: sidebar-04. Copied into your app by `ashlar add sidebar-04`; it is yours
-// to change. A floating sidebar: a rounded panel in from the edge, sections with their pages
-// under them.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages, one of them open.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    [
-      'Routing',
-      'Data Fetching',
-      'Rendering',
-      'State',
-      'Styling',
-      'Testing',
-      'Accessibility',
-      'Deploying',
-    ],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  (
-    'Architecture',
-    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
-  ),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A floating sidebar of documentation.
-class Sidebar04 extends StatefulWidget {
-  const Sidebar04({super.key});
-
-  @override
-  State<Sidebar04> createState() => _Sidebar04State();
-}
-
-class _Sidebar04State extends State<Sidebar04> {
-  var _page = 'Data Fetching';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    variant: SidebarVariant.floating,
-    header: const _Brand(),
-    groups: [
-      SidebarGroup([
-        for (final (section, pages) in _sections)
-          SidebarItem(
-            section,
-            icon: null,
-            initiallyOpen: true,
-            children: [
-              for (final page in pages)
-                SidebarItem(
-                  page,
-                  icon: null,
-                  active: page == _page,
-                  onPressed: () => setState(() => _page = page),
-                ),
-            ],
-          ),
-      ]),
-    ],
-    child: _Page(
-      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-    ),
-  );
-}
-
-/// The product's mark, name and version.
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: c.sidebarPrimary,
-              borderRadius: BorderRadius.circular(t.radiusLg),
-            ),
-            child: AshlarIcon(
-              AshlarIconsRoundedStroke.galleryVerticalEnd,
-              color: c.sidebarPrimaryForeground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Documentation',
-                  overflow: TextOverflow.ellipsis,
-                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text('v1.0.0', style: t.text.xs),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-05': Component(
-    description: "Sections that open as you need them, with search.",
-    requires: ["breadcrumb","input","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_05.dart': r'''// Ashlar UI block: sidebar-05. Copied into your app by `ashlar add sidebar-05`; it is yours
-// to change. Documentation navigation whose sections open as you need them, with a search
-// field at the top.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/input.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages, one of them open.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    [
-      'Routing',
-      'Data Fetching',
-      'Rendering',
-      'State',
-      'Styling',
-      'Testing',
-      'Accessibility',
-      'Deploying',
-    ],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  (
-    'Architecture',
-    ['Layers', 'Hot Reload', 'Platform Channels', 'Supported Platforms'],
-  ),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A sidebar of documentation with sections that open as needed.
-class Sidebar05 extends StatefulWidget {
-  const Sidebar05({super.key});
-
-  @override
-  State<Sidebar05> createState() => _Sidebar05State();
-}
-
-class _Sidebar05State extends State<Sidebar05> {
-  var _page = 'Data Fetching';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    header: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _Brand(),
-        const SizedBox(height: 8),
-        const Input(
-          placeholder: 'Search the docs…',
-          semanticLabel: 'Search the docs',
-          leading: AshlarIcon(AshlarIconsRoundedStroke.search),
-        ),
-      ],
-    ),
-    groups: [
-      SidebarGroup([
-        for (final (section, pages) in _sections)
-          SidebarItem(
-            section,
-            icon: null,
-            initiallyOpen: section == _sections.first.$1,
-            children: [
-              for (final page in pages)
-                SidebarItem(
-                  page,
-                  icon: null,
-                  active: page == _page,
-                  onPressed: () => setState(() => _page = page),
-                ),
-            ],
-          ),
-      ]),
-    ],
-    child: _Page(
-      trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-    ),
-  );
-}
-
-/// The product's mark, name and version.
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: c.sidebarPrimary,
-              borderRadius: BorderRadius.circular(t.radiusLg),
-            ),
-            child: AshlarIcon(
-              AshlarIconsRoundedStroke.galleryVerticalEnd,
-              color: c.sidebarPrimaryForeground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Documentation',
-                  overflow: TextOverflow.ellipsis,
-                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text('v1.0.0', style: t.text.xs),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-06': Component(
-    description: "Sections that open their pages as menus, a newsletter card at the foot.",
-    requires: ["breadcrumb","button","card","dropdown-menu","input","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_06.dart': r'''// Ashlar UI block: sidebar-06. Copied into your app by `ashlar add sidebar-06`; it is yours
-// to change. Each section opens its pages as a menu beside the sidebar, and a newsletter
-// sign-up sits at the bottom.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/card.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/input.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample navigation: sections of pages.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    ['Routing', 'Data Fetching', 'Rendering', 'State', 'Styling', 'Testing'],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  ('Architecture', ['Layers', 'Hot Reload', 'Platform Channels']),
-  ('Community', ['Contribution Guide']),
-];
-
-/// A sidebar whose sections open as menus.
-class Sidebar06 extends StatefulWidget {
-  const Sidebar06({super.key});
-
-  @override
-  State<Sidebar06> createState() => _Sidebar06State();
-}
-
-class _Sidebar06State extends State<Sidebar06> {
-  var _page = 'Data Fetching';
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return SidebarLayout(
-      collapse: SidebarCollapse.offcanvas,
-      header: const _Brand(),
-      groups: [
-        SidebarGroup.custom(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (section, pages) in _sections)
-                DropdownMenu(
-                  side: PopoverSide.right,
-                  width: 192,
-                  builder: (context, menu) => Button(
-                    variant: ButtonVariant.ghost,
-                    expand: true,
-                    onPressed: menu.open,
-                    trailing: const AshlarIcon(
-                      AshlarIconsRoundedStroke.ellipsis,
-                    ),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        section,
-                        style: t.text.sm.copyWith(
-                          fontWeight: pages.contains(_page)
-                              ? FontWeight.w600
-                              : null,
-                        ),
-                      ),
-                    ),
-                  ),
-                  items: [
-                    for (final page in pages)
-                      MenuItem(
-                        selected: page == _page,
-                        onPressed: () => setState(() => _page = page),
-                        child: Text(page),
-                      ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ],
-      footer: const _OptIn(),
-      child: _Page(
-        trail: [_sections.firstWhere((s) => s.$2.contains(_page)).$1, _page],
-      ),
-    );
-  }
-}
-
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: c.sidebarPrimary,
-              borderRadius: BorderRadius.circular(t.radiusLg),
-            ),
-            child: AshlarIcon(
-              AshlarIconsRoundedStroke.galleryVerticalEnd,
-              color: c.sidebarPrimaryForeground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Documentation',
-                  overflow: TextOverflow.ellipsis,
-                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text('v1.0.0', style: t.text.xs),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A small card asking for an email address for the newsletter.
-class _OptIn extends StatelessWidget {
-  const _OptIn();
-
-  @override
-  Widget build(BuildContext context) => Card(
-    size: CardSize.sm,
-    children: [
-      const CardHeader(
-        title: Text('Subscribe to our newsletter'),
-        description: Text(
-          'Opt-in to receive updates and news about the sidebar.',
-        ),
-      ),
-      CardContent(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Input(
-              placeholder: 'Email',
-              semanticLabel: 'Email',
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 8),
-            Button(
-              size: ButtonSize.sm,
-              variant: ButtonVariant.secondary,
-              expand: true,
-              onPressed: () {},
-              child: const Text('Subscribe'),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-07': Component(
-    description: "An app sidebar that collapses to icons: teams, sections, projects, user.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_07.dart': r'''// Ashlar UI block: sidebar-07. Copied into your app by `ashlar add sidebar-07`; it is yours
-// to change. An app's sidebar that collapses to a strip of icons: teams, the main
-// sections with their pages, projects, and who is signed in.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample sections, each with its pages.
-const _platform = [
-  (
-    'Playground',
-    AshlarIconsRoundedStroke.terminal,
-    ['History', 'Starred', 'Settings'],
-  ),
-  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
-  (
-    'Documentation',
-    AshlarIconsRoundedStroke.bookOpen,
-    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
-  ),
-  (
-    'Settings',
-    AshlarIconsRoundedStroke.settings,
-    ['General', 'Team', 'Billing', 'Limits'],
-  ),
-];
-
-/// Sample projects.
-const _projects = [
-  ('Design Engineering', AshlarIconsRoundedStroke.frame),
-  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
-  ('Travel', AshlarIconsRoundedStroke.map),
-];
-
-/// A sidebar that collapses to icons, each with its label in a tooltip.
-class Sidebar07 extends StatelessWidget {
-  const Sidebar07({super.key});
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    header: const _TeamSwitcher(),
-    groups: [
-      SidebarGroup(label: 'Platform', [
-        for (final (i, (label, icon, pages)) in _platform.indexed)
-          SidebarItem(
-            label,
-            icon: icon,
-            initiallyOpen: i == 0,
-            children: [
-              for (final page in pages)
-                SidebarItem(page, icon: null, onPressed: () {}),
-            ],
-          ),
-      ]),
-      SidebarGroup(label: 'Projects', [
-        for (final (label, icon) in _projects)
-          SidebarItem(
-            label,
-            icon: icon,
-            onPressed: () {},
-            action: SidebarAction(
-              icon: AshlarIconsRoundedStroke.ellipsis,
-              label: 'More for $label',
-              onPressed: () {},
-            ),
-          ),
-        SidebarItem(
-          'More',
-          icon: AshlarIconsRoundedStroke.ellipsis,
-          onPressed: () {},
-        ),
-      ]),
-    ],
-    footer: const _NavUser(),
-    child: const _Page(trail: ['Build Your App', 'Data Fetching']),
-  );
-}
-
-/// The team you are working in, and a menu to change it.
-class _TeamSwitcher extends StatefulWidget {
-  const _TeamSwitcher();
-
-  @override
-  State<_TeamSwitcher> createState() => _TeamSwitcherState();
-}
-
-class _TeamSwitcherState extends State<_TeamSwitcher> {
-  // Sample teams.
-  static const _teams = [
-    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
-    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
-    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
-  ];
-  var _team = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final (name, plan, icon) = _teams[_team];
-    return DropdownMenu(
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Team: $name',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.sidebarPrimary,
-                borderRadius: BorderRadius.circular(t.radiusLg),
-              ),
-              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(plan, style: t.text.xs),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        const MenuLabel(child: Text('Teams')),
-        for (final (i, (name, _, icon)) in _teams.indexed)
-          MenuItem(
-            leading: AshlarIcon(icon),
-            shortcut: Text('⌘${i + 1}'),
-            onPressed: () => setState(() => _team = i),
-            child: Text(name),
-          ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
-          onPressed: () {},
-          child: const Text('Add team'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Who is signed in, and a menu for their account.
-class _NavUser extends StatelessWidget {
-  const _NavUser();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
-          onPressed: () {},
-          child: const Text('Upgrade to Pro'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-08': Component(
-    description: "The page inset as a card, help and feedback at the sidebar's foot.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_08.dart': r'''// Ashlar UI block: sidebar-08. Copied into your app by `ashlar add sidebar-08`; it is yours
-// to change. The page set into the sidebar as a card, with help and feedback kept at the
-// sidebar's foot.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample sections, each with its pages.
-const _platform = [
-  (
-    'Playground',
-    AshlarIconsRoundedStroke.terminal,
-    ['History', 'Starred', 'Settings'],
-  ),
-  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
-  (
-    'Documentation',
-    AshlarIconsRoundedStroke.bookOpen,
-    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
-  ),
-  (
-    'Settings',
-    AshlarIconsRoundedStroke.settings,
-    ['General', 'Team', 'Billing', 'Limits'],
-  ),
-];
-
-/// Sample projects.
-const _projects = [
-  ('Design Engineering', AshlarIconsRoundedStroke.frame),
-  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
-  ('Travel', AshlarIconsRoundedStroke.map),
-];
-
-/// An inset sidebar, with secondary navigation at its foot.
-class Sidebar08 extends StatelessWidget {
-  const Sidebar08({super.key});
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    variant: SidebarVariant.inset,
-    header: const _Brand(),
-    groups: [
-      SidebarGroup(label: 'Platform', [
-        for (final (i, (label, icon, pages)) in _platform.indexed)
-          SidebarItem(
-            label,
-            icon: icon,
-            initiallyOpen: i == 0,
-            children: [
-              for (final page in pages)
-                SidebarItem(page, icon: null, onPressed: () {}),
-            ],
-          ),
-      ]),
-      SidebarGroup(label: 'Projects', [
-        for (final (label, icon) in _projects)
-          SidebarItem(
-            label,
-            icon: icon,
-            onPressed: () {},
-            action: SidebarAction(
-              icon: AshlarIconsRoundedStroke.ellipsis,
-              label: 'More for $label',
-              onPressed: () {},
-            ),
-          ),
-      ]),
-      SidebarGroup(atEnd: true, [
-        SidebarItem(
-          'Support',
-          icon: AshlarIconsRoundedStroke.lifeBuoy,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Feedback',
-          icon: AshlarIconsRoundedStroke.send,
-          onPressed: () {},
-        ),
-      ]),
-    ],
-    footer: const _NavUser(),
-    child: const _Page(trail: ['Build Your App', 'Data Fetching']),
-  );
-}
-
-class _Brand extends StatelessWidget {
-  const _Brand();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: c.sidebarPrimary,
-              borderRadius: BorderRadius.circular(t.radiusLg),
-            ),
-            child: AshlarIcon(
-              AshlarIconsRoundedStroke.command,
-              color: c.sidebarPrimaryForeground,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Acme Inc',
-                  overflow: TextOverflow.ellipsis,
-                  style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text('Enterprise', style: t.text.xs),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Who is signed in, and a menu for their account.
-class _NavUser extends StatelessWidget {
-  const _NavUser();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
-          onPressed: () {},
-          child: const Text('Upgrade to Pro'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-09': Component(
-    description: "Two sidebars as a mail app has them: folders, and their messages.",
-    requires: ["avatar","breadcrumb","button","input","label","separator","sidebar","switch","theme","tooltip"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_09.dart': r'''// Ashlar UI block: sidebar-09. Copied into your app by `ashlar add sidebar-09`; it is yours
-// to change. Two sidebars side by side, as a mail app has them: a strip of folders that
-// stays, and the folder's messages beside it, which fold away.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/input.dart';
-import '../ui/label.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/switch.dart';
-import '../ui/theme.dart';
-import '../ui/tooltip.dart';
-
-/// Sample folders.
-const _folders = [
-  ('Inbox', AshlarIconsRoundedStroke.inbox),
-  ('Drafts', AshlarIconsRoundedStroke.file),
-  ('Sent', AshlarIconsRoundedStroke.send),
-  ('Junk', AshlarIconsRoundedStroke.archive),
-  ('Trash', AshlarIconsRoundedStroke.trash),
-];
-
-/// Sample messages: who from, when, the subject, the start of the text, and whether read.
-const _mail = [
-  (
-    'Achieng Otieno',
-    '09:34 AM',
-    'Meeting tomorrow',
-    'Can we move the review to ten? The figures from the field team came in late.',
-    false,
-  ),
-  (
-    'Kofi Mensah',
-    'Yesterday',
-    'Re: Project update',
-    'Thanks for the update. The new screens look clean and the team is happy with them.',
-    false,
-  ),
-  (
-    'Amina Diallo',
-    '2 days ago',
-    'Weekend plans',
-    'Hiking on Saturday if the weather holds. Bring water and a jacket.',
-    true,
-  ),
-  (
-    'Tendai Moyo',
-    '2 days ago',
-    'Question about the budget',
-    'I went through the numbers again and think we can save on hosting.',
-    true,
-  ),
-  (
-    'Lerato Dlamini',
-    '1 week ago',
-    'Re: Conference talk',
-    'The talk is accepted. Slides are due two weeks before the day.',
-    true,
-  ),
-  (
-    'Juma Mwangi',
-    '1 week ago',
-    'Invoice 2041',
-    'Please find the invoice for September attached. Payment within 30 days.',
-    true,
-  ),
-  (
-    'Nia Okafor',
-    '2 weeks ago',
-    'Design review notes',
-    'Notes from the session are in the shared folder. Most points are small.',
-    true,
-  ),
-];
-
-/// A strip of folders beside a list of the open folder's messages.
-class Sidebar09 extends StatefulWidget {
-  const Sidebar09({super.key});
-
-  @override
-  State<Sidebar09> createState() => _Sidebar09State();
-}
-
-class _Sidebar09State extends State<Sidebar09> {
-  var _folder = 'Inbox';
-  var _unread = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final mail = [
-      for (final m in _mail)
-        if (!_unread || !m.$5) m,
-    ];
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // The folders: always there, on a phone too.
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: c.sidebar,
-            border: BorderDirectional(end: BorderSide(color: c.sidebarBorder)),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: c.sidebarPrimary,
-                      borderRadius: BorderRadius.circular(t.radiusLg),
-                    ),
-                    child: AshlarIcon(
-                      AshlarIconsRoundedStroke.command,
-                      color: c.sidebarPrimaryForeground,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  for (final (name, icon) in _folders)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Tooltip(
-                        message: name,
-                        side: TooltipSide.right,
-                        child: Button(
-                          variant: name == _folder
-                              ? ButtonVariant.secondary
-                              : ButtonVariant.ghost,
-                          size: ButtonSize.icon,
-                          semanticLabel: name,
-                          onPressed: () => setState(() => _folder = name),
-                          child: AshlarIcon(icon),
-                        ),
-                      ),
-                    ),
-                  const Spacer(),
-                  const Avatar(fallback: 'WK', semanticLabel: 'Wanjiru Kamau'),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: SidebarLayout(
-            collapse: SidebarCollapse.offcanvas,
-            width: 320,
-            header: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _folder,
-                        style: t.text.base.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const Label(child: Text('Unreads')),
-                    const SizedBox(width: 8),
-                    Switch(
-                      size: SwitchSize.sm,
-                      value: _unread,
-                      semanticLabel: 'Unread only',
-                      onChanged: (v) => setState(() => _unread = v),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                const Input(
-                  placeholder: 'Type to search…',
-                  semanticLabel: 'Search mail',
-                  leading: AshlarIcon(AshlarIconsRoundedStroke.search),
-                ),
-              ],
-            ),
-            groups: [
-              SidebarGroup.custom(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final (i, (from, sent, subject, text, _))
-                        in mail.indexed) ...[
-                      if (i > 0) const Separator(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    from,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: t.text.sm.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Text(sent, style: t.text.xs),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              subject,
-                              style: t.text.sm.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              text,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: t.text.xs.copyWith(
-                                color: c.mutedForeground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-            child: _Page(trail: ['All Inboxes', _folder]),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-10': Component(
-    description: "A notes app's sidebar, with the page's actions in a popover.",
-    requires: ["breadcrumb","button","dropdown-menu","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_10.dart': r'''// Ashlar UI block: sidebar-10. Copied into your app by `ashlar add sidebar-10`; it is yours
-// to change. A notes app: search and the inbox at the top, favourites and workspaces under
-// them, and the page's actions in a panel that opens from its header.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample pages and workspaces.
-const _favorites = [
-  'Project Management & Task Tracking',
-  'Family Recipe Collection & Meal Planning',
-  'Fitness Tracker & Workout Routines',
-  'Book Notes & Reading List',
-];
-const _workspaces = [
-  (
-    'Personal Life Management',
-    ['Daily Journal & Reflection', 'Health & Wellness Tracker'],
-  ),
-  (
-    'Professional Development',
-    ['Career Objectives & Milestones', 'Skill Acquisition Plan'],
-  ),
-  (
-    'Creative Projects',
-    ['Writing Ideas & Story Outlines', 'Art & Design Portfolio'],
-  ),
-];
-
-/// A sidebar of pages, and the page's actions in a popover.
-class Sidebar10 extends StatelessWidget {
-  const Sidebar10({super.key});
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    header: const _TeamSwitcher(),
-    groups: [
-      SidebarGroup([
-        SidebarItem(
-          'Search',
-          icon: AshlarIconsRoundedStroke.search,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Ask AI',
-          icon: AshlarIconsRoundedStroke.sparkles,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Home',
-          icon: AshlarIconsRoundedStroke.house,
-          active: true,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Inbox',
-          icon: AshlarIconsRoundedStroke.inbox,
-          badge: '10',
-          onPressed: () {},
-        ),
-      ]),
-      SidebarGroup(label: 'Favorites', [
-        for (final page in _favorites)
-          SidebarItem(
-            page,
-            icon: AshlarIconsRoundedStroke.fileText,
-            onPressed: () {},
-            action: SidebarAction(
-              icon: AshlarIconsRoundedStroke.ellipsis,
-              label: 'More for $page',
-              onPressed: () {},
-            ),
-          ),
-      ]),
-      SidebarGroup(label: 'Workspaces', [
-        for (final (name, pages) in _workspaces)
-          SidebarItem(
-            name,
-            icon: AshlarIconsRoundedStroke.folder,
-            children: [
-              for (final page in pages)
-                SidebarItem(page, icon: null, onPressed: () {}),
-            ],
-          ),
-      ]),
-      SidebarGroup(atEnd: true, [
-        SidebarItem(
-          'Calendar',
-          icon: AshlarIconsRoundedStroke.calendar,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Settings',
-          icon: AshlarIconsRoundedStroke.settings,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Templates',
-          icon: AshlarIconsRoundedStroke.blocks,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Trash',
-          icon: AshlarIconsRoundedStroke.trash,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Help',
-          icon: AshlarIconsRoundedStroke.circleQuestionMark,
-          onPressed: () {},
-        ),
-      ]),
-    ],
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 56,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                const SidebarTrigger(),
-                const SizedBox(width: 8),
-                const SizedBox(
-                  height: 16,
-                  child: Separator(axis: Axis.vertical),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Breadcrumb(items: [BreadcrumbItem(_favorites.first)]),
-                ),
-                const _Actions(),
-              ],
-            ),
-          ),
-        ),
-        const Expanded(child: _Placeholder()),
-      ],
-    ),
-  );
-}
-
-/// When the page was edited, a star, and the page's actions in a popover.
-class _Actions extends StatelessWidget {
-  const _Actions();
-
-  static const _groups = [
-    [
-      ('Customize Page', AshlarIconsRoundedStroke.settings),
-      ('Turn into wiki', AshlarIconsRoundedStroke.fileText),
-    ],
-    [
-      ('Copy Link', AshlarIconsRoundedStroke.link),
-      ('Duplicate', AshlarIconsRoundedStroke.layers),
-      ('Move to Trash', AshlarIconsRoundedStroke.trash),
-    ],
-    [
-      ('View analytics', AshlarIconsRoundedStroke.chartLine),
-      ('Version History', AshlarIconsRoundedStroke.clock),
-      ('Notifications', AshlarIconsRoundedStroke.bell),
-    ],
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final wide = MediaQuery.sizeOf(context).width >= 768;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (wide)
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8),
-            child: Text(
-              'Edit Oct 08',
-              style: t.text.sm.copyWith(color: t.colors.mutedForeground),
-            ),
-          ),
-        Button(
-          variant: ButtonVariant.ghost,
-          size: ButtonSize.icon,
-          semanticLabel: 'Add to favorites',
-          onPressed: () {},
-          child: const AshlarIcon(AshlarIconsRoundedStroke.star),
-        ),
-        Popover(
-          align: PopoverAlign.end,
-          width: 224,
-          builder: (context, menu) => Button(
-            variant: ButtonVariant.ghost,
-            size: ButtonSize.icon,
-            semanticLabel: 'Page actions',
-            onPressed: menu.open,
-            child: const AshlarIcon(AshlarIconsRoundedStroke.ellipsis),
-          ),
-          content: (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (i, group) in _groups.indexed) ...[
-                if (i > 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child: Separator(),
-                  ),
-                for (final (label, icon) in group)
-                  Button(
-                    variant: ButtonVariant.ghost,
-                    size: ButtonSize.sm,
-                    expand: true,
-                    leading: AshlarIcon(icon),
-                    onPressed: () {},
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(label),
-                    ),
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// The team you are working in, and a menu to change it.
-class _TeamSwitcher extends StatefulWidget {
-  const _TeamSwitcher();
-
-  @override
-  State<_TeamSwitcher> createState() => _TeamSwitcherState();
-}
-
-class _TeamSwitcherState extends State<_TeamSwitcher> {
-  // Sample teams.
-  static const _teams = [
-    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
-    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
-    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
-  ];
-  var _team = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final (name, plan, icon) = _teams[_team];
-    return DropdownMenu(
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Team: $name',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.sidebarPrimary,
-                borderRadius: BorderRadius.circular(t.radiusLg),
-              ),
-              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(plan, style: t.text.xs),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        const MenuLabel(child: Text('Teams')),
-        for (final (i, (name, _, icon)) in _teams.indexed)
-          MenuItem(
-            leading: AshlarIcon(icon),
-            shortcut: Text('⌘${i + 1}'),
-            onPressed: () => setState(() => _team = i),
-            child: Text(name),
-          ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
-          onPressed: () {},
-          child: const Text('Add team'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-11': Component(
-    description: "A project's files as a tree, the changed ones above it.",
-    requires: ["breadcrumb","pressable","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_11.dart': r'''// Ashlar UI block: sidebar-11. Copied into your app by `ashlar add sidebar-11`; it is yours
-// to change. A project's files as a tree whose folders open and close, with the changed
-// files listed above it.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/pressable.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// A file, or a folder of more.
-class _Node {
-  const _Node(this.name, [this.children]);
-
-  final String name;
-  final List<_Node>? children;
-}
-
-/// A sample project.
-const _tree = [
-  _Node('lib', [
-    _Node('main.dart'),
-    _Node('ui', [_Node('button.dart'), _Node('card.dart')]),
-    _Node('screens', [_Node('home.dart'), _Node('settings.dart')]),
-  ]),
-  _Node('test', [_Node('widget_test.dart')]),
-  _Node('web', [_Node('index.html'), _Node('favicon.png')]),
-  _Node('analysis_options.yaml'),
-  _Node('pubspec.yaml'),
-  _Node('README.md'),
-];
-
-/// Files changed since the last commit: modified or untracked.
-const _changes = [
-  ('lib/ui/button.dart', 'M'),
-  ('lib/screens/settings.dart', 'U'),
-  ('pubspec.yaml', 'M'),
-];
-
-/// A sidebar with a file tree.
-class Sidebar11 extends StatefulWidget {
-  const Sidebar11({super.key});
-
-  @override
-  State<Sidebar11> createState() => _Sidebar11State();
-}
-
-class _Sidebar11State extends State<Sidebar11> {
-  var _file = 'lib/ui/button.dart';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    collapse: SidebarCollapse.offcanvas,
-    groups: [
-      SidebarGroup(label: 'Changes', [
-        for (final (path, state) in _changes)
-          SidebarItem(
-            path.split('/').last,
-            icon: AshlarIconsRoundedStroke.file,
-            badge: state,
-            active: path == _file,
-            onPressed: () => setState(() => _file = path),
-          ),
-      ]),
-      SidebarGroup.custom(
-        label: 'Files',
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final node in _tree)
-              _Branch(
-                node: node,
-                path: node.name,
-                picked: _file,
-                onPicked: (p) => setState(() => _file = p),
-              ),
-          ],
-        ),
-      ),
-    ],
-    child: _Page(trail: _file.split('/')),
-  );
-}
-
-/// One row of the tree: a file to pick, or a folder that opens onto its own rows.
-class _Branch extends StatefulWidget {
-  const _Branch({
-    required this.node,
-    required this.path,
-    required this.picked,
-    required this.onPicked,
-  });
-
-  final _Node node;
-  final String path, picked;
-  final ValueChanged<String> onPicked;
-
-  @override
-  State<_Branch> createState() => _BranchState();
-}
-
-class _BranchState extends State<_Branch> {
-  // Folders on the way to the picked file start open.
-  late var _open = widget.picked.startsWith('${widget.path}/');
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final children = widget.node.children;
-    final folder = children != null;
-    final picked = widget.path == widget.picked;
-    final row = Pressable(
-      onPressed: folder
-          ? () => setState(() => _open = !_open)
-          : () => widget.onPicked(widget.path),
-      expanded: folder ? _open : null,
-      selected: folder ? null : picked,
-      semanticLabel: widget.node.name,
-      builder: (context, states) => Container(
-        height: 32,
-        padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
-        decoration: BoxDecoration(
-          color: picked || states.hovered
-              ? c.sidebarAccent
-              : const Color(0x00000000),
-          borderRadius: BorderRadius.circular(t.radiusMd),
-          border: states.focused ? Border.all(color: c.sidebarRing) : null,
-        ),
-        child: Row(
-          children: [
-            if (folder) ...[
-              AnimatedRotation(
-                turns: _open ? .25 : 0,
-                duration: t.duration,
-                child: AshlarIcon(
-                  isRtl(context)
-                      ? AshlarIconsRoundedStroke.chevronLeft
-                      : AshlarIconsRoundedStroke.chevronRight,
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
-            AshlarIcon(
-              folder
-                  ? (_open
-                        ? AshlarIconsRoundedStroke.folderOpen
-                        : AshlarIconsRoundedStroke.folder)
-                  : AshlarIconsRoundedStroke.file,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(widget.node.name, overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (!folder) return row;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        row,
-        if (_open)
-          Container(
-            margin: const EdgeInsetsDirectional.only(start: 15),
-            padding: const EdgeInsetsDirectional.only(start: 6),
-            decoration: BoxDecoration(
-              border: BorderDirectional(
-                start: BorderSide(color: c.sidebarBorder),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final child in children)
-                  _Branch(
-                    node: child,
-                    path: '${widget.path}/${child.name}',
-                    picked: widget.picked,
-                    onPicked: widget.onPicked,
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-12': Component(
-    description: "A calendar app: a month to pick from, and calendars to show.",
-    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_12.dart': r'''// Ashlar UI block: sidebar-12. Copied into your app by `ashlar add sidebar-12`; it is yours
-// to change. A calendar app: who is signed in, a month to pick a day from, and the
-// calendars to show.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/calendar.dart';
-import '../ui/checkbox.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/field.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// A sidebar with a calendar.
-class Sidebar12 extends StatefulWidget {
-  const Sidebar12({super.key});
-
-  @override
-  State<Sidebar12> createState() => _Sidebar12State();
-}
-
-class _Sidebar12State extends State<Sidebar12> {
-  var _day = DateTime(2026, 10, 13);
-
-  @override
-  Widget build(BuildContext context) {
-    final names = DateNames.of(context);
-    return SidebarLayout(
-      collapse: SidebarCollapse.offcanvas,
-      header: const _NavUser(),
-      groups: [
-        SidebarGroup.custom(
-          Calendar(selected: _day, onSelected: (d) => setState(() => _day = d)),
-        ),
-        const SidebarGroup.custom(Separator()),
-        const SidebarGroup.custom(_Calendars()),
-      ],
-      footer: Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
-        onPressed: () {},
-        child: const Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Text('New Calendar'),
-        ),
-      ),
-      child: _Page(trail: [names.monthYear(_day), names.date(_day)]),
-    );
-  }
-}
-
-/// Sample calendars, in groups.
-const _calendars = [
-  ('My Calendars', ['Personal', 'Work', 'Family']),
-  ('Favorites', ['Holidays', 'Birthdays']),
-  ('Other', ['Travel', 'Reminders', 'Deadlines']),
-];
-
-/// The calendars to show, by group, each group folding away.
-class _Calendars extends StatefulWidget {
-  const _Calendars();
-
-  @override
-  State<_Calendars> createState() => _CalendarsState();
-}
-
-class _CalendarsState extends State<_Calendars> {
-  final _shown = {'Personal', 'Work', 'Holidays'};
-  final _open = {'My Calendars'};
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (group, names) in _calendars) ...[
-          Button(
-            variant: ButtonVariant.ghost,
-            size: ButtonSize.sm,
-            expand: true,
-            onPressed: () => setState(
-              () => _open.contains(group)
-                  ? _open.remove(group)
-                  : _open.add(group),
-            ),
-            trailing: AnimatedRotation(
-              turns: _open.contains(group) ? .25 : 0,
-              duration: t.duration,
-              child: AshlarIcon(
-                isRtl(context)
-                    ? AshlarIconsRoundedStroke.chevronLeft
-                    : AshlarIconsRoundedStroke.chevronRight,
-              ),
-            ),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(group),
-            ),
-          ),
-          if (_open.contains(group))
-            for (final name in names)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: 12,
-                  top: 4,
-                  bottom: 4,
-                ),
-                child: Field(
-                  axis: Axis.horizontal,
-                  label: Text(name),
-                  child: Checkbox(
-                    value: _shown.contains(name),
-                    onChanged: (v) => setState(
-                      () => v ? _shown.add(name) : _shown.remove(name),
-                    ),
-                  ),
-                ),
-              ),
-        ],
-      ],
-    );
-  }
-}
-
-/// Who is signed in, and a menu for their account.
-class _NavUser extends StatelessWidget {
-  const _NavUser();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
-          onPressed: () {},
-          child: const Text('Upgrade to Pro'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-13': Component(
-    description: "Settings in a dialog, their sections down its side.",
-    requires: ["breadcrumb","button","dialog","separator","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_13.dart': r'''// Ashlar UI block: sidebar-13. Copied into your app by `ashlar add sidebar-13`; it is yours
-// to change. Settings in a dialog: their sections down the side, the open one beside them.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dialog.dart';
-import '../ui/separator.dart';
-import '../ui/theme.dart';
-
-/// Sample settings sections.
-const _sections = [
-  ('Notifications', AshlarIconsRoundedStroke.bell),
-  ('Navigation', AshlarIconsRoundedStroke.menu),
-  ('Home', AshlarIconsRoundedStroke.house),
-  ('Appearance', AshlarIconsRoundedStroke.paintbrush),
-  ('Messages & media', AshlarIconsRoundedStroke.messageCircle),
-  ('Language & region', AshlarIconsRoundedStroke.globe),
-  ('Accessibility', AshlarIconsRoundedStroke.keyboard),
-  ('Mark as read', AshlarIconsRoundedStroke.check),
-  ('Audio & video', AshlarIconsRoundedStroke.video),
-  ('Connected accounts', AshlarIconsRoundedStroke.link),
-  ('Privacy & visibility', AshlarIconsRoundedStroke.lock),
-  ('Advanced', AshlarIconsRoundedStroke.settings),
-];
-
-/// A page with a button that opens the settings dialog.
-class Sidebar13 extends StatelessWidget {
-  const Sidebar13({super.key});
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Button(
-      onPressed: () => showAshlarDialog<void>(
-        context: context,
-        builder: (context) => const Dialog(maxWidth: 800, content: _Settings()),
-      ),
-      child: const Text('Open Dialog'),
-    ),
-  );
-}
-
-/// The settings: sections down the side where there is room, the open one beside them.
-class _Settings extends StatefulWidget {
-  const _Settings();
-
-  @override
-  State<_Settings> createState() => _SettingsState();
-}
-
-class _SettingsState extends State<_Settings> {
-  var _section = 'Messages & media';
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final wide = MediaQuery.sizeOf(context).width >= 768;
-    final box = BoxDecoration(
-      color: c.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Breadcrumb(
-          items: [
-            BreadcrumbItem('Settings', onPressed: () {}),
-            BreadcrumbItem(_section),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const Separator(),
-        const SizedBox(height: 16),
-        for (var i = 0; i < 6; i++) ...[
-          if (i > 0) const SizedBox(height: 16),
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: DecoratedBox(decoration: box),
-          ),
-        ],
-      ],
-    );
-    if (!wide) return content;
-    return SizedBox(
-      height: 480,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: 200,
-            child: ListView(
-              children: [
-                for (final (name, icon) in _sections)
-                  Button(
-                    variant: name == _section
-                        ? ButtonVariant.secondary
-                        : ButtonVariant.ghost,
-                    size: ButtonSize.sm,
-                    expand: true,
-                    leading: AshlarIcon(icon),
-                    onPressed: () => setState(() => _section = name),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(name, overflow: TextOverflow.ellipsis),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: SingleChildScrollView(child: content)),
-        ],
-      ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-14': Component(
-    description: "A table of contents on the right of the page.",
-    requires: ["breadcrumb","separator","sidebar","theme"],
-    packages: [],
-    block: true,
-    files: {
-      'blocks/sidebar_14.dart': r'''// Ashlar UI block: sidebar-14. Copied into your app by `ashlar add sidebar-14`; it is yours
-// to change. A table of contents on the right of the page.
-
-import 'package:flutter/widgets.dart';
-
-import '../ui/breadcrumb.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample contents: sections of pages.
-const _sections = [
-  ('Getting Started', ['Installation', 'Project Structure']),
-  (
-    'Build Your App',
-    ['Routing', 'Data Fetching', 'Rendering', 'State', 'Styling'],
-  ),
-  ('API Reference', ['Components', 'Widgets', 'Functions', 'CLI']),
-  ('Architecture', ['Layers', 'Hot Reload', 'Platform Channels']),
-];
-
-/// A sidebar on the right.
-class Sidebar14 extends StatefulWidget {
-  const Sidebar14({super.key});
-
-  @override
-  State<Sidebar14> createState() => _Sidebar14State();
-}
-
-class _Sidebar14State extends State<Sidebar14> {
-  var _page = 'Data Fetching';
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    side: SidebarSide.end,
-    collapse: SidebarCollapse.offcanvas,
-    groups: [
-      SidebarGroup(label: 'Table of Contents', [
-        for (final (section, pages) in _sections)
-          SidebarItem(
-            section,
-            icon: null,
-            initiallyOpen: true,
-            children: [
-              for (final page in pages)
-                SidebarItem(
-                  page,
-                  icon: null,
-                  active: page == _page,
-                  onPressed: () => setState(() => _page = page),
-                ),
-            ],
-          ),
-      ]),
-    ],
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 64,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Breadcrumb(
-                    items: [
-                      BreadcrumbItem(
-                        _sections.firstWhere((s) => s.$2.contains(_page)).$1,
-                        onPressed: () {},
-                      ),
-                      BreadcrumbItem(_page),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 16,
-                  child: Separator(axis: Axis.vertical),
-                ),
-                const SizedBox(width: 8),
-                const SidebarTrigger(),
-              ],
-            ),
-          ),
-        ),
-        const Separator(),
-        const Expanded(child: _Placeholder()),
-      ],
-    ),
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-15': Component(
-    description: "A sidebar on each side: pages on the left, a calendar on the right.",
-    requires: ["avatar","breadcrumb","button","calendar","checkbox","dropdown-menu","field","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_15.dart': r'''// Ashlar UI block: sidebar-15. Copied into your app by `ashlar add sidebar-15`; it is yours
-// to change. A sidebar on each side: pages on the left, folding away; a calendar and the
-// calendars to show on the right, staying put.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/calendar.dart';
-import '../ui/checkbox.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/field.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample pages and workspaces.
-const _favorites = [
-  'Project Management & Task Tracking',
-  'Family Recipe Collection & Meal Planning',
-  'Fitness Tracker & Workout Routines',
-];
-const _workspaces = [
-  (
-    'Personal Life Management',
-    ['Daily Journal & Reflection', 'Health & Wellness Tracker'],
-  ),
-  (
-    'Professional Development',
-    ['Career Objectives & Milestones', 'Skill Acquisition Plan'],
-  ),
-];
-
-/// A sidebar on the left and another on the right.
-class Sidebar15 extends StatefulWidget {
-  const Sidebar15({super.key});
-
-  @override
-  State<Sidebar15> createState() => _Sidebar15State();
-}
-
-class _Sidebar15State extends State<Sidebar15> {
-  var _day = DateTime(2026, 10, 13);
-
-  @override
-  Widget build(BuildContext context) => SidebarLayout(
-    header: const _TeamSwitcher(),
-    groups: [
-      SidebarGroup([
-        SidebarItem(
-          'Search',
-          icon: AshlarIconsRoundedStroke.search,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Ask AI',
-          icon: AshlarIconsRoundedStroke.sparkles,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Home',
-          icon: AshlarIconsRoundedStroke.house,
-          active: true,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Inbox',
-          icon: AshlarIconsRoundedStroke.inbox,
-          badge: '10',
-          onPressed: () {},
-        ),
-      ]),
-      SidebarGroup(label: 'Favorites', [
-        for (final page in _favorites)
-          SidebarItem(
-            page,
-            icon: AshlarIconsRoundedStroke.fileText,
-            onPressed: () {},
-          ),
-      ]),
-      SidebarGroup(label: 'Workspaces', [
-        for (final (name, pages) in _workspaces)
-          SidebarItem(
-            name,
-            icon: AshlarIconsRoundedStroke.folder,
-            children: [
-              for (final page in pages)
-                SidebarItem(page, icon: null, onPressed: () {}),
-            ],
-          ),
-      ]),
-      SidebarGroup(atEnd: true, [
-        SidebarItem(
-          'Settings',
-          icon: AshlarIconsRoundedStroke.settings,
-          onPressed: () {},
-        ),
-        SidebarItem(
-          'Help',
-          icon: AshlarIconsRoundedStroke.circleQuestionMark,
-          onPressed: () {},
-        ),
-      ]),
-    ],
-    child: SidebarLayout(
-      side: SidebarSide.end,
-      collapse: SidebarCollapse.none,
-      width: 288,
-      narrow: 1024,
-      header: const _NavUser(),
-      groups: [
-        SidebarGroup.custom(
-          Calendar(selected: _day, onSelected: (d) => setState(() => _day = d)),
-        ),
-        const SidebarGroup.custom(Separator()),
-        const SidebarGroup.custom(_Calendars()),
-      ],
-      footer: Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
-        onPressed: () {},
-        child: const Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Text('New Calendar'),
-        ),
-      ),
-      child: _Page(trail: [_favorites.first]),
-    ),
-  );
-}
-
-/// The team you are working in, and a menu to change it.
-class _TeamSwitcher extends StatefulWidget {
-  const _TeamSwitcher();
-
-  @override
-  State<_TeamSwitcher> createState() => _TeamSwitcherState();
-}
-
-class _TeamSwitcherState extends State<_TeamSwitcher> {
-  // Sample teams.
-  static const _teams = [
-    ('Acme Inc', 'Enterprise', AshlarIconsRoundedStroke.galleryVerticalEnd),
-    ('Acme Corp.', 'Startup', AshlarIconsRoundedStroke.audioLines),
-    ('Evil Corp.', 'Free', AshlarIconsRoundedStroke.command),
-  ];
-  var _team = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    final (name, plan, icon) = _teams[_team];
-    return DropdownMenu(
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Team: $name',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.sidebarPrimary,
-                borderRadius: BorderRadius.circular(t.radiusLg),
-              ),
-              child: AshlarIcon(icon, color: c.sidebarPrimaryForeground),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(plan, style: t.text.xs),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        const MenuLabel(child: Text('Teams')),
-        for (final (i, (name, _, icon)) in _teams.indexed)
-          MenuItem(
-            leading: AshlarIcon(icon),
-            shortcut: Text('⌘${i + 1}'),
-            onPressed: () => setState(() => _team = i),
-            child: Text(name),
-          ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.plus),
-          onPressed: () {},
-          child: const Text('Add team'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Sample calendars, in groups.
-const _calendars = [
-  ('My Calendars', ['Personal', 'Work', 'Family']),
-  ('Favorites', ['Holidays', 'Birthdays']),
-  ('Other', ['Travel', 'Reminders', 'Deadlines']),
-];
-
-/// The calendars to show, by group, each group folding away.
-class _Calendars extends StatefulWidget {
-  const _Calendars();
-
-  @override
-  State<_Calendars> createState() => _CalendarsState();
-}
-
-class _CalendarsState extends State<_Calendars> {
-  final _shown = {'Personal', 'Work', 'Holidays'};
-  final _open = {'My Calendars'};
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (group, names) in _calendars) ...[
-          Button(
-            variant: ButtonVariant.ghost,
-            size: ButtonSize.sm,
-            expand: true,
-            onPressed: () => setState(
-              () => _open.contains(group)
-                  ? _open.remove(group)
-                  : _open.add(group),
-            ),
-            trailing: AnimatedRotation(
-              turns: _open.contains(group) ? .25 : 0,
-              duration: t.duration,
-              child: AshlarIcon(
-                isRtl(context)
-                    ? AshlarIconsRoundedStroke.chevronLeft
-                    : AshlarIconsRoundedStroke.chevronRight,
-              ),
-            ),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(group),
-            ),
-          ),
-          if (_open.contains(group))
-            for (final name in names)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: 12,
-                  top: 4,
-                  bottom: 4,
-                ),
-                child: Field(
-                  axis: Axis.horizontal,
-                  label: Text(name),
-                  child: Checkbox(
-                    value: _shown.contains(name),
-                    onChanged: (v) => setState(
-                      () => v ? _shown.add(name) : _shown.remove(name),
-                    ),
-                  ),
-                ),
-              ),
-        ],
-      ],
-    );
-  }
-}
-
-/// Who is signed in, and a menu for their account.
-class _NavUser extends StatelessWidget {
-  const _NavUser();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
-          onPressed: () {},
-          child: const Text('Upgrade to Pro'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-/// The page beside the sidebar: the trigger and where you are along the top, and room
-/// for your content under it.
-class _Page extends StatelessWidget {
-  const _Page({required this.trail});
-
-  /// Where you are, from the top down; the last is this page.
-  final List<String> trail;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SizedBox(
-        height: 64,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              const SidebarTrigger(),
-              const SizedBox(width: 8),
-              const SizedBox(height: 16, child: Separator(axis: Axis.vertical)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Breadcrumb(
-                  items: [
-                    for (final (i, label) in trail.indexed)
-                      BreadcrumbItem(
-                        label,
-                        onPressed: i == trail.length - 1 ? null : () {},
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const Separator(),
-      const Expanded(child: _Placeholder()),
-    ],
-  );
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
-  'sidebar-16': Component(
-    description: "A site header across the top, the sidebar under it.",
-    requires: ["avatar","breadcrumb","button","dropdown-menu","input","popover","separator","sidebar","theme"],
-    packages: ["ashlar_icons"],
-    block: true,
-    files: {
-      'blocks/sidebar_16.dart': r'''// Ashlar UI block: sidebar-16. Copied into your app by `ashlar add sidebar-16`; it is yours
-// to change. A site header across the top that stays as the page scrolls, and the sidebar
-// under it.
-
-import 'package:ashlar_icons/ashlar_icons.dart';
-import 'package:flutter/widgets.dart';
-
-import '../ui/avatar.dart';
-import '../ui/breadcrumb.dart';
-import '../ui/button.dart';
-import '../ui/dropdown_menu.dart';
-import '../ui/input.dart';
-import '../ui/popover.dart';
-import '../ui/separator.dart';
-import '../ui/sidebar.dart';
-import '../ui/theme.dart';
-
-/// Sample sections, each with its pages.
-const _platform = [
-  (
-    'Playground',
-    AshlarIconsRoundedStroke.terminal,
-    ['History', 'Starred', 'Settings'],
-  ),
-  ('Models', AshlarIconsRoundedStroke.bot, ['Genesis', 'Explorer', 'Quantum']),
-  (
-    'Documentation',
-    AshlarIconsRoundedStroke.bookOpen,
-    ['Introduction', 'Get Started', 'Tutorials', 'Changelog'],
-  ),
-  (
-    'Settings',
-    AshlarIconsRoundedStroke.settings,
-    ['General', 'Team', 'Billing', 'Limits'],
-  ),
-];
-
-/// Sample projects.
-const _projects = [
-  ('Design Engineering', AshlarIconsRoundedStroke.frame),
-  ('Sales & Marketing', AshlarIconsRoundedStroke.chartPie),
-  ('Travel', AshlarIconsRoundedStroke.map),
-];
-
-/// A site header over a sidebar and its page.
-class Sidebar16 extends StatefulWidget {
-  const Sidebar16({super.key});
-
-  @override
-  State<Sidebar16> createState() => _Sidebar16State();
-}
-
-class _Sidebar16State extends State<Sidebar16> {
-  // The header is above the sidebar, so its button reaches the sidebar by this key.
-  final _sidebar = GlobalKey<SidebarLayoutState>();
-
-  @override
-  Widget build(BuildContext context) {
-    final wide = MediaQuery.sizeOf(context).width >= 640;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 56,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                Button(
-                  variant: ButtonVariant.ghost,
-                  size: ButtonSize.icon,
-                  semanticLabel: 'Toggle sidebar',
-                  onPressed: () => _sidebar.currentState?.toggle(),
-                  child: const AshlarIcon(AshlarIconsRoundedStroke.panelLeft),
-                ),
-                const SizedBox(width: 8),
-                const SizedBox(
-                  height: 16,
-                  child: Separator(axis: Axis.vertical),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Breadcrumb(
-                    items: [
-                      BreadcrumbItem('Build Your App', onPressed: () {}),
-                      const BreadcrumbItem('Data Fetching'),
-                    ],
-                  ),
-                ),
-                if (wide)
-                  const SizedBox(
-                    width: 240,
-                    child: Input(
-                      placeholder: 'Type to search…',
-                      semanticLabel: 'Search',
-                      leading: AshlarIcon(AshlarIconsRoundedStroke.search),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        const Separator(),
-        Expanded(
-          child: SidebarLayout(
-            key: _sidebar,
-            groups: [
-              SidebarGroup(label: 'Platform', [
-                for (final (i, (label, icon, pages)) in _platform.indexed)
-                  SidebarItem(
-                    label,
-                    icon: icon,
-                    initiallyOpen: i == 0,
-                    children: [
-                      for (final page in pages)
-                        SidebarItem(page, icon: null, onPressed: () {}),
-                    ],
-                  ),
-              ]),
-              SidebarGroup(label: 'Projects', [
-                for (final (label, icon) in _projects)
-                  SidebarItem(label, icon: icon, onPressed: () {}),
-              ]),
-              SidebarGroup(atEnd: true, [
-                SidebarItem(
-                  'Support',
-                  icon: AshlarIconsRoundedStroke.lifeBuoy,
-                  onPressed: () {},
-                ),
-                SidebarItem(
-                  'Feedback',
-                  icon: AshlarIconsRoundedStroke.send,
-                  onPressed: () {},
-                ),
-              ]),
-            ],
-            footer: const _NavUser(),
-            child: const _Placeholder(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Who is signed in, and a menu for their account.
-class _NavUser extends StatelessWidget {
-  const _NavUser();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final c = t.colors;
-    return DropdownMenu(
-      side: PopoverSide.top,
-      width: 224,
-      builder: (context, menu) => Button(
-        variant: ButtonVariant.ghost,
-        expand: true,
-        semanticLabel: 'Account: Wanjiru Kamau',
-        onPressed: menu.open,
-        trailing: const AshlarIcon(AshlarIconsRoundedStroke.chevronsUpDown),
-        child: Row(
-          children: [
-            const Avatar(fallback: 'WK'),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Wanjiru Kamau',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.sm.copyWith(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    'wanjiru@solutech.co.ke',
-                    overflow: TextOverflow.ellipsis,
-                    style: t.text.xs.copyWith(color: c.mutedForeground),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      items: [
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.sparkles),
-          onPressed: () {},
-          child: const Text('Upgrade to Pro'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.badgeCheck),
-          onPressed: () {},
-          child: const Text('Account'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.creditCard),
-          onPressed: () {},
-          child: const Text('Billing'),
-        ),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.bell),
-          onPressed: () {},
-          child: const Text('Notifications'),
-        ),
-        const MenuSeparator(),
-        MenuItem(
-          leading: const AshlarIcon(AshlarIconsRoundedStroke.logOut),
-          onPressed: () {},
-          child: const Text('Log out'),
-        ),
-      ],
-    );
-  }
-}
-
-/// Grey shapes where the page's content goes.
-class _Placeholder extends StatelessWidget {
-  const _Placeholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AshlarTheme.of(context);
-    final box = BoxDecoration(
-      color: t.colors.muted.withValues(alpha: .5),
-      borderRadius: BorderRadius.circular(t.radiusXl),
-    );
-    return LayoutBuilder(
-      builder: (context, size) => size.maxWidth >= 768
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: DecoratedBox(decoration: box),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: SizedBox.expand(
-                      child: DecoratedBox(decoration: box),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (var i = 0; i < 3; i++) ...[
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: DecoratedBox(decoration: box),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                SizedBox(height: 480, child: DecoratedBox(decoration: box)),
-              ],
-            ),
-    );
-  }
-}
-''',
-    },
-  ),
   'message': Component(
     description: "One turn in a conversation: who sent it, what they said, a line above or below.",
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'message.dart': r'''// Ashlar UI: Message. Copied into your app by `ashlar add message`; it is yours to change.
 
@@ -44858,6 +44092,7 @@ class MessageDemo extends StatelessWidget {
     requires: ["message","pressable","theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'bubble.dart': r'''// Ashlar UI: Bubble. Copied into your app by `ashlar add bubble`; it is yours to change.
 
@@ -45227,6 +44462,7 @@ class BubbleDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'marker.dart': r'''// Ashlar UI: Marker. Copied into your app by `ashlar add marker`; it is yours to change.
 
@@ -45411,6 +44647,7 @@ class MarkerDemo extends StatelessWidget {
     requires: ["button","pressable","spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'attachment.dart': r'''// Ashlar UI: Attachment. Copied into your app by `ashlar add attachment`; it is yours to
 // change.
@@ -46040,6 +45277,7 @@ class AttachmentDemo extends StatelessWidget {
     requires: ["pressable","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'markdown.dart': r'''// Ashlar UI: Markdown. Copied into your app by `ashlar add markdown`; it is yours to change.
 //
@@ -47319,6 +46557,7 @@ class MarkdownDemo extends StatelessWidget {
     requires: ["button","input-group","textarea","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'prompt_input.dart': r'''// Ashlar UI: Prompt Input. Copied into your app by `ashlar add prompt-input`; it is yours to
 // change.
@@ -47542,10 +46781,10 @@ void main() {
     ) async {
       final sent = <String>[];
       await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
-      await tester.enterText(find.byType(EditableText), '  How far is Nakuru?  ');
+      await tester.enterText(find.byType(EditableText), '  How far is the airport?  ');
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
-      expect(sent, ['How far is Nakuru?']);
+      expect(sent, ['How far is the airport?']);
       expect(
         tester.widget<EditableText>(find.byType(EditableText)).controller.text,
         isEmpty,
@@ -47661,7 +46900,7 @@ class PromptInputDemo extends StatelessWidget {
       placeholder: 'Ask about orders and deliveries',
       attachments: const [
         Attachment(
-          title: 'westlands-week-43.csv',
+          title: 'downtown-week-43.csv',
           description: '38 rows',
           icon: AshlarIconsRoundedStroke.fileText,
         ),
@@ -47692,6 +46931,7 @@ class PromptInputDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'shimmer.dart': r'''// Ashlar UI: Shimmer. Copied into your app by `ashlar add shimmer`; it is yours to change.
 
@@ -47871,6 +47111,7 @@ class ShimmerDemo extends StatelessWidget {
     requires: ["collapsible","pressable","shimmer","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'reasoning.dart': r'''// Ashlar UI: Reasoning. Copied into your app by `ashlar add reasoning`; it is yours to change.
 
@@ -48145,7 +47386,7 @@ class ReasoningDemo extends StatelessWidget {
         Reasoning(
           thinking: true,
           child: Text(
-            'Late means past its promised time and not yet delivered. I need this week\'s Westlands orders first.',
+            'Late means past its promised time and not yet delivered. I need this week\'s Downtown orders first.',
           ),
         ),
         SizedBox(height: 16),
@@ -48161,6 +47402,7 @@ class ReasoningDemo extends StatelessWidget {
     requires: ["badge","button","collapsible","pressable","shimmer","spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'tool_call.dart': r'''// Ashlar UI: Tool Call. Copied into your app by `ashlar add tool-call`; it is yours to change.
 
@@ -48573,10 +47815,10 @@ void main() {
       await tester.pumpWidget(
         app(
           ToolCall(
-            title: 'Refund KES 2,500',
+            title: 'Refund \$25',
             name: 'refund_order',
             status: ToolCallStatus.approval,
-            approval: 'Refund KES 2,500 to Wanjiru?',
+            approval: 'Refund \$25 to Maya?',
             onApprove: () => approved++,
             onDeny: () => denied++,
           ),
@@ -48585,7 +47827,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Needs approval'), findsOneWidget);
       expect(
-        find.text('Refund KES 2,500 to Wanjiru?').hitTestable(),
+        find.text('Refund \$25 to Maya?').hitTestable(),
         findsOneWidget,
       );
       await tester.tap(find.text('Approve'));
@@ -48626,7 +47868,7 @@ void main() {
       await tester.pumpWidget(
         app(
           const ToolCall(
-            title: 'Look up every order placed from the Westlands branch',
+            title: 'Look up every order placed from the Downtown branch',
             name: 'list_orders_for_branch_with_items',
             status: ToolCallStatus.approval,
           ),
@@ -48658,7 +47900,7 @@ class ToolCallDemo extends StatelessWidget {
         const ToolCall(
           title: 'Look up this week\'s orders',
           name: 'list_orders',
-          input: '{"branch": "westlands"}',
+          input: '{"branch": "downtown"}',
           output: '{"count": 38, "late": 3}',
         ),
         const SizedBox(height: 10),
@@ -48669,7 +47911,7 @@ class ToolCallDemo extends StatelessWidget {
           name: 'send_sms',
           status: ToolCallStatus.approval,
           input: '{"orders": [1042, 1057, 1063]}',
-          approval: 'Send an SMS about the delay to Wanjiru, Otieno and Njeri?',
+          approval: 'Send an SMS about the delay to Maya, Otieno and Luis?',
           onApprove: () {},
           onDeny: () {},
         ),
@@ -48684,6 +47926,7 @@ class ToolCallDemo extends StatelessWidget {
     requires: ["collapsible","pressable","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'sources.dart': r'''// Ashlar UI: Sources. Copied into your app by `ashlar add sources`; it is yours to change.
 
@@ -49067,6 +48310,7 @@ class SourcesDemo extends StatelessWidget {
     requires: ["shimmer","spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'plan.dart': r'''// Ashlar UI: Plan. Copied into your app by `ashlar add plan`; it is yours to change.
 
@@ -49412,6 +48656,7 @@ class PlanDemo extends StatelessWidget {
     requires: ["theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'soundwave.dart': r'''// Ashlar UI: Soundwave. Copied into your app by `ashlar add soundwave`; it is yours to change.
 
@@ -49616,6 +48861,7 @@ class SoundwaveDemo extends StatelessWidget {
     requires: ["button"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'message_scroller.dart': r'''// Ashlar UI: Message Scroller. Copied into your app by `ashlar add message-scroller`; it is
 // yours to change.
@@ -50611,6 +49857,7 @@ class _MessageScrollerDemoState extends State<MessageScrollerDemo> {
     requires: ["button","input","kbd","pressable","progress","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'questionnaire.dart': r'''// Ashlar UI: Questionnaire. Copied into your app by `ashlar add questionnaire`; it is yours
 // to change.
@@ -51613,6 +50860,7 @@ class _QuestionnaireDemoState extends State<QuestionnaireDemo> {
     requires: ["pressable","theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'swipe_actions.dart': r'''// Ashlar UI: Swipe Actions. Copied into your app by `ashlar add swipe-actions`; it is
 // yours to change.
@@ -52069,6 +51317,7 @@ class _SwipeActionsDemoState extends State<SwipeActionsDemo> {
     requires: ["spinner","theme"],
     packages: ["ashlar_icons"],
     block: false,
+    replaces: [],
     files: {
       'pull_to_refresh.dart': r'''// Ashlar UI: Pull to Refresh. Copied into your app by `ashlar add pull-to-refresh`; it is
 // yours to change.
@@ -52480,6 +51729,7 @@ class _PullToRefreshDemoState extends State<PullToRefreshDemo> {
     requires: ["pressable","theme"],
     packages: [],
     block: false,
+    replaces: [],
     files: {
       'bottom_bar.dart': r'''// Ashlar UI: Bottom Bar. Copied into your app by `ashlar add bottom-bar`; it is yours to
 // change.

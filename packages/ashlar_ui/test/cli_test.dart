@@ -27,22 +27,37 @@ void main() {
     () async {
       final dir = project();
       final out = StringBuffer();
-      expect(await run(['add', 'login-01'], dir: dir, out: out), 0);
-      final block = File('${dir.path}/lib/blocks/login_01.dart');
+      expect(await run(['add', 'phone-sign-in'], dir: dir, out: out), 0);
+      final block = File('${dir.path}/lib/blocks/phone_sign_in.dart');
       expect(block.existsSync(), isTrue);
       expect(block.readAsStringSync(), contains("import '../ui/form.dart';"));
       expect(File('${dir.path}/lib/ui/form.dart').existsSync(), isTrue);
       expect(
-        File('${dir.path}/lib/ui/blocks/login_01.dart').existsSync(),
+        File('${dir.path}/lib/ui/blocks/phone_sign_in.dart').existsSync(),
         isFalse,
       );
     },
   );
 
+  test('a block\'s old name still adds it, and says its new one', () async {
+    final dir = project();
+    final out = StringBuffer();
+    expect(await run(['add', 'login-01'], dir: dir, out: out), 0);
+    expect(out.toString(), contains('login-01 is now phone-sign-in.'));
+    expect(
+      File('${dir.path}/lib/blocks/phone_sign_in.dart').existsSync(),
+      isTrue,
+    );
+    expect(File('${dir.path}/lib/blocks/login_01.dart').existsSync(), isFalse);
+  });
+
   test('with components elsewhere, the imports follow them', () async {
     final dir = project(config: {'path': 'lib/widgets/ui'});
-    expect(await run(['add', 'login-01'], dir: dir, out: StringBuffer()), 0);
-    final block = File('${dir.path}/lib/widgets/blocks/login_01.dart');
+    expect(
+      await run(['add', 'phone-sign-in'], dir: dir, out: StringBuffer()),
+      0,
+    );
+    final block = File('${dir.path}/lib/widgets/blocks/phone_sign_in.dart');
     expect(block.readAsStringSync(), contains("import '../ui/form.dart';"));
   });
 
@@ -50,8 +65,11 @@ void main() {
     final dir = project(
       config: {'path': 'lib/ui', 'blocks': 'lib/screens/auth'},
     );
-    expect(await run(['add', 'login-01'], dir: dir, out: StringBuffer()), 0);
-    final block = File('${dir.path}/lib/screens/auth/login_01.dart');
+    expect(
+      await run(['add', 'phone-sign-in'], dir: dir, out: StringBuffer()),
+      0,
+    );
+    final block = File('${dir.path}/lib/screens/auth/phone_sign_in.dart');
     expect(block.readAsStringSync(), contains("import '../../ui/form.dart';"));
   });
 
@@ -74,7 +92,7 @@ void main() {
       greaterThan(text.indexOf('  button ')),
     );
     expect(
-      text.indexOf('login-01'),
+      text.indexOf('phone-sign-in'),
       greaterThan(text.indexOf('Blocks, whole screens:')),
     );
   });
@@ -131,7 +149,7 @@ void main() {
   test('search finds by words in names and descriptions, blocks too', () async {
     final out = StringBuffer();
     expect(await run(['search', 'sign', 'in'], dir: project(), out: out), 0);
-    expect(out.toString(), contains('login-01'));
+    expect(out.toString(), contains('phone-sign-in'));
     expect(out.toString(), isNot(contains(' button ')));
     final none = StringBuffer();
     await run(['search', 'spaceship'], dir: project(), out: none);

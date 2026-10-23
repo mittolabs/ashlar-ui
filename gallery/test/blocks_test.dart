@@ -2,70 +2,57 @@
 // and the forms in them check what is sent.
 import 'dart:async';
 
-import 'package:ashlar_ui_gallery/blocks/chat_01.dart';
-import 'package:ashlar_ui_gallery/blocks/dashboard_01.dart';
-import 'package:ashlar_ui_gallery/blocks/login_01.dart';
-import 'package:ashlar_ui_gallery/blocks/login_02.dart';
-import 'package:ashlar_ui_gallery/blocks/login_03.dart';
-import 'package:ashlar_ui_gallery/blocks/login_04.dart';
-import 'package:ashlar_ui_gallery/blocks/login_05.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_01.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_02.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_03.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_04.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_05.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_06.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_07.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_08.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_09.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_10.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_11.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_12.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_13.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_14.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_15.dart';
-import 'package:ashlar_ui_gallery/blocks/sidebar_16.dart';
-import 'package:ashlar_ui_gallery/blocks/signup_01.dart';
-import 'package:ashlar_ui_gallery/blocks/signup_02.dart';
-import 'package:ashlar_ui_gallery/blocks/signup_03.dart';
-import 'package:ashlar_ui_gallery/blocks/signup_04.dart';
-import 'package:ashlar_ui_gallery/blocks/signup_05.dart';
-import 'package:ashlar_ui_gallery/blocks/wallet_01.dart';
+import 'package:ashlar_ui_gallery/blocks/account_picker.dart';
+import 'package:ashlar_ui_gallery/blocks/api_docs.dart';
+import 'package:ashlar_ui_gallery/blocks/assistant_chat.dart';
+import 'package:ashlar_ui_gallery/blocks/business_sign_up.dart';
+import 'package:ashlar_ui_gallery/blocks/clinic.dart';
+import 'package:ashlar_ui_gallery/blocks/code_review.dart';
+import 'package:ashlar_ui_gallery/blocks/field_notes.dart';
+import 'package:ashlar_ui_gallery/blocks/magic_link_sign_in.dart';
+import 'package:ashlar_ui_gallery/blocks/member_sign_up.dart';
+import 'package:ashlar_ui_gallery/blocks/newsroom.dart';
+import 'package:ashlar_ui_gallery/blocks/phone_sign_in.dart';
+import 'package:ashlar_ui_gallery/blocks/phone_sign_up.dart';
+import 'package:ashlar_ui_gallery/blocks/rent_tracker.dart';
+import 'package:ashlar_ui_gallery/blocks/salon_bookings.dart';
+import 'package:ashlar_ui_gallery/blocks/school_office.dart';
+import 'package:ashlar_ui_gallery/blocks/shop_dashboard.dart';
+import 'package:ashlar_ui_gallery/blocks/shop_settings.dart';
+import 'package:ashlar_ui_gallery/blocks/split_sign_in.dart';
+import 'package:ashlar_ui_gallery/blocks/staff_handbook.dart';
+import 'package:ashlar_ui_gallery/blocks/support_inbox.dart';
+import 'package:ashlar_ui_gallery/blocks/team_invite.dart';
+import 'package:ashlar_ui_gallery/blocks/till_pin.dart';
+import 'package:ashlar_ui_gallery/blocks/wallet.dart';
 import 'package:ashlar_ui_gallery/ui/app.dart';
-import 'package:ashlar_ui_gallery/ui/sidebar.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final blocks = <String, Widget Function()>{
-  'chat-01': () => const Chat01(),
-  'dashboard-01': () => const Dashboard01(),
-  'login-01': () => const Login01(),
-  'login-02': () => const Login02(),
-  'login-03': () => const Login03(),
-  'login-04': () => const Login04(),
-  'login-05': () => const Login05(),
-  'sidebar-01': () => const Sidebar01(),
-  'sidebar-02': () => const Sidebar02(),
-  'sidebar-03': () => const Sidebar03(),
-  'sidebar-04': () => const Sidebar04(),
-  'sidebar-05': () => const Sidebar05(),
-  'sidebar-06': () => const Sidebar06(),
-  'sidebar-07': () => const Sidebar07(),
-  'sidebar-08': () => const Sidebar08(),
-  'sidebar-09': () => const Sidebar09(),
-  'sidebar-10': () => const Sidebar10(),
-  'sidebar-11': () => const Sidebar11(),
-  'sidebar-12': () => const Sidebar12(),
-  'sidebar-13': () => const Sidebar13(),
-  'sidebar-14': () => const Sidebar14(),
-  'sidebar-15': () => const Sidebar15(),
-  'sidebar-16': () => const Sidebar16(),
-  'signup-01': () => const Signup01(),
-  'signup-02': () => const Signup02(),
-  'signup-03': () => const Signup03(),
-  'signup-04': () => const Signup04(),
-  'signup-05': () => const Signup05(),
-  'wallet-01': () => const Wallet01(),
+  'account-picker': () => const AccountPicker(),
+  'api-docs': () => const ApiDocs(),
+  'assistant-chat': () => const AssistantChat(),
+  'business-sign-up': () => const BusinessSignUp(),
+  'clinic': () => const Clinic(),
+  'code-review': () => const CodeReview(),
+  'field-notes': () => const FieldNotes(),
+  'magic-link-sign-in': () => const MagicLinkSignIn(),
+  'member-sign-up': () => const MemberSignUp(),
+  'newsroom': () => const Newsroom(),
+  'phone-sign-in': () => const PhoneSignIn(),
+  'phone-sign-up': () => const PhoneSignUp(),
+  'rent-tracker': () => const RentTracker(),
+  'salon-bookings': () => const SalonBookings(),
+  'school-office': () => const SchoolOffice(),
+  'shop-dashboard': () => const ShopDashboard(),
+  'shop-settings': () => const ShopSettings(),
+  'split-sign-in': () => const SplitSignIn(),
+  'staff-handbook': () => const StaffHandbook(),
+  'support-inbox': () => const SupportInbox(),
+  'team-invite': () => const TeamInvite(),
+  'till-pin': () => const TillPin(),
+  'wallet': () => const Wallet(),
 };
 
 Future<void> pumpAt(
@@ -101,51 +88,58 @@ void main() {
     }
   }
 
-  testWidgets('a login says what is wrong, then gives what is right', (
+  testWidgets('a phone number is checked, then the code is asked for', (
+    tester,
+  ) async {
+    String? sent;
+    (String, String)? verified;
+    await pumpAt(
+      tester,
+      const Size(1280, 800),
+      PhoneSignIn(
+        onSendCode: (p) => sent = p,
+        onVerify: (p, c) => verified = (p, c),
+      ),
+    );
+    await tester.enterText(find.byType(EditableText), '555 01');
+    await tester.tap(find.text('Text me a code'));
+    await tester.pump();
+    expect(
+      find.text('That does not look like a phone number.'),
+      findsOneWidget,
+    );
+    expect(sent, isNull);
+    await tester.enterText(find.byType(EditableText), '415 555 0123');
+    await tester.tap(find.text('Text me a code'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(sent, '+14155550123');
+    expect(find.text('Enter the code'), findsOneWidget);
+    await tester.enterText(find.byType(EditableText).first, '481516');
+    await tester.pump();
+    expect(verified, ('+14155550123', '481516'));
+  });
+
+  testWidgets('a sign-up waits for the terms, then gives the full number', (
     tester,
   ) async {
     (String, String)? got;
     await pumpAt(
       tester,
-      const Size(1280, 800),
-      Login01(onLogin: (e, p) => got = (e, p)),
-    );
-    await tester.tap(find.text('Login'));
-    await tester.pump();
-    expect(find.text('Enter your email.'), findsOneWidget);
-    expect(find.text('Enter your password.'), findsOneWidget);
-    expect(got, isNull);
-    final fields = find.byType(EditableText);
-    await tester.enterText(fields.at(0), 'ama@solutech.co.ke');
-    await tester.enterText(fields.at(1), 'brick-by-brick');
-    await tester.tap(find.text('Login'));
-    await tester.pump();
-    expect(got, ('ama@solutech.co.ke', 'brick-by-brick'));
-  });
-
-  testWidgets('a sign-up wants the two passwords to match', (tester) async {
-    (String, String, String)? got;
-    await pumpAt(
-      tester,
-      const Size(1280, 1000),
-      Signup01(onSignUp: (n, e, p) => got = (n, e, p)),
+      const Size(1280, 900),
+      PhoneSignUp(onSignUp: (n, p) => got = (n, p)),
     );
     final fields = find.byType(EditableText);
-    await tester.enterText(fields.at(0), 'Ama Owusu');
-    await tester.enterText(fields.at(1), 'ama@solutech.co.ke');
-    await tester.enterText(fields.at(2), 'brick-by-brick');
-    await tester.enterText(fields.at(3), 'brick-by-stone');
-    await tester.ensureVisible(find.text('Create Account'));
-    await tester.tap(find.text('Create Account'));
+    await tester.enterText(fields.at(0), 'Maya Thompson');
+    await tester.enterText(fields.at(1), '(415) 555-0123');
+    await tester.tap(find.text('Create account'));
     await tester.pump();
-    expect(find.text('The passwords do not match.'), findsOneWidget);
+    expect(find.text('Agree to the terms to carry on.'), findsOneWidget);
     expect(got, isNull);
-    await tester.enterText(fields.at(3), 'brick-by-brick');
+    await tester.tap(find.bySemanticsLabel('I agree to the terms'));
     await tester.pump();
-    expect(find.text('The passwords do not match.'), findsNothing);
-    await tester.tap(find.text('Create Account'));
+    await tester.tap(find.text('Create account'));
     await tester.pump();
-    expect(got, ('Ama Owusu', 'ama@solutech.co.ke', 'brick-by-brick'));
+    expect(got, ('Maya Thompson', '+14155550123'));
   });
 
   testWidgets('a picture shows beside the form only where there is room', (
@@ -155,79 +149,68 @@ void main() {
     await pumpAt(
       tester,
       const Size(1280, 800),
-      const Login02(picture: picture),
+      const SplitSignIn(picture: picture),
     );
     expect(find.byWidget(picture), findsOneWidget);
-    await pumpAt(tester, const Size(390, 844), const Login02(picture: picture));
+    await pumpAt(
+      tester,
+      const Size(390, 844),
+      const SplitSignIn(picture: picture),
+    );
     expect(find.byWidget(picture), findsNothing);
   });
 
-  // The sidebars on screen, by their panels, left to right.
-  List<Rect> sidebars(WidgetTester tester) =>
-      find
-          .bySemanticsLabel('Sidebar')
-          .evaluate()
-          .map((e) => tester.getRect(find.byElementPredicate((x) => x == e)))
-          .toList()
-        ..sort((a, b) => a.left.compareTo(b.left));
-
-  testWidgets('beside a fixed sidebar, the trigger folds the one that moves', (
-    tester,
-  ) async {
-    await pumpAt(tester, const Size(1440, 900), const Sidebar15());
-    final semantics = tester.ensureSemantics();
-    expect(sidebars(tester).map((r) => r.width), [256, 288]);
-    await tester.tap(find.byType(SidebarTrigger));
-    await tester.pumpAndSettle();
-    expect(sidebars(tester).map((r) => r.width), [48, 288]);
-    semantics.dispose();
-  });
+  // The sidebar on screen, by its panel.
+  double sidebar(WidgetTester tester) =>
+      tester.getRect(find.bySemanticsLabel('Sidebar').first).width;
 
   testWidgets('a header above the sidebar still folds it', (tester) async {
-    await pumpAt(tester, const Size(1280, 800), const Sidebar16());
+    await pumpAt(tester, const Size(1280, 800), const RentTracker());
     final semantics = tester.ensureSemantics();
-    expect(sidebars(tester).single.width, 256);
-    await tester.tap(find.bySemanticsLabel('Toggle sidebar').first);
+    expect(sidebar(tester), 256);
+    await tester.tap(find.bySemanticsLabel('Show or hide the sidebar'));
     await tester.pumpAndSettle();
-    expect(sidebars(tester).single.width, 48);
+    expect(sidebar(tester), 48);
     semantics.dispose();
   });
 
   testWidgets('the settings open in a dialog and switch section', (
     tester,
   ) async {
-    await pumpAt(tester, const Size(1280, 800), const Sidebar13());
-    await tester.tap(find.text('Open Dialog'));
+    await pumpAt(tester, const Size(1280, 800), const ShopSettings());
+    await tester.tap(find.text('Shop settings'));
     await tester.pumpAndSettle();
-    expect(find.text('Messages & media'), findsWidgets);
-    await tester.tap(find.text('Appearance'));
+    expect(find.text('Payout account'), findsOneWidget);
+    await tester.tap(find.text('Staff'));
     await tester.pump();
-    expect(find.text('Appearance'), findsNWidgets(2));
+    expect(find.text('Largest discount'), findsOneWidget);
+    expect(find.text('Payout account'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('a folder opens onto its files, and a file is picked', (
     tester,
   ) async {
-    await pumpAt(tester, const Size(1280, 800), const Sidebar11());
-    // Open on the way to the picked file; closed elsewhere.
-    expect(find.text('card.dart'), findsOneWidget);
-    expect(find.text('widget_test.dart'), findsNothing);
+    await pumpAt(tester, const Size(1280, 800), const CodeReview());
+    // Listed once under Changed; the test folder starts closed.
+    expect(find.text('checkout_test.dart'), findsOneWidget);
     await tester.tap(find.text('test'));
     await tester.pump();
-    await tester.tap(find.text('widget_test.dart'));
+    expect(find.text('checkout_test.dart'), findsNWidgets(2));
+    await tester.tap(find.text('checkout_test.dart').last);
     await tester.pump();
-    // The breadcrumb follows the pick.
-    expect(find.text('widget_test.dart'), findsNWidgets(2));
+    expect(find.textContaining('test/checkout_test.dart'), findsWidgets);
   });
 
-  testWidgets('unread only hides the messages already read', (tester) async {
-    await pumpAt(tester, const Size(1280, 800), const Sidebar09());
-    expect(find.text('Weekend plans'), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('Unread only'));
+  testWidgets('unanswered only hides the tickets already answered', (
+    tester,
+  ) async {
+    await pumpAt(tester, const Size(1280, 800), const SupportInbox());
+    expect(find.text('Refund not received'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Unanswered only'));
     await tester.pump();
-    expect(find.text('Weekend plans'), findsNothing);
-    expect(find.text('Meeting tomorrow'), findsOneWidget);
+    expect(find.text('Refund not received'), findsNothing);
+    expect(find.text('Driver asked me to pay again'), findsOneWidget);
   });
 
   testWidgets('a question is asked, its answer streams in, and stop ends it', (
@@ -238,7 +221,7 @@ void main() {
     await pumpAt(
       tester,
       const Size(1280, 800),
-      Chat01(
+      AssistantChat(
         answer: (q) {
           asked = q;
           return pieces.stream;
@@ -277,12 +260,12 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
-    await pumpAt(tester, const Size(390, 844), const Wallet01());
-    expect(find.bySemanticsLabel('KES 24,350.00'), findsOneWidget);
+    await pumpAt(tester, const Size(390, 844), const Wallet());
+    expect(find.bySemanticsLabel('USD 2,435.00'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Hide the balance'));
     await tester.pump();
     expect(find.bySemanticsLabel('Balance hidden'), findsOneWidget);
-    expect(find.textContaining('24,350', findRichText: true), findsNothing);
+    expect(find.textContaining('2,435', findRichText: true), findsNothing);
     handle.dispose();
   });
 }

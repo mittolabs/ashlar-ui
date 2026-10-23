@@ -34,6 +34,7 @@ void main() {
       ..writeln('    requires: ${jsonEncode(spec['requires'] ?? [])},')
       ..writeln('    packages: ${jsonEncode(spec['packages'] ?? [])},')
       ..writeln('    block: ${spec['block'] == true},')
+      ..writeln('    replaces: ${jsonEncode(spec['replaces'] ?? [])},')
       ..writeln('    files: {');
     for (final file in (spec['files'] as List).cast<String>()) {
       final source = File('registry/$file').readAsStringSync();

@@ -12,7 +12,11 @@ class Component {
     this.testNeeds = const [],
     this.preview,
     this.previewWidget,
+    this.replaces = const [],
   });
+
+  /// Names it went by before, which still find it: a renamed block keeps working.
+  final List<String> replaces;
 
   /// What it is, in a line: shown by ashlar view, search and list.
   final String description;
