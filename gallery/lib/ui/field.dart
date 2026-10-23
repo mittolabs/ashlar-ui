@@ -1,5 +1,7 @@
 // Ashlar UI: Field. Copied into your app by `ashlar add field`; it is yours to change.
 
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 import 'label.dart';
@@ -108,7 +110,7 @@ class Field extends StatelessWidget {
           )
         : axis == Axis.vertical
         ? _stacked(label, notes)
-        : _sideBySide(label, notes);
+        : _sideBySide(label, notes, t.minTapTarget);
     if (card) {
       body = GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -140,7 +142,7 @@ class Field extends StatelessWidget {
     ],
   );
 
-  Widget _sideBySide(Widget? label, List<Widget> notes) => Row(
+  Widget _sideBySide(Widget? label, List<Widget> notes, double target) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       child,
@@ -150,9 +152,13 @@ class Field extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Lines the label up with the middle of a 16 tall control.
+            // Lines the label's first line (20 tall) up with the middle of the control:
+            // a 16 tall control, or the larger press area it is centred in for a finger.
             if (label != null)
-              Padding(padding: const EdgeInsets.only(top: 1), child: label),
+              Padding(
+                padding: EdgeInsets.only(top: math.max(1, (target - 20) / 2)),
+                child: label,
+              ),
             for (final n in notes) ...[const SizedBox(height: 6), n],
           ],
         ),
