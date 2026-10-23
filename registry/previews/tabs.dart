@@ -23,7 +23,7 @@ class TabsDemo extends StatelessWidget {
             'Change your name here.',
             const Field(
               label: Text('Name'),
-              child: Input(placeholder: 'Wanjiru Mwangi'),
+              child: Input(placeholder: 'Maya Thompson'),
             ),
           ),
         ),

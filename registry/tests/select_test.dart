@@ -45,12 +45,12 @@ void main() {
       width: 200,
       child: Select<String>(
         value: value,
-        placeholder: 'Choose a county',
-        semanticLabel: 'County',
+        placeholder: 'Choose a city',
+        semanticLabel: 'City',
         options: const [
-          SelectOption('nbo', 'Nairobi'),
-          SelectOption('msa', 'Mombasa'),
-          SelectOption('ksm', 'Kisumu'),
+          SelectOption('lis', 'Lisbon'),
+          SelectOption('bom', 'Mumbai'),
+          SelectOption('kyo', 'Kyoto'),
         ],
         onChanged: onChanged,
       ),
@@ -68,14 +68,14 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Choose a county'), findsOneWidget);
-      await tester.tap(find.text('Choose a county'));
+      expect(find.text('Choose a city'), findsOneWidget);
+      await tester.tap(find.text('Choose a city'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Mombasa'));
+      await tester.tap(find.text('Mumbai'));
       await tester.pumpAndSettle();
-      expect(value, 'msa');
-      expect(find.text('Mombasa'), findsOneWidget);
-      expect(find.text('Kisumu'), findsNothing);
+      expect(value, 'bom');
+      expect(find.text('Mumbai'), findsOneWidget);
+      expect(find.text('Kyoto'), findsNothing);
     });
 
     testWidgets('the list is at least as wide as the trigger', (tester) async {
@@ -88,7 +88,7 @@ void main() {
     testWidgets(
       'by keyboard: down arrow opens on the chosen option, and focus comes back',
       (tester) async {
-        String? value = 'nbo';
+        String? value = 'lis';
         await tester.pumpWidget(
           app(
             StatefulBuilder(
@@ -101,12 +101,12 @@ void main() {
         await tester.pump();
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pumpAndSettle();
-        expect(find.text('Kisumu'), findsOneWidget);
+        expect(find.text('Kyoto'), findsOneWidget);
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pumpAndSettle();
-        expect(value, 'msa');
+        expect(value, 'bom');
         final focused = FocusManager.instance.primaryFocus!.context!;
         expect(
           focused.findAncestorWidgetOfExactType<Select<String>>(),
@@ -119,10 +119,10 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(app(select('ksm', (_) {})));
-      final node = tester.getSemantics(find.text('Kisumu')).getSemanticsData();
-      expect(node.label, 'County');
-      expect(node.value, 'Kisumu');
+      await tester.pumpWidget(app(select('kyo', (_) {})));
+      final node = tester.getSemantics(find.text('Kyoto')).getSemanticsData();
+      expect(node.label, 'City');
+      expect(node.value, 'Kyoto');
       semantics.dispose();
     });
   });

@@ -51,7 +51,7 @@ void main() {
             child: Field(
               label: Text('Email'),
               error: Text('Enter an email'),
-              child: Input(placeholder: 'you@solutech.co.ke'),
+              child: Input(placeholder: 'you@example.com'),
             ),
           ),
         ),
@@ -127,7 +127,7 @@ void main() {
                 child: const Field(
                   responsive: true,
                   label: Text('Name'),
-                  child: Input(placeholder: 'Wanjiru'),
+                  child: Input(placeholder: 'Maya'),
                 ),
               ),
             ),

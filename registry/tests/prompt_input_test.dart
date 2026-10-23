@@ -17,10 +17,10 @@ void main() {
     ) async {
       final sent = <String>[];
       await tester.pumpWidget(app(PromptInput(onSubmit: sent.add)));
-      await tester.enterText(find.byType(EditableText), '  How far is Nakuru?  ');
+      await tester.enterText(find.byType(EditableText), '  How far is the airport?  ');
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
-      expect(sent, ['How far is Nakuru?']);
+      expect(sent, ['How far is the airport?']);
       expect(
         tester.widget<EditableText>(find.byType(EditableText)).controller.text,
         isEmpty,

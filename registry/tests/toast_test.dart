@@ -40,7 +40,7 @@ void main() {
               onPressed: () => showToast(
                 context,
                 title: 'Payment sent',
-                description: 'KES 2,400',
+                description: '\$240',
               ),
               child: const Text('Pay'),
             ),

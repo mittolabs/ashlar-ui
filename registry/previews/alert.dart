@@ -16,7 +16,7 @@ class AlertDemo extends StatelessWidget {
         Alert(
           icon: AshlarIcon(AshlarIconsRoundedStroke.circleCheck),
           title: Text('Payment received'),
-          description: Text('KES 2,400 from 0712 345 678.'),
+          description: Text('\$240 from Maya Thompson.'),
         ),
         SizedBox(height: 12),
         Alert(

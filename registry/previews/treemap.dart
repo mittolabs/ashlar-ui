@@ -7,12 +7,12 @@ import 'package:ashlar_ui_gallery/ui/treemap.dart';
 typedef _Spend = ({String item, String category, double amount});
 
 const _spend = <_Spend>[
-  (item: 'Rent', category: 'Home', amount: 45000),
-  (item: 'Power', category: 'Home', amount: 4200),
-  (item: 'Fuel', category: 'Transport', amount: 12000),
-  (item: 'Fares', category: 'Transport', amount: 3500),
-  (item: 'Groceries', category: 'Food', amount: 18000),
-  (item: 'Eating out', category: 'Food', amount: 7600),
+  (item: 'Rent', category: 'Home', amount: 4500),
+  (item: 'Power', category: 'Home', amount: 420),
+  (item: 'Fuel', category: 'Transport', amount: 1200),
+  (item: 'Fares', category: 'Transport', amount: 350),
+  (item: 'Groceries', category: 'Food', amount: 1800),
+  (item: 'Eating out', category: 'Food', amount: 760),
 ];
 
 class TreemapDemo extends StatelessWidget {
@@ -23,7 +23,7 @@ class TreemapDemo extends StatelessWidget {
     width: 480,
     child: Card(
       children: [
-        const CardHeader(title: Text('Spending'), description: Text('KES, October')),
+        const CardHeader(title: Text('Spending'), description: Text('USD, October')),
         CardContent(
           child: Treemap<_Spend>(
             data: _spend,

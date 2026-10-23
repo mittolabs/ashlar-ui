@@ -17,14 +17,14 @@ class HoverCardDemo extends StatelessWidget {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Avatar(fallback: 'WM', size: 40),
+          const Avatar(fallback: 'MT', size: 40),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('@wanjiru', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
-                const Text('Designs mobile money apps. Based in Nairobi.'),
+                Text('@maya', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
+                const Text('Designs payment apps. Based in Lisbon.'),
                 const SizedBox(height: 6),
                 Text('Joined March 2024', style: t.text.xs.copyWith(color: t.colors.mutedForeground)),
               ],
@@ -33,6 +33,6 @@ class HoverCardDemo extends StatelessWidget {
         ],
       );
     },
-    child: Button(variant: ButtonVariant.link, onPressed: () {}, child: const Text('@wanjiru')),
+    child: Button(variant: ButtonVariant.link, onPressed: () {}, child: const Text('@maya')),
   );
 }

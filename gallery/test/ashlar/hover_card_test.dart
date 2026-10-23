@@ -27,14 +27,14 @@ void main() {
             child: Button(
               variant: ButtonVariant.link,
               onPressed: () {},
-              child: const Text('@wanjiru'),
+              child: const Text('@maya'),
             ),
           ),
         ),
       );
       final mouse = await mouseAt(
         tester,
-        tester.getCenter(find.text('@wanjiru')),
+        tester.getCenter(find.text('@maya')),
       );
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text('Profile card'), findsNothing);

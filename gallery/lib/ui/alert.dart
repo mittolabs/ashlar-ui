@@ -16,7 +16,7 @@ enum AlertVariant {
 /// reader reads it out when it appears.
 ///
 /// ```dart
-/// Alert(icon: AshlarIcon(AshlarIconsRoundedStroke.info), title: Text('Payment received'), description: Text('KES 2,400 from 0712 345 678.'))
+/// Alert(icon: AshlarIcon(AshlarIconsRoundedStroke.info), title: Text('Payment received'), description: Text('\$240 from Maya Thompson.'))
 /// Alert(variant: AlertVariant.destructive, icon: AshlarIcon(AshlarIconsRoundedStroke.circleAlert), title: Text('The card was declined'))
 /// ```
 class Alert extends StatelessWidget {

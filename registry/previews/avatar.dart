@@ -10,11 +10,11 @@ class AvatarDemo extends StatelessWidget {
   Widget build(BuildContext context) => const Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+      Avatar(fallback: 'MT', semanticLabel: 'Maya Thompson'),
       SizedBox(width: 12),
-      Avatar(fallback: 'OK', size: 40, semanticLabel: 'Otieno Kamau'),
+      Avatar(fallback: 'KM', size: 40, semanticLabel: 'Kofi Mensah'),
       SizedBox(width: 12),
-      Avatar(fallback: 'AN', size: 48, semanticLabel: 'Achieng Njeri'),
+      Avatar(fallback: 'AN', size: 48, semanticLabel: 'Aiko Nakamura'),
     ],
   );
 }

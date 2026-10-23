@@ -12,7 +12,7 @@ import 'theme.dart';
 /// the label beside it (checkboxes, switches, radios).
 ///
 /// ```dart
-/// Field(label: Text('Email'), description: Text('We send receipts here.'), child: Input(placeholder: 'you@solutech.co.ke'))
+/// Field(label: Text('Email'), description: Text('We send receipts here.'), child: Input(placeholder: 'you@example.com'))
 /// Field(axis: Axis.horizontal, label: Text('Accept the terms'), child: Checkbox(value: agreed, onChanged: agree))
 /// ```
 class Field extends StatelessWidget {

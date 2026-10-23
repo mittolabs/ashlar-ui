@@ -7,8 +7,8 @@ import 'theme.dart';
 /// A person's picture in a circle, or their initials while it loads or when it fails.
 ///
 /// ```dart
-/// Avatar(image: NetworkImage(user.photoUrl), fallback: 'WM', semanticLabel: 'Wanjiru Mwangi')
-/// Avatar(fallback: 'WM', size: 40)
+/// Avatar(image: NetworkImage(user.photoUrl), fallback: 'MT', semanticLabel: 'Maya Thompson')
+/// Avatar(fallback: 'MT', size: 40)
 /// ```
 class Avatar extends StatelessWidget {
   const Avatar({

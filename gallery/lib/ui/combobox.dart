@@ -44,11 +44,11 @@ class ComboboxOption<T> {
 ///
 /// ```dart
 /// Combobox<String>(
-///   value: county,
-///   placeholder: 'Choose a county',
-///   options: [for (final c in counties) ComboboxOption(c.code, c.name)],
-///   onChanged: (v) => setState(() => county = v),
-///   onCleared: () => setState(() => county = null),
+///   value: country,
+///   placeholder: 'Choose a country',
+///   options: [for (final c in countries) ComboboxOption(c.code, c.name)],
+///   onChanged: (v) => setState(() => country = v),
+///   onCleared: () => setState(() => country = null),
 /// )
 /// Combobox<String>.multiple(values: tags, options: allTags, onValuesChanged: (v) => setState(() => tags = v))
 /// ```

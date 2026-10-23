@@ -34,10 +34,10 @@ void main() {
           DataColumn(Text('Amount'), numeric: true),
         ],
         rows: const [
-          [Text('INV001'), Text('Paid'), Text('KES 2,500')],
-          [Text('INV002'), Text('Pending'), Text('KES 1,500')],
+          [Text('INV001'), Text('Paid'), Text('\$2,500')],
+          [Text('INV002'), Text('Pending'), Text('\$1,500')],
         ],
-        footer: const [Text('Total'), SizedBox(), Text('KES 4,000')],
+        footer: const [Text('Total'), SizedBox(), Text('\$4,000')],
         caption: const Text('Recent invoices.'),
         onRowPressed: onRowPressed,
       ),
@@ -57,7 +57,7 @@ void main() {
             .isHeader,
         isTrue,
       );
-      final amount = tester.getRect(find.text('KES 2,500')),
+      final amount = tester.getRect(find.text('\$2,500')),
           cell = tester.getRect(find.byType(DataTable));
       expect(amount.right, closeTo(cell.right - 8, 1));
       semantics.dispose();

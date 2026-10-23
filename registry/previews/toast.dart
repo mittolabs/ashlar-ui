@@ -13,7 +13,7 @@ class ToastDemo extends StatelessWidget {
     onPressed: () => showToast(
       context,
       title: 'Payment sent',
-      description: 'KES 2,400 to Wanjiru Mwangi.',
+      description: '\$240 to Maya Thompson.',
       action: Button(size: ButtonSize.sm, onPressed: () {}, child: const Text('Undo')),
     ),
     child: const Text('Send payment'),

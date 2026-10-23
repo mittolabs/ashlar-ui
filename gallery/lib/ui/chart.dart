@@ -248,7 +248,7 @@ class ChartTooltip<T> extends ChartPart<T> {
   /// Writes the label at the top: 'July 2026' for 'Jul'.
   final String Function(String label, T? row)? labelFormatter;
 
-  /// Writes a series' value: 'KES 2,400'. Null uses the chart's format.
+  /// Writes a series' value: '$2,400'. Null uses the chart's format.
   final String Function(num value, String series, T? row)? formatter;
 
   /// A last row adding the values up.
@@ -1063,7 +1063,7 @@ class YAxis<T> extends ChartPart<T> {
   /// Keeps the scale but draws nothing.
   final bool hide;
 
-  /// Writes a value: `(v) => 'KES ${v}k'`.
+  /// Writes a value: `(v) => '\$${v}k'`.
   final String Function(num value)? tickFormatter;
 
   /// About how many steps the scale has.
@@ -1661,7 +1661,7 @@ class CartesianChart<T> extends StatefulWidget {
   /// at the start of [data]. The view stays where it was.
   final FutureOr<void> Function()? onReachStart;
 
-  /// How a value is written in the tooltip, on the chart and read out: "KES 2,400".
+  /// How a value is written in the tooltip, on the chart and read out: "$2,400".
   /// Shares are written as percentages unless you say.
   final String Function(num value)? format;
 

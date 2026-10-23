@@ -13,7 +13,7 @@ class TypographyDemo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        H2('The market at Gikomba'),
+        H2('The flea market at dawn'),
         SizedBox(height: 12),
         Lead('Before sunrise the stalls are already up, and the first buyers are haggling.'),
         SizedBox(height: 16),

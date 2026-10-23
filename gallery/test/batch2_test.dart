@@ -34,7 +34,7 @@ void main() {
                     variant: AlertVariant.destructive,
                     title: Text('Declined'),
                   ),
-                  Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+                  Avatar(fallback: 'MT', semanticLabel: 'Maya Thompson'),
                   Skeleton(width: 120),
                   Spinner(),
                   Kbd(child: Text('Esc')),
@@ -61,14 +61,14 @@ void main() {
             mainAxisSize: MainAxisSize.min,
             children: [
               Spinner(),
-              Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+              Avatar(fallback: 'MT', semanticLabel: 'Maya Thompson'),
               Skeleton(width: 40),
             ],
           ),
         ),
       );
       expect(find.bySemanticsLabel('Loading'), findsOneWidget);
-      expect(find.bySemanticsLabel('Wanjiru Mwangi'), findsOneWidget);
+      expect(find.bySemanticsLabel('Maya Thompson'), findsOneWidget);
       expect(find.bySemanticsLabel('WM'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       semantics.dispose();

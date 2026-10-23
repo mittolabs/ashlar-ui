@@ -16,7 +16,7 @@ class ReasoningDemo extends StatelessWidget {
         Reasoning(
           thinking: true,
           child: Text(
-            'Late means past its promised time and not yet delivered. I need this week\'s Westlands orders first.',
+            'Late means past its promised time and not yet delivered. I need this week\'s Downtown orders first.',
           ),
         ),
         SizedBox(height: 16),

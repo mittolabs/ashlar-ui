@@ -23,10 +23,10 @@ void main() {
         const AvatarGroup(
           max: 2,
           children: [
-            Avatar(fallback: 'WM', semanticLabel: 'Wanjiru'),
-            Avatar(fallback: 'OK', semanticLabel: 'Otieno'),
-            Avatar(fallback: 'AN', semanticLabel: 'Achieng'),
-            Avatar(fallback: 'KM', semanticLabel: 'Kamau', badge: AvatarDot()),
+            Avatar(fallback: 'MT', semanticLabel: 'Maya'),
+            Avatar(fallback: 'KM', semanticLabel: 'Kofi'),
+            Avatar(fallback: 'AN', semanticLabel: 'Aiko'),
+            Avatar(fallback: 'LH', semanticLabel: 'Luis', badge: AvatarDot()),
           ],
         ),
       ),
@@ -34,11 +34,11 @@ void main() {
     expect(find.text('+2'), findsOneWidget);
     expect(find.text('AN'), findsNothing);
     expect(
-      tester.getRect(find.text('OK')).left,
-      lessThan(tester.getRect(find.text('WM')).right + 4),
+      tester.getRect(find.text('KM')).left,
+      lessThan(tester.getRect(find.text('MT')).right + 4),
     );
     expect(
-      find.bySemanticsLabel('Wanjiru, Otieno, Achieng, Kamau'),
+      find.bySemanticsLabel('Maya, Kofi, Aiko, Luis'),
       findsOneWidget,
     );
     semantics.dispose();

@@ -139,7 +139,7 @@ void main() {
             YAxis(),
             YAxis(id: 'b', right: true, type: AxisType.log),
             Candlestick(
-              label: 'KES',
+              label: 'USD',
               open: (r) => r.open,
               high: (r) => r.high,
               low: (r) => r.low,
@@ -227,7 +227,7 @@ void main() {
           children: [
             ChartTooltip(
               labelFormatter: (label, r) => '$label 2026',
-              formatter: (v, series, r) => 'KES $v',
+              formatter: (v, series, r) => '\$$v',
               total: true,
             ),
             Bar(label: 'Desktop', value: (r) => r.desktop),
@@ -240,10 +240,10 @@ void main() {
     final box = tester.getRect(find.byType(BarChart<Visit>));
     await mouseAt(tester, Offset(box.left + box.width * .125, box.top + 100));
     expect(find.text('Jan 2026'), findsOneWidget);
-    expect(find.text('KES 186.0'), findsOneWidget);
+    expect(find.text('\$186.0'), findsOneWidget);
     expect(find.text('Total'), findsOneWidget);
     // The total is written the way each value is.
-    expect(find.text('KES 266.0'), findsOneWidget);
+    expect(find.text('\$266.0'), findsOneWidget);
   });
 
   testWidgets('the arrow keys step through the rows, and Enter chooses one', (

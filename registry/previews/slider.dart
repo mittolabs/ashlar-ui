@@ -11,7 +11,7 @@ class SliderDemo extends StatefulWidget {
 }
 
 class _SliderDemoState extends State<SliderDemo> {
-  double volume = .5, price = 4000;
+  double volume = .5, price = 200;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -22,16 +22,16 @@ class _SliderDemoState extends State<SliderDemo> {
       children: [
         Slider(value: volume, onChanged: (v) => setState(() => volume = v), semanticLabel: 'Volume'),
         const SizedBox(height: 24),
-        Text('Up to KES ${price.round()}'),
+        Text('Up to \$${price.round()}'),
         const SizedBox(height: 8),
         Slider(
           value: price,
           min: 0,
-          max: 10000,
-          step: 500,
+          max: 500,
+          step: 25,
           onChanged: (v) => setState(() => price = v),
           semanticLabel: 'Highest price',
-          semanticFormat: (v) => 'KES ${v.round()}',
+          semanticFormat: (v) => '\$${v.round()}',
         ),
       ],
     ),

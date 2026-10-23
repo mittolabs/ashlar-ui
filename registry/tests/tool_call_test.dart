@@ -49,10 +49,10 @@ void main() {
       await tester.pumpWidget(
         app(
           ToolCall(
-            title: 'Refund KES 2,500',
+            title: 'Refund \$25',
             name: 'refund_order',
             status: ToolCallStatus.approval,
-            approval: 'Refund KES 2,500 to Wanjiru?',
+            approval: 'Refund \$25 to Maya?',
             onApprove: () => approved++,
             onDeny: () => denied++,
           ),
@@ -61,7 +61,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Needs approval'), findsOneWidget);
       expect(
-        find.text('Refund KES 2,500 to Wanjiru?').hitTestable(),
+        find.text('Refund \$25 to Maya?').hitTestable(),
         findsOneWidget,
       );
       await tester.tap(find.text('Approve'));
@@ -102,7 +102,7 @@ void main() {
       await tester.pumpWidget(
         app(
           const ToolCall(
-            title: 'Look up every order placed from the Westlands branch',
+            title: 'Look up every order placed from the Downtown branch',
             name: 'list_orders_for_branch_with_items',
             status: ToolCallStatus.approval,
           ),

@@ -46,10 +46,10 @@ void main() {
         );
         expect(find.text('Email'), findsOneWidget);
         await tester.tap(find.byType(Input));
-        await tester.enterText(find.byType(EditableText), 'a@solutech.co.ke');
+        await tester.enterText(find.byType(EditableText), 'a@example.com');
         await tester.pump();
         expect(find.text('Email'), findsNothing);
-        expect(seen.last, 'a@solutech.co.ke');
+        expect(seen.last, 'a@example.com');
       },
     );
 

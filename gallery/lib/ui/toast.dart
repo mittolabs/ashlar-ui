@@ -51,7 +51,7 @@ class ToastHandle {
 /// and holds them. A swipe sends one away, and a screen reader reads each out.
 ///
 /// ```dart
-/// showToast(context, title: 'Payment sent', description: 'KES 2,400 to Wanjiru.', type: ToastType.success)
+/// showToast(context, title: 'Payment sent', description: '\$240 to Maya.', type: ToastType.success)
 /// showToast(context, title: 'Event deleted', action: Button(size: ButtonSize.sm, onPressed: undo, child: Text('Undo')))
 /// ```
 ToastHandle showToast(

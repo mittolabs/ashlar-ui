@@ -21,7 +21,7 @@ class _RadioDemoState extends State<RadioDemo> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Radio(value: 'monthly', label: Text('Monthly'), description: Text('KES 500 a month.')),
+        Radio(value: 'monthly', label: Text('Monthly'), description: Text('\$5 a month.')),
         SizedBox(height: 12),
         Radio(value: 'yearly', label: Text('Yearly'), description: Text('Two months free.')),
         SizedBox(height: 12),

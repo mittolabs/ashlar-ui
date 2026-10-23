@@ -32,13 +32,13 @@ class _FormDemoState extends State<FormDemo> {
         children: [
           FormText(
             label: const Text('Name'),
-            placeholder: 'Wanjiru Kamau',
+            placeholder: 'Maya Thompson',
             validator: Validate.required('Enter your name.'),
           ),
           const SizedBox(height: 20),
           FormText(
             label: const Text('Email'),
-            placeholder: 'you@solutech.co.ke',
+            placeholder: 'you@example.com',
             keyboardType: TextInputType.emailAddress,
             validator: Validate.all([
               Validate.required('Enter your email.'),

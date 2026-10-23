@@ -13,7 +13,7 @@
 //   children: [
 //     YAxis(),
 //     YAxis(id: 'rsi', right: true, domain: (0, 100)),
-//     Candlestick(label: 'KES', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
+//     Candlestick(label: 'Price', open: (r) => r.open, high: (r) => r.high, low: (r) => r.low, close: (r) => r.close),
 //     Sma(value: (r) => r.close, period: 20),
 //     Rsi(value: (r) => r.close, yAxisId: 'rsi'),
 //   ],

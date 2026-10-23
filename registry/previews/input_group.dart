@@ -18,7 +18,7 @@ class InputGroupDemo extends StatelessWidget {
       children: [
         const InputGroup(
           start: Text('https://'),
-          end: Text('.co.ke'),
+          end: Text('.com'),
           child: Input(decorated: false, placeholder: 'yourshop'),
         ),
         const SizedBox(height: 16),

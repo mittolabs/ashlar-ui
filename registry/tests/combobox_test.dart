@@ -54,12 +54,12 @@ void main() {
           child: StatefulBuilder(
             builder: (context, set) => Combobox<String>(
               value: value,
-              placeholder: 'Choose a county',
-              semanticLabel: 'County',
+              placeholder: 'Choose a city',
+              semanticLabel: 'City',
               options: const [
-                ComboboxOption('nbo', 'Nairobi'),
-                ComboboxOption('msa', 'Mombasa'),
-                ComboboxOption('ksm', 'Kisumu'),
+                ComboboxOption('lis', 'Lisbon'),
+                ComboboxOption('bom', 'Mumbai'),
+                ComboboxOption('kyo', 'Kyoto'),
               ],
               onChanged: (v) => set(() => value = v),
             ),
@@ -67,7 +67,7 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Choose a county'));
+    await tester.tap(find.text('Choose a city'));
     await tester.pumpAndSettle();
     // As wide as the trigger, not the screen.
     expect(
@@ -83,16 +83,16 @@ void main() {
           .width,
       240,
     );
-    await tester.enterText(find.byType(EditableText), 'mom');
+    await tester.enterText(find.byType(EditableText), 'mum');
     await tester.pump();
-    expect(find.text('Nairobi'), findsNothing);
-    await tester.tap(find.text('Mombasa'));
+    expect(find.text('Lisbon'), findsNothing);
+    await tester.tap(find.text('Mumbai'));
     await tester.pumpAndSettle();
-    expect(value, 'msa');
-    expect(find.text('Kisumu'), findsNothing);
-    final node = tester.getSemantics(find.text('Mombasa')).getSemanticsData();
-    expect(node.label, 'County');
-    expect(node.value, 'Mombasa');
+    expect(value, 'bom');
+    expect(find.text('Kyoto'), findsNothing);
+    final node = tester.getSemantics(find.text('Mumbai')).getSemanticsData();
+    expect(node.label, 'City');
+    expect(node.value, 'Mumbai');
     semantics.dispose();
   });
 

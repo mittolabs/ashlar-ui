@@ -24,13 +24,13 @@ class _FieldDemoState extends State<FieldDemo> {
         const Field(
           label: Text('Email'),
           description: Text('We send receipts here.'),
-          child: Input(placeholder: 'you@solutech.co.ke'),
+          child: Input(placeholder: 'you@example.com'),
         ),
         const SizedBox(height: 20),
         const Field(
           label: Text('Phone'),
-          error: Text('Enter a number like 0712 345 678.'),
-          child: Input(placeholder: '0712 345 678', error: true),
+          error: Text('Enter a number like +1 415 555 0123.'),
+          child: Input(placeholder: '+1 415 555 0123', error: true),
         ),
         const SizedBox(height: 20),
         Field(

@@ -11,23 +11,23 @@ class ComboboxDemo extends StatefulWidget {
 }
 
 class _ComboboxDemoState extends State<ComboboxDemo> {
-  String? county;
+  String? country;
 
-  static const counties = [
-    'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Embu', 'Garissa', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', //
-    'Kilifi', 'Kisii', 'Kisumu', 'Kitui', 'Lamu', 'Machakos', 'Meru', 'Mombasa', 'Nairobi', 'Nakuru', 'Nyeri',
+  static const countries = [
+    'Argentina', 'Australia', 'Brazil', 'Canada', 'Egypt', 'France', 'Germany', 'Ghana', 'India', 'Indonesia', //
+    'Japan', 'Kenya', 'Mexico', 'Morocco', 'Nigeria', 'Peru', 'Philippines', 'Portugal', 'South Africa', 'Spain', 'Vietnam',
   ];
 
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 240,
     child: Combobox<String>(
-      value: county,
-      placeholder: 'Choose a county',
-      searchPlaceholder: 'Search counties',
-      semanticLabel: 'County',
-      options: [for (final c in counties) ComboboxOption(c, c)],
-      onChanged: (v) => setState(() => county = v),
+      value: country,
+      placeholder: 'Choose a country',
+      searchPlaceholder: 'Search countries',
+      semanticLabel: 'Country',
+      options: [for (final c in countries) ComboboxOption(c, c)],
+      onChanged: (v) => setState(() => country = v),
     ),
   );
 }

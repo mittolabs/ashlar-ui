@@ -159,7 +159,7 @@ class FormItemState<T> extends FormFieldState<T> {
 /// ```dart
 /// FormText(
 ///   label: Text('Email'),
-///   placeholder: 'you@solutech.co.ke',
+///   placeholder: 'you@example.com',
 ///   keyboardType: TextInputType.emailAddress,
 ///   validator: Validate.all([Validate.required(), Validate.email()]),
 ///   onSaved: (v) => email = v!,

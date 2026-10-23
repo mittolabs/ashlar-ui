@@ -297,7 +297,7 @@ class _GalleryPageState extends State<GalleryPage> {
                       ),
                       action: const Badge(
                         variant: BadgeVariant.secondary,
-                        child: Text('KES'),
+                        child: Text('USD'),
                       ),
                     ),
                     const CardContent(
@@ -346,7 +346,7 @@ class _GalleryPageState extends State<GalleryPage> {
                     const Field(
                       label: Text('Email'),
                       description: Text('We send receipts here.'),
-                      child: Input(placeholder: 'you@solutech.co.ke'),
+                      child: Input(placeholder: 'you@example.com'),
                     ),
                     const SizedBox(height: 20),
                     Field(
@@ -359,10 +359,10 @@ class _GalleryPageState extends State<GalleryPage> {
                         placeholder: 'Choose a county',
                         error: county == null,
                         options: const [
-                          SelectOption('nbo', 'Nairobi'),
-                          SelectOption('msa', 'Mombasa'),
-                          SelectOption('ksm', 'Kisumu'),
-                          SelectOption('nku', 'Nakuru'),
+                          SelectOption('lis', 'Lisbon'),
+                          SelectOption('bom', 'Mumbai'),
+                          SelectOption('kyo', 'Kyoto'),
+                          SelectOption('lag', 'Lagos'),
                         ],
                         onChanged: (v) => setState(() => county = v),
                       ),
@@ -386,7 +386,7 @@ class _GalleryPageState extends State<GalleryPage> {
                       Radio(
                         value: 'monthly',
                         label: Text('Monthly'),
-                        description: Text('KES 500 a month.'),
+                        description: Text('\$5 a month.'),
                       ),
                       SizedBox(height: 12),
                       Radio(
@@ -518,7 +518,7 @@ class _GalleryPageState extends State<GalleryPage> {
                   onPressed: () => showToast(
                     context,
                     title: 'Payment sent',
-                    description: 'KES 2,400 to Wanjiru Mwangi.',
+                    description: '\$240 to Maya Thompson.',
                     action: Button(
                       size: ButtonSize.sm,
                       onPressed: () {},
@@ -536,7 +536,7 @@ class _GalleryPageState extends State<GalleryPage> {
                     Alert(
                       icon: AshlarIcon(AshlarIconsRoundedStroke.circleCheck),
                       title: Text('Payment received'),
-                      description: Text('KES 2,400 from 0712 345 678.'),
+                      description: Text('\$240 from Maya Thompson.'),
                     ),
                     SizedBox(height: 12),
                     Alert(
@@ -560,7 +560,7 @@ class _GalleryPageState extends State<GalleryPage> {
                     const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Avatar(fallback: 'WM', semanticLabel: 'Wanjiru Mwangi'),
+                        Avatar(fallback: 'MT', semanticLabel: 'Maya Thompson'),
                         SizedBox(width: 8),
                         Avatar(fallback: 'OK', size: 40),
                       ],

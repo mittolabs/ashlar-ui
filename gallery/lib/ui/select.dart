@@ -52,10 +52,10 @@ enum SelectSize {
 ///
 /// ```dart
 /// Select<String>(
-///   value: county,
-///   placeholder: 'Choose a county',
-///   options: [SelectOption('nbo', 'Nairobi', group: 'Cities'), SelectOption('ksm', 'Kisumu', group: 'Cities')],
-///   onChanged: (v) => setState(() => county = v),
+///   value: city,
+///   placeholder: 'Choose a city',
+///   options: [SelectOption('lis', 'Lisbon', group: 'Cities'), SelectOption('kyo', 'Kyoto', group: 'Cities')],
+///   onChanged: (v) => setState(() => city = v),
 /// )
 /// ```
 class Select<T> extends StatefulWidget {

@@ -33,7 +33,7 @@ class ChartIndicatorsDemo extends StatelessWidget {
     width: 640,
     child: Card(
       children: [
-        const CardHeader(title: Text('KES 104.20'), description: Text('With Bollinger bands and RSI')),
+        const CardHeader(title: Text('\$104.20'), description: Text('With Bollinger bands and RSI')),
         CardContent(
           child: ComposedChart<_Day>(
             data: _days,

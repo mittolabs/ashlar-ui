@@ -15,7 +15,7 @@ class SparklineDemo extends StatelessWidget {
         Expanded(
           child: Card(
             children: [
-              CardHeader(title: Text('KES 48,200'), description: Text('Revenue, last 12 days')),
+              CardHeader(title: Text('\$48,200'), description: Text('Revenue, last 12 days')),
               CardContent(
                 child: Sparkline(
                   values: [31, 34, 30, 38, 42, 40, 45, 43, 47, 46, 52, 48],

@@ -10,7 +10,7 @@ Widget app(Widget child) => AshlarApp(
 );
 
 const _sources = [
-  Source(title: 'Returns policy', url: 'https://www.shop.co.ke/returns'),
+  Source(title: 'Returns policy', url: 'https://www.shop.example.com/returns'),
   Source(title: 'Order 1042', detail: 'Orders, 12 October'),
 ];
 
@@ -24,7 +24,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Returns policy').hitTestable(), findsOneWidget);
       // Where it is from, taken from its address when not given.
-      expect(find.text('shop.co.ke'), findsOneWidget);
+      expect(find.text('shop.example.com'), findsOneWidget);
       expect(find.text('Orders, 12 October'), findsOneWidget);
     });
 
@@ -49,7 +49,7 @@ void main() {
         app(const Sources(sources: _sources, initiallyOpen: true)),
       );
       expect(
-        find.bySemanticsLabel('1. Returns policy, shop.co.ke'),
+        find.bySemanticsLabel('1. Returns policy, shop.example.com'),
         findsOneWidget,
       );
       handle.dispose();

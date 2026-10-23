@@ -32,7 +32,7 @@ void main() {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Paid KES 2,400 to Wanjiru'),
+              const Text('Paid \$240 to Maya'),
               const SizedBox(height: 40),
               Button(onPressed: () {}, child: const Text('Save changes')),
             ],
@@ -64,9 +64,9 @@ void main() {
 
   testWidgets('dragging across text selects it, and it copies', (tester) async {
     await page(tester, selectable: true);
-    await dragAcross(tester, find.text('Paid KES 2,400 to Wanjiru'));
+    await dragAcross(tester, find.text('Paid \$240 to Maya'));
     await copy(tester);
-    expect(copied, 'Paid KES 2,400 to Wanjiru');
+    expect(copied, 'Paid \$240 to Maya');
   });
 
   testWidgets('a drag over a button selects nothing', (tester) async {

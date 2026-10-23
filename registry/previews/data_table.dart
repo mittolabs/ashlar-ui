@@ -20,7 +20,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
       (
         number: 'INV${i.toString().padLeft(3, '0')}',
         status: i % 5 == 0 ? 'Overdue' : (i % 3 == 0 ? 'Pending' : 'Paid'),
-        amount: 500 + (i * 737) % 4000,
+        amount: 50 + (i * 737) % 400,
       ),
   ];
 
@@ -94,7 +94,7 @@ class _DataTableDemoState extends State<DataTableDemo> {
                       child: Text(r.status),
                     ),
                   ),
-                  Text('KES ${r.amount}'),
+                  Text('\$${r.amount}'),
                 ],
             ],
           ),

@@ -13,7 +13,7 @@ import 'theme.dart';
 /// ```dart
 /// InputGroup(
 ///   start: Text('https://'),
-///   end: Text('.co.ke'),
+///   end: Text('.com'),
 ///   child: Input(decorated: false, placeholder: 'example'),
 /// )
 /// InputGroup(

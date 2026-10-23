@@ -41,7 +41,7 @@ class CollapsibleDemo extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [row('#4021 · KES 2,400'), row('#4022 · KES 860'), row('#4023 · KES 1,150')],
+          children: [row('#4021 · \$240'), row('#4022 · \$86'), row('#4023 · \$115')],
         ),
       ),
     );

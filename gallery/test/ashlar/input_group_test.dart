@@ -18,7 +18,7 @@ void main() {
             width: 320,
             child: InputGroup(
               start: Text('https://'),
-              end: Text('.co.ke'),
+              end: Text('.com'),
               child: Input(decorated: false, placeholder: 'example'),
             ),
           ),

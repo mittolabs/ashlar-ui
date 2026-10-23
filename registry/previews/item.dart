@@ -30,8 +30,8 @@ class ItemDemo extends StatelessWidget {
         const SizedBox(height: 12),
         Item(
           variant: ItemVariant.muted,
-          leading: const Avatar(fallback: 'WM'),
-          title: const Text('Wanjiru Mwangi'),
+          leading: const Avatar(fallback: 'MT'),
+          title: const Text('Maya Thompson'),
           description: const Text('Invited you to the Design team.'),
           trailing: Button(size: ButtonSize.sm, onPressed: () {}, child: const Text('Accept')),
         ),

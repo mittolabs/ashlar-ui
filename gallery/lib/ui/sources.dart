@@ -31,7 +31,7 @@ class Source {
 ///
 /// ```dart
 /// Sources(
-///   sources: [Source(title: 'Returns policy', url: 'https://shop.co.ke/returns')],
+///   sources: [Source(title: 'Returns policy', url: 'https://shop.example.com/returns')],
 ///   onOpen: (source) => launch(source.url!),
 /// )
 /// ```

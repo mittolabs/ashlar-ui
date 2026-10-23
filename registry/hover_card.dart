@@ -14,8 +14,8 @@ import 'theme.dart';
 ///
 /// ```dart
 /// HoverCard(
-///   content: (context) => Text('Wanjiru Mwangi. Designer at Mittolabs.'),
-///   child: Button(variant: ButtonVariant.link, onPressed: openProfile, child: Text('@wanjiru')),
+///   content: (context) => Text('Maya Thompson. Designer at Mittolabs.'),
+///   child: Button(variant: ButtonVariant.link, onPressed: openProfile, child: Text('@maya')),
 /// )
 /// ```
 class HoverCard extends StatefulWidget {

@@ -21,12 +21,12 @@ class SheetDemo extends StatelessWidget {
           children: [
             Field(
               label: Text('Name'),
-              child: Input(placeholder: 'Wanjiru Mwangi'),
+              child: Input(placeholder: 'Maya Thompson'),
             ),
             SizedBox(height: 16),
             Field(
               label: Text('Username'),
-              child: Input(placeholder: '@wanjiru'),
+              child: Input(placeholder: '@maya'),
             ),
           ],
         ),

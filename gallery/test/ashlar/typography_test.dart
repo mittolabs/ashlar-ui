@@ -61,8 +61,8 @@ void main() {
           child: TypographyTable(
             headings: ['County', 'People'],
             rows: [
-              ['Nairobi', '4.4m'],
-              ['Mombasa', '1.2m'],
+              ['Tokyo', '37.4m'],
+              ['Lagos', '15.9m'],
             ],
           ),
         ),
@@ -76,7 +76,7 @@ void main() {
           .isHeader,
       isTrue,
     );
-    expect(find.text('Mombasa'), findsOneWidget);
+    expect(find.text('Lagos'), findsOneWidget);
     semantics.dispose();
   });
 }

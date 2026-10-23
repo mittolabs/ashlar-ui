@@ -17,7 +17,7 @@ class CardDemo extends StatelessWidget {
         const CardHeader(
           title: Text('Send money'),
           description: Text('To a phone number or a bank account.'),
-          action: Badge(variant: BadgeVariant.secondary, child: Text('KES')),
+          action: Badge(variant: BadgeVariant.secondary, child: Text('USD')),
         ),
         const CardContent(child: Input(placeholder: 'Phone number')),
         CardFooter(

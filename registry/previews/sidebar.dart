@@ -40,9 +40,9 @@ class _SidebarDemoState extends State<SidebarDemo> {
         header: Text('Acme Shop', style: t.text.sm.copyWith(fontWeight: FontWeight.w600)),
         footer: const Row(
           children: [
-            Avatar(fallback: 'WM', size: 28),
+            Avatar(fallback: 'MT', size: 28),
             SizedBox(width: 8),
-            Expanded(child: Text('Wanjiru Mwangi', maxLines: 1, overflow: TextOverflow.ellipsis)),
+            Expanded(child: Text('Maya Thompson', maxLines: 1, overflow: TextOverflow.ellipsis)),
           ],
         ),
         groups: [

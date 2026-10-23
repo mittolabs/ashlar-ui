@@ -118,7 +118,7 @@ void main() {
       expect(Validate.minLength(3)('ab'), 'At least 3 characters.');
       expect(Validate.minLength(3)('abc'), isNull);
       expect(Validate.maxLength(1)('ab'), 'At most 1 character.');
-      expect(Validate.email()('ama@solutech.co.ke'), isNull);
+      expect(Validate.email()('ama@example.com'), isNull);
       expect(Validate.email()('ama@'), 'Enter an email address.');
       expect(Validate.email()(''), isNull);
       expect(Validate.min(18)(17), 'At least 18.');
@@ -190,7 +190,7 @@ void main() {
     await tester.pump();
     expect(find.text('Enter your name.'), findsNothing);
     expect(find.text('Enter an email address.'), findsOneWidget);
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.pump();
     expect(find.text('Enter an email address.'), findsNothing);
     await tester.tap(find.byType(Checkbox));
@@ -218,7 +218,7 @@ void main() {
     final results = <bool>[];
     final saved = await pumpForm(tester, results: results);
     await tester.enterText(input('Name'), 'Ama');
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.tap(find.text('Choose'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Design').last);
@@ -230,7 +230,7 @@ void main() {
     expect(results, [true]);
     expect(saved, {
       'name': 'Ama',
-      'email': 'ama@solutech.co.ke',
+      'email': 'ama@example.com',
       'team': 'design',
       'terms': true,
     });
@@ -240,7 +240,7 @@ void main() {
     tester,
   ) async {
     await pumpForm(tester);
-    await tester.enterText(input('Email'), 'ama@solutech.co.ke');
+    await tester.enterText(input('Email'), 'ama@example.com');
     await tester.tap(find.byType(Checkbox));
     await tester.tap(find.text('Create account'));
     await tester.pumpAndSettle();

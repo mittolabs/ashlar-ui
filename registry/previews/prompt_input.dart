@@ -17,7 +17,7 @@ class PromptInputDemo extends StatelessWidget {
       placeholder: 'Ask about orders and deliveries',
       attachments: const [
         Attachment(
-          title: 'westlands-week-43.csv',
+          title: 'downtown-week-43.csv',
           description: '38 rows',
           icon: AshlarIconsRoundedStroke.fileText,
         ),

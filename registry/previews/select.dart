@@ -11,23 +11,23 @@ class SelectDemo extends StatefulWidget {
 }
 
 class _SelectDemoState extends State<SelectDemo> {
-  String? county;
+  String? city;
 
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 220,
     child: Select<String>(
-      value: county,
-      placeholder: 'Choose a county',
-      semanticLabel: 'County',
+      value: city,
+      placeholder: 'Choose a city',
+      semanticLabel: 'City',
       options: const [
-        SelectOption('nbo', 'Nairobi'),
-        SelectOption('msa', 'Mombasa'),
-        SelectOption('ksm', 'Kisumu'),
-        SelectOption('nku', 'Nakuru'),
-        SelectOption('eld', 'Uasin Gishu'),
+        SelectOption('lis', 'Lisbon'),
+        SelectOption('bom', 'Mumbai'),
+        SelectOption('kyo', 'Kyoto'),
+        SelectOption('lag', 'Lagos'),
+        SelectOption('mex', 'Mexico City'),
       ],
-      onChanged: (v) => setState(() => county = v),
+      onChanged: (v) => setState(() => city = v),
     ),
   );
 }
