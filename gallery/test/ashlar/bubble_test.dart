@@ -84,10 +84,10 @@ void main() {
       final reaction = tester.getRect(find.text('+2'));
       final next = tester.getRect(find.text('Next'));
       expect(reaction.bottom, lessThanOrEqualTo(next.top));
-      expect(
-        reaction.top,
-        lessThan(tester.getRect(find.text('Shipped')).bottom + 12),
-      );
+      // Clear of the message's text, yet still over the bubble's edge.
+      final text = tester.getRect(find.text('Shipped'));
+      expect(reaction.top, greaterThan(text.bottom));
+      expect(reaction.top, lessThan(text.bottom + 20));
     });
 
     testWidgets('a bubble with onPressed is a button', (tester) async {
