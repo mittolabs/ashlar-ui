@@ -22,7 +22,7 @@ enum ButtonVariant {
   /// An action that deletes or cannot be undone.
   destructive,
 
-  /// Text that acts like a link.
+  /// Text that acts like a link, with no padding at its sides so it sits among words.
   link,
 }
 
@@ -200,7 +200,10 @@ class Button extends StatelessWidget {
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
-            padding: EdgeInsets.symmetric(horizontal: padding),
+            // A link is text: no padding at its sides, so it lines up with the words around it.
+            padding: EdgeInsets.symmetric(
+              horizontal: variant == ButtonVariant.link ? 0 : padding,
+            ),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: joinedRadius(context, t.radiusMd),
