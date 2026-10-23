@@ -1,3 +1,66 @@
+## 0.3.0
+
+The blocks are new: screens from apps people run, a shop, a clinic, a school office, a
+support desk, each named for what it is rather than numbered. The old names still find
+them in this version.
+
+- Blocks, with the names they replace:
+  - `shop-dashboard` (`dashboard-01`): a shop's day, sales by card and cash, four
+    figures, a chart that changes range, and the orders still to deliver.
+  - `clinic` (`sidebar-07`): a clinic's front desk, branches to switch between, sections
+    that fold to icons, and today's appointments.
+  - `api-docs` (`sidebar-01`, `-02`, `-03`): API documentation, versions, search,
+    sections that fold, and a page with its steps and an example request.
+  - `staff-handbook` (`sidebar-04`, `-05`, `-14`): a handbook in a floating sidebar, with
+    the page's contents beside it where there is room.
+  - `newsroom` (`sidebar-06`): a paper's sections as menus, a morning brief to sign up
+    to, and a desk's stories.
+  - `school-office` (`sidebar-08`): the page inset as a card, the term's fees and who
+    owes most.
+  - `support-inbox` (`sidebar-09`): queues, tickets to pick from (unanswered only, if you
+    like), and the conversation with a reply.
+  - `field-notes` (`sidebar-10`): a field officer's notes on a visit, a checklist, and
+    the page's actions in a popover.
+  - `code-review` (`sidebar-11`): a change under review, its files as a tree with the
+    changed ones above, and the diff.
+  - `salon-bookings` (`sidebar-12`, `-15`): a month to pick a day from, who is working,
+    and a column of bookings for each of them.
+  - `shop-settings` (`sidebar-13`): settings in a dialog, their sections down its side.
+  - `rent-tracker` (`sidebar-16`): rent across units, under a header that runs over the
+    sidebar.
+  - `phone-sign-in` (`login-01`): a phone number, then the code texted to it.
+  - `split-sign-in` (`login-02`): the form beside your picture, or a customer's word.
+  - `account-picker` (`login-03`): carry on as an account used here before.
+  - `till-pin` (`login-04`): a shared till's lock screen, who is serving, then a PIN.
+  - `magic-link-sign-in` (`login-05`): an email address, then a link sent to it.
+  - `phone-sign-up` (`signup-01`): a name and a phone number, the terms agreed to.
+  - `business-sign-up` (`signup-02`, `-04`): an account for a business, its tax number
+    checked, what the account gives beside the form.
+  - `team-invite` (`signup-03`): join from an invitation, who sent it and who is there.
+  - `member-sign-up` (`signup-05`): three steps, details, ID, then a PIN given twice.
+  - `assistant-chat` (`chat-01`) and `wallet` (`wallet-01`): the same blocks, renamed.
+- `ashlar add`, `view`, `diff` and `update` take a block's old name, use the new one, and
+  say so: `login-01 is now phone-sign-in.` The old names go in 0.4.0.
+- Phone numbers in `phone-sign-in` and `phone-sign-up` take a country (`dialCode`, `1` to
+  begin with) and come back in full, `+14155550123`.
+- `button`: a `link` has no padding at its sides, so it lines up with the words and fields
+  around it. Where a link follows text in a row, give the row a gap (`Wrap(spacing: 6)`).
+- `field`: beside a checkbox, radio or switch on a phone, the label lines up with the
+  control's middle rather than the top of its larger press area.
+- `collapsible` (and `accordion`): what it reveals starts at the start, rather than in
+  the middle when it is narrower than the panel.
+- `bubble`: reactions hang over the bubble's edge without covering the message's text.
+- `kbd`: a key hugs its text when it is given more height.
+- `heatmap`, `radial-chart`, `treemap`: braces on every `if`, so an app that adds them
+  analyses clean.
+- Sample content in the previews, tests and doc comments comes from around the world,
+  money in US dollars, and every sample address is at `example.com`.
+
+### Moving from 0.2
+
+A block already in your app is yours and stays as it is. Adding a block by its old name
+now adds the new screen, in a file of its new name.
+
 ## 0.2.0
 
 Charts are rebuilt as your rows and the parts you put in them, and cover far more kinds.
