@@ -22,4 +22,8 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
   the comments in files `ashlar add` copies, and the changelog. Say what Ashlar UI does on
   its own terms. Internal docs (`docs/`) may compare, and say so. Crediting where data
   came from (the palette) is not a comparison.
+- **A global product, built in Kenya.** Sample content in blocks and demos mixes places,
+  and names from around the world; Kenya is one place among many, not the default.
+  Money is in US dollars unless a block is about currencies. Nothing country-specific in behaviour: phone numbers take a country, IDs and
+  tax numbers are checked generically, payments are not tied to one provider.
 - Flutter through fvm on stable. Conventional Commits; `git config core.hooksPath .githooks`.
