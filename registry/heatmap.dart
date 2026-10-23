@@ -157,7 +157,9 @@ class _HeatmapState<T> extends State<Heatmap<T>> {
                     onTapDown: (d) => setState(() => _at = hit(d.localPosition)),
                     onTapUp: (d) {
                       final i = hit(d.localPosition);
-                      if (i != null) widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                      if (i != null) {
+                        widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                      }
                     },
                     child: Stack(
                       clipBehavior: Clip.none,
@@ -294,7 +296,9 @@ class _GridPainter extends CustomPainter {
       _text(canvas, s, Offset(gutter - 8, y), text, Alignment.centerRight);
     }
     for (final (k, (s, x)) in colLabels.indexed) {
-      if (k % colEvery == 0) _text(canvas, s, Offset(x, labelY), text, Alignment.topCenter);
+      if (k % colEvery == 0) {
+        _text(canvas, s, Offset(x, labelY), text, Alignment.topCenter);
+      }
     }
   }
 
@@ -587,7 +591,9 @@ class _CalendarPainter extends CustomPainter {
       }
     }
     for (final (d, s) in names.indexed) {
-      if (s.isNotEmpty) _text(canvas, s, Offset(left - 6, top + d * step + cell / 2), Alignment.centerRight);
+      if (s.isNotEmpty) {
+        _text(canvas, s, Offset(left - 6, top + d * step + cell / 2), Alignment.centerRight);
+      }
     }
   }
 

@@ -132,7 +132,9 @@ class _TreemapState<T> extends State<Treemap<T>> {
                 onTapDown: (d) => setState(() => _at = hit(d.localPosition)),
                 onTapUp: (d) {
                   final i = hit(d.localPosition);
-                  if (i != null) widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                  if (i != null) {
+                    widget.onSelect?.call(ChartSelection<T>(index: i, row: data[i]));
+                  }
                 },
                 child: Stack(
                   clipBehavior: Clip.none,

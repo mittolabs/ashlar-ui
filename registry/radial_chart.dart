@@ -166,7 +166,9 @@ class _RadialState<T> extends State<RadialBarChart<T>>
 
     (int, int?)? hit(Offset p) {
       final d = p - centre;
-      if (d.distance > outer + 4 || d.distance < inner - 4 || n == 0) return null;
+      if (d.distance > outer + 4 || d.distance < inner - 4 || n == 0) {
+        return null;
+      }
       // Rows from the outside in.
       final ring = ((outer - d.distance) / ringW).floor().clamp(0, n - 1);
       var a = (math.atan2(d.dy, d.dx) + math.pi / 2) * 180 / math.pi;
