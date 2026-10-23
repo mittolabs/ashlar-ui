@@ -102,7 +102,7 @@ class _CollapsibleState extends State<Collapsible>
         widget.builder(context, _open, _toggle),
         SizeTransition(
           sizeFactor: _size,
-          alignment: Alignment.topCenter,
+          alignment: AlignmentDirectional.topStart,
           child: Visibility(
             // Fully closed: kept, but not drawn, focused or read.
             visible: !_c.isDismissed,
