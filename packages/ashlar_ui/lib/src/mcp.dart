@@ -98,7 +98,7 @@ const _tools = [
           'type': 'array',
           'items': {'type': 'string'},
           'description':
-              'Files under lib, each with its widget if it has several: ["lib/screens/home.dart:HomeScreen"]. The widget must be made with no arguments.',
+              'Dart files in the app, each with its widget if it has several: ["lib/screens/home.dart:HomeScreen"]. The widget must be made with no arguments; a file under test can wrap a screen in the providers and route it needs.',
         },
         'sizes': {
           'type': 'array',

@@ -416,7 +416,7 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
     case 'shot':
       if (words.isEmpty) {
         o.writeln(
-          'Name what to draw: a file under lib, and its widget if it has several, as lib/screens/home.dart:HomeScreen.',
+          'Name what to draw: a Dart file in the app, and its widget if it has several, as lib/screens/home.dart:HomeScreen. A file under test can wrap a screen in what it needs (providers, a route) to be drawn.',
         );
         return 64;
       }

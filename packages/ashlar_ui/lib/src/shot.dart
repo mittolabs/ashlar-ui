@@ -13,7 +13,9 @@ const shotSizes = {
   'desktop': (1440.0, 900.0, 'macOS'),
 };
 
-/// One widget to draw: its file from the project root (under lib) and its class.
+/// One widget to draw: its file from the project root and its class. A file under lib is
+/// imported as the app's own; any other (a harness under test, with the app's providers
+/// and routes round a screen) by its path.
 typedef ShotTarget = ({String file, String widget});
 
 /// [given], `lib/screens/home.dart` or `lib/screens/home.dart:HomeScreen`, as a target: the
@@ -24,8 +26,8 @@ Object resolveShot(Directory root, String given) {
   final file = at > 1 ? given.substring(0, at) : given;
   final name = at > 1 ? given.substring(at + 1) : null;
   final f = File('${root.path}/$file');
-  if (!file.startsWith('lib/') || !file.endsWith('.dart')) {
-    return '$given: name a Dart file under lib, as lib/screens/home.dart.';
+  if (!file.endsWith('.dart') || file.startsWith('/') || file.split('/').contains('..')) {
+    return '$given: name a Dart file in the app, as lib/screens/home.dart or test/shots.dart.';
   }
   if (!f.existsSync()) return '$given: there is no $file.';
   final source = f.readAsStringSync();
@@ -130,7 +132,12 @@ Future<int> drawShots({
     ..writeln("import '$ui/theme.dart' as theme;")
     ..writeln(hasTheme ? "import '$ui/app_theme.dart' as chosen;" : '');
   for (final (n, t) in targets.indexed) {
-    h.writeln("import 'package:$package/${t.file.substring(4)}' as t$n;");
+    // The harness is written to .ashlar/shot, two folders down from the root.
+    h.writeln(
+      t.file.startsWith('lib/')
+          ? "import 'package:$package/${t.file.substring(4)}' as t$n;"
+          : "import '../../${t.file}' as t$n;",
+    );
   }
   h
     ..writeln()

@@ -35,7 +35,9 @@ app's own code, to read and change.
   so the app reads right to left too.
 - **Look at what you built**: `ashlar shot lib/screens/home.dart --size phone,desktop --both`
   draws a screen to `.ashlar/shots/` without running the app and names any overflow with
-  its line; read the pictures. `ashlar check` reports contrast and accessibility faults.
+  its line; read the pictures. A screen that needs providers or a route is drawn from a
+  harness under `test/` that wraps it in them. `ashlar check` reports contrast and
+  accessibility faults.
 - **Each component's tests are in `$tests`**; run `flutter test` after changing one.
 - `ashlar mcp` serves search, view, add, update, check and shot over MCP.
 $_end

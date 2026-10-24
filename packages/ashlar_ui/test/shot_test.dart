@@ -55,6 +55,25 @@ void main() {
     ));
   });
 
+  test('a harness outside lib draws too: a screen wrapped in what it needs', () {
+    final dir = project();
+    File('${dir.path}/test/shots.dart')
+      ..createSync(recursive: true)
+      ..writeAsStringSync('''
+import 'package:flutter/widgets.dart';
+
+class Shot extends StatelessWidget {
+  const Shot({super.key});
+  @override
+  Widget build(BuildContext context) => const SizedBox();
+}
+''');
+    expect(resolveShot(dir, 'test/shots.dart'), (
+      file: 'test/shots.dart',
+      widget: 'Shot',
+    ));
+  });
+
   test('what cannot be drawn says why, and what there is', () {
     final dir = project();
     expect(
@@ -69,7 +88,12 @@ void main() {
       resolveShot(dir, 'lib/screens/away.dart'),
       contains('there is no lib/screens/away.dart'),
     );
-    expect(resolveShot(dir, 'test/home_test.dart'), contains('under lib'));
+    expect(
+      resolveShot(dir, 'test/home_test.dart'),
+      contains('there is no test/home_test.dart'),
+    );
+    expect(resolveShot(dir, '../away.dart'), contains('a Dart file in the app'));
+    expect(resolveShot(dir, '/etc/away.dart'), contains('a Dart file in the app'));
   });
 
   test('the command turns down what it cannot draw before drawing', () async {
