@@ -1,3 +1,27 @@
+## 0.4.0
+
+Found building a flight booking app with Ashlar UI: what it had to draw by hand is now
+here.
+
+- `ticket` is new: two halves on one card, bitten at the sides where they meet, with a
+  line to tear along. The bites follow the join, so they stay level with it whatever the
+  halves hold and however large the text.
+- `button`: `ButtonSize.xl` (48 tall, for a phone's main action) and `iconXl`; `round`
+  for a pill, or a circle of an icon button; `badge`, over the top end corner, for a dot
+  that something is new.
+- `input`: `size`, from `sm` to `xl`, as tall as the button of the same name, so a
+  field and its button line up.
+- `theme`: `text.xxxl` (30) and `text.display` (36), for headlines and figures that
+  stand alone.
+- `dialog`, `drawer` and `sheet` open over the whole app, a tab bar included. Inside a
+  tab with a navigator of its own, a drawer came up above the tab bar and left it lit and
+  tappable. `useRootNavigator: false` keeps the old way.
+- `ashlar shot` draws a widget from any Dart file in the app, not only under `lib`: a
+  harness under `test` can wrap a screen in its providers and route to draw it.
+- `pressable` says how it sizes what it builds: centred, at its own size; give it
+  `width: double.infinity` to fill.
+- `empty`'s tests come with it alone, rather than once `item` is added too.
+
 ## 0.3.1
 
 - `ashlar init` adds ashlaricons 0.3.0: 1,245 more icons fill in Solid, Duotone and Bulk,

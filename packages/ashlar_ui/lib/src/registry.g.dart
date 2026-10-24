@@ -332,6 +332,12 @@ class AshlarText {
 
   /// 24/32: page titles.
   TextStyle get xxl => _size(24, 32, FontWeight.w600);
+
+  /// 30/36: a screen's headline, or a figure that stands alone.
+  TextStyle get xxxl => _size(30, 36, FontWeight.w600);
+
+  /// 36/40: the largest, for a welcome or a total.
+  TextStyle get display => _size(36, 40, FontWeight.w600);
 }
 
 /// How a theme spaces and shapes its components: corners, the size of controls, the room
@@ -1912,6 +1918,10 @@ class Pressable extends StatefulWidget {
   final VoidCallback? onPressed;
 
   /// Builds how it looks, given whether it is hovered, pressed, focused or disabled.
+  ///
+  /// What it builds is centred and takes its own size, so a control hugs its content even
+  /// in a stretched column. To fill the width a parent gives it (an Expanded, a stretched
+  /// column), give what it builds `width: double.infinity`.
   final Widget Function(BuildContext context, PressableState state) builder;
 
   /// Its focus node, to move focus to it or follow it from outside; one is made when not
@@ -2067,7 +2077,7 @@ class _PressableState extends State<Pressable> {
     },
   ),
   'button': Component(
-    description: "Six variants and four sizes, with leading and trailing icons.",
+    description: "Six variants and five sizes, square or round, with icons either side and a badge.",
     requires: ["theme","pressable","group"],
     packages: [],
     block: false,
@@ -2121,6 +2131,12 @@ enum ButtonSize {
   iconXs,
   iconSm,
   iconLg,
+
+  /// 48 tall, for the main action on a phone screen.
+  xl,
+
+  /// A 48 square for one icon, beside an [xl] button.
+  iconXl,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -2129,6 +2145,8 @@ enum ButtonSize {
 /// Button(onPressed: save, child: Text('Save'))
 /// Button(variant: ButtonVariant.outline, leading: AshlarIcon(AshlarIconsRoundedStroke.plus), onPressed: add, child: Text('Add'))
 /// Button(size: ButtonSize.icon, semanticLabel: 'Settings', onPressed: open, child: AshlarIcon(AshlarIconsRoundedStroke.settings))
+/// Button(size: ButtonSize.xl, expand: true, onPressed: book, child: Text('Book'))
+/// Button(size: ButtonSize.iconLg, round: true, badge: unread, semanticLabel: 'Notifications', onPressed: open, child: AshlarIcon(AshlarIconsRoundedStroke.bell))
 /// ```
 class Button extends StatelessWidget {
   const Button({
@@ -2144,6 +2162,8 @@ class Button extends StatelessWidget {
     this.semanticLabel,
     this.expand = false,
     this.error = false,
+    this.round = false,
+    this.badge,
   });
 
   /// Null disables the button.
@@ -2182,11 +2202,18 @@ class Button extends StatelessWidget {
   /// Draws it as invalid: a destructive border and ring, as on a field.
   final bool error;
 
+  /// Fully rounded: a pill, or a circle for an icon alone.
+  final bool round;
+
+  /// Over its top end corner: a dot that something is new, or a count.
+  final Widget? badge;
+
   bool get _square =>
       size == ButtonSize.icon ||
       size == ButtonSize.iconXs ||
       size == ButtonSize.iconSm ||
-      size == ButtonSize.iconLg;
+      size == ButtonSize.iconLg ||
+      size == ButtonSize.iconXl;
 
   @override
   Widget build(BuildContext context) {
@@ -2235,11 +2262,18 @@ class Button extends StatelessWidget {
           ButtonSize.iconXs => (24.0, 0.0, 0.0),
           ButtonSize.iconSm => (32.0, 0.0, 0.0),
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
+          ButtonSize.xl => (48.0, 28.0, 8.0),
+          ButtonSize.iconXl => (48.0, 0.0, 0.0),
         };
+        final large = size == ButtonSize.xl || size == ButtonSize.iconXl;
         // Taller or shorter with the theme's density.
         final height = t.control(standard);
         final label = DefaultTextStyle.merge(
-          style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
+          style: switch (size) {
+            ButtonSize.xs => t.text.xs,
+            ButtonSize.xl => t.text.base,
+            _ => t.text.sm,
+          }.copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
             decoration: variant == ButtonVariant.link && state.hovered
@@ -2250,7 +2284,7 @@ class Button extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           child: IconTheme.merge(
-            data: IconThemeData(color: fg, size: 16),
+            data: IconThemeData(color: fg, size: large ? 20 : 16),
             // The row sets the height and centres in it; the button hugs it unless [expand].
             // A height at least: larger text makes it taller rather than being cut off.
             child: ConstrainedBox(
@@ -2271,7 +2305,7 @@ class Button extends StatelessWidget {
             ),
           ),
         );
-        return Opacity(
+        final button = Opacity(
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
@@ -2281,7 +2315,10 @@ class Button extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: joinedRadius(context, t.radiusMd),
+              borderRadius: joinedRadius(
+                context,
+                round ? height : (large ? t.radiusLg : t.radiusMd),
+              ),
               border: error
                   ? joinedBorder(context, c.destructive)
                   : border == null
@@ -2304,6 +2341,14 @@ class Button extends StatelessWidget {
             ),
             child: label,
           ),
+        );
+        if (badge == null) return button;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            button,
+            PositionedDirectional(top: 0, end: 0, child: badge!),
+          ],
         );
       },
     );
@@ -2518,6 +2563,78 @@ void main() {
       );
     },
   );
+
+  testWidgets('xl is 48 tall, its icon square 48, with the larger corners', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Button(
+              key: const Key('xl'),
+              size: ButtonSize.xl,
+              onPressed: () {},
+              child: const Text('Book'),
+            ),
+            Button(
+              key: const Key('icon'),
+              size: ButtonSize.iconXl,
+              semanticLabel: 'Add',
+              onPressed: () {},
+              child: const Text('+'),
+            ),
+          ],
+        ),
+      ),
+    );
+    final t = AshlarThemeData.light();
+    expect(tester.getSize(find.byKey(const Key('xl'))).height, t.control(48));
+    expect(tester.getSize(find.byKey(const Key('icon'))), Size.square(t.control(48)));
+    expect(
+      box(tester, find.byKey(const Key('xl'))).borderRadius,
+      BorderRadius.circular(t.radiusLg),
+    );
+  });
+
+  testWidgets('round makes a pill, or a circle of an icon button', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('b'),
+          size: ButtonSize.iconLg,
+          round: true,
+          semanticLabel: 'Back',
+          onPressed: () {},
+          child: const Text('<'),
+        ),
+      ),
+    );
+    final height = tester.getSize(find.byKey(const Key('b'))).height;
+    expect(
+      box(tester, find.byKey(const Key('b'))).borderRadius,
+      BorderRadius.circular(height),
+    );
+  });
+
+  testWidgets('a badge sits over the top end corner', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('b'),
+          size: ButtonSize.iconLg,
+          semanticLabel: 'Notifications',
+          badge: const SizedBox(key: Key('dot'), width: 8, height: 8),
+          onPressed: () {},
+          child: const Text('!'),
+        ),
+      ),
+    );
+    final button = tester.getRect(find.byKey(const Key('b')));
+    final dot = tester.getRect(find.byKey(const Key('dot')));
+    expect(dot.topRight, button.topRight);
+  });
 }
 ''',
     },
@@ -3052,6 +3169,295 @@ class CardDemo extends StatelessWidget {
 }
 ''',
   ),
+  'ticket': Component(
+    description: "A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.",
+    requires: ["theme"],
+    packages: [],
+    block: false,
+    replaces: [],
+    files: {
+      'ticket.dart': r'''import 'package:flutter/widgets.dart';
+
+import 'theme.dart';
+
+/// A ticket: [top] and [bottom] on one card, with a bite out of each side where they meet
+/// and a dashed line between them, the way a ticket tears. The bites follow the join, so
+/// they stay level with it whatever the two hold and however large the text.
+///
+/// ```dart
+/// Ticket(
+///   top: Text('SFO to NRT, 11h 05m'),
+///   bottom: Text('Seat 14A, gate B22'),
+/// )
+/// ```
+class Ticket extends StatelessWidget {
+  const Ticket({
+    super.key,
+    required this.top,
+    required this.bottom,
+    this.padding = const EdgeInsets.all(20),
+    this.bite = 10,
+    this.tear = true,
+  });
+
+  /// Above the tear: usually what the ticket is for.
+  final Widget top;
+
+  /// Below it: usually the details, the seat or the code.
+  final Widget bottom;
+
+  /// Round each half's content.
+  final EdgeInsetsGeometry padding;
+
+  /// How far each bite reaches into the card.
+  final double bite;
+
+  /// The dashed line across the join; false leaves only the bites.
+  final bool tear;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    TicketHalf half(bool upper) => TicketHalf(
+      upper: upper,
+      radius: t.radiusXl,
+      bite: bite,
+      tear: tear && !upper ? c.border : null,
+      side: BorderSide(color: c.border),
+    );
+    return DefaultTextStyle.merge(
+      style: TextStyle(color: c.cardForeground),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DecoratedBox(
+            decoration: ShapeDecoration(color: c.card, shape: half(true)),
+            child: Padding(padding: padding, child: top),
+          ),
+          DecoratedBox(
+            decoration: ShapeDecoration(color: c.card, shape: half(false)),
+            child: Padding(padding: padding, child: bottom),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One half of a [Ticket]: rounded on its outer side, bitten at its two corners on the
+/// join. The join itself has no border; the lower half draws [tear] across it, dashed.
+class TicketHalf extends ShapeBorder {
+  const TicketHalf({
+    required this.upper,
+    this.radius = 16,
+    this.bite = 10,
+    this.tear,
+    this.side = BorderSide.none,
+  });
+
+  /// The half above the join, or the one below it.
+  final bool upper;
+  final double radius;
+  final double bite;
+
+  /// The dashed line's colour, or null for none.
+  final Color? tear;
+  final BorderSide side;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.all(side.width);
+
+  /// The outline with the join left open, for the border to follow.
+  Path _edge(Rect r) {
+    final b = bite, rad = Radius.circular(radius), cut = Radius.circular(b);
+    if (upper) {
+      return Path()
+        ..moveTo(r.left + b, r.bottom)
+        ..arcToPoint(Offset(r.left, r.bottom - b), radius: cut, clockwise: false)
+        ..lineTo(r.left, r.top + radius)
+        ..arcToPoint(Offset(r.left + radius, r.top), radius: rad)
+        ..lineTo(r.right - radius, r.top)
+        ..arcToPoint(Offset(r.right, r.top + radius), radius: rad)
+        ..lineTo(r.right, r.bottom - b)
+        ..arcToPoint(Offset(r.right - b, r.bottom), radius: cut, clockwise: false);
+    }
+    return Path()
+      ..moveTo(r.right - b, r.top)
+      ..arcToPoint(Offset(r.right, r.top + b), radius: cut, clockwise: false)
+      ..lineTo(r.right, r.bottom - radius)
+      ..arcToPoint(Offset(r.right - radius, r.bottom), radius: rad)
+      ..lineTo(r.left + radius, r.bottom)
+      ..arcToPoint(Offset(r.left, r.bottom - radius), radius: rad)
+      ..lineTo(r.left, r.top + b)
+      ..arcToPoint(Offset(r.left + b, r.top), radius: cut, clockwise: false);
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      _edge(rect)..close();
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      _edge(rect.deflate(side.width))..close();
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    if (side.style != BorderStyle.none) {
+      canvas.drawPath(_edge(rect.deflate(side.width / 2)), side.toPaint());
+    }
+    if (tear case final color?) {
+      final paint = Paint()
+        ..color = color
+        ..strokeWidth = side.width == 0 ? 1 : side.width;
+      for (var x = rect.left + bite + 6; x < rect.right - bite - 6; x += 10) {
+        canvas.drawLine(
+          Offset(x, rect.top),
+          Offset((x + 5).clamp(x, rect.right - bite - 6), rect.top),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  ShapeBorder scale(double t) => TicketHalf(
+    upper: upper,
+    radius: radius * t,
+    bite: bite * t,
+    tear: tear,
+    side: side.scale(t),
+  );
+}
+''',
+    },
+    testNeeds: ["app"],
+    tests: {
+      'ticket_test.dart': r'''// Tests for Ticket. Copied into your app by `ashlar add ticket` with the component: they
+// check what it promises, so change them as you change it.
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/ticket.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
+    AshlarApp(
+      themeMode: mode,
+      home: Center(child: SizedBox(width: 320, child: child)),
+    );
+
+void main() {
+  testWidgets('a ticket lays out in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          const Ticket(top: Text('SFO to NRT'), bottom: Text('Seat 14A')),
+          mode: mode,
+        ),
+      );
+      expect(find.text('SFO to NRT'), findsOneWidget);
+      expect(find.text('Seat 14A'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('the bites sit where the two halves meet, whatever they hold', (
+    tester,
+  ) async {
+    for (final lines in [1, 4]) {
+      await tester.pumpWidget(
+        app(
+          Ticket(
+            top: Text(List.filled(lines, 'Line').join('\n')),
+            bottom: const Text('Seat 14A'),
+          ),
+        ),
+      );
+      final halves = find.descendant(
+        of: find.byType(Ticket),
+        matching: find.byType(DecoratedBox),
+      );
+      final upper = tester.widget<DecoratedBox>(halves.first).decoration;
+      final lower = tester.widget<DecoratedBox>(halves.last).decoration;
+      expect(((upper as ShapeDecoration).shape as TicketHalf).upper, isTrue);
+      expect(((lower as ShapeDecoration).shape as TicketHalf).upper, isFalse);
+      // The join is the upper half's bottom and the lower half's top: no gap between.
+      expect(
+        tester.getBottomLeft(halves.first).dy,
+        tester.getTopLeft(halves.last).dy,
+      );
+    }
+  });
+
+  testWidgets('a bite is cut from each side at the join', (tester) async {
+    const half = TicketHalf(upper: true, bite: 10);
+    const rect = Rect.fromLTWH(0, 0, 200, 100);
+    final path = half.getOuterPath(rect);
+    // Just inside the side at the join is bitten away; higher up the side is card.
+    expect(path.contains(const Offset(2, 98)), isFalse);
+    expect(path.contains(const Offset(198, 98)), isFalse);
+    expect(path.contains(const Offset(2, 50)), isTrue);
+    expect(path.contains(const Offset(100, 98)), isTrue);
+  });
+}
+''',
+    },
+    previewWidget: 'TicketDemo',
+    preview: r'''// The ticket picture ashlar update --preview draws, from the site's demo.
+import 'package:flutter/widgets.dart';
+
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:ashlar_ui_gallery/ui/ticket.dart';
+
+class TicketDemo extends StatelessWidget {
+  const TicketDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final muted = t.text.xs.copyWith(color: t.colors.mutedForeground);
+    final strong = t.text.xxl;
+    Widget fact(String label, String value) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: muted),
+          Text(value, style: t.text.sm.copyWith(fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+    return SizedBox(
+      width: 340,
+      child: Ticket(
+        top: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [Text('SFO', style: strong), Text('San Francisco', style: muted)],
+            ),
+            Expanded(
+              child: Text('11h 05m', textAlign: TextAlign.center, style: muted),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [Text('NRT', style: strong), Text('Tokyo', style: muted)],
+            ),
+          ],
+        ),
+        bottom: Row(
+          children: [
+            fact('Date', 'Thu, 12 Mar'),
+            fact('Seat', '14A'),
+            fact('Gate', 'B22'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+''',
+  ),
   'separator': Component(
     description: "A one-pixel line, across or down.",
     requires: ["theme"],
@@ -3161,6 +3567,22 @@ import 'theme.dart';
 /// Input(placeholder: 'Email', keyboardType: TextInputType.emailAddress, onChanged: (v) => email = v)
 /// Input(controller: password, placeholder: 'Password', obscureText: true, error: wrong)
 /// ```
+/// How tall a one-line [Input] is, matching the [ButtonSize] of the same name, so a field
+/// and its button line up.
+enum InputSize {
+  /// 32 tall.
+  sm,
+
+  /// 36 tall.
+  md,
+
+  /// 40 tall.
+  lg,
+
+  /// 48 tall, for forms on a phone beside an xl button.
+  xl,
+}
+
 class Input extends StatefulWidget {
   const Input({
     super.key,
@@ -3184,6 +3606,7 @@ class Input extends StatefulWidget {
     this.onSubmitted,
     this.semanticLabel,
     this.decorated = true,
+    this.size = InputSize.md,
   });
 
   /// Its text, to read and set from outside; one is made when not given.
@@ -3248,6 +3671,9 @@ class Input extends StatefulWidget {
   /// draws those round the field and its addons together.
   final bool decorated;
 
+  /// Its height, and with it its corners and text, as a button of the same size has.
+  final InputSize size;
+
   @override
   State<Input> createState() => _InputState();
 }
@@ -3295,7 +3721,10 @@ class _InputState extends State<Input>
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final focused = _focus.hasFocus;
-    final style = t.text.sm.copyWith(color: c.foreground);
+    final large = widget.size == InputSize.xl;
+    final style = (large ? t.text.base : t.text.sm).copyWith(
+      color: c.foreground,
+    );
     final multiline = widget.maxLines > 1;
     final editable = EditableText(
       key: editableTextKey,
@@ -3348,10 +3777,17 @@ class _InputState extends State<Input>
             child: AnimatedContainer(
               duration: t.duration,
               constraints: BoxConstraints(
-                minHeight: multiline ? 64 : t.control(36),
+                minHeight: multiline
+                    ? 64
+                    : t.control(switch (widget.size) {
+                        InputSize.sm => 32,
+                        InputSize.md => 36,
+                        InputSize.lg => 40,
+                        InputSize.xl => 48,
+                      }),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: widget.decorated ? 12 : 0,
+                horizontal: widget.decorated ? (large ? 16 : 12) : 0,
                 vertical: multiline ? 8 : 0,
               ),
               decoration: !widget.decorated
@@ -3364,7 +3800,9 @@ class _InputState extends State<Input>
                               c.background,
                             )
                           : c.background,
-                      borderRadius: BorderRadius.circular(t.radiusMd),
+                      borderRadius: BorderRadius.circular(
+                        large ? t.radiusLg : t.radiusMd,
+                      ),
                       border: Border.all(
                         color: widget.error
                             ? c.destructive
@@ -3616,6 +4054,25 @@ void main() {
       isFalse,
     );
     handle.dispose();
+  });
+
+  testWidgets('each size is as tall as the button of the same name', (
+    tester,
+  ) async {
+    final t = AshlarThemeData.light();
+    for (final (size, height) in [
+      (InputSize.sm, 32.0),
+      (InputSize.md, 36.0),
+      (InputSize.lg, 40.0),
+      (InputSize.xl, 48.0),
+    ]) {
+      await tester.pumpWidget(
+        app(SizedBox(width: 300, child: Input(size: size, placeholder: 'Name'))),
+      );
+      // A new size animates there from the last.
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(Input)).height, t.control(height));
+    }
   });
 }
 ''',
@@ -4155,6 +4612,9 @@ import 'theme.dart';
 /// Opens a dialog above the page and waits for it to close, with what it closed with.
 /// The page dims behind it; a tap outside or Escape closes it, unless [dismissible] is false.
 ///
+/// Over the whole app, a tab bar included, unless [useRootNavigator] is false: then on
+/// the nearest navigator, inside a tab of its own.
+///
 /// ```dart
 /// final ok = await showAshlarDialog<bool>(
 ///   context: context,
@@ -4172,9 +4632,10 @@ Future<T?> showAshlarDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool dismissible = true,
+  bool useRootNavigator = true,
 }) {
   final theme = AshlarTheme.of(context);
-  return Navigator.of(context).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     RawDialogRoute<T>(
       barrierDismissible: dismissible,
       barrierLabel: 'Close',
@@ -11365,14 +11826,12 @@ class Empty extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app","button","item"],
+    testNeeds: ["app"],
     tests: {
       'empty_test.dart': r'''// Tests for Empty. Copied into your app by `ashlar add empty` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
-import 'package:ashlar_ui_gallery/ui/button.dart';
 import 'package:ashlar_ui_gallery/ui/empty.dart';
-import 'package:ashlar_ui_gallery/ui/item.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11385,34 +11844,24 @@ Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
 Widget app2(Widget child) => AshlarApp(home: Center(child: child));
 
 void main() {
-  testWidgets('empty and item lay out in light and dark', (tester) async {
+  testWidgets('empty lays out in light and dark, with its actions', (
+    tester,
+  ) async {
     for (final mode in AshlarThemeMode.values) {
       await tester.pumpWidget(
         app(
-          SizedBox(
+          const SizedBox(
             width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Empty(
-                  title: const Text('No projects'),
-                  description: const Text('Create one.'),
-                  actions: [
-                    Button(onPressed: () {}, child: const Text('Create')),
-                  ],
-                ),
-                for (final v in ItemVariant.values)
-                  Item(
-                    variant: v,
-                    title: const Text('Title'),
-                    description: const Text('Description'),
-                  ),
-              ],
+            child: Empty(
+              title: Text('No projects'),
+              description: Text('Create one.'),
+              actions: [Text('Create')],
             ),
           ),
           mode: mode,
         ),
       );
+      expect(find.text('Create'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });
@@ -11757,6 +12206,31 @@ Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
 Widget app2(Widget child) => AshlarApp(home: Center(child: child));
 
 void main() {
+  testWidgets('every variant lays out in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final v in ItemVariant.values)
+                  Item(
+                    variant: v,
+                    title: const Text('Title'),
+                    description: const Text('Description'),
+                  ),
+              ],
+            ),
+          ),
+          mode: mode,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('an item with onPressed is a button, by tap and by keyboard', (
     tester,
   ) async {
@@ -16902,6 +17376,9 @@ enum SheetSide { left, right, top, bottom }
 /// or details beside the work. A tap outside or Escape closes it, and it returns what it
 /// was closed with.
 ///
+/// Over the whole app, a tab bar included, unless [useRootNavigator] is false: then on
+/// the nearest navigator, inside a tab of its own.
+///
 /// ```dart
 /// showSheet(
 ///   context: context,
@@ -16917,9 +17394,10 @@ Future<T?> showSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   SheetSide side = SheetSide.right,
+  bool useRootNavigator = true,
 }) {
   final theme = AshlarTheme.of(context);
-  return Navigator.of(context).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     RawDialogRoute<T>(
       barrierDismissible: true,
       barrierLabel: 'Close',
@@ -17369,6 +17847,9 @@ enum DrawerSide { bottom, top, left, right }
 /// show choices and short forms. Drag it back to its edge, tap outside or press Escape to
 /// close it.
 ///
+/// Over the whole app, a tab bar included, unless [useRootNavigator] is false: then on
+/// the nearest navigator, inside a tab of its own.
+///
 /// ```dart
 /// showDrawer(
 ///   context: context,
@@ -17384,9 +17865,10 @@ Future<T?> showDrawer<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   DrawerSide side = DrawerSide.bottom,
+  bool useRootNavigator = true,
 }) {
   final theme = AshlarTheme.of(context);
-  return Navigator.of(context).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     RawDialogRoute<T>(
       barrierDismissible: true,
       barrierLabel: 'Close',
@@ -18129,6 +18611,51 @@ void main() {
       expect(controller.snap, 1);
       expect(top(tester), moreOrLessEquals(800 * .1, epsilon: 1));
     });
+  });
+
+  testWidgets('opens over a nested navigator, a tab bar included', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Column(
+          children: [
+            Expanded(
+              child: Navigator(
+                key: const Key('tab'),
+                onGenerateRoute: (_) => PageRouteBuilder<void>(
+                  pageBuilder: (context, _, _) => Center(
+                    child: Button(
+                      onPressed: () => showDrawer<void>(
+                        context: context,
+                        builder: (_) => const Drawer(title: Text('Sheet')),
+                      ),
+                      child: const Text('Open'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(key: Key('bar'), height: 56),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    // Not in the tab's navigator but the app's, so from the bottom of the screen.
+    expect(find.text('Sheet'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('tab')),
+        matching: find.text('Sheet'),
+      ),
+      findsNothing,
+    );
+    expect(
+      tester.getBottomLeft(find.byType(Drawer)).dy,
+      greaterThan(tester.getTopLeft(find.byKey(const Key('bar'))).dy),
+    );
   });
 }
 ''',
