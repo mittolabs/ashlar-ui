@@ -318,6 +318,12 @@ class AshlarText {
 
   /// 24/32: page titles.
   TextStyle get xxl => _size(24, 32, FontWeight.w600);
+
+  /// 30/36: a screen's headline, or a figure that stands alone.
+  TextStyle get xxxl => _size(30, 36, FontWeight.w600);
+
+  /// 36/40: the largest, for a welcome or a total.
+  TextStyle get display => _size(36, 40, FontWeight.w600);
 }
 
 /// How a theme spaces and shapes its components: corners, the size of controls, the room
