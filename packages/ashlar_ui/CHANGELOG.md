@@ -1,3 +1,8 @@
+## 0.3.1
+
+- `ashlar init` adds ashlaricons 0.3.0: 1,245 more icons fill in Solid, Duotone and Bulk,
+  and 271 flags and the outlines of countries and continents are new.
+
 ## 0.3.0
 
 The blocks are new: screens from apps people run, a shop, a clinic, a school office, a

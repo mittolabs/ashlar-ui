@@ -19,7 +19,7 @@ import 'shot.dart';
 import 'remote.dart';
 
 /// The version each pub.dev package a component needs is added at.
-const packageVersions = {'ashlar_icons': '^0.2.0'};
+const packageVersions = {'ashlar_icons': '^0.3.0'};
 
 final _usage =
     '''
