@@ -1,8 +1,5 @@
 ## 0.4.0
 
-Found building a flight booking app with Ashlar UI: what it had to draw by hand is now
-here.
-
 - `ticket` is new: two halves on one card, bitten at the sides where they meet, with a
   line to tear along. The bites follow the join, so they stay level with it whatever the
   halves hold and however large the text.
