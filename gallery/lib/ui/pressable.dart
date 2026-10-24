@@ -59,6 +59,10 @@ class Pressable extends StatefulWidget {
   final VoidCallback? onPressed;
 
   /// Builds how it looks, given whether it is hovered, pressed, focused or disabled.
+  ///
+  /// What it builds is centred and takes its own size, so a control hugs its content even
+  /// in a stretched column. To fill the width a parent gives it (an Expanded, a stretched
+  /// column), give what it builds `width: double.infinity`.
   final Widget Function(BuildContext context, PressableState state) builder;
 
   /// Its focus node, to move focus to it or follow it from outside; one is made when not
