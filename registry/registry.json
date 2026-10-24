@@ -5,6 +5,7 @@
   "button": { "description": "Six variants and five sizes, square or round, with icons either side and a badge.", "files": ["button.dart"], "requires": ["theme", "pressable", "group"], "tests": ["tests/button_test.dart"], "preview": "previews/button.dart" },
   "badge": { "description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"], "preview": "previews/badge.dart" },
   "card": { "description": "A panel with a header, content and a footer.", "files": ["card.dart"], "requires": ["theme"], "tests": ["tests/card_test.dart"], "preview": "previews/card.dart" },
+  "ticket": { "description": "A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.", "files": ["ticket.dart"], "requires": ["theme"], "tests": ["tests/ticket_test.dart"], "preview": "previews/ticket.dart" },
   "separator": { "description": "A one-pixel line, across or down.", "files": ["separator.dart"], "requires": ["theme"], "preview": "previews/separator.dart" },
   "input": { "description": "A text field with selection handles and a cut, copy and paste menu.", "files": ["input.dart"], "requires": ["theme", "selection"], "tests": ["tests/input_test.dart"], "preview": "previews/input.dart" },
   "checkbox": { "description": "A box that is ticked or not.", "files": ["checkbox.dart"], "requires": ["theme", "pressable"], "packages": ["ashlar_icons"], "tests": ["tests/checkbox_test.dart"], "preview": "previews/checkbox.dart" },
