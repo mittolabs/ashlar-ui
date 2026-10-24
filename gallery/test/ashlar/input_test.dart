@@ -160,4 +160,23 @@ void main() {
     );
     handle.dispose();
   });
+
+  testWidgets('each size is as tall as the button of the same name', (
+    tester,
+  ) async {
+    final t = AshlarThemeData.light();
+    for (final (size, height) in [
+      (InputSize.sm, 32.0),
+      (InputSize.md, 36.0),
+      (InputSize.lg, 40.0),
+      (InputSize.xl, 48.0),
+    ]) {
+      await tester.pumpWidget(
+        app(SizedBox(width: 300, child: Input(size: size, placeholder: 'Name'))),
+      );
+      // A new size animates there from the last.
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(Input)).height, t.control(height));
+    }
+  });
 }

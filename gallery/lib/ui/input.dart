@@ -16,6 +16,22 @@ import 'theme.dart';
 /// Input(placeholder: 'Email', keyboardType: TextInputType.emailAddress, onChanged: (v) => email = v)
 /// Input(controller: password, placeholder: 'Password', obscureText: true, error: wrong)
 /// ```
+/// How tall a one-line [Input] is, matching the [ButtonSize] of the same name, so a field
+/// and its button line up.
+enum InputSize {
+  /// 32 tall.
+  sm,
+
+  /// 36 tall.
+  md,
+
+  /// 40 tall.
+  lg,
+
+  /// 48 tall, for forms on a phone beside an xl button.
+  xl,
+}
+
 class Input extends StatefulWidget {
   const Input({
     super.key,
@@ -39,6 +55,7 @@ class Input extends StatefulWidget {
     this.onSubmitted,
     this.semanticLabel,
     this.decorated = true,
+    this.size = InputSize.md,
   });
 
   /// Its text, to read and set from outside; one is made when not given.
@@ -103,6 +120,9 @@ class Input extends StatefulWidget {
   /// draws those round the field and its addons together.
   final bool decorated;
 
+  /// Its height, and with it its corners and text, as a button of the same size has.
+  final InputSize size;
+
   @override
   State<Input> createState() => _InputState();
 }
@@ -150,7 +170,10 @@ class _InputState extends State<Input>
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final focused = _focus.hasFocus;
-    final style = t.text.sm.copyWith(color: c.foreground);
+    final large = widget.size == InputSize.xl;
+    final style = (large ? t.text.base : t.text.sm).copyWith(
+      color: c.foreground,
+    );
     final multiline = widget.maxLines > 1;
     final editable = EditableText(
       key: editableTextKey,
@@ -203,10 +226,17 @@ class _InputState extends State<Input>
             child: AnimatedContainer(
               duration: t.duration,
               constraints: BoxConstraints(
-                minHeight: multiline ? 64 : t.control(36),
+                minHeight: multiline
+                    ? 64
+                    : t.control(switch (widget.size) {
+                        InputSize.sm => 32,
+                        InputSize.md => 36,
+                        InputSize.lg => 40,
+                        InputSize.xl => 48,
+                      }),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: widget.decorated ? 12 : 0,
+                horizontal: widget.decorated ? (large ? 16 : 12) : 0,
                 vertical: multiline ? 8 : 0,
               ),
               decoration: !widget.decorated
@@ -219,7 +249,9 @@ class _InputState extends State<Input>
                               c.background,
                             )
                           : c.background,
-                      borderRadius: BorderRadius.circular(t.radiusMd),
+                      borderRadius: BorderRadius.circular(
+                        large ? t.radiusLg : t.radiusMd,
+                      ),
                       border: Border.all(
                         color: widget.error
                             ? c.destructive
