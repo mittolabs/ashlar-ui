@@ -203,4 +203,76 @@ void main() {
       );
     },
   );
+
+  testWidgets('xl is 48 tall, its icon square 48, with the larger corners', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Button(
+              key: const Key('xl'),
+              size: ButtonSize.xl,
+              onPressed: () {},
+              child: const Text('Book'),
+            ),
+            Button(
+              key: const Key('icon'),
+              size: ButtonSize.iconXl,
+              semanticLabel: 'Add',
+              onPressed: () {},
+              child: const Text('+'),
+            ),
+          ],
+        ),
+      ),
+    );
+    final t = AshlarThemeData.light();
+    expect(tester.getSize(find.byKey(const Key('xl'))).height, t.control(48));
+    expect(tester.getSize(find.byKey(const Key('icon'))), Size.square(t.control(48)));
+    expect(
+      box(tester, find.byKey(const Key('xl'))).borderRadius,
+      BorderRadius.circular(t.radiusLg),
+    );
+  });
+
+  testWidgets('round makes a pill, or a circle of an icon button', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('b'),
+          size: ButtonSize.iconLg,
+          round: true,
+          semanticLabel: 'Back',
+          onPressed: () {},
+          child: const Text('<'),
+        ),
+      ),
+    );
+    final height = tester.getSize(find.byKey(const Key('b'))).height;
+    expect(
+      box(tester, find.byKey(const Key('b'))).borderRadius,
+      BorderRadius.circular(height),
+    );
+  });
+
+  testWidgets('a badge sits over the top end corner', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('b'),
+          size: ButtonSize.iconLg,
+          semanticLabel: 'Notifications',
+          badge: const SizedBox(key: Key('dot'), width: 8, height: 8),
+          onPressed: () {},
+          child: const Text('!'),
+        ),
+      ),
+    );
+    final button = tester.getRect(find.byKey(const Key('b')));
+    final dot = tester.getRect(find.byKey(const Key('dot')));
+    expect(dot.topRight, button.topRight);
+  });
 }

@@ -46,6 +46,12 @@ enum ButtonSize {
   iconXs,
   iconSm,
   iconLg,
+
+  /// 48 tall, for the main action on a phone screen.
+  xl,
+
+  /// A 48 square for one icon, beside an [xl] button.
+  iconXl,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -54,6 +60,8 @@ enum ButtonSize {
 /// Button(onPressed: save, child: Text('Save'))
 /// Button(variant: ButtonVariant.outline, leading: AshlarIcon(AshlarIconsRoundedStroke.plus), onPressed: add, child: Text('Add'))
 /// Button(size: ButtonSize.icon, semanticLabel: 'Settings', onPressed: open, child: AshlarIcon(AshlarIconsRoundedStroke.settings))
+/// Button(size: ButtonSize.xl, expand: true, onPressed: book, child: Text('Book'))
+/// Button(size: ButtonSize.iconLg, round: true, badge: unread, semanticLabel: 'Notifications', onPressed: open, child: AshlarIcon(AshlarIconsRoundedStroke.bell))
 /// ```
 class Button extends StatelessWidget {
   const Button({
@@ -69,6 +77,8 @@ class Button extends StatelessWidget {
     this.semanticLabel,
     this.expand = false,
     this.error = false,
+    this.round = false,
+    this.badge,
   });
 
   /// Null disables the button.
@@ -107,11 +117,18 @@ class Button extends StatelessWidget {
   /// Draws it as invalid: a destructive border and ring, as on a field.
   final bool error;
 
+  /// Fully rounded: a pill, or a circle for an icon alone.
+  final bool round;
+
+  /// Over its top end corner: a dot that something is new, or a count.
+  final Widget? badge;
+
   bool get _square =>
       size == ButtonSize.icon ||
       size == ButtonSize.iconXs ||
       size == ButtonSize.iconSm ||
-      size == ButtonSize.iconLg;
+      size == ButtonSize.iconLg ||
+      size == ButtonSize.iconXl;
 
   @override
   Widget build(BuildContext context) {
@@ -160,11 +177,18 @@ class Button extends StatelessWidget {
           ButtonSize.iconXs => (24.0, 0.0, 0.0),
           ButtonSize.iconSm => (32.0, 0.0, 0.0),
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
+          ButtonSize.xl => (48.0, 28.0, 8.0),
+          ButtonSize.iconXl => (48.0, 0.0, 0.0),
         };
+        final large = size == ButtonSize.xl || size == ButtonSize.iconXl;
         // Taller or shorter with the theme's density.
         final height = t.control(standard);
         final label = DefaultTextStyle.merge(
-          style: (size == ButtonSize.xs ? t.text.xs : t.text.sm).copyWith(
+          style: switch (size) {
+            ButtonSize.xs => t.text.xs,
+            ButtonSize.xl => t.text.base,
+            _ => t.text.sm,
+          }.copyWith(
             color: fg,
             fontWeight: FontWeight.w500,
             decoration: variant == ButtonVariant.link && state.hovered
@@ -175,7 +199,7 @@ class Button extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           child: IconTheme.merge(
-            data: IconThemeData(color: fg, size: 16),
+            data: IconThemeData(color: fg, size: large ? 20 : 16),
             // The row sets the height and centres in it; the button hugs it unless [expand].
             // A height at least: larger text makes it taller rather than being cut off.
             child: ConstrainedBox(
@@ -196,7 +220,7 @@ class Button extends StatelessWidget {
             ),
           ),
         );
-        return Opacity(
+        final button = Opacity(
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
             duration: t.duration,
@@ -206,7 +230,10 @@ class Button extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: bg,
-              borderRadius: joinedRadius(context, t.radiusMd),
+              borderRadius: joinedRadius(
+                context,
+                round ? height : (large ? t.radiusLg : t.radiusMd),
+              ),
               border: error
                   ? joinedBorder(context, c.destructive)
                   : border == null
@@ -229,6 +256,14 @@ class Button extends StatelessWidget {
             ),
             child: label,
           ),
+        );
+        if (badge == null) return button;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            button,
+            PositionedDirectional(top: 0, end: 0, child: badge!),
+          ],
         );
       },
     );
