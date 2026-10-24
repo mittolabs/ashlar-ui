@@ -9,6 +9,9 @@ import 'theme.dart';
 /// Opens a dialog above the page and waits for it to close, with what it closed with.
 /// The page dims behind it; a tap outside or Escape closes it, unless [dismissible] is false.
 ///
+/// Over the whole app, a tab bar included, unless [useRootNavigator] is false: then on
+/// the nearest navigator, inside a tab of its own.
+///
 /// ```dart
 /// final ok = await showAshlarDialog<bool>(
 ///   context: context,
@@ -26,9 +29,10 @@ Future<T?> showAshlarDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool dismissible = true,
+  bool useRootNavigator = true,
 }) {
   final theme = AshlarTheme.of(context);
-  return Navigator.of(context).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     RawDialogRoute<T>(
       barrierDismissible: dismissible,
       barrierLabel: 'Close',

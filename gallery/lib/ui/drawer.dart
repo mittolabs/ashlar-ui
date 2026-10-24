@@ -12,6 +12,9 @@ enum DrawerSide { bottom, top, left, right }
 /// show choices and short forms. Drag it back to its edge, tap outside or press Escape to
 /// close it.
 ///
+/// Over the whole app, a tab bar included, unless [useRootNavigator] is false: then on
+/// the nearest navigator, inside a tab of its own.
+///
 /// ```dart
 /// showDrawer(
 ///   context: context,
@@ -27,9 +30,10 @@ Future<T?> showDrawer<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   DrawerSide side = DrawerSide.bottom,
+  bool useRootNavigator = true,
 }) {
   final theme = AshlarTheme.of(context);
-  return Navigator.of(context).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     RawDialogRoute<T>(
       barrierDismissible: true,
       barrierLabel: 'Close',

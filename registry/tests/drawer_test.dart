@@ -227,4 +227,49 @@ void main() {
       expect(top(tester), moreOrLessEquals(800 * .1, epsilon: 1));
     });
   });
+
+  testWidgets('opens over a nested navigator, a tab bar included', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Column(
+          children: [
+            Expanded(
+              child: Navigator(
+                key: const Key('tab'),
+                onGenerateRoute: (_) => PageRouteBuilder<void>(
+                  pageBuilder: (context, _, _) => Center(
+                    child: Button(
+                      onPressed: () => showDrawer<void>(
+                        context: context,
+                        builder: (_) => const Drawer(title: Text('Sheet')),
+                      ),
+                      child: const Text('Open'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(key: Key('bar'), height: 56),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    // Not in the tab's navigator but the app's, so from the bottom of the screen.
+    expect(find.text('Sheet'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('tab')),
+        matching: find.text('Sheet'),
+      ),
+      findsNothing,
+    );
+    expect(
+      tester.getBottomLeft(find.byType(Drawer)).dy,
+      greaterThan(tester.getTopLeft(find.byKey(const Key('bar'))).dy),
+    );
+  });
 }
