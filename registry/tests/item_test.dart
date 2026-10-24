@@ -16,6 +16,31 @@ Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
 Widget app2(Widget child) => AshlarApp(home: Center(child: child));
 
 void main() {
+  testWidgets('every variant lays out in light and dark', (tester) async {
+    for (final mode in AshlarThemeMode.values) {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final v in ItemVariant.values)
+                  Item(
+                    variant: v,
+                    title: const Text('Title'),
+                    description: const Text('Description'),
+                  ),
+              ],
+            ),
+          ),
+          mode: mode,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('an item with onPressed is a button, by tap and by keyboard', (
     tester,
   ) async {

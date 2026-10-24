@@ -1,9 +1,7 @@
 // Tests for Empty. Copied into your app by `ashlar add empty` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
-import 'package:ashlar_ui_gallery/ui/button.dart';
 import 'package:ashlar_ui_gallery/ui/empty.dart';
-import 'package:ashlar_ui_gallery/ui/item.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,34 +14,24 @@ Widget app(Widget child, {AshlarThemeMode mode = AshlarThemeMode.light}) =>
 Widget app2(Widget child) => AshlarApp(home: Center(child: child));
 
 void main() {
-  testWidgets('empty and item lay out in light and dark', (tester) async {
+  testWidgets('empty lays out in light and dark, with its actions', (
+    tester,
+  ) async {
     for (final mode in AshlarThemeMode.values) {
       await tester.pumpWidget(
         app(
-          SizedBox(
+          const SizedBox(
             width: 400,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Empty(
-                  title: const Text('No projects'),
-                  description: const Text('Create one.'),
-                  actions: [
-                    Button(onPressed: () {}, child: const Text('Create')),
-                  ],
-                ),
-                for (final v in ItemVariant.values)
-                  Item(
-                    variant: v,
-                    title: const Text('Title'),
-                    description: const Text('Description'),
-                  ),
-              ],
+            child: Empty(
+              title: Text('No projects'),
+              description: Text('Create one.'),
+              actions: [Text('Create')],
             ),
           ),
           mode: mode,
         ),
       );
+      expect(find.text('Create'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });
