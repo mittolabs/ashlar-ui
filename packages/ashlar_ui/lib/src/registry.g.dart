@@ -3204,7 +3204,7 @@ class CardDemo extends StatelessWidget {
 ''',
   ),
   'ticket': Component(
-    description: "Deprecated, to go in a later release: a shape from one design. A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.",
+    description: "A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.",
     requires: ["theme"],
     packages: [],
     block: false,
@@ -3224,7 +3224,6 @@ import 'theme.dart';
 ///   bottom: Text('Seat 14A, gate B22'),
 /// )
 /// ```
-@Deprecated("Ticket: a shape from one design, not Ashlar UI's. Draw it in your app with a ShapeBorder of your own, or keep this copy. Goes in a later release.")
 class Ticket extends StatelessWidget {
   const Ticket({
     super.key,
@@ -3283,7 +3282,6 @@ class Ticket extends StatelessWidget {
 
 /// One half of a [Ticket]: rounded on its outer side, bitten at its two corners on the
 /// join. The join itself has no border; the lower half draws [tear] across it, dashed.
-@Deprecated("TicketHalf: part of Ticket, which is deprecated. Goes in a later release.")
 class TicketHalf extends ShapeBorder {
   const TicketHalf({
     required this.upper,

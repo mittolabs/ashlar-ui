@@ -33,7 +33,7 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
 Ashlar UI is copied into an app, and the app owns what it copies. So the look of one app
 belongs in that app, not in Ashlar. Ashlar is not shaped by any one design, however good,
 or by the app being built with it this week (decided 2026-10-25, after 0.4.0 to 0.6.0 took
-five such options; see "Deprecated" below).
+options for single designs; see "Deprecated" below).
 
 Ashlar takes a change only when it is one of these:
 
@@ -47,8 +47,8 @@ Ashlar takes a change only when it is one of these:
 5. **A layout every app on a phone, a tablet or a desktop runs into** (a calendar that can
    fill its width), not one screen's arrangement.
 6. **A component that unrelated apps clearly need**, judged by asking what three apps unlike
-   the one in front of you would do with it (an appearance picker, yes; a boarding-pass
-   ticket, no).
+   the one in front of you would do with it (an appearance picker, yes; a shape from one
+   app's screen, no).
 
 It does not take:
 
@@ -71,4 +71,7 @@ passes this test.
 
 Taken in 0.4.0 to 0.6.0 for single designs, deprecated in 0.7.0, to go in a later
 release: `BottomBar.floating` and `named`, `Input.round` and `raised`,
-`ButtonSize.icon2xl`, `ToggleVariant.chip`, and the `ticket` component.
+`ButtonSize.icon2xl` and `ToggleVariant.chip`.
+
+The `ticket` component, from the same time, is kept (the owner's call, 2026-10-25): it
+stays as it is, and the rule above applies to everything that comes after it.
