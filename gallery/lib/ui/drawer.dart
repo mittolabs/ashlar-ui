@@ -43,7 +43,7 @@ Future<T?> showDrawer<T>({
         data: theme,
         child: _DrawerSide(
           side: side,
-          child: AboveKeyboard(child: Builder(builder: builder)),
+          child: AboveKeyboard(child: _HoldsDrawer(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {
@@ -74,6 +74,56 @@ class _DrawerSide extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_DrawerSide old) => old.side != side;
+}
+
+/// What [showDrawer]'s builder returns, checked in debug builds to hold a [Drawer]: without
+/// one, what it builds shows bare at the top of the screen, with no panel round it.
+class _HoldsDrawer extends StatefulWidget {
+  const _HoldsDrawer({required this.builder});
+
+  final WidgetBuilder builder;
+
+  @override
+  State<_HoldsDrawer> createState() => _HoldsDrawerState();
+}
+
+class _HoldsDrawerState extends State<_HoldsDrawer> {
+  @override
+  void initState() {
+    super.initState();
+    assert(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        var found = false;
+        void look(Element e) {
+          if (found) return;
+          if (e.widget is Drawer) {
+            found = true;
+          } else {
+            e.visitChildren(look);
+          }
+        }
+
+        context.visitChildElements(look);
+        if (!found) {
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: FlutterError(
+                "showDrawer's builder returned no Drawer.\n"
+                'Return Drawer(title: ..., content: ..., footer: [...]), which draws the '
+                'panel; anything else shows bare at the top of the screen.',
+              ),
+              library: 'ashlar ui',
+            ),
+          );
+        }
+      });
+      return true;
+    }());
+  }
+
+  @override
+  Widget build(BuildContext context) => Builder(builder: widget.builder);
 }
 
 /// The panel [showDrawer] brings in: a handle to drag (at the top and bottom), a header,

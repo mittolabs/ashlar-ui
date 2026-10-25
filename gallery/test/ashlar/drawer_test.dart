@@ -33,6 +33,38 @@ Future<void> open(WidgetTester tester, void Function(BuildContext) show) async {
 }
 
 void main() {
+  group('Drawer builder', () {
+    testWidgets('says so when its builder returns no Drawer', (tester) async {
+      await open(
+        tester,
+        (context) => showDrawer<void>(
+          context: context,
+          builder: (context) => const Text('Bare'),
+        ),
+      );
+      expect(
+        '${tester.takeException()}',
+        contains("showDrawer's builder returned no Drawer"),
+      );
+    });
+
+    testWidgets('says nothing when the Drawer is inside another widget', (
+      tester,
+    ) async {
+      await open(
+        tester,
+        (context) => showDrawer<void>(
+          context: context,
+          builder: (context) => const Padding(
+            padding: EdgeInsets.zero,
+            child: Drawer(title: Text('Wrapped')),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('Drawer', () {
     Future<void> open(WidgetTester tester) async {
       await tester.pumpWidget(
