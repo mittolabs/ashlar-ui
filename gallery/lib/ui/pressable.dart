@@ -72,7 +72,9 @@ class Pressable extends StatefulWidget {
   /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
-  /// Read out in place of the visible content.
+  /// Read out in place of the visible content, and everything it builds goes unread:
+  /// buttons inside it too. A card or a row with buttons of its own keeps them out of
+  /// the labelled area, beside it or over it in a Stack.
   final String? semanticLabel;
 
   /// Read out after the label: what a select or a field holds.
