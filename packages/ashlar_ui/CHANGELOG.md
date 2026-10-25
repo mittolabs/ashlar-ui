@@ -1,3 +1,8 @@
+## 0.7.1
+
+- `ticket` is no longer deprecated: it stays as it is. 0.7.0 deprecated it by mistake, and is
+  retracted. The four options 0.7.0 deprecated stay deprecated.
+
 ## 0.7.0
 
 Ashlar UI is copied into your app, and the look of your app is yours: a shape, a skin or a
