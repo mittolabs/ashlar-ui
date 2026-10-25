@@ -162,6 +162,9 @@ Future<void> _draw(WidgetTester tester, String label, Size size, TargetPlatform 
     final where = cause ?? (stacked == null ? null : 'lib/\$stacked');
     complaints.add('\${d.exceptionAsString().split('\\n').first.trim()}\${where == null ? '' : ' (\$where)'}');
   };
+  // Each screen is drawn in a test of its own, and an asset the bundle kept from an
+  // earlier one never arrives in a later one: so the bundle starts empty.
+  rootBundle.clear();
   final key = GlobalKey();
   await tester.pumpWidget(RepaintBoundary(key: key, child: child));
   for (var i = 0; i < 10; i++) {
