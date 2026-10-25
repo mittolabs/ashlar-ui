@@ -1,3 +1,21 @@
+## 0.6.0
+
+- `appearance-picker` is new: system, light or dark, picked from three small screens drawn
+  in the app's own colours, system being the light screen and the dark one cut on a
+  slant. To a screen reader, three choices with one chosen.
+- `bottom-bar`: `named`, with `floating`, shows the place you are in as a pill with its name
+  beside its icon, the others as icons, and the bar hugs them.
+- `input`: `round` for a pill and `raised` for the card colour with a shadow and no
+  border until focused: a search field at the top of a screen. The icons either side are
+  larger at `xl`.
+- `select`: `SelectSize.lg` and `xl`, as tall as the button of the same size, with its
+  corners and text.
+- `calendar`: `expand` fills the width it is given, each day's column widening and the days
+  growing taller, up to 44: a month that is the main thing on a phone's sheet.
+- `ashlar shot` waits for pictures before drawing, so photos and avatars show on every
+  screen, not only the first; and `--dark` sets the phone dark too, for an app that follows
+  the phone rather than a theme mode of its own.
+
 ## 0.5.0
 
 - `bottom-bar`: `floating` lays the bar over the page in a rounded bar of its own, icons

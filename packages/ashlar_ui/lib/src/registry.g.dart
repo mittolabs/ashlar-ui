@@ -3599,6 +3599,7 @@ import 'theme.dart';
 /// ```dart
 /// Input(placeholder: 'Email', keyboardType: TextInputType.emailAddress, onChanged: (v) => email = v)
 /// Input(controller: password, placeholder: 'Password', obscureText: true, error: wrong)
+/// Input(round: true, raised: true, size: InputSize.xl, placeholder: 'Search', leading: AshlarIcon(AshlarIconsRoundedStroke.search))
 /// ```
 /// How tall a one-line [Input] is, matching the [ButtonSize] of the same name, so a field
 /// and its button line up.
@@ -3640,6 +3641,8 @@ class Input extends StatefulWidget {
     this.semanticLabel,
     this.decorated = true,
     this.size = InputSize.md,
+    this.round = false,
+    this.raised = false,
   });
 
   /// Its text, to read and set from outside; one is made when not given.
@@ -3706,6 +3709,13 @@ class Input extends StatefulWidget {
 
   /// Its height, and with it its corners and text, as a button of the same size has.
   final InputSize size;
+
+  /// Fully rounded: a pill, as a search field often is.
+  final bool round;
+
+  /// On the card colour with a shadow and no border until focused: a field that stands
+  /// on the page by itself, as a search field at the top of a screen does.
+  final bool raised;
 
   @override
   State<Input> createState() => _InputState();
@@ -3820,44 +3830,55 @@ class _InputState extends State<Input>
                       }),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: widget.decorated ? (large ? 16 : 12) : 0,
+                horizontal: widget.decorated
+                    ? (widget.round ? (large ? 20 : 14) : (large ? 16 : 12))
+                    : 0,
                 vertical: multiline ? 8 : 0,
               ),
               decoration: !widget.decorated
                   ? null
                   : BoxDecoration(
                       // Opaque, so the shadow beneath does not show through.
-                      color: t.brightness == Brightness.dark
+                      color: widget.raised
+                          ? c.card
+                          : t.brightness == Brightness.dark
                           ? Color.alphaBlend(
                               c.input.withValues(alpha: c.input.a * .3),
                               c.background,
                             )
                           : c.background,
                       borderRadius: BorderRadius.circular(
-                        large ? t.radiusLg : t.radiusMd,
+                        widget.round ? 999 : (large ? t.radiusLg : t.radiusMd),
                       ),
                       border: Border.all(
                         color: widget.error
                             ? c.destructive
                             : (focused
                                   ? c.ring
+                                  : widget.raised
+                                  ? c.card
                                   : (_hovered
                                         ? c.ring.withValues(alpha: .6)
                                         : c.input)),
                       ),
                       boxShadow: [
-                        if (focused)
+                        // Raised, the border alone marks focus: a ring round it would sit on
+                        // its shadow.
+                        if (focused && !widget.raised)
                           BoxShadow(
                             color: ringColor.withValues(
                               alpha: widget.error ? .2 : .5,
                             ),
                             spreadRadius: 3,
                           ),
-                        ...t.shadowXs,
+                        ...(widget.raised ? t.shadowLg : t.shadowXs),
                       ],
                     ),
               child: IconTheme.merge(
-                data: IconThemeData(color: c.mutedForeground, size: 16),
+                data: IconThemeData(
+                  color: widget.raised ? c.foreground : c.mutedForeground,
+                  size: large ? 20 : 16,
+                ),
                 child: Row(
                   crossAxisAlignment: multiline
                       ? CrossAxisAlignment.start
@@ -4100,13 +4121,46 @@ void main() {
       (InputSize.xl, 48.0),
     ]) {
       await tester.pumpWidget(
-        app(SizedBox(width: 300, child: Input(size: size, placeholder: 'Name'))),
+        app(
+          SizedBox(
+            width: 300,
+            child: Input(size: size, placeholder: 'Name'),
+          ),
+        ),
       );
       // A new size animates there from the last.
       await tester.pumpAndSettle();
       expect(tester.getSize(find.byType(Input)).height, t.control(height));
     }
   });
+
+  testWidgets(
+    'round and raised make a search field: a pill on the card colour',
+    (tester) async {
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 300,
+            child: Input(round: true, raised: true, placeholder: 'Search'),
+          ),
+        ),
+      );
+      final box =
+          tester
+                  .widget<AnimatedContainer>(
+                    find.descendant(
+                      of: find.byType(Input),
+                      matching: find.byType(AnimatedContainer),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
+      final t = AshlarThemeData.light();
+      expect(box.color, t.colors.card);
+      expect(box.borderRadius, BorderRadius.circular(999));
+      expect((box.border! as Border).top.color, t.colors.card);
+    },
+  );
 }
 ''',
     },
@@ -9247,6 +9301,12 @@ enum SelectSize {
 
   /// 36 tall.
   md,
+
+  /// 40 tall.
+  lg,
+
+  /// 48 tall, for forms on a phone beside an xl button.
+  xl,
 }
 
 /// Picks one value from a list that opens under it. It opens on a tap, Enter, Space or the
@@ -9290,7 +9350,7 @@ class Select<T> extends StatefulWidget {
   /// Draws it as invalid.
   final bool error;
 
-  /// Small fits beside small buttons.
+  /// As tall as the button of the same name beside it: small to extra large.
   final SelectSize size;
 
   /// Its focus node, to move focus to it or follow it from outside; one is made when not
@@ -9355,15 +9415,24 @@ class _SelectState<T> extends State<Select<T>> {
               : (chosen?.label ?? widget.placeholder),
           builder: (context, state) {
             final ring = widget.error ? c.destructive : c.ring;
+            final large = widget.size == SelectSize.xl;
             return Opacity(
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
                 // A height at least: larger text makes it taller rather than being cut off.
                 constraints: BoxConstraints(
-                  minHeight: t.control(widget.size == SelectSize.sm ? 32 : 36),
+                  minHeight: t.control(switch (widget.size) {
+                    SelectSize.sm => 32,
+                    SelectSize.md => 36,
+                    SelectSize.lg => 40,
+                    SelectSize.xl => 48,
+                  }),
                 ),
-                padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
+                padding: EdgeInsetsDirectional.only(
+                  start: large ? 16 : 12,
+                  end: large ? 14 : 10,
+                ),
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
                       ? Color.alphaBlend(
@@ -9373,7 +9442,9 @@ class _SelectState<T> extends State<Select<T>> {
                           c.background,
                         )
                       : c.background,
-                  borderRadius: BorderRadius.circular(t.radiusMd),
+                  borderRadius: BorderRadius.circular(
+                    large ? t.radiusLg : t.radiusMd,
+                  ),
                   border: Border.all(
                     color: widget.error
                         ? c.destructive
@@ -9401,7 +9472,7 @@ class _SelectState<T> extends State<Select<T>> {
                           chosen?.label ?? widget.placeholder ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: t.text.sm.copyWith(
+                          style: (large ? t.text.base : t.text.sm).copyWith(
                             color: chosen == null
                                 ? c.mutedForeground
                                 : c.foreground,
@@ -9411,7 +9482,7 @@ class _SelectState<T> extends State<Select<T>> {
                       const SizedBox(width: 8),
                       AshlarIcon(
                         AshlarIconsRoundedStroke.chevronDown,
-                        size: 16,
+                        size: large ? 20 : 16,
                         color: c.mutedForeground.withValues(alpha: .5),
                       ),
                     ],
@@ -10015,6 +10086,34 @@ void main() {
           .last,
     );
     expect(list.width, closeTo(260, 1));
+  });
+
+  testWidgets('each size is as tall as the button of the same name', (
+    tester,
+  ) async {
+    final t = AshlarThemeData.light();
+    for (final (size, height) in [
+      (SelectSize.sm, 32.0),
+      (SelectSize.md, 36.0),
+      (SelectSize.lg, 40.0),
+      (SelectSize.xl, 48.0),
+    ]) {
+      await tester.pumpWidget(
+        app3(
+          Select<String>(
+            value: 'apple',
+            size: size,
+            options: fruit,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(AnimatedContainer).first).height,
+        t.control(height),
+      );
+    }
   });
 }
 ''',
@@ -13973,6 +14072,340 @@ class _ToggleGroupDemoState extends State<ToggleGroupDemo> {
   );
 }
 ''',
+  ),
+  'appearance-picker': Component(
+    description: "System, light or dark, picked from three small screens drawn in their own colours.",
+    requires: ["theme","pressable","app"],
+    packages: [],
+    block: false,
+    replaces: [],
+    files: {
+      'appearance_picker.dart': r'''// Ashlar UI: Appearance Picker. Copied into your app by `ashlar add appearance-picker`; it
+// is yours to change.
+
+import 'package:ashlar_icons/ashlar_icons.dart';
+import 'package:flutter/widgets.dart';
+
+import 'app.dart';
+import 'pressable.dart';
+import 'theme.dart';
+
+/// System, light or dark, chosen from three small screens, each drawn in the colours it
+/// stands for; System is the light screen and the dark one, cut on a slant. To a screen
+/// reader it is three choices, one of them chosen.
+///
+/// Give it the app's own themes, so the screens show the app's colours.
+///
+/// ```dart
+/// AppearancePicker(
+///   value: mode,
+///   onChanged: (m) => setState(() => mode = m),
+///   light: appTheme,
+///   dark: appDarkTheme,
+/// )
+/// ```
+class AppearancePicker extends StatelessWidget {
+  const AppearancePicker({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.light,
+    this.dark,
+    this.systemLabel = 'System',
+    this.lightLabel = 'Light',
+    this.darkLabel = 'Dark',
+  });
+
+  /// The appearance chosen.
+  final AshlarThemeMode value;
+
+  /// Told the appearance picked.
+  final ValueChanged<AshlarThemeMode> onChanged;
+
+  /// The themes the small screens are drawn in: Ashlar's own when not given.
+  final AshlarThemeData? light, dark;
+
+  /// What each is called, under its screen.
+  final String systemLabel, lightLabel, darkLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AshlarTheme.of(context);
+    final c = t.colors;
+    final lightTheme = light ?? AshlarThemeData.light();
+    final darkTheme = dark ?? AshlarThemeData.dark();
+    Widget screen(AshlarThemeMode mode) => switch (mode) {
+      AshlarThemeMode.light => _Screen(lightTheme.colors),
+      AshlarThemeMode.dark => _Screen(darkTheme.colors),
+      AshlarThemeMode.system => Stack(
+        children: [
+          _Screen(lightTheme.colors),
+          ClipPath(clipper: const _Slant(), child: _Screen(darkTheme.colors)),
+        ],
+      ),
+    };
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Row(
+        children: [
+          for (final (i, mode) in const [
+            AshlarThemeMode.system,
+            AshlarThemeMode.light,
+            AshlarThemeMode.dark,
+          ].indexed) ...[
+            if (i > 0) const SizedBox(width: 12),
+            Expanded(
+              child: Pressable(
+                semanticLabel: switch (mode) {
+                  AshlarThemeMode.system => systemLabel,
+                  AshlarThemeMode.light => lightLabel,
+                  AshlarThemeMode.dark => darkLabel,
+                },
+                checked: mode == value,
+                exclusive: true,
+                onPressed: () => onChanged(mode),
+                builder: (context, state) {
+                  final on = mode == value;
+                  return Column(
+                    children: [
+                      AnimatedContainer(
+                        duration: t.duration,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(t.radiusLg + 4),
+                          border: Border.all(
+                            color: on
+                                ? c.foreground
+                                : (state.focused
+                                      ? c.ring
+                                      : (state.hovered ? c.ring : c.border)),
+                            width: 2,
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(t.radiusLg),
+                              child: screen(mode),
+                            ),
+                            if (on)
+                              PositionedDirectional(
+                                end: 6,
+                                bottom: 6,
+                                child: Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: c.foreground,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: AshlarIcon(
+                                      AshlarIconsRoundedStroke.check,
+                                      size: 14,
+                                      color: c.background,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        switch (mode) {
+                          AshlarThemeMode.system => systemLabel,
+                          AshlarThemeMode.light => lightLabel,
+                          AshlarThemeMode.dark => darkLabel,
+                        },
+                        style: t.text.sm.copyWith(
+                          color: c.foreground,
+                          fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A tiny screen in [colors]: a bar along the top, a card with a picture, and a tab bar.
+class _Screen extends StatelessWidget {
+  const _Screen(this.colors);
+
+  final AshlarColors colors;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: 110,
+    padding: const EdgeInsets.all(8),
+    color: colors.background,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          height: 12,
+          decoration: BoxDecoration(
+            color: colors.card,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: colors.border),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: colors.card,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: colors.muted,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(7),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(6, 4, 24, 4),
+                child: Container(height: 4, color: colors.mutedForeground),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Center(
+          child: Container(
+            width: 48,
+            height: 12,
+            padding: const EdgeInsets.all(2),
+            alignment: AlignmentDirectional.centerStart,
+            decoration: BoxDecoration(
+              color: colors.card,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: colors.border),
+            ),
+            child: Container(
+              width: 16,
+              decoration: BoxDecoration(
+                color: colors.primary,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// The right of a screen, cut on a slant: System's dark side.
+class _Slant extends CustomClipper<Path> {
+  const _Slant();
+
+  @override
+  Path getClip(Size size) => Path()
+    ..moveTo(size.width * .62, 0)
+    ..lineTo(size.width, 0)
+    ..lineTo(size.width, size.height)
+    ..lineTo(size.width * .38, size.height)
+    ..close();
+
+  @override
+  bool shouldReclip(_Slant old) => false;
+}
+''',
+    },
+    testNeeds: ["app","theme"],
+    tests: {
+      'appearance_picker_test.dart': r'''// Tests for Appearance Picker. Copied into your app by `ashlar add appearance-picker` with
+// the component: they check what it promises, so change them as you change it.
+import 'dart:ui' show CheckedState;
+
+import 'package:ashlar_ui_gallery/ui/app.dart';
+import 'package:ashlar_ui_gallery/ui/appearance_picker.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Widget app(Widget child) => AshlarApp(
+  home: Center(child: SizedBox(width: 360, child: child)),
+);
+
+void main() {
+  group('Appearance Picker', () {
+    testWidgets('picks System, Light or Dark; the one chosen is checked', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      var mode = AshlarThemeMode.system;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, set) => AppearancePicker(
+              value: mode,
+              onChanged: (m) => set(() => mode = m),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Dark'));
+      await tester.pumpAndSettle();
+      expect(mode, AshlarThemeMode.dark);
+      final dark = tester.getSemantics(find.bySemanticsLabel('Dark'));
+      expect(
+        dark.getSemanticsData().flagsCollection.isChecked,
+        CheckedState.isTrue,
+      );
+      final light = tester.getSemantics(find.bySemanticsLabel('Light'));
+      expect(
+        light.getSemanticsData().flagsCollection.isChecked,
+        CheckedState.isFalse,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets('each screen is drawn in its own theme\'s colours', (
+      tester,
+    ) async {
+      final light = AshlarThemeData.light();
+      final dark = AshlarThemeData.dark();
+      await tester.pumpWidget(
+        app(
+          AppearancePicker(
+            value: AshlarThemeMode.light,
+            onChanged: (_) {},
+            light: light,
+            dark: dark,
+          ),
+        ),
+      );
+      final backgrounds = {
+        for (final box in tester.widgetList<Container>(find.byType(Container)))
+          if (box.color != null) box.color,
+      };
+      expect(
+        backgrounds,
+        containsAll([light.colors.background, dark.colors.background]),
+      );
+    });
+  });
+}
+''',
+    },
   ),
   'slider': Component(
     description: "A value picked by dragging along a track, or with the arrow keys.",
@@ -22731,6 +23164,7 @@ int isoWeek(DateTime d) {
 /// Calendar(selected: day, onSelected: (d) => setState(() => day = d))
 /// Calendar.range(range: stay, months: 2, onRangeChanged: (r) => setState(() => stay = r))
 /// Calendar.multiple(days: picked, onDaysChanged: (d) => setState(() => picked = d))
+/// Calendar(expand: true, selected: day, onSelected: (d) => setState(() => day = d))
 /// ```
 class Calendar extends StatefulWidget {
   const Calendar({
@@ -22745,6 +23179,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : range = null,
        onRangeChanged = null,
        days = null,
@@ -22762,6 +23197,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : selected = null,
        onSelected = null,
        days = null,
@@ -22779,6 +23215,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : selected = null,
        onSelected = null,
        range = null,
@@ -22823,6 +23260,10 @@ class Calendar extends StatefulWidget {
   /// The month and year picked from lists, for going far quickly: a date of birth.
   final bool dropdowns;
 
+  /// Fills the width it is given: each day's column widens, and the days grow taller,
+  /// up to 44, for a calendar that is the main thing on a phone's sheet.
+  final bool expand;
+
   @override
   State<Calendar> createState() => _CalendarState();
 }
@@ -22848,11 +23289,24 @@ class _CalendarState extends State<Calendar> {
   /// cut off: 32 and 24 at its usual size.
   double _cell = 32, _head = 24, _header = 32;
 
+  /// A day's column: as wide as its square, or wider when the calendar fills its width.
+  double _slot = 32;
+
   void _measure(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
     _cell = math.max(32, scaler.scale(20));
     _head = math.max(24, scaler.scale(16) + 8);
     _header = grownHeight(context, 32);
+    _slot = _cell;
+  }
+
+  /// Widens the columns to share [width], and grows the days with them, when expanding.
+  void _fit(double width) {
+    if (!widget.expand || !width.isFinite) return;
+    final columns = 7 + (widget.showWeekNumbers ? 1 : 0);
+    final month = (width - (widget.months - 1) * 16.0) / widget.months;
+    _slot = math.max(_cell, month / columns);
+    _cell = math.min(math.max(_cell, _slot * .8), math.max(_cell, 44));
   }
 
   bool _keyboard = false;
@@ -22992,8 +23446,20 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    _measure(context);
-    if (_view != _View.days) return _picker(context);
+    if (!widget.expand) {
+      _measure(context);
+      return _view == _View.days ? _days(context) : _picker(context);
+    }
+    return LayoutBuilder(
+      builder: (context, box) {
+        _measure(context);
+        _fit(box.maxWidth);
+        return _view == _View.days ? _days(context) : _picker(context);
+      },
+    );
+  }
+
+  Widget _days(BuildContext context) {
     final names = DateNames.of(context);
     final canBack =
         widget.firstDate == null || _month.isAfter(_monthOf(widget.firstDate!));
@@ -23094,7 +23560,7 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(_month.year, _month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final width =
-        widget.months * ((widget.showWeekNumbers ? _cell : 0.0) + 7 * _cell) +
+        widget.months * ((widget.showWeekNumbers ? _slot : 0.0) + 7 * _slot) +
         (widget.months - 1) * 16.0;
     final height = _header + 8 + _head + 4 + weeks * (_cell + 2);
     final first = widget.firstDate, last = widget.lastDate;
@@ -23266,7 +23732,7 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(month.year, month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final today = _day(DateTime.now());
-    final weekCol = widget.showWeekNumbers ? _cell : 0.0;
+    final weekCol = widget.showWeekNumbers ? _slot : 0.0;
 
     Widget day(DateTime d) {
       final outside = d.month != month.month;
@@ -23345,7 +23811,7 @@ class _CalendarState extends State<Calendar> {
       label: names.monthYear(month),
       explicitChildNodes: true,
       child: SizedBox(
-        width: weekCol + 7 * _cell,
+        width: weekCol + 7 * _slot,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -23393,7 +23859,7 @@ class _CalendarState extends State<Calendar> {
                   if (widget.showWeekNumbers) SizedBox(width: weekCol),
                   for (var i = 0; i < 7; i++)
                     SizedBox(
-                      width: _cell,
+                      width: _slot,
                       height: _head,
                       child: Center(
                         child: Text(
@@ -23427,7 +23893,7 @@ class _CalendarState extends State<Calendar> {
                       ),
                     for (var i = 0; i < 7; i++)
                       SizedBox(
-                        width: _cell,
+                        width: _slot,
                         height: _cell,
                         child: day(
                           DateTime(
@@ -23620,6 +24086,29 @@ void main() {
   });
 
   group('Calendar', () {
+    testWidgets('expand fills the width given, its days widening and growing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 350,
+            child: Calendar(
+              expand: true,
+              selected: DateTime(2026, 10, 14),
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(Calendar)).width, closeTo(350, 1));
+      final day = tester.getSize(
+        find.ancestor(of: dayOf(14), matching: find.byType(SizedBox)).first,
+      );
+      expect(day.width, closeTo(50, 1));
+      expect(day.height, 40);
+    });
+
     testWidgets('lays out the month from Monday, with the days either side', (
       tester,
     ) async {
@@ -52740,7 +53229,8 @@ class BottomBarItem {
 ///
 /// To a screen reader it is a tab bar; from a keyboard, the arrow keys move along it.
 ///
-/// [floating] lays it in a rounded bar of its own over the page, icons alone.
+/// [floating] lays it in a rounded bar of its own over the page, icons alone; [named]
+/// adds the name of the place you are in, in a pill.
 ///
 /// ```dart
 /// BottomBar(
@@ -52759,6 +53249,7 @@ class BottomBar extends StatelessWidget {
     required this.index,
     required this.onChanged,
     this.floating = false,
+    this.named = false,
   }) : assert(items.length >= 2 && items.length <= 5);
 
   final List<BottomBarItem> items;
@@ -52773,6 +53264,10 @@ class BottomBar extends StatelessWidget {
   /// filled circle, the names still read out. Lay it over the bottom of the page (in a
   /// Stack, clear of the home indicator) and leave room under the page's last line.
   final bool floating;
+
+  /// Floating, the place you are in is a pill with its name beside its icon, and the
+  /// bar hugs its places rather than spreading them across its width.
+  final bool named;
 
   /// Its count over the top end corner of an icon.
   Widget _badge(BuildContext context, AshlarThemeData t, String count) {
@@ -52860,6 +53355,72 @@ class BottomBar extends StatelessWidget {
         child: child,
       ),
     );
+    if (floating && named) {
+      return bar(
+        Container(
+          height: 62,
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(31),
+            border: Border.all(color: c.border),
+            boxShadow: t.shadowLg,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              for (var i = 0; i < items.length; i++)
+                _place(
+                  context,
+                  i,
+                  (state, on) => AnimatedContainer(
+                    duration: t.duration,
+                    height: 52,
+                    constraints: const BoxConstraints(minWidth: 52),
+                    padding: EdgeInsets.symmetric(horizontal: on ? 18 : 0),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: on
+                          ? c.primary
+                          : (state.hovered
+                                ? c.muted
+                                : c.muted.withValues(alpha: 0)),
+                      borderRadius: BorderRadius.circular(26),
+                      border: state.focused
+                          ? Border.all(color: c.ring, width: 2)
+                          : null,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      // Room for a badge over the icon's corner before the name.
+                      spacing: items[i].badge == null ? 8 : 16,
+                      children: [
+                        _icon(
+                          context,
+                          t,
+                          i,
+                          on ? c.primaryForeground : c.cardForeground,
+                          22,
+                        ),
+                        if (on)
+                          Text(
+                            items[i].label,
+                            maxLines: 1,
+                            style: t.text.base.copyWith(
+                              color: c.primaryForeground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
     if (floating) {
       return bar(
         Container(
@@ -52988,6 +53549,44 @@ Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
 
 void main() {
   group('Bottom Bar', () {
+    testWidgets(
+      'named, the place you are in shows its name, and the bar hugs them',
+      (tester) async {
+        var page = 0;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Align(
+                alignment: Alignment.bottomCenter,
+                child: BottomBar(
+                  floating: true,
+                  named: true,
+                  index: page,
+                  onChanged: (i) => set(() => page = i),
+                  items: const [
+                    BottomBarItem(label: 'Home', icon: Text('H')),
+                    BottomBarItem(label: 'Inbox', icon: Text('I')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Inbox'), findsNothing);
+        final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+        expect(
+          tester.getSize(find.byType(BottomBar)).width,
+          lessThan(screen.width),
+        );
+        await tester.tap(find.text('I'));
+        await tester.pumpAndSettle();
+        expect(page, 1);
+        expect(find.text('Inbox'), findsOneWidget);
+        expect(find.text('Home'), findsNothing);
+      },
+    );
+
     testWidgets(
       'floating shows icons alone, names still read out, the place in a circle',
       (tester) async {
