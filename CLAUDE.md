@@ -27,3 +27,48 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
   Money is in US dollars unless a block is about currencies. Nothing country-specific in behaviour: phone numbers take a country, IDs and
   tax numbers are checked generically, payments are not tied to one provider.
 - Flutter through fvm on stable. Conventional Commits; `git config core.hooksPath .githooks`.
+
+## What Ashlar UI takes
+
+Ashlar UI is copied into an app, and the app owns what it copies. So the look of one app
+belongs in that app, not in Ashlar. Ashlar is not shaped by any one design, however good,
+or by the app being built with it this week (decided 2026-10-25, after 0.4.0 to 0.6.0 took
+five such options; see "Deprecated" below).
+
+Ashlar takes a change only when it is one of these:
+
+1. **A bug**, or behaviour Ashlar owns and gets wrong: where an overlay opens, focus, what
+   a screen reader hears, keys, a layout that breaks.
+2. **Accessibility**: a control a screen reader cannot reach, a target too small, text that
+   is cut off when it grows.
+3. **Tooling**: the `ashlar` command, `shot`, `update`, `diff`, the MCP server.
+4. **Consistency inside Ashlar**: its components agreeing with each other (a field as tall
+   as the button of the same size; one set of sizes, one way to name them).
+5. **A layout every app on a phone, a tablet or a desktop runs into** (a calendar that can
+   fill its width), not one screen's arrangement.
+6. **A component that unrelated apps clearly need**, judged by asking what three apps unlike
+   the one in front of you would do with it (an appearance picker, yes; a boarding-pass
+   ticket, no).
+
+It does not take:
+
+- **A look**: a shape, a skin, a size, a spacing, a colour that makes one app match its
+  design. The app draws that in widgets of its own, built on Ashlar's parts (`Pressable`,
+  the theme and its tokens), or changes its copy. That is what owning the copy is for, and
+  it is not a gap in Ashlar.
+- **An option that exists for one design.** A boolean that only one app would turn on is a
+  look under another name.
+- **Anything asked for "so this app does not have to draw it".**
+
+When unsure, it does not go in. A look that many unrelated apps keep drawing can be shown
+first as an example on the site (how to change your copy) or a block, and become an option
+on a component last, with the same test applied again.
+
+Releases follow the work: a release can carry one change from one app, if that change
+passes this test.
+
+### Deprecated
+
+Taken in 0.4.0 to 0.6.0 for single designs, deprecated in 0.7.0, to go in a later
+release: `BottomBar.floating` and `named`, `Input.round` and `raised`,
+`ButtonSize.icon2xl`, `ToggleVariant.chip`, and the `ticket` component.
