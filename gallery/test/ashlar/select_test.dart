@@ -246,4 +246,32 @@ void main() {
     );
     expect(list.width, closeTo(260, 1));
   });
+
+  testWidgets('each size is as tall as the button of the same name', (
+    tester,
+  ) async {
+    final t = AshlarThemeData.light();
+    for (final (size, height) in [
+      (SelectSize.sm, 32.0),
+      (SelectSize.md, 36.0),
+      (SelectSize.lg, 40.0),
+      (SelectSize.xl, 48.0),
+    ]) {
+      await tester.pumpWidget(
+        app3(
+          Select<String>(
+            value: 'apple',
+            size: size,
+            options: fruit,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(AnimatedContainer).first).height,
+        t.control(height),
+      );
+    }
+  });
 }

@@ -43,6 +43,12 @@ enum SelectSize {
 
   /// 36 tall.
   md,
+
+  /// 40 tall.
+  lg,
+
+  /// 48 tall, for forms on a phone beside an xl button.
+  xl,
 }
 
 /// Picks one value from a list that opens under it. It opens on a tap, Enter, Space or the
@@ -86,7 +92,7 @@ class Select<T> extends StatefulWidget {
   /// Draws it as invalid.
   final bool error;
 
-  /// Small fits beside small buttons.
+  /// As tall as the button of the same name beside it: small to extra large.
   final SelectSize size;
 
   /// Its focus node, to move focus to it or follow it from outside; one is made when not
@@ -151,15 +157,24 @@ class _SelectState<T> extends State<Select<T>> {
               : (chosen?.label ?? widget.placeholder),
           builder: (context, state) {
             final ring = widget.error ? c.destructive : c.ring;
+            final large = widget.size == SelectSize.xl;
             return Opacity(
               opacity: state.enabled ? 1 : .5,
               child: AnimatedContainer(
                 duration: t.duration,
                 // A height at least: larger text makes it taller rather than being cut off.
                 constraints: BoxConstraints(
-                  minHeight: t.control(widget.size == SelectSize.sm ? 32 : 36),
+                  minHeight: t.control(switch (widget.size) {
+                    SelectSize.sm => 32,
+                    SelectSize.md => 36,
+                    SelectSize.lg => 40,
+                    SelectSize.xl => 48,
+                  }),
                 ),
-                padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
+                padding: EdgeInsetsDirectional.only(
+                  start: large ? 16 : 12,
+                  end: large ? 14 : 10,
+                ),
                 decoration: BoxDecoration(
                   color: t.brightness == Brightness.dark
                       ? Color.alphaBlend(
@@ -169,7 +184,9 @@ class _SelectState<T> extends State<Select<T>> {
                           c.background,
                         )
                       : c.background,
-                  borderRadius: BorderRadius.circular(t.radiusMd),
+                  borderRadius: BorderRadius.circular(
+                    large ? t.radiusLg : t.radiusMd,
+                  ),
                   border: Border.all(
                     color: widget.error
                         ? c.destructive
@@ -197,7 +214,7 @@ class _SelectState<T> extends State<Select<T>> {
                           chosen?.label ?? widget.placeholder ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: t.text.sm.copyWith(
+                          style: (large ? t.text.base : t.text.sm).copyWith(
                             color: chosen == null
                                 ? c.mutedForeground
                                 : c.foreground,
@@ -207,7 +224,7 @@ class _SelectState<T> extends State<Select<T>> {
                       const SizedBox(width: 8),
                       AshlarIcon(
                         AshlarIconsRoundedStroke.chevronDown,
-                        size: 16,
+                        size: large ? 20 : 16,
                         color: c.mutedForeground.withValues(alpha: .5),
                       ),
                     ],
