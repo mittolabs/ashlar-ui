@@ -52,6 +52,9 @@ enum ButtonSize {
 
   /// A 48 square for one icon, beside an [xl] button.
   iconXl,
+
+  /// A 64 square for one icon: the one control a screen is built round, a player's play.
+  icon2xl,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -128,7 +131,8 @@ class Button extends StatelessWidget {
       size == ButtonSize.iconXs ||
       size == ButtonSize.iconSm ||
       size == ButtonSize.iconLg ||
-      size == ButtonSize.iconXl;
+      size == ButtonSize.iconXl ||
+      size == ButtonSize.icon2xl;
 
   @override
   Widget build(BuildContext context) {
@@ -179,8 +183,11 @@ class Button extends StatelessWidget {
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
           ButtonSize.xl => (48.0, 28.0, 8.0),
           ButtonSize.iconXl => (48.0, 0.0, 0.0),
+          ButtonSize.icon2xl => (64.0, 0.0, 0.0),
         };
-        final large = size == ButtonSize.xl || size == ButtonSize.iconXl;
+        final large = size == ButtonSize.xl ||
+            size == ButtonSize.iconXl ||
+            size == ButtonSize.icon2xl;
         // Taller or shorter with the theme's density.
         final height = t.control(standard);
         final label = DefaultTextStyle.merge(
@@ -199,7 +206,10 @@ class Button extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           child: IconTheme.merge(
-            data: IconThemeData(color: fg, size: large ? 20 : 16),
+            data: IconThemeData(
+              color: fg,
+              size: size == ButtonSize.icon2xl ? 28 : (large ? 20 : 16),
+            ),
             // The row sets the height and centres in it; the button hugs it unless [expand].
             // A height at least: larger text makes it taller rather than being cut off.
             child: ConstrainedBox(

@@ -238,6 +238,27 @@ void main() {
     );
   });
 
+  testWidgets('icon2xl is a 64 square with a larger icon', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('play'),
+          size: ButtonSize.icon2xl,
+          round: true,
+          semanticLabel: 'Play',
+          onPressed: () {},
+          child: const Icon(IconData(0x41)),
+        ),
+      ),
+    );
+    final t = AshlarThemeData.light();
+    expect(
+      tester.getSize(find.byKey(const Key('play'))),
+      Size.square(t.control(64)),
+    );
+    expect(IconTheme.of(tester.element(find.byType(Icon))).size, 28);
+  });
+
   testWidgets('round makes a pill, or a circle of an icon button', (tester) async {
     await tester.pumpWidget(
       app(
