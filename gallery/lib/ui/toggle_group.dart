@@ -44,6 +44,19 @@ class ToggleGroupItem<T> {
 ///   ],
 /// )
 /// ```
+///
+/// Filters as chips, one chosen at a time, set apart:
+///
+/// ```dart
+/// ToggleGroup<String>(
+///   variant: ToggleVariant.chip,
+///   size: ToggleSize.xl,
+///   spacing: 8,
+///   values: {filter},
+///   onChanged: (v) => setState(() => filter = v.firstOrNull ?? filter),
+///   items: [ToggleGroupItem('all', Text('All')), ToggleGroupItem('new', Text('New'))],
+/// )
+/// ```
 class ToggleGroup<T> extends StatelessWidget {
   const ToggleGroup({
     super.key,
@@ -70,10 +83,10 @@ class ToggleGroup<T> extends StatelessWidget {
   /// Several may be on at once, not one.
   final bool multiple;
 
-  /// Plain, or with borders all the time.
+  /// Plain, with borders all the time, or filled chips.
   final ToggleVariant variant;
 
-  /// Small, medium or large.
+  /// Small, medium, large or extra large.
   final ToggleSize size;
 
   /// What the group sets, read before it: 'Text alignment'.

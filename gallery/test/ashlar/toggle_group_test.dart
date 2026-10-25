@@ -21,6 +21,42 @@ Widget app2(Widget child) => AshlarApp(
 
 void main() {
   group('Toggle', () {
+    testWidgets('a chip is a filled pill, the primary colour once chosen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app2(
+          ToggleGroup<String>(
+            variant: ToggleVariant.chip,
+            size: ToggleSize.xl,
+            spacing: 8,
+            values: const {'all'},
+            onChanged: (_) {},
+            items: const [
+              ToggleGroupItem('all', Text('All')),
+              ToggleGroupItem('new', Text('New')),
+            ],
+          ),
+        ),
+      );
+      final t = AshlarThemeData.light();
+      BoxDecoration of(String label) =>
+          tester
+                  .widget<AnimatedContainer>(
+                    find.ancestor(
+                      of: find.text(label),
+                      matching: find.byType(AnimatedContainer),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
+      expect(of('All').color, t.colors.primary);
+      expect(of('New').color, t.colors.secondary);
+      final height = tester.getSize(find.byType(Toggle).first).height;
+      expect(height, t.control(48));
+      expect(of('New').borderRadius, BorderRadius.circular(height));
+    });
+
     testWidgets('stays pressed and says so', (tester) async {
       final semantics = tester.ensureSemantics();
       var on = false;

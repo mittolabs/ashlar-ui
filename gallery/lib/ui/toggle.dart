@@ -12,15 +12,21 @@ enum ToggleVariant {
 
   /// A border all the time.
   outline,
+
+  /// A filled pill, the secondary colour off and the primary on: a filter among several,
+  /// set apart in a row with spacing.
+  chip,
 }
 
-enum ToggleSize { sm, md, lg }
+/// 32, 36, 40 and 48 tall: xl beside an xl button, on a phone.
+enum ToggleSize { sm, md, lg, xl }
 
 /// A button that stays pressed: bold, italic, a filter. Give an icon-only toggle a
 /// [semanticLabel].
 ///
 /// ```dart
 /// Toggle(pressed: bold, onChanged: (v) => setState(() => bold = v), semanticLabel: 'Bold', child: AshlarIcon(AshlarIconsRoundedStroke.bold))
+/// Toggle(variant: ToggleVariant.chip, pressed: open, onChanged: (v) => setState(() => open = v), child: Text('Open now'))
 /// ```
 class Toggle extends StatelessWidget {
   const Toggle({
@@ -42,10 +48,10 @@ class Toggle extends StatelessWidget {
   /// Its label or icon.
   final Widget child;
 
-  /// Plain, or with a border all the time.
+  /// Plain, with a border all the time, or a filled chip.
   final ToggleVariant variant;
 
-  /// Small, medium or large.
+  /// Small, medium, large or extra large.
   final ToggleSize size;
 
   /// What a screen reader calls it, for a toggle that shows an icon alone.
@@ -59,15 +65,29 @@ class Toggle extends StatelessWidget {
       ToggleSize.sm => 32.0,
       ToggleSize.md => 36.0,
       ToggleSize.lg => 40.0,
+      ToggleSize.xl => 48.0,
     });
+    final chip = variant == ToggleVariant.chip;
     return Pressable(
       onPressed: onChanged == null ? null : () => onChanged!(!pressed),
       toggled: pressed,
       semanticLabel: semanticLabel,
       builder: (context, state) {
-        final fg = pressed
-            ? c.accentForeground
-            : (state.hovered ? c.mutedForeground : c.foreground);
+        final fg = switch ((chip, pressed)) {
+          (true, true) => c.primaryForeground,
+          (true, false) => c.secondaryForeground,
+          (false, true) => c.accentForeground,
+          (false, false) => state.hovered ? c.mutedForeground : c.foreground,
+        };
+        final bg = switch ((chip, pressed)) {
+          (true, true) =>
+            state.hovered ? c.primary.withValues(alpha: .9) : c.primary,
+          (true, false) =>
+            state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary,
+          (false, true) => c.accent,
+          (false, false) =>
+            state.hovered ? c.muted : c.muted.withValues(alpha: 0),
+        };
         return Opacity(
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
@@ -76,13 +96,15 @@ class Toggle extends StatelessWidget {
             height: grownHeight(context, height),
             constraints: BoxConstraints(minWidth: height),
             padding: EdgeInsets.symmetric(
-              horizontal: size == ToggleSize.sm ? 6 : 8,
+              horizontal: switch (size) {
+                ToggleSize.sm => chip ? 12 : 6,
+                ToggleSize.xl => chip ? 20 : 12,
+                _ => chip ? 16 : 8,
+              },
             ),
             decoration: BoxDecoration(
-              color: pressed
-                  ? c.accent
-                  : (state.hovered ? c.muted : c.muted.withValues(alpha: 0)),
-              borderRadius: joinedRadius(context, t.radiusMd),
+              color: bg,
+              borderRadius: joinedRadius(context, chip ? height : t.radiusMd),
               border: variant == ToggleVariant.outline
                   ? joinedBorder(context, state.focused ? c.ring : c.input)
                   : null,
@@ -95,13 +117,14 @@ class Toggle extends StatelessWidget {
             child: Align(
               widthFactor: 1,
               child: DefaultTextStyle.merge(
-                style: t.text.sm.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: (size == ToggleSize.xl ? t.text.base : t.text.sm)
+                    .copyWith(color: fg, fontWeight: FontWeight.w500),
                 maxLines: 1,
                 child: IconTheme.merge(
-                  data: IconThemeData(color: fg, size: 16),
+                  data: IconThemeData(
+                    color: fg,
+                    size: size == ToggleSize.xl ? 20 : 16,
+                  ),
                   child: child,
                 ),
               ),
