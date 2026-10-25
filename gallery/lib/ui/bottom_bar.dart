@@ -54,7 +54,9 @@ class BottomBar extends StatelessWidget {
     required this.items,
     required this.index,
     required this.onChanged,
+    @Deprecated("floating: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.floating = false,
+    @Deprecated("named: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.named = false,
   }) : assert(items.length >= 2 && items.length <= 5);
 
@@ -69,10 +71,12 @@ class BottomBar extends StatelessWidget {
   /// Floats over the page in a rounded bar of its own: icons alone, the place you are in a
   /// filled circle, the names still read out. Lay it over the bottom of the page (in a
   /// Stack, clear of the home indicator) and leave room under the page's last line.
+  @Deprecated("floating: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool floating;
 
   /// Floating, the place you are in is a pill with its name beside its icon, and the
   /// bar hugs its places rather than spreading them across its width.
+  @Deprecated("named: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool named;
 
   /// Its count over the top end corner of an icon.

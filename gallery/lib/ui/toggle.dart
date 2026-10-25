@@ -15,6 +15,7 @@ enum ToggleVariant {
 
   /// A filled pill, the secondary colour off and the primary on: a filter among several,
   /// set apart in a row with spacing.
+  @Deprecated("chip: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   chip,
 }
 

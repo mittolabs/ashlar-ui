@@ -57,7 +57,9 @@ class Input extends StatefulWidget {
     this.semanticLabel,
     this.decorated = true,
     this.size = InputSize.md,
+    @Deprecated("round: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.round = false,
+    @Deprecated("raised: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.raised = false,
   });
 
@@ -127,10 +129,12 @@ class Input extends StatefulWidget {
   final InputSize size;
 
   /// Fully rounded: a pill, as a search field often is.
+  @Deprecated("round: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool round;
 
   /// On the card colour with a shadow and no border until focused: a field that stands
   /// on the page by itself, as a search field at the top of a screen does.
+  @Deprecated("raised: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool raised;
 
   @override

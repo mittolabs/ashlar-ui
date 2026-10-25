@@ -54,6 +54,7 @@ enum ButtonSize {
   iconXl,
 
   /// A 64 square for one icon: the one control a screen is built round, a player's play.
+  @Deprecated("icon2xl: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   icon2xl,
 }
 
