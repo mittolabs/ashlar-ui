@@ -1,3 +1,9 @@
+## 0.8.0
+
+- `calendar`: `isMarked` puts a dot under the days that have something on (games,
+  bookings, a habit kept), and `markedLabel` is what a screen reader adds to their name.
+  Marked days can still be picked, or not, as `isDisabled` says.
+
 ## 0.7.1
 
 - `ticket` is no longer deprecated: it stays as it is. 0.7.0 deprecated it by mistake, and is

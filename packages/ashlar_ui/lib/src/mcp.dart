@@ -8,7 +8,7 @@ import 'dart:io';
 import 'cli.dart';
 
 /// The version of ashlar_ui, as pubspec.yaml says.
-const ashlarVersion = '0.7.1';
+const ashlarVersion = '0.8.0';
 
 /// What the tools are, for tools/list.
 const _tools = [
