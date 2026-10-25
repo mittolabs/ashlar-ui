@@ -18,6 +18,44 @@ Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
 void main() {
   group('Bottom Bar', () {
     testWidgets(
+      'named, the place you are in shows its name, and the bar hugs them',
+      (tester) async {
+        var page = 0;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Align(
+                alignment: Alignment.bottomCenter,
+                child: BottomBar(
+                  floating: true,
+                  named: true,
+                  index: page,
+                  onChanged: (i) => set(() => page = i),
+                  items: const [
+                    BottomBarItem(label: 'Home', icon: Text('H')),
+                    BottomBarItem(label: 'Inbox', icon: Text('I')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Inbox'), findsNothing);
+        final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+        expect(
+          tester.getSize(find.byType(BottomBar)).width,
+          lessThan(screen.width),
+        );
+        await tester.tap(find.text('I'));
+        await tester.pumpAndSettle();
+        expect(page, 1);
+        expect(find.text('Inbox'), findsOneWidget);
+        expect(find.text('Home'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'floating shows icons alone, names still read out, the place in a circle',
       (tester) async {
         final semantics = tester.ensureSemantics();

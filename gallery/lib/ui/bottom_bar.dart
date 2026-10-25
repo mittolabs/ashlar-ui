@@ -35,7 +35,8 @@ class BottomBarItem {
 ///
 /// To a screen reader it is a tab bar; from a keyboard, the arrow keys move along it.
 ///
-/// [floating] lays it in a rounded bar of its own over the page, icons alone.
+/// [floating] lays it in a rounded bar of its own over the page, icons alone; [named]
+/// adds the name of the place you are in, in a pill.
 ///
 /// ```dart
 /// BottomBar(
@@ -54,6 +55,7 @@ class BottomBar extends StatelessWidget {
     required this.index,
     required this.onChanged,
     this.floating = false,
+    this.named = false,
   }) : assert(items.length >= 2 && items.length <= 5);
 
   final List<BottomBarItem> items;
@@ -68,6 +70,10 @@ class BottomBar extends StatelessWidget {
   /// filled circle, the names still read out. Lay it over the bottom of the page (in a
   /// Stack, clear of the home indicator) and leave room under the page's last line.
   final bool floating;
+
+  /// Floating, the place you are in is a pill with its name beside its icon, and the
+  /// bar hugs its places rather than spreading them across its width.
+  final bool named;
 
   /// Its count over the top end corner of an icon.
   Widget _badge(BuildContext context, AshlarThemeData t, String count) {
@@ -155,6 +161,72 @@ class BottomBar extends StatelessWidget {
         child: child,
       ),
     );
+    if (floating && named) {
+      return bar(
+        Container(
+          height: 62,
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(31),
+            border: Border.all(color: c.border),
+            boxShadow: t.shadowLg,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              for (var i = 0; i < items.length; i++)
+                _place(
+                  context,
+                  i,
+                  (state, on) => AnimatedContainer(
+                    duration: t.duration,
+                    height: 52,
+                    constraints: const BoxConstraints(minWidth: 52),
+                    padding: EdgeInsets.symmetric(horizontal: on ? 18 : 0),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: on
+                          ? c.primary
+                          : (state.hovered
+                                ? c.muted
+                                : c.muted.withValues(alpha: 0)),
+                      borderRadius: BorderRadius.circular(26),
+                      border: state.focused
+                          ? Border.all(color: c.ring, width: 2)
+                          : null,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      // Room for a badge over the icon's corner before the name.
+                      spacing: items[i].badge == null ? 8 : 16,
+                      children: [
+                        _icon(
+                          context,
+                          t,
+                          i,
+                          on ? c.primaryForeground : c.cardForeground,
+                          22,
+                        ),
+                        if (on)
+                          Text(
+                            items[i].label,
+                            maxLines: 1,
+                            style: t.text.base.copyWith(
+                              color: c.primaryForeground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
     if (floating) {
       return bar(
         Container(
