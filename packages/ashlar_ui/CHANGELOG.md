@@ -1,3 +1,20 @@
+## 0.5.0
+
+- `bottom-bar`: `floating` lays the bar over the page in a rounded bar of its own, icons
+  alone and the place you are in a filled circle. The names are still read out, and the
+  arrow keys still move along it.
+- `toggle` and `toggle-group`: `ToggleVariant.chip`, a filled pill, the secondary
+  colour off and the primary on, for filters set in a row with spacing; and
+  `ToggleSize.xl`, 48 tall, beside an xl button.
+- `button`: `ButtonSize.icon2xl`, a 64 square for the one control a screen is built
+  round, a player's play.
+- `drawer`: a debug build says so when `showDrawer`'s builder returns no `Drawer`,
+  rather than showing what it built bare at the top of the screen.
+- `pressable` says that a `semanticLabel` leaves everything it builds unread, buttons
+  inside it too, and how to keep them heard.
+- `ashlar shot` empties the asset bundle before each screen. An app that reads its data
+  from its assets drew its first screen and left the rest empty.
+
 ## 0.4.0
 
 - `ticket` is new: two halves on one card, bitten at the sides where they meet, with a

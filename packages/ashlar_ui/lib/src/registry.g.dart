@@ -1931,7 +1931,9 @@ class Pressable extends StatefulWidget {
   /// Takes the keyboard's focus when it first appears.
   final bool autofocus;
 
-  /// Read out in place of the visible content.
+  /// Read out in place of the visible content, and everything it builds goes unread:
+  /// buttons inside it too. A card or a row with buttons of its own keeps them out of
+  /// the labelled area, beside it or over it in a Stack.
   final String? semanticLabel;
 
   /// Read out after the label: what a select or a field holds.
@@ -2137,6 +2139,9 @@ enum ButtonSize {
 
   /// A 48 square for one icon, beside an [xl] button.
   iconXl,
+
+  /// A 64 square for one icon: the one control a screen is built round, a player's play.
+  icon2xl,
 }
 
 /// A button. [child] is usually a Text; [leading] and [trailing] an icon each side.
@@ -2213,7 +2218,8 @@ class Button extends StatelessWidget {
       size == ButtonSize.iconXs ||
       size == ButtonSize.iconSm ||
       size == ButtonSize.iconLg ||
-      size == ButtonSize.iconXl;
+      size == ButtonSize.iconXl ||
+      size == ButtonSize.icon2xl;
 
   @override
   Widget build(BuildContext context) {
@@ -2264,8 +2270,11 @@ class Button extends StatelessWidget {
           ButtonSize.iconLg => (40.0, 0.0, 0.0),
           ButtonSize.xl => (48.0, 28.0, 8.0),
           ButtonSize.iconXl => (48.0, 0.0, 0.0),
+          ButtonSize.icon2xl => (64.0, 0.0, 0.0),
         };
-        final large = size == ButtonSize.xl || size == ButtonSize.iconXl;
+        final large = size == ButtonSize.xl ||
+            size == ButtonSize.iconXl ||
+            size == ButtonSize.icon2xl;
         // Taller or shorter with the theme's density.
         final height = t.control(standard);
         final label = DefaultTextStyle.merge(
@@ -2284,7 +2293,10 @@ class Button extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           child: IconTheme.merge(
-            data: IconThemeData(color: fg, size: large ? 20 : 16),
+            data: IconThemeData(
+              color: fg,
+              size: size == ButtonSize.icon2xl ? 28 : (large ? 20 : 16),
+            ),
             // The row sets the height and centres in it; the button hugs it unless [expand].
             // A height at least: larger text makes it taller rather than being cut off.
             child: ConstrainedBox(
@@ -2596,6 +2608,27 @@ void main() {
       box(tester, find.byKey(const Key('xl'))).borderRadius,
       BorderRadius.circular(t.radiusLg),
     );
+  });
+
+  testWidgets('icon2xl is a 64 square with a larger icon', (tester) async {
+    await tester.pumpWidget(
+      app(
+        Button(
+          key: const Key('play'),
+          size: ButtonSize.icon2xl,
+          round: true,
+          semanticLabel: 'Play',
+          onPressed: () {},
+          child: const Icon(IconData(0x41)),
+        ),
+      ),
+    );
+    final t = AshlarThemeData.light();
+    expect(
+      tester.getSize(find.byKey(const Key('play'))),
+      Size.square(t.control(64)),
+    );
+    expect(IconTheme.of(tester.element(find.byType(Icon))).size, 28);
   });
 
   testWidgets('round makes a pill, or a circle of an icon button', (tester) async {
@@ -13366,7 +13399,7 @@ class AccordionDemo extends StatelessWidget {
 ''',
   ),
   'toggle': Component(
-    description: "A button that stays pressed: bold, italic, a filter.",
+    description: "A button that stays pressed: bold, italic, or a filter as a chip.",
     requires: ["theme","pressable","group"],
     packages: [],
     block: false,
@@ -13386,15 +13419,21 @@ enum ToggleVariant {
 
   /// A border all the time.
   outline,
+
+  /// A filled pill, the secondary colour off and the primary on: a filter among several,
+  /// set apart in a row with spacing.
+  chip,
 }
 
-enum ToggleSize { sm, md, lg }
+/// 32, 36, 40 and 48 tall: xl beside an xl button, on a phone.
+enum ToggleSize { sm, md, lg, xl }
 
 /// A button that stays pressed: bold, italic, a filter. Give an icon-only toggle a
 /// [semanticLabel].
 ///
 /// ```dart
 /// Toggle(pressed: bold, onChanged: (v) => setState(() => bold = v), semanticLabel: 'Bold', child: AshlarIcon(AshlarIconsRoundedStroke.bold))
+/// Toggle(variant: ToggleVariant.chip, pressed: open, onChanged: (v) => setState(() => open = v), child: Text('Open now'))
 /// ```
 class Toggle extends StatelessWidget {
   const Toggle({
@@ -13416,10 +13455,10 @@ class Toggle extends StatelessWidget {
   /// Its label or icon.
   final Widget child;
 
-  /// Plain, or with a border all the time.
+  /// Plain, with a border all the time, or a filled chip.
   final ToggleVariant variant;
 
-  /// Small, medium or large.
+  /// Small, medium, large or extra large.
   final ToggleSize size;
 
   /// What a screen reader calls it, for a toggle that shows an icon alone.
@@ -13433,15 +13472,29 @@ class Toggle extends StatelessWidget {
       ToggleSize.sm => 32.0,
       ToggleSize.md => 36.0,
       ToggleSize.lg => 40.0,
+      ToggleSize.xl => 48.0,
     });
+    final chip = variant == ToggleVariant.chip;
     return Pressable(
       onPressed: onChanged == null ? null : () => onChanged!(!pressed),
       toggled: pressed,
       semanticLabel: semanticLabel,
       builder: (context, state) {
-        final fg = pressed
-            ? c.accentForeground
-            : (state.hovered ? c.mutedForeground : c.foreground);
+        final fg = switch ((chip, pressed)) {
+          (true, true) => c.primaryForeground,
+          (true, false) => c.secondaryForeground,
+          (false, true) => c.accentForeground,
+          (false, false) => state.hovered ? c.mutedForeground : c.foreground,
+        };
+        final bg = switch ((chip, pressed)) {
+          (true, true) =>
+            state.hovered ? c.primary.withValues(alpha: .9) : c.primary,
+          (true, false) =>
+            state.hovered ? c.secondary.withValues(alpha: .8) : c.secondary,
+          (false, true) => c.accent,
+          (false, false) =>
+            state.hovered ? c.muted : c.muted.withValues(alpha: 0),
+        };
         return Opacity(
           opacity: state.enabled ? 1 : .5,
           child: AnimatedContainer(
@@ -13450,13 +13503,15 @@ class Toggle extends StatelessWidget {
             height: grownHeight(context, height),
             constraints: BoxConstraints(minWidth: height),
             padding: EdgeInsets.symmetric(
-              horizontal: size == ToggleSize.sm ? 6 : 8,
+              horizontal: switch (size) {
+                ToggleSize.sm => chip ? 12 : 6,
+                ToggleSize.xl => chip ? 20 : 12,
+                _ => chip ? 16 : 8,
+              },
             ),
             decoration: BoxDecoration(
-              color: pressed
-                  ? c.accent
-                  : (state.hovered ? c.muted : c.muted.withValues(alpha: 0)),
-              borderRadius: joinedRadius(context, t.radiusMd),
+              color: bg,
+              borderRadius: joinedRadius(context, chip ? height : t.radiusMd),
               border: variant == ToggleVariant.outline
                   ? joinedBorder(context, state.focused ? c.ring : c.input)
                   : null,
@@ -13469,13 +13524,14 @@ class Toggle extends StatelessWidget {
             child: Align(
               widthFactor: 1,
               child: DefaultTextStyle.merge(
-                style: t.text.sm.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: (size == ToggleSize.xl ? t.text.base : t.text.sm)
+                    .copyWith(color: fg, fontWeight: FontWeight.w500),
                 maxLines: 1,
                 child: IconTheme.merge(
-                  data: IconThemeData(color: fg, size: 16),
+                  data: IconThemeData(
+                    color: fg,
+                    size: size == ToggleSize.xl ? 20 : 16,
+                  ),
                   child: child,
                 ),
               ),
@@ -13535,7 +13591,7 @@ class _ToggleDemoState extends State<ToggleDemo> {
 ''',
   ),
   'toggle-group': Component(
-    description: "Toggles joined into one piece, one or several pressed.",
+    description: "Toggles joined into one piece, or chips set apart, one or several pressed.",
     requires: ["toggle","group"],
     packages: [],
     block: false,
@@ -13587,6 +13643,19 @@ class ToggleGroupItem<T> {
 ///   ],
 /// )
 /// ```
+///
+/// Filters as chips, one chosen at a time, set apart:
+///
+/// ```dart
+/// ToggleGroup<String>(
+///   variant: ToggleVariant.chip,
+///   size: ToggleSize.xl,
+///   spacing: 8,
+///   values: {filter},
+///   onChanged: (v) => setState(() => filter = v.firstOrNull ?? filter),
+///   items: [ToggleGroupItem('all', Text('All')), ToggleGroupItem('new', Text('New'))],
+/// )
+/// ```
 class ToggleGroup<T> extends StatelessWidget {
   const ToggleGroup({
     super.key,
@@ -13613,10 +13682,10 @@ class ToggleGroup<T> extends StatelessWidget {
   /// Several may be on at once, not one.
   final bool multiple;
 
-  /// Plain, or with borders all the time.
+  /// Plain, with borders all the time, or filled chips.
   final ToggleVariant variant;
 
-  /// Small, medium or large.
+  /// Small, medium, large or extra large.
   final ToggleSize size;
 
   /// What the group sets, read before it: 'Text alignment'.
@@ -13725,6 +13794,42 @@ Widget app2(Widget child) => AshlarApp(
 
 void main() {
   group('Toggle', () {
+    testWidgets('a chip is a filled pill, the primary colour once chosen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app2(
+          ToggleGroup<String>(
+            variant: ToggleVariant.chip,
+            size: ToggleSize.xl,
+            spacing: 8,
+            values: const {'all'},
+            onChanged: (_) {},
+            items: const [
+              ToggleGroupItem('all', Text('All')),
+              ToggleGroupItem('new', Text('New')),
+            ],
+          ),
+        ),
+      );
+      final t = AshlarThemeData.light();
+      BoxDecoration of(String label) =>
+          tester
+                  .widget<AnimatedContainer>(
+                    find.ancestor(
+                      of: find.text(label),
+                      matching: find.byType(AnimatedContainer),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
+      expect(of('All').color, t.colors.primary);
+      expect(of('New').color, t.colors.secondary);
+      final height = tester.getSize(find.byType(Toggle).first).height;
+      expect(height, t.control(48));
+      expect(of('New').borderRadius, BorderRadius.circular(height));
+    });
+
     testWidgets('stays pressed and says so', (tester) async {
       final semantics = tester.ensureSemantics();
       var on = false;
@@ -17878,7 +17983,7 @@ Future<T?> showDrawer<T>({
         data: theme,
         child: _DrawerSide(
           side: side,
-          child: AboveKeyboard(child: Builder(builder: builder)),
+          child: AboveKeyboard(child: _HoldsDrawer(builder: builder)),
         ),
       ),
       transitionBuilder: (context, animation, secondary, child) {
@@ -17909,6 +18014,56 @@ class _DrawerSide extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_DrawerSide old) => old.side != side;
+}
+
+/// What [showDrawer]'s builder returns, checked in debug builds to hold a [Drawer]: without
+/// one, what it builds shows bare at the top of the screen, with no panel round it.
+class _HoldsDrawer extends StatefulWidget {
+  const _HoldsDrawer({required this.builder});
+
+  final WidgetBuilder builder;
+
+  @override
+  State<_HoldsDrawer> createState() => _HoldsDrawerState();
+}
+
+class _HoldsDrawerState extends State<_HoldsDrawer> {
+  @override
+  void initState() {
+    super.initState();
+    assert(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        var found = false;
+        void look(Element e) {
+          if (found) return;
+          if (e.widget is Drawer) {
+            found = true;
+          } else {
+            e.visitChildren(look);
+          }
+        }
+
+        context.visitChildElements(look);
+        if (!found) {
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: FlutterError(
+                "showDrawer's builder returned no Drawer.\n"
+                'Return Drawer(title: ..., content: ..., footer: [...]), which draws the '
+                'panel; anything else shows bare at the top of the screen.',
+              ),
+              library: 'ashlar ui',
+            ),
+          );
+        }
+      });
+      return true;
+    }());
+  }
+
+  @override
+  Widget build(BuildContext context) => Builder(builder: widget.builder);
 }
 
 /// The panel [showDrawer] brings in: a handle to drag (at the top and bottom), a header,
@@ -18418,6 +18573,38 @@ Future<void> open(WidgetTester tester, void Function(BuildContext) show) async {
 }
 
 void main() {
+  group('Drawer builder', () {
+    testWidgets('says so when its builder returns no Drawer', (tester) async {
+      await open(
+        tester,
+        (context) => showDrawer<void>(
+          context: context,
+          builder: (context) => const Text('Bare'),
+        ),
+      );
+      expect(
+        '${tester.takeException()}',
+        contains("showDrawer's builder returned no Drawer"),
+      );
+    });
+
+    testWidgets('says nothing when the Drawer is inside another widget', (
+      tester,
+    ) async {
+      await open(
+        tester,
+        (context) => showDrawer<void>(
+          context: context,
+          builder: (context) => const Padding(
+            padding: EdgeInsets.zero,
+            child: Drawer(title: Text('Wrapped')),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('Drawer', () {
     Future<void> open(WidgetTester tester) async {
       await tester.pumpWidget(
@@ -52510,7 +52697,7 @@ class _PullToRefreshDemoState extends State<PullToRefreshDemo> {
 ''',
   ),
   'bottom-bar': Component(
-    description: "An app's main places along the bottom of a phone screen, an icon and a name each.",
+    description: "An app's main places along the bottom of a phone screen, an icon and a name each, or floating in a bar of their own.",
     requires: ["pressable","theme"],
     packages: [],
     block: false,
@@ -52553,6 +52740,8 @@ class BottomBarItem {
 ///
 /// To a screen reader it is a tab bar; from a keyboard, the arrow keys move along it.
 ///
+/// [floating] lays it in a rounded bar of its own over the page, icons alone.
+///
 /// ```dart
 /// BottomBar(
 ///   index: page,
@@ -52569,6 +52758,7 @@ class BottomBar extends StatelessWidget {
     required this.items,
     required this.index,
     required this.onChanged,
+    this.floating = false,
   }) : assert(items.length >= 2 && items.length <= 5);
 
   final List<BottomBarItem> items;
@@ -52579,12 +52769,145 @@ class BottomBar extends StatelessWidget {
   /// Told the place chosen.
   final ValueChanged<int> onChanged;
 
+  /// Floats over the page in a rounded bar of its own: icons alone, the place you are in a
+  /// filled circle, the names still read out. Lay it over the bottom of the page (in a
+  /// Stack, clear of the home indicator) and leave room under the page's last line.
+  final bool floating;
+
+  /// Its count over the top end corner of an icon.
+  Widget _badge(BuildContext context, AshlarThemeData t, String count) {
+    final c = t.colors;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 16),
+      // As tall as it is drawn, or taller when larger text needs it.
+      height: grownHeight(context, 16, line: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: c.destructive,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: c.background, width: 1.5),
+      ),
+      child: Text(
+        count,
+        style: t.text.xs.copyWith(
+          fontSize: 10,
+          height: 1,
+          color: c.destructiveForeground,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _place(
+    BuildContext context,
+    int i,
+    Widget Function(PressableState state, bool on) look,
+  ) {
+    final item = items[i];
+    return Pressable(
+      role: SemanticsRole.tab,
+      selected: i == index,
+      semanticLabel: item.badge == null
+          ? item.label
+          : '${item.label}, ${item.badge}',
+      onPressed: () => onChanged(i),
+      builder: (context, state) => look(state, i == index),
+    );
+  }
+
+  Widget _icon(
+    BuildContext context,
+    AshlarThemeData t,
+    int i,
+    Color ink,
+    double size,
+  ) {
+    final item = items[i];
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconTheme.merge(
+          data: IconThemeData(color: ink, size: size),
+          child: i == index ? item.activeIcon ?? item.icon : item.icon,
+        ),
+        if (item.badge != null)
+          PositionedDirectional(
+            top: -4,
+            end: -10,
+            child: _badge(context, t, item.badge!),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
     final c = t.colors;
     final rtl = isRtl(context);
     void step(int by) => onChanged((index + (rtl ? -by : by)) % items.length);
+    Widget bar(Widget child) => CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.arrowRight): () => step(1),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft): () => step(-1),
+      },
+      child: Semantics(
+        role: SemanticsRole.tabBar,
+        container: true,
+        explicitChildNodes: true,
+        child: child,
+      ),
+    );
+    if (floating) {
+      return bar(
+        Container(
+          height: 72,
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: c.card,
+            borderRadius: BorderRadius.circular(36),
+            border: Border.all(color: c.border),
+            boxShadow: t.shadowLg,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              for (var i = 0; i < items.length; i++)
+                _place(
+                  context,
+                  i,
+                  (state, on) => AnimatedContainer(
+                    duration: t.duration,
+                    width: 60,
+                    height: 60,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: on
+                          ? c.primary
+                          : (state.hovered
+                                ? c.muted
+                                : c.muted.withValues(alpha: 0)),
+                      border: state.focused
+                          ? Border.all(color: c.ring, width: 2)
+                          : null,
+                    ),
+                    child: _icon(
+                      context,
+                      t,
+                      i,
+                      on ? c.primaryForeground : c.cardForeground,
+                      24,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: c.background,
@@ -52592,116 +52915,49 @@ class BottomBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: CallbackShortcuts(
-          bindings: {
-            const SingleActivator(LogicalKeyboardKey.arrowRight): () => step(1),
-            const SingleActivator(LogicalKeyboardKey.arrowLeft): () => step(-1),
-          },
-          child: Semantics(
-            role: SemanticsRole.tabBar,
-            container: true,
-            explicitChildNodes: true,
-            child: SizedBox(
-              height: 56,
-              child: Row(
-                children: [
-                  for (final (i, item) in items.indexed)
-                    Expanded(
-                      child: Pressable(
-                        role: SemanticsRole.tab,
-                        selected: i == index,
-                        semanticLabel: item.badge == null
-                            ? item.label
-                            : '${item.label}, ${item.badge}',
-                        onPressed: () => onChanged(i),
-                        builder: (context, state) {
-                          final on = i == index;
-                          final ink = on ? c.foreground : c.mutedForeground;
-                          return AnimatedContainer(
-                            duration: t.duration,
-                            margin: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: state.hovered
-                                  ? c.muted
-                                  : c.muted.withValues(alpha: 0),
-                              borderRadius: BorderRadius.circular(t.radiusMd),
-                              border: state.focused
-                                  ? Border.all(color: c.ring, width: 2)
-                                  : null,
+        child: bar(
+          SizedBox(
+            height: 56,
+            child: Row(
+              children: [
+                for (var i = 0; i < items.length; i++)
+                  Expanded(
+                    child: _place(context, i, (state, on) {
+                      final ink = on ? c.foreground : c.mutedForeground;
+                      return AnimatedContainer(
+                        duration: t.duration,
+                        margin: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: state.hovered
+                              ? c.muted
+                              : c.muted.withValues(alpha: 0),
+                          borderRadius: BorderRadius.circular(t.radiusMd),
+                          border: state.focused
+                              ? Border.all(color: c.ring, width: 2)
+                              : null,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _icon(context, t, i, ink, 22),
+                            const SizedBox(height: 4),
+                            Text(
+                              items[i].label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: t.text.xs.copyWith(
+                                color: ink,
+                                fontWeight: on
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                              ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    IconTheme.merge(
-                                      data: IconThemeData(color: ink, size: 22),
-                                      child: on
-                                          ? item.activeIcon ?? item.icon
-                                          : item.icon,
-                                    ),
-                                    if (item.badge != null)
-                                      PositionedDirectional(
-                                        top: -4,
-                                        end: -10,
-                                        child: Container(
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                          ),
-                                          // As tall as it is drawn, or taller when larger text needs it.
-                                          height: grownHeight(
-                                            context,
-                                            16,
-                                            line: 10,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 4,
-                                          ),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: c.destructive,
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                            border: Border.all(
-                                              color: c.background,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            item.badge!,
-                                            style: t.text.xs.copyWith(
-                                              fontSize: 10,
-                                              height: 1,
-                                              color: c.destructiveForeground,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item.label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: t.text.xs.copyWith(
-                                    color: ink,
-                                    fontWeight: on
-                                        ? FontWeight.w600
-                                        : FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+              ],
             ),
           ),
         ),
@@ -52711,12 +52967,13 @@ class BottomBar extends StatelessWidget {
 }
 ''',
     },
-    testNeeds: ["app"],
+    testNeeds: ["app","theme"],
     tests: {
       'bottom_bar_test.dart': r'''// Tests for Bottom Bar. Copied into your app by `ashlar add bottom-bar` with the component: they
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/bottom_bar.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -52731,6 +52988,49 @@ Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
 
 void main() {
   group('Bottom Bar', () {
+    testWidgets(
+      'floating shows icons alone, names still read out, the place in a circle',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var page = 0;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Align(
+                alignment: Alignment.bottomCenter,
+                child: BottomBar(
+                  floating: true,
+                  index: page,
+                  onChanged: (i) => set(() => page = i),
+                  items: const [
+                    BottomBarItem(label: 'Home', icon: Text('H')),
+                    BottomBarItem(label: 'Inbox', icon: Text('I')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('Inbox'), findsNothing);
+        await tester.tap(find.bySemanticsLabel('Inbox'));
+        await tester.pumpAndSettle();
+        expect(page, 1);
+        final circle =
+            tester
+                    .widget<AnimatedContainer>(
+                      find.ancestor(
+                        of: find.text('I'),
+                        matching: find.byType(AnimatedContainer),
+                      ),
+                    )
+                    .decoration!
+                as BoxDecoration;
+        expect(circle.shape, BoxShape.circle);
+        expect(circle.color, AshlarColors.light.primary);
+        semantics.dispose();
+      },
+    );
+
     testWidgets('a tap, or the arrow keys, choose a place; it is a tab bar', (
       tester,
     ) async {
