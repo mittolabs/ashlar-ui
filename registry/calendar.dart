@@ -139,6 +139,7 @@ int isoWeek(DateTime d) {
 /// Calendar.range(range: stay, months: 2, onRangeChanged: (r) => setState(() => stay = r))
 /// Calendar.multiple(days: picked, onDaysChanged: (d) => setState(() => picked = d))
 /// Calendar(expand: true, selected: day, onSelected: (d) => setState(() => day = d))
+/// Calendar(selected: day, onSelected: pick, isMarked: (d) => games.containsKey(d), markedLabel: 'games')
 /// ```
 class Calendar extends StatefulWidget {
   const Calendar({
@@ -149,6 +150,8 @@ class Calendar extends StatefulWidget {
     this.firstDate,
     this.lastDate,
     this.isDisabled,
+    this.isMarked,
+    this.markedLabel = 'marked',
     this.autofocus = false,
     this.months = 1,
     this.showWeekNumbers = false,
@@ -167,6 +170,8 @@ class Calendar extends StatefulWidget {
     this.firstDate,
     this.lastDate,
     this.isDisabled,
+    this.isMarked,
+    this.markedLabel = 'marked',
     this.autofocus = false,
     this.months = 1,
     this.showWeekNumbers = false,
@@ -185,6 +190,8 @@ class Calendar extends StatefulWidget {
     this.firstDate,
     this.lastDate,
     this.isDisabled,
+    this.isMarked,
+    this.markedLabel = 'marked',
     this.autofocus = false,
     this.months = 1,
     this.showWeekNumbers = false,
@@ -221,6 +228,14 @@ class Calendar extends StatefulWidget {
 
   /// Days that cannot be picked: weekends, booked days.
   final bool Function(DateTime day)? isDisabled;
+
+  /// Days with something on, a dot under each: games, bookings, a habit kept. They can
+  /// still be picked, or not, as [isDisabled] says.
+  final bool Function(DateTime day)? isMarked;
+
+  /// What a screen reader adds to a marked day's name: "games" reads "Saturday, 24
+  /// October 2026, games".
+  final String markedLabel;
 
   /// Takes the keyboard's focus when it first appears, on the picked day.
   final bool autofocus;
@@ -723,6 +738,7 @@ class _CalendarState extends State<Calendar> {
       final picked = isStart || isEnd;
       final focused = _keyboard && _node.hasFocus && _same(d, _focus);
       final isToday = _same(d, today);
+      final marked = widget.isMarked?.call(d) ?? false;
       final fg = picked
           ? c.primaryForeground
           : (middle
@@ -742,7 +758,8 @@ class _CalendarState extends State<Calendar> {
         enabled: !off,
         selected: picked || middle,
         label:
-            '${names.weekdays[d.weekday - 1]}, ${names.date(d)}${isToday ? ', today' : ''}',
+            '${names.weekdays[d.weekday - 1]}, ${names.date(d)}${isToday ? ', today' : ''}'
+            '${marked ? ', ${widget.markedLabel}' : ''}',
         onTap: off ? null : () => _pick(d),
         child: ExcludeSemantics(
           child: _Day(
@@ -764,14 +781,32 @@ class _CalendarState extends State<Calendar> {
               alignment: Alignment.center,
               child: Opacity(
                 opacity: off ? .5 : 1,
-                child: Text(
-                  '${d.day}',
-                  style: t.text.sm.copyWith(
-                    color: fg,
-                    decoration: off ? TextDecoration.lineThrough : null,
-                    decorationColor: fg,
-                    fontWeight: picked ? FontWeight.w500 : null,
-                  ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Text(
+                      '${d.day}',
+                      style: t.text.sm.copyWith(
+                        color: fg,
+                        decoration: off ? TextDecoration.lineThrough : null,
+                        decorationColor: fg,
+                        fontWeight: picked ? FontWeight.w500 : null,
+                      ),
+                    ),
+                    // The dot sits under the number, inside the day.
+                    if (marked)
+                      Positioned(
+                        bottom: _cell * .1,
+                        child: Container(
+                          width: 4,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: picked ? c.primaryForeground : c.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

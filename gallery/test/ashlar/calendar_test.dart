@@ -420,4 +420,34 @@ void main() {
     expect(find.text('1990'), findsOneWidget);
     expect(find.text('Mar'), findsOneWidget);
   });
+
+  testWidgets('marked days have a dot and say so', (tester) async {
+    final handle = tester.ensureSemantics();
+    final games = {DateTime(2026, 10, 3), DateTime(2026, 10, 17)};
+    await tester.pumpWidget(
+      app(
+        Calendar(
+          selected: DateTime(2026, 10, 17),
+          initialMonth: october,
+          isMarked: games.contains,
+          markedLabel: 'games',
+          onSelected: (_) {},
+        ),
+      ),
+    );
+    expect(find.bySemanticsLabel(RegExp(r', games$')), findsNWidgets(2));
+    expect(
+      find.bySemanticsLabel(RegExp(r'3 October 2026, games$')),
+      findsOneWidget,
+    );
+    // One dot each: a small circle under the number.
+    final dots = find.byWidgetPredicate(
+      (w) =>
+          w is Container &&
+          w.constraints?.maxWidth == 4 &&
+          (w.decoration as BoxDecoration?)?.shape == BoxShape.circle,
+    );
+    expect(dots, findsNWidgets(2));
+    handle.dispose();
+  });
 }
