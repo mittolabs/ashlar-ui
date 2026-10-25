@@ -2,6 +2,7 @@
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/bottom_bar.dart';
+import 'package:ashlar_ui_gallery/ui/theme.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -16,6 +17,49 @@ Widget app(Widget child, {TextDirection direction = TextDirection.ltr}) =>
 
 void main() {
   group('Bottom Bar', () {
+    testWidgets(
+      'floating shows icons alone, names still read out, the place in a circle',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        var page = 0;
+        await tester.pumpWidget(
+          app(
+            StatefulBuilder(
+              builder: (context, set) => Align(
+                alignment: Alignment.bottomCenter,
+                child: BottomBar(
+                  floating: true,
+                  index: page,
+                  onChanged: (i) => set(() => page = i),
+                  items: const [
+                    BottomBarItem(label: 'Home', icon: Text('H')),
+                    BottomBarItem(label: 'Inbox', icon: Text('I')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(find.text('Inbox'), findsNothing);
+        await tester.tap(find.bySemanticsLabel('Inbox'));
+        await tester.pumpAndSettle();
+        expect(page, 1);
+        final circle =
+            tester
+                    .widget<AnimatedContainer>(
+                      find.ancestor(
+                        of: find.text('I'),
+                        matching: find.byType(AnimatedContainer),
+                      ),
+                    )
+                    .decoration!
+                as BoxDecoration;
+        expect(circle.shape, BoxShape.circle);
+        expect(circle.color, AshlarColors.light.primary);
+        semantics.dispose();
+      },
+    );
+
     testWidgets('a tap, or the arrow keys, choose a place; it is a tab bar', (
       tester,
     ) async {
