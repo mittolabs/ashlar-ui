@@ -2141,6 +2141,7 @@ enum ButtonSize {
   iconXl,
 
   /// A 64 square for one icon: the one control a screen is built round, a player's play.
+  @Deprecated("icon2xl: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   icon2xl,
 }
 
@@ -3203,7 +3204,7 @@ class CardDemo extends StatelessWidget {
 ''',
   ),
   'ticket': Component(
-    description: "A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.",
+    description: "Deprecated, to go in a later release: a shape from one design. A ticket: two halves on one card, bitten at the sides where they meet, with a line to tear along.",
     requires: ["theme"],
     packages: [],
     block: false,
@@ -3223,6 +3224,7 @@ import 'theme.dart';
 ///   bottom: Text('Seat 14A, gate B22'),
 /// )
 /// ```
+@Deprecated("Ticket: a shape from one design, not Ashlar UI's. Draw it in your app with a ShapeBorder of your own, or keep this copy. Goes in a later release.")
 class Ticket extends StatelessWidget {
   const Ticket({
     super.key,
@@ -3281,6 +3283,7 @@ class Ticket extends StatelessWidget {
 
 /// One half of a [Ticket]: rounded on its outer side, bitten at its two corners on the
 /// join. The join itself has no border; the lower half draws [tear] across it, dashed.
+@Deprecated("TicketHalf: part of Ticket, which is deprecated. Goes in a later release.")
 class TicketHalf extends ShapeBorder {
   const TicketHalf({
     required this.upper,
@@ -3641,7 +3644,9 @@ class Input extends StatefulWidget {
     this.semanticLabel,
     this.decorated = true,
     this.size = InputSize.md,
+    @Deprecated("round: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.round = false,
+    @Deprecated("raised: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.raised = false,
   });
 
@@ -3711,10 +3716,12 @@ class Input extends StatefulWidget {
   final InputSize size;
 
   /// Fully rounded: a pill, as a search field often is.
+  @Deprecated("round: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool round;
 
   /// On the card colour with a shadow and no border until focused: a field that stands
   /// on the page by itself, as a search field at the top of a screen does.
+  @Deprecated("raised: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool raised;
 
   @override
@@ -13521,6 +13528,7 @@ enum ToggleVariant {
 
   /// A filled pill, the secondary colour off and the primary on: a filter among several,
   /// set apart in a row with spacing.
+  @Deprecated("chip: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   chip,
 }
 
@@ -53248,7 +53256,9 @@ class BottomBar extends StatelessWidget {
     required this.items,
     required this.index,
     required this.onChanged,
+    @Deprecated("floating: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.floating = false,
+    @Deprecated("named: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
     this.named = false,
   }) : assert(items.length >= 2 && items.length <= 5);
 
@@ -53263,10 +53273,12 @@ class BottomBar extends StatelessWidget {
   /// Floats over the page in a rounded bar of its own: icons alone, the place you are in a
   /// filled circle, the names still read out. Lay it over the bottom of the page (in a
   /// Stack, clear of the home indicator) and leave room under the page's last line.
+  @Deprecated("floating: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool floating;
 
   /// Floating, the place you are in is a pill with its name beside its icon, and the
   /// bar hugs its places rather than spreading them across its width.
+  @Deprecated("named: a look for one design, not Ashlar UI's. Draw it in your app on Pressable and the theme, or change your copy. Goes in a later release.")
   final bool named;
 
   /// Its count over the top end corner of an icon.

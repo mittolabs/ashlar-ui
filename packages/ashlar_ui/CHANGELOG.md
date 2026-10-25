@@ -1,3 +1,19 @@
+## 0.7.0
+
+Ashlar UI is copied into your app, and the look of your app is yours: a shape, a skin or a
+size that one design wants is drawn in your app, or changed in your copy, not added to Ashlar
+as an option. Five options added in 0.4.0 to 0.6.0 were such looks, and are deprecated. They
+still work, and go in a later release.
+
+- `bottom-bar`: `floating` and `named`. Draw a floating bar in your app on `Pressable`, or
+  change your copy.
+- `input`: `round` and `raised`. Wrap an undecorated `Input` (`decorated: false`) in the box
+  your design wants.
+- `button`: `ButtonSize.icon2xl`. Size a button of your own, or change your copy.
+- `toggle` and `toggle-group`: `ToggleVariant.chip`. Draw chips in your app on `Pressable`.
+- `ticket`: the whole component. Keep your copy, or draw the shape with a `ShapeBorder` of
+  your own.
+
 ## 0.6.0
 
 - `appearance-picker` is new: system, light or dark, picked from three small screens drawn
