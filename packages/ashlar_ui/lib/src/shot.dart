@@ -145,8 +145,11 @@ Future<int> drawShots({
     ..writeln('''
 /// Draws [child] filling a screen of [size], as [platform] draws it, to [file], saying
 /// each thing Flutter complains of on its way.
-Future<void> _draw(WidgetTester tester, String label, Size size, TargetPlatform platform, Widget child, String file) async {
+Future<void> _draw(WidgetTester tester, String label, Size size, TargetPlatform platform, bool dark, Widget child, String file) async {
   debugDefaultTargetPlatformOverride = platform;
+  // The phone dark or light too, for an app that follows the system rather than its theme mode.
+  tester.platformDispatcher.platformBrightnessTestValue = dark ? Brightness.dark : Brightness.light;
+  addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
   tester.view
     ..physicalSize = size * $scale
     ..devicePixelRatio = $scale;
@@ -168,6 +171,15 @@ Future<void> _draw(WidgetTester tester, String label, Size size, TargetPlatform 
   final key = GlobalKey();
   await tester.pumpWidget(RepaintBoundary(key: key, child: child));
   for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  // Pictures are decoded off the test's clock: each one is waited for before drawing.
+  await tester.runAsync(() async {
+    for (final e in find.byType(Image).evaluate()) {
+      await precacheImage((e.widget as Image).image, e);
+    }
+  });
+  for (var i = 0; i < 3; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
   final thrown = tester.takeException();
@@ -219,6 +231,7 @@ void main() {
       ${_quote(label)},
       const Size($w, $hgt),
       TargetPlatform.${platform == 'iOS' ? 'iOS' : 'macOS'},
+      $dark,
       app.$app(
         theme: ${theme(false)},
         darkTheme: ${theme(true)},
