@@ -448,6 +448,9 @@ void main() {
           (w.decoration as BoxDecoration?)?.shape == BoxShape.circle,
     );
     expect(dots, findsNWidgets(2));
+    // Under the number, not on it.
+    final three = tester.getRect(find.text('3').first);
+    expect(tester.getRect(dots.first).top, greaterThanOrEqualTo(three.bottom));
     handle.dispose();
   });
 }

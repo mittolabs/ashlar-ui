@@ -23813,22 +23813,25 @@ class _CalendarState extends State<Calendar> {
               alignment: Alignment.center,
               child: Opacity(
                 opacity: off ? .5 : 1,
+                // The whole day, so the dot can sit under the number rather than on it.
                 child: Stack(
+                  fit: StackFit.expand,
                   alignment: Alignment.center,
                   children: [
-                    Text(
-                      '${d.day}',
-                      style: t.text.sm.copyWith(
-                        color: fg,
-                        decoration: off ? TextDecoration.lineThrough : null,
-                        decorationColor: fg,
-                        fontWeight: picked ? FontWeight.w500 : null,
+                    Center(
+                      child: Text(
+                        '${d.day}',
+                        style: t.text.sm.copyWith(
+                          color: fg,
+                          decoration: off ? TextDecoration.lineThrough : null,
+                          decorationColor: fg,
+                          fontWeight: picked ? FontWeight.w500 : null,
+                        ),
                       ),
                     ),
-                    // The dot sits under the number, inside the day.
                     if (marked)
-                      Positioned(
-                        bottom: _cell * .1,
+                      Align(
+                        alignment: const Alignment(0, .9),
                         child: Container(
                           width: 4,
                           height: 4,
@@ -24465,6 +24468,9 @@ void main() {
           (w.decoration as BoxDecoration?)?.shape == BoxShape.circle,
     );
     expect(dots, findsNWidgets(2));
+    // Under the number, not on it.
+    final three = tester.getRect(find.text('3').first);
+    expect(tester.getRect(dots.first).top, greaterThanOrEqualTo(three.bottom));
     handle.dispose();
   });
 }
