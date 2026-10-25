@@ -138,6 +138,7 @@ int isoWeek(DateTime d) {
 /// Calendar(selected: day, onSelected: (d) => setState(() => day = d))
 /// Calendar.range(range: stay, months: 2, onRangeChanged: (r) => setState(() => stay = r))
 /// Calendar.multiple(days: picked, onDaysChanged: (d) => setState(() => picked = d))
+/// Calendar(expand: true, selected: day, onSelected: (d) => setState(() => day = d))
 /// ```
 class Calendar extends StatefulWidget {
   const Calendar({
@@ -152,6 +153,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : range = null,
        onRangeChanged = null,
        days = null,
@@ -169,6 +171,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : selected = null,
        onSelected = null,
        days = null,
@@ -186,6 +189,7 @@ class Calendar extends StatefulWidget {
     this.months = 1,
     this.showWeekNumbers = false,
     this.dropdowns = false,
+    this.expand = false,
   }) : selected = null,
        onSelected = null,
        range = null,
@@ -230,6 +234,10 @@ class Calendar extends StatefulWidget {
   /// The month and year picked from lists, for going far quickly: a date of birth.
   final bool dropdowns;
 
+  /// Fills the width it is given: each day's column widens, and the days grow taller,
+  /// up to 44, for a calendar that is the main thing on a phone's sheet.
+  final bool expand;
+
   @override
   State<Calendar> createState() => _CalendarState();
 }
@@ -255,11 +263,24 @@ class _CalendarState extends State<Calendar> {
   /// cut off: 32 and 24 at its usual size.
   double _cell = 32, _head = 24, _header = 32;
 
+  /// A day's column: as wide as its square, or wider when the calendar fills its width.
+  double _slot = 32;
+
   void _measure(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
     _cell = math.max(32, scaler.scale(20));
     _head = math.max(24, scaler.scale(16) + 8);
     _header = grownHeight(context, 32);
+    _slot = _cell;
+  }
+
+  /// Widens the columns to share [width], and grows the days with them, when expanding.
+  void _fit(double width) {
+    if (!widget.expand || !width.isFinite) return;
+    final columns = 7 + (widget.showWeekNumbers ? 1 : 0);
+    final month = (width - (widget.months - 1) * 16.0) / widget.months;
+    _slot = math.max(_cell, month / columns);
+    _cell = math.min(math.max(_cell, _slot * .8), math.max(_cell, 44));
   }
 
   bool _keyboard = false;
@@ -399,8 +420,20 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    _measure(context);
-    if (_view != _View.days) return _picker(context);
+    if (!widget.expand) {
+      _measure(context);
+      return _view == _View.days ? _days(context) : _picker(context);
+    }
+    return LayoutBuilder(
+      builder: (context, box) {
+        _measure(context);
+        _fit(box.maxWidth);
+        return _view == _View.days ? _days(context) : _picker(context);
+      },
+    );
+  }
+
+  Widget _days(BuildContext context) {
     final names = DateNames.of(context);
     final canBack =
         widget.firstDate == null || _month.isAfter(_monthOf(widget.firstDate!));
@@ -501,7 +534,7 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(_month.year, _month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final width =
-        widget.months * ((widget.showWeekNumbers ? _cell : 0.0) + 7 * _cell) +
+        widget.months * ((widget.showWeekNumbers ? _slot : 0.0) + 7 * _slot) +
         (widget.months - 1) * 16.0;
     final height = _header + 8 + _head + 4 + weeks * (_cell + 2);
     final first = widget.firstDate, last = widget.lastDate;
@@ -673,7 +706,7 @@ class _CalendarState extends State<Calendar> {
     final count = DateTime(month.year, month.month + 1, 0).day;
     final weeks = ((lead + count) / 7).ceil();
     final today = _day(DateTime.now());
-    final weekCol = widget.showWeekNumbers ? _cell : 0.0;
+    final weekCol = widget.showWeekNumbers ? _slot : 0.0;
 
     Widget day(DateTime d) {
       final outside = d.month != month.month;
@@ -752,7 +785,7 @@ class _CalendarState extends State<Calendar> {
       label: names.monthYear(month),
       explicitChildNodes: true,
       child: SizedBox(
-        width: weekCol + 7 * _cell,
+        width: weekCol + 7 * _slot,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -800,7 +833,7 @@ class _CalendarState extends State<Calendar> {
                   if (widget.showWeekNumbers) SizedBox(width: weekCol),
                   for (var i = 0; i < 7; i++)
                     SizedBox(
-                      width: _cell,
+                      width: _slot,
                       height: _head,
                       child: Center(
                         child: Text(
@@ -834,7 +867,7 @@ class _CalendarState extends State<Calendar> {
                       ),
                     for (var i = 0; i < 7; i++)
                       SizedBox(
-                        width: _cell,
+                        width: _slot,
                         height: _cell,
                         child: day(
                           DateTime(

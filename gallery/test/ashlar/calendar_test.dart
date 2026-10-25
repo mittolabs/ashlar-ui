@@ -110,6 +110,29 @@ void main() {
   });
 
   group('Calendar', () {
+    testWidgets('expand fills the width given, its days widening and growing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        app(
+          SizedBox(
+            width: 350,
+            child: Calendar(
+              expand: true,
+              selected: DateTime(2026, 10, 14),
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(Calendar)).width, closeTo(350, 1));
+      final day = tester.getSize(
+        find.ancestor(of: dayOf(14), matching: find.byType(SizedBox)).first,
+      );
+      expect(day.width, closeTo(50, 1));
+      expect(day.height, 40);
+    });
+
     testWidgets('lays out the month from Monday, with the days either side', (
       tester,
     ) async {
