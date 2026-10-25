@@ -1,3 +1,7 @@
+## 0.8.1
+
+- `calendar`: a marked day's dot sits under its number; in 0.8.0 it sat on it.
+
 ## 0.8.0
 
 - `calendar`: `isMarked` puts a dot under the days that have something on (games,
