@@ -15,6 +15,7 @@ import 'theme.dart';
 /// ```dart
 /// Input(placeholder: 'Email', keyboardType: TextInputType.emailAddress, onChanged: (v) => email = v)
 /// Input(controller: password, placeholder: 'Password', obscureText: true, error: wrong)
+/// Input(round: true, raised: true, size: InputSize.xl, placeholder: 'Search', leading: AshlarIcon(AshlarIconsRoundedStroke.search))
 /// ```
 /// How tall a one-line [Input] is, matching the [ButtonSize] of the same name, so a field
 /// and its button line up.
@@ -56,6 +57,8 @@ class Input extends StatefulWidget {
     this.semanticLabel,
     this.decorated = true,
     this.size = InputSize.md,
+    this.round = false,
+    this.raised = false,
   });
 
   /// Its text, to read and set from outside; one is made when not given.
@@ -122,6 +125,13 @@ class Input extends StatefulWidget {
 
   /// Its height, and with it its corners and text, as a button of the same size has.
   final InputSize size;
+
+  /// Fully rounded: a pill, as a search field often is.
+  final bool round;
+
+  /// On the card colour with a shadow and no border until focused: a field that stands
+  /// on the page by itself, as a search field at the top of a screen does.
+  final bool raised;
 
   @override
   State<Input> createState() => _InputState();
@@ -236,44 +246,55 @@ class _InputState extends State<Input>
                       }),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: widget.decorated ? (large ? 16 : 12) : 0,
+                horizontal: widget.decorated
+                    ? (widget.round ? (large ? 20 : 14) : (large ? 16 : 12))
+                    : 0,
                 vertical: multiline ? 8 : 0,
               ),
               decoration: !widget.decorated
                   ? null
                   : BoxDecoration(
                       // Opaque, so the shadow beneath does not show through.
-                      color: t.brightness == Brightness.dark
+                      color: widget.raised
+                          ? c.card
+                          : t.brightness == Brightness.dark
                           ? Color.alphaBlend(
                               c.input.withValues(alpha: c.input.a * .3),
                               c.background,
                             )
                           : c.background,
                       borderRadius: BorderRadius.circular(
-                        large ? t.radiusLg : t.radiusMd,
+                        widget.round ? 999 : (large ? t.radiusLg : t.radiusMd),
                       ),
                       border: Border.all(
                         color: widget.error
                             ? c.destructive
                             : (focused
                                   ? c.ring
+                                  : widget.raised
+                                  ? c.card
                                   : (_hovered
                                         ? c.ring.withValues(alpha: .6)
                                         : c.input)),
                       ),
                       boxShadow: [
-                        if (focused)
+                        // Raised, the border alone marks focus: a ring round it would sit on
+                        // its shadow.
+                        if (focused && !widget.raised)
                           BoxShadow(
                             color: ringColor.withValues(
                               alpha: widget.error ? .2 : .5,
                             ),
                             spreadRadius: 3,
                           ),
-                        ...t.shadowXs,
+                        ...(widget.raised ? t.shadowLg : t.shadowXs),
                       ],
                     ),
               child: IconTheme.merge(
-                data: IconThemeData(color: c.mutedForeground, size: 16),
+                data: IconThemeData(
+                  color: widget.raised ? c.foreground : c.mutedForeground,
+                  size: large ? 20 : 16,
+                ),
                 child: Row(
                   crossAxisAlignment: multiline
                       ? CrossAxisAlignment.start

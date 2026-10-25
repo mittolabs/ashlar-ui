@@ -172,11 +172,44 @@ void main() {
       (InputSize.xl, 48.0),
     ]) {
       await tester.pumpWidget(
-        app(SizedBox(width: 300, child: Input(size: size, placeholder: 'Name'))),
+        app(
+          SizedBox(
+            width: 300,
+            child: Input(size: size, placeholder: 'Name'),
+          ),
+        ),
       );
       // A new size animates there from the last.
       await tester.pumpAndSettle();
       expect(tester.getSize(find.byType(Input)).height, t.control(height));
     }
   });
+
+  testWidgets(
+    'round and raised make a search field: a pill on the card colour',
+    (tester) async {
+      await tester.pumpWidget(
+        app(
+          const SizedBox(
+            width: 300,
+            child: Input(round: true, raised: true, placeholder: 'Search'),
+          ),
+        ),
+      );
+      final box =
+          tester
+                  .widget<AnimatedContainer>(
+                    find.descendant(
+                      of: find.byType(Input),
+                      matching: find.byType(AnimatedContainer),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
+      final t = AshlarThemeData.light();
+      expect(box.color, t.colors.card);
+      expect(box.borderRadius, BorderRadius.circular(999));
+      expect((box.border! as Border).top.color, t.colors.card);
+    },
+  );
 }
