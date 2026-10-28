@@ -1,4 +1,4 @@
-## Unreleased
+## 0.10.0
 
 - `ashlar add --overwrite` replaces only what you name. What it needs and you already
   have, your theme or a component you changed, is kept and said so (`kept ... (yours)`).
