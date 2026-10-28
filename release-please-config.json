@@ -7,9 +7,18 @@
     ".": {
       "changelog-path": "packages/ashlar_ui/CHANGELOG.md",
       "extra-files": [
-        "packages/ashlar_ui/pubspec.yaml",
-        "packages/ashlar_ui/lib/src/mcp.dart",
-        "packages/ashlar/pubspec.yaml"
+        {
+          "type": "generic",
+          "path": "packages/ashlar_ui/pubspec.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "packages/ashlar_ui/lib/src/mcp.dart"
+        },
+        {
+          "type": "generic",
+          "path": "packages/ashlar/pubspec.yaml"
+        }
       ]
     }
   }
