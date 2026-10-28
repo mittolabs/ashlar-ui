@@ -1,0 +1,3 @@
+dependency_overrides:
+  ashlar_ui:
+    path: ../ashlar_ui

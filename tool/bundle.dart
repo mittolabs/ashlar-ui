@@ -1,5 +1,6 @@
-// Embeds registry/ (the component sources and registry.json) into the CLI, so the
-// ashlar command works offline and a CLI version is a component version.
+// Embeds registry/ (the component sources and registry.json) into ashlar_ui, the registry
+// the ashlar command is built with, so it works offline and a version of the command is a
+// version of the components.
 // Run from the repository root: dart run tool/bundle.dart
 import 'dart:convert';
 import 'dart:io';

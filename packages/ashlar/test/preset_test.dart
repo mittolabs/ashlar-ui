@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ashlar_ui/ashlar_ui.dart';
+import 'package:ashlar/ashlar.dart';
 import 'package:ashlar_ui/preset.dart';
 import 'package:test/test.dart';
 

@@ -1,25 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ashlar_ui/ashlar_ui.dart';
+import 'package:ashlar_ui/preset.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 import 'book.dart';
 import 'check.dart';
-import 'component.dart';
 import 'diff.dart';
 import 'mcp.dart';
 import 'prefix.dart';
-import 'preset.dart';
 import 'merge.dart';
-import 'registry.g.dart';
 import 'agents.dart';
 import 'review.dart';
 import 'shot.dart';
 import 'remote.dart';
-
-/// The version each pub.dev package a component needs is added at.
-const packageVersions = {'ashlar_icons': '^0.3.0'};
 
 final _usage =
     '''
@@ -556,21 +552,6 @@ String _relative(String from, String to) {
     for (var i = same; i < a.length; i++) '..',
     ...b.skip(same),
   ].join('/');
-}
-
-/// The components named and every one they need, needed ones first.
-List<String> resolve(List<String> names) {
-  final order = <String>[];
-  void visit(String n) {
-    if (order.contains(n)) return;
-    for (final r in registry[n]!.requires) {
-      visit(r);
-    }
-    order.add(n);
-  }
-
-  names.forEach(visit);
-  return order;
 }
 
 /// Asks [question] in the terminal; yes only for y or yes.

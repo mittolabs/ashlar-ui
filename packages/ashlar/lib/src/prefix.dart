@@ -4,7 +4,7 @@
 
 import 'check.dart' show codeOnly;
 
-import 'registry.g.dart';
+import 'package:ashlar_ui/ashlar_ui.dart';
 
 /// A prefix ashlar can use: a capital, then letters and digits, as SL or Mz.
 final validPrefix = RegExp(r'^[A-Z][A-Za-z0-9]*$');

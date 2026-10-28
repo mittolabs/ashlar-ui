@@ -3,7 +3,7 @@ name: publish
 # The only way a version reaches pub.dev. pub.dev's automated publishing trusts this
 # repository's GitHub Actions for a run on a tag v{{version}}, started by the release
 # workflow (or by hand, on a tag). Both packages share the version: ashlar_ui goes first,
-# since ashlar requires exactly it.
+# since the ashlar command is built with it.
 on:
   workflow_dispatch:
 
@@ -40,9 +40,11 @@ jobs:
           dart pub publish --force
 
       # pub.dev can take some minutes to serve the ashlar_ui just published.
+      # It is built against the ashlar_ui beside it everywhere else; here, against pub.dev's.
       - name: Publish ashlar
         working-directory: packages/ashlar
         run: |
+          rm pubspec_overrides.yaml
           for i in $(seq 1 30); do
             dart pub get && break
             [ "$i" = 30 ] && exit 1

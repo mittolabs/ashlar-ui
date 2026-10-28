@@ -1,7 +1,7 @@
 // ashlar book: a catalog of the app's own components, written outside its code.
 import 'dart:io';
 
-import 'package:ashlar_ui/ashlar_ui.dart';
+import 'package:ashlar/ashlar.dart';
 import 'package:test/test.dart';
 
 Directory project() {

@@ -15,7 +15,7 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
   a component except fully transparent.
 - **Every control is a `Pressable`:** hover, press, keyboard focus (a ring only for
   keyboard focus), Enter and Space, and a screen reader label.
-- **ashlaricons for every icon**, at the version in `packageVersions` (the CLI).
+- **ashlaricons for every icon**, at the version in `packageVersions` (`packages/ashlar_ui/lib/src/needs.dart`).
 - **The default look is shadcn's neutral theme**, light and dark, checked against
   ui.shadcn.com when it changes.
 - **Name no other library in what users read**: the site, the components' descriptions,

@@ -1,9 +1,9 @@
 // A project's own prefix on the components' names: SLButton, SLTheme, showSLToast.
 import 'dart:io';
 
-import 'package:ashlar_ui/ashlar_ui.dart';
-import 'package:ashlar_ui/src/check.dart';
-import 'package:ashlar_ui/src/prefix.dart';
+import 'package:ashlar/ashlar.dart';
+import 'package:ashlar/src/check.dart';
+import 'package:ashlar/src/prefix.dart';
 import 'package:test/test.dart';
 
 Directory project() {

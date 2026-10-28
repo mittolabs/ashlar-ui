@@ -3,7 +3,7 @@
 Install it, then run it in the root of a Flutter app:
 
 ```sh
-dart pub global activate ashlar_ui
+dart pub global activate ashlar
 
 ashlar init --base stone --accent teal   # the theme, AshlarApp and ashlar.yaml
 ashlar add button dialog                # components, with what they need and their tests

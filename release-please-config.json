@@ -5,7 +5,7 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
-      "changelog-path": "packages/ashlar_ui/CHANGELOG.md",
+      "changelog-path": "packages/ashlar/CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
@@ -13,7 +13,7 @@
         },
         {
           "type": "generic",
-          "path": "packages/ashlar_ui/lib/src/mcp.dart"
+          "path": "packages/ashlar/lib/src/mcp.dart"
         },
         {
           "type": "generic",

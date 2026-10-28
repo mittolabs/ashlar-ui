@@ -1,8 +1,8 @@
 // ashlar check reports what it can prove, and nothing that only looks like it.
 import 'dart:io';
 
-import 'package:ashlar_ui/ashlar_ui.dart';
-import 'package:ashlar_ui/src/check.dart';
+import 'package:ashlar/ashlar.dart';
+import 'package:ashlar/src/check.dart';
 import 'package:test/test.dart';
 
 List<String> found(String src) => [

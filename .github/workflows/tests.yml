@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/ashlar_ui
+        working-directory: packages/ashlar
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'dart:convert';
 
-import 'package:ashlar_ui/ashlar_ui.dart';
-import 'package:ashlar_ui/src/diff.dart';
+import 'package:ashlar/ashlar.dart';
+import 'package:ashlar/src/diff.dart';
 import 'package:test/test.dart';
 
 Directory project({Map<String, String>? config}) {

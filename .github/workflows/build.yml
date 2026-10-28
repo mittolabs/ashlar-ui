@@ -1,7 +1,8 @@
 name: build
 
-# Both packages analyze, the CLI's bundled registry matches registry/, and pub would
-# take each package as it stands.
+# Both packages analyze, ashlar_ui's bundled registry matches registry/, and pub would
+# take each package as it stands. The command is checked against the registry beside it
+# (packages/ashlar/pubspec_overrides.yaml), which is the one it is released with.
 on:
   workflow_dispatch:
   pull_request:

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'component.dart';
+import 'package:ashlar_ui/ashlar_ui.dart';
 
 /// Reading another registry went wrong: it was not there, or not what it should be.
 class RemoteException implements Exception {
