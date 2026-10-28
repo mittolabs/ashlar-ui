@@ -1,5 +1,8 @@
 ## Unreleased
 
+- `data-table`: a button in a row (Roll back, Delete) is its own button to a screen reader.
+  Rows were merged whole, so it read as part of the row's text and could not be pressed.
+  A row made pressable with `onRowPressed` is still read as one button.
 - Ashlar UI for Jaspr is withdrawn: `ashlar` copies Flutter components only again. Jaspr
   stays for the Ashlar sites; consoles and apps are Flutter.
 

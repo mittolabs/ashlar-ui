@@ -17587,7 +17587,12 @@ class _RowState extends State<_Row> {
         ),
       );
     }
-    return MergeSemantics(child: row);
+    // A pressable row is one button, read as one. Otherwise a row only groups its
+    // cells: merged, a button in a cell would vanish into the row's text and no
+    // screen reader could press it.
+    return widget.onPressed != null
+        ? MergeSemantics(child: row)
+        : Semantics(container: true, child: row);
   }
 }
 ''',
@@ -17670,6 +17675,38 @@ void main() {
       expect(row.label, contains('INV002'));
       semantics.dispose();
     });
+  });
+
+  testWidgets('a button in a row stays a button a screen reader can press', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    var pressed = 0;
+    await tester.pumpWidget(
+      app2(
+        DataTable(
+          columns: const [DataColumn(Text('Patch')), DataColumn(Text(''))],
+          rows: [
+            [
+              const Text('#1'),
+              GestureDetector(
+                onTap: () => pressed++,
+                child: Semantics(
+                  button: true,
+                  label: 'Roll back',
+                  onTap: () => pressed++,
+                  child: const Text('Roll back'),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+    final button = tester.getSemantics(find.text('Roll back')).getSemanticsData();
+    expect(button.flagsCollection.isButton, isTrue);
+    expect(button.label, isNot(contains('#1')));
+    semantics.dispose();
   });
 
   testWidgets(

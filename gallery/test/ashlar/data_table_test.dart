@@ -76,6 +76,38 @@ void main() {
     });
   });
 
+  testWidgets('a button in a row stays a button a screen reader can press', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    var pressed = 0;
+    await tester.pumpWidget(
+      app2(
+        DataTable(
+          columns: const [DataColumn(Text('Patch')), DataColumn(Text(''))],
+          rows: [
+            [
+              const Text('#1'),
+              GestureDetector(
+                onTap: () => pressed++,
+                child: Semantics(
+                  button: true,
+                  label: 'Roll back',
+                  onTap: () => pressed++,
+                  child: const Text('Roll back'),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+    final button = tester.getSemantics(find.text('Roll back')).getSemanticsData();
+    expect(button.flagsCollection.isButton, isTrue);
+    expect(button.label, isNot(contains('#1')));
+    semantics.dispose();
+  });
+
   testWidgets(
     'a sortable heading asks for the sort, and shows which way it is sorted',
     (tester) async {

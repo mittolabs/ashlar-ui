@@ -353,6 +353,11 @@ class _RowState extends State<_Row> {
         ),
       );
     }
-    return MergeSemantics(child: row);
+    // A pressable row is one button, read as one. Otherwise a row only groups its
+    // cells: merged, a button in a cell would vanish into the row's text and no
+    // screen reader could press it.
+    return widget.onPressed != null
+        ? MergeSemantics(child: row)
+        : Semantics(container: true, child: row);
   }
 }
