@@ -1,0 +1,12 @@
+{
+  "theme": {"description": "Colours, corners and text as CSS variables, light and dark.", "files": ["theme.dart"]},
+  "button": {"description": "Six variants and four sizes, on a native button.", "files": ["button.dart"], "requires": ["theme"]},
+  "input": {"description": "A one-line text field.", "files": ["input.dart"], "requires": ["theme"]},
+  "field": {"description": "A control with its label, and help or an error under it.", "files": ["field.dart"], "requires": ["theme"]},
+  "card": {"description": "A panel with a title, description, action, content and footer.", "files": ["card.dart"], "requires": ["theme"]},
+  "badge": {"description": "A small label: a status, a count, a tag.", "files": ["badge.dart"], "requires": ["theme"]},
+  "alert": {"description": "A message that stays on the page.", "files": ["alert.dart"], "requires": ["theme"]},
+  "table": {"description": "Rows of data under headings, numbers aligned, with an empty state.", "files": ["table.dart"], "requires": ["theme"]},
+  "alert_dialog": {"description": "Asks before something that cannot be taken back, in the browser's modal dialog.", "files": ["alert_dialog.dart"], "requires": ["theme", "button"], "packages": ["universal_web"]},
+  "chart": {"description": "One series as bars, with a readout on hover and focus, and a table view.", "files": ["chart.dart"], "requires": ["theme", "table"]}
+}

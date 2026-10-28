@@ -1,3 +1,10 @@
+## Unreleased
+
+- In a Jaspr project, `ashlar init` and `ashlar add` copy Ashlar UI for Jaspr: theme,
+  button, input, field, card, badge, alert, table, alert dialog and a bar chart, in the
+  same neutral look, light and dark. `ashlar list`, `view` and `search` show them; the
+  other commands say they are for Flutter projects so far.
+
 ## 0.8.1
 
 - `calendar`: a marked day's dot sits under its number; in 0.8.0 it sat on it.

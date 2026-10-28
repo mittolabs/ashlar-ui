@@ -8,6 +8,7 @@ import 'book.dart';
 import 'check.dart';
 import 'component.dart';
 import 'diff.dart';
+import 'jaspr.dart';
 import 'mcp.dart';
 import 'prefix.dart';
 import 'preset.dart';
@@ -67,13 +68,15 @@ Items from a registry of your own are named @name/item, where ashlar.yaml says w
 Each component comes with its tests, in test/ashlar, so you can change it and check it
 still does what it promised. tests: false in ashlar.yaml leaves them out.
 
-Run it in a Flutter project's root. The files are yours to change: ashlar never
+Run it in a Flutter project's root; in a Jaspr project, ashlar help shows what it
+does there. The files are yours to change: ashlar never
 replaces one unless you pass --overwrite.''';
 
 /// Runs the ashlar command in [dir]; returns the exit code.
 Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
   final root = dir ?? Directory.current;
   final o = out ?? stdout;
+  if (isJasprProject(root)) return runJaspr(args, root, o);
   if (args.isEmpty ||
       args.first == 'help' ||
       args.contains('--help') ||
