@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.0
 
 - In a Jaspr project, `ashlar init` and `ashlar add` copy Ashlar UI for Jaspr: theme,
   button, input, field, card, badge, alert, table, alert dialog and a bar chart, in the
