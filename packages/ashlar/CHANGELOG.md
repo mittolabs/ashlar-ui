@@ -12,6 +12,22 @@
 - Ashlar UI for Jaspr is withdrawn: `ashlar` copies Flutter components only again. Jaspr
   stays for the Ashlar sites; consoles and apps are Flutter.
 
+## [0.11.0](https://github.com/mittolabs/ashlar-ui/compare/v0.10.0...v0.11.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** the command moved from ashlar_ui to ashlar. Install it with dart pub global activate ashlar; ashlar_ui's executable now only says so. The ashlar_ui library no longer exports run or fingerprint (they are in package:ashlar/ashlar.dart).
+
+### Features
+
+* **cli:** ashlar is the command, and ashlar_ui its registry ([6a2d51c](https://github.com/mittolabs/ashlar-ui/commit/6a2d51c6379ba62f1dc1d7cd75d6c30c9661622d))
+
+
+### Bug Fixes
+
+* **cli:** a reformatted copy is not one you changed ([92ac42a](https://github.com/mittolabs/ashlar-ui/commit/92ac42a386b21621058aaebd14dc195c6d505922))
+
 ## 0.9.0
 
 - In a Jaspr project, `ashlar init` and `ashlar add` copy Ashlar UI for Jaspr: theme,
