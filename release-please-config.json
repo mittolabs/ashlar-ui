@@ -18,6 +18,10 @@
         {
           "type": "generic",
           "path": "packages/ashlar/pubspec.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "packages/ashlar_ui/CHANGELOG.md"
         }
       ]
     }
