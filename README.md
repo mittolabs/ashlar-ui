@@ -71,8 +71,8 @@ Button(onPressed: save, child: Text('Save'))
 ```
 
 The files are yours from the moment they land. `ashlar` never overwrites one you
-already have unless you pass `--overwrite`, and `ashlar update` brings in what got
-better while keeping what you changed.
+already have unless you pass `--overwrite`, and asks first if you changed it. `ashlar
+update` brings in what got better while keeping what you changed.
 
 ---
 

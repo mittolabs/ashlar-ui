@@ -51,6 +51,11 @@ const _tools = [
           'description': 'Such as ["button", "dialog"].',
         },
         'overwrite': {'type': 'boolean'},
+        'yes': {
+          'type': 'boolean',
+          'description':
+              'With overwrite: replace files the person changed. Only when they said so.',
+        },
       },
       'required': ['names'],
     },
@@ -224,7 +229,12 @@ List<String>? _command(String tool, Map<String, dynamic> a) {
     case 'add_components':
       final n = names(a['names']);
       if (n == null || n.isEmpty) return null;
-      return ['add', ...n, if (a['overwrite'] == true) '--overwrite'];
+      return [
+        'add',
+        ...n,
+        if (a['overwrite'] == true) '--overwrite',
+        if (a['yes'] == true) '--yes',
+      ];
     case 'update_components':
       final n = a.containsKey('names') ? names(a['names']) : <String>[];
       if (n == null) return null;

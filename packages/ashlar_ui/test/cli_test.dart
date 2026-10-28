@@ -22,22 +22,91 @@ Directory project({Map<String, String>? config}) {
 
 void main() {
   yamlConfig();
-  test('--overwrite replaces what you named, not what it needs', () async {
-    final dir = project();
-    expect(await run(['add', 'button'], dir: dir, out: StringBuffer()), 0);
-    final theme = File('${dir.path}/lib/ui/theme.dart');
-    final button = File('${dir.path}/lib/ui/button.dart');
-    theme.writeAsStringSync('// my theme\n');
-    button.writeAsStringSync('// old\n');
-    final out = StringBuffer();
-    expect(await run(['add', 'button', '--overwrite'], dir: dir, out: out), 0);
-    expect(
-      theme.readAsStringSync(),
-      '// my theme\n',
-      reason: 'needed, not named',
+  group('--overwrite', () {
+    late Directory dir;
+    late File theme, button;
+    setUp(() async {
+      dir = project();
+      await run(['add', 'button'], dir: dir, out: StringBuffer());
+      theme = File('${dir.path}/lib/ui/theme.dart');
+      button = File('${dir.path}/lib/ui/button.dart');
+    });
+
+    test('replaces an unchanged copy without asking', () async {
+      var asked = false;
+      final code = await run(
+        ['add', 'button', '--overwrite'],
+        dir: dir,
+        out: StringBuffer(),
+        ask: (_) async => asked = true,
+      );
+      expect(code, 0);
+      expect(asked, isFalse);
+    });
+
+    test('replaces what you named, not what it needs', () async {
+      theme.writeAsStringSync('// my theme\n');
+      button.writeAsStringSync('// old\n');
+      final out = StringBuffer();
+      final code = await run(
+        ['add', 'button', '--overwrite', '--yes'],
+        dir: dir,
+        out: out,
+      );
+      expect(code, 0);
+      expect(
+        theme.readAsStringSync(),
+        '// my theme\n',
+        reason: 'needed, not named',
+      );
+      expect(button.readAsStringSync(), contains('class Button'));
+      expect(out.toString(), contains('kept   lib/ui/theme.dart (yours)'));
+    });
+
+    test('asks before replacing your changes, and no keeps them', () async {
+      button.writeAsStringSync('// mine\n');
+      String? question;
+      final out = StringBuffer();
+      final code = await run(
+        ['add', 'button', '--overwrite'],
+        dir: dir,
+        out: out,
+        ask: (q) async {
+          question = q;
+          return false;
+        },
+      );
+      expect(code, 1);
+      expect(question, contains('lib/ui/button.dart'));
+      expect(button.readAsStringSync(), '// mine\n');
+      expect(out.toString(), contains('ashlar update'));
+    });
+
+    test('yes replaces them', () async {
+      button.writeAsStringSync('// mine\n');
+      final code = await run(
+        ['add', 'button', '--overwrite'],
+        dir: dir,
+        out: StringBuffer(),
+        ask: (_) async => true,
+      );
+      expect(code, 0);
+      expect(button.readAsStringSync(), contains('class Button'));
+    });
+
+    test(
+      'with no one to ask (CI, an agent), changes are kept unless --yes',
+      () async {
+        button.writeAsStringSync('// mine\n');
+        final out = StringBuffer();
+        expect(
+          await run(['add', 'button', '--overwrite'], dir: dir, out: out),
+          1,
+        );
+        expect(button.readAsStringSync(), '// mine\n');
+        expect(out.toString(), contains('--overwrite --yes'));
+      },
     );
-    expect(button.readAsStringSync(), contains('class Button'));
-    expect(out.toString(), contains('kept   lib/ui/theme.dart (yours)'));
   });
 
   test(

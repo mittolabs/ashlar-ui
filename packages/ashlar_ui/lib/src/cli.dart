@@ -40,7 +40,8 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
                                         --prefix renames everywhere, your code too
   ashlar add <item>... [--all]          copy components, with what they need
              [--blocks]                 every block: whole screens, in lib/blocks
-             [--overwrite]              replace your copies of what you name, not what it needs
+             [--overwrite]              replace your copies of what you name, not what it needs;
+             [--yes]                    asks first if you changed them, and --yes answers yes
              [--no-tests]               leave out their tests (test/ashlar)
   ashlar shot <file>[:Widget]...        draw your screens to pictures without running the app,
              [--size phone]             in your theme: phone, tablet, desktop or 390x844, several
@@ -71,9 +72,19 @@ Run it in a Flutter project's root. The files are yours to change: ashlar never
 replaces one unless you pass --overwrite.''';
 
 /// Runs the ashlar command in [dir]; returns the exit code.
-Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
+///
+/// [ask] puts a yes or no question to the person running it. Without it, ashlar asks
+/// in the terminal when it runs in one, and otherwise (CI, a script, an agent over
+/// MCP) takes no for an answer, so nothing of yours is replaced without --yes.
+Future<int> run(
+  List<String> args, {
+  Directory? dir,
+  StringSink? out,
+  Future<bool> Function(String question)? ask,
+}) async {
   final root = dir ?? Directory.current;
   final o = out ?? stdout;
+  ask ??= out == null && stdin.hasTerminal ? _askInTerminal : null;
   if (args.isEmpty ||
       args.first == 'help' ||
       args.contains('--help') ||
@@ -218,6 +229,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         overwrite: rest.contains('--overwrite'),
         tests: !rest.contains('--no-tests'),
         out: o,
+        confirm: rest.contains('--yes') ? null : ask,
+        sure: rest.contains('--yes'),
       );
       if (code != 0) return code;
       writeAppTheme(root, path, preset: preset, prefix: prefix, out: o);
@@ -338,6 +351,8 @@ Future<int> run(List<String> args, {Directory? dir, StringSink? out}) async {
         overwrite: rest.contains('--overwrite'),
         tests: !rest.contains('--no-tests'),
         out: o,
+        confirm: rest.contains('--yes') ? null : ask,
+        sure: rest.contains('--yes'),
       );
     case 'view':
       if (words.isEmpty) {
@@ -556,6 +571,13 @@ List<String> resolve(List<String> names) {
 
   names.forEach(visit);
   return order;
+}
+
+/// Asks [question] in the terminal; yes only for y or yes.
+Future<bool> _askInTerminal(String question) async {
+  stdout.write('$question [y/N] ');
+  final answer = stdin.readLineSync()?.trim().toLowerCase();
+  return answer == 'y' || answer == 'yes';
 }
 
 /// A short fingerprint of a file's text, to tell later whether it changed.
@@ -859,12 +881,16 @@ class Project {
   /// use.
   ///
   /// [overwrite] replaces the files of [names] only: what they need and you already have
-  /// (your theme, a component you changed) is kept.
+  /// (your theme, a component you changed) is kept. A file of [names] you changed since
+  /// ashlar wrote it is replaced only when you are [sure], or say yes to [confirm]; with
+  /// neither, nothing is written and ashlar says why.
   Future<int> add(
     List<String> names, {
     required bool overwrite,
     required StringSink out,
     bool tests = true,
+    bool sure = false,
+    Future<bool> Function(String question)? confirm,
   }) async {
     // Everything named and needed, needed first, read before anything is written.
     final order = <String>[];
@@ -901,6 +927,31 @@ class Project {
       if (!await visit(n, null, asked: true)) return 64;
     }
     final fingerprints = Map<String, String>.of(_written);
+    if (overwrite && !sure) {
+      final changed = _changed([
+        for (final name in named) items[name]!,
+      ], fingerprints);
+      if (changed.isNotEmpty) {
+        final list = changed.map((at) => '  $at').join('\n');
+        final yes =
+            confirm != null &&
+            await confirm(
+              'You changed these since ashlar wrote them:\n$list\n'
+              '--overwrite replaces them and your changes are lost. '
+              '(ashlar update keeps them.) Replace them?',
+            );
+        if (!yes) {
+          out.writeln(
+            confirm != null
+                ? 'Nothing replaced. ashlar update takes what is newer and keeps your changes.'
+                : 'Nothing replaced: you changed these since ashlar wrote them:\n$list\n'
+                      'ashlar update takes what is newer and keeps your changes; '
+                      '--overwrite --yes replaces them anyway.',
+          );
+          return 1;
+        }
+      }
+    }
     final packages = <String>{};
     for (final name in order) {
       final c = items[name]!;
@@ -965,6 +1016,21 @@ class Project {
     }
     return 0;
   }
+
+  /// The files of [items] (and their tests) you have and changed since ashlar wrote
+  /// them, or that ashlar has no record of writing.
+  List<String> _changed(List<Component> items, Map<String, String> written) =>
+      [
+        for (final c in items) ...[
+          for (final file in c.files.keys) target(c, file),
+          if (tests case final dir?)
+            for (final file in c.tests.keys) '$dir/$file',
+        ],
+      ].where((at) {
+        final f = File('${root.path}/$at');
+        return f.existsSync() &&
+            written[at] != fingerprint(f.readAsStringSync());
+      }).toList();
 
   /// Writes the tests of the components you have whose tests can now run: those of
   /// [added], and those that were waiting for a component just added. A test written
