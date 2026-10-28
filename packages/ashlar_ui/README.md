@@ -9,10 +9,11 @@ command is a version of the components.
 ## Install
 
 ```sh
-dart pub global activate ashlar_ui
+dart pub global activate ashlar
 ```
 
-Run it in the root of a Flutter project.
+Run it in the root of a Flutter project. `dart pub global activate ashlar_ui` installs
+the same command.
 
 ## Commands
 
