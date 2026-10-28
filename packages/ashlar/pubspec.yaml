@@ -1,6 +1,6 @@
 name: ashlar
 description: "The ashlar command: copies Ashlar UI's components into your app, yours to change. Install it with dart pub global activate ashlar."
-version: 0.3.0
+version: 0.3.0 # x-release-please-version
 homepage: https://ui.ashlar.ke
 repository: https://github.com/mittolabs/ashlar-ui/tree/main/packages/ashlar
 topics: [ui, components, design-system, cli]
@@ -12,7 +12,7 @@ executables:
   ashlar: ashlar
 
 dependencies:
-  ashlar_ui: ^0.10.0
+  ashlar_ui: ^0.10.0 # x-release-please-version
 
 dev_dependencies:
   lints: ^6.0.0

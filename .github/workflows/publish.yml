@@ -1,16 +1,11 @@
 name: publish
 
 # The only way a version reaches pub.dev. pub.dev's automated publishing trusts this
-# repository's GitHub Actions for a run on a tag, ashlar_ui-v{{version}} or
-# ashlar-v{{version}}, started by the release workflow (or by hand, on a tag).
+# repository's GitHub Actions for a run on a tag v{{version}}, started by the release
+# workflow (or by hand, on a tag). Both packages share the version: ashlar_ui goes first,
+# since ashlar requires exactly it.
 on:
   workflow_dispatch:
-    inputs:
-      package:
-        description: The package to publish, from the tag this runs on
-        required: true
-        type: choice
-        options: [ashlar_ui, ashlar]
 
 permissions:
   contents: read
@@ -19,37 +14,39 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/${{ inputs.package }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Runs on this package's tag, at the version its pubspec says
+      - name: Runs on the tag of the version both pubspecs say
         run: |
-          version=$(sed -n 's/^version: //p' pubspec.yaml)
-          expected="refs/tags/${{ inputs.package }}-v$version"
-          if [ "$GITHUB_REF" != "$expected" ]; then
-            echo "::error::Run this on $expected, not $GITHUB_REF."
-            exit 1
-          fi
+          for p in ashlar_ui ashlar; do
+            version=$(sed -n 's/^version: \([0-9][^ ]*\).*/\1/p' packages/$p/pubspec.yaml)
+            if [ "$GITHUB_REF" != "refs/tags/v$version" ]; then
+              echo "::error::packages/$p is $version; run this on refs/tags/v$version, not $GITHUB_REF."
+              exit 1
+            fi
+          done
 
       # Signs pub in with this run's GitHub identity, which pub.dev checks.
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: "3.13.4"
 
-      # ashlar depends on ashlar_ui: when both are released together, wait for pub.dev
-      # to serve the new ashlar_ui (it can take some minutes).
-      - name: Dependencies
+      - name: Publish ashlar_ui
+        working-directory: packages/ashlar_ui
+        run: |
+          dart pub get
+          dart analyze --fatal-infos
+          dart pub publish --force
+
+      # pub.dev can take some minutes to serve the ashlar_ui just published.
+      - name: Publish ashlar
+        working-directory: packages/ashlar
         run: |
           for i in $(seq 1 30); do
-            dart pub get && exit 0
+            dart pub get && break
+            [ "$i" = 30 ] && exit 1
             echo "waiting for pub.dev ($i)"; sleep 30
           done
-          exit 1
-
-      - run: dart analyze --fatal-infos
-
-      - name: Publish
-        run: dart pub publish --force
+          dart analyze --fatal-infos
+          dart pub publish --force

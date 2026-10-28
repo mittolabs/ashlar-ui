@@ -1,4 +1,3 @@
 {
-  "packages/ashlar_ui": "0.10.0",
-  "packages/ashlar": "0.3.0"
+  ".": "0.10.0"
 }

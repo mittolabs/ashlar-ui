@@ -23,11 +23,11 @@ cd gallery && fvm flutter test           # the components
 
 ## Releasing
 
-Nobody publishes from a laptop. Commits to `main` ([Conventional Commits](https://www.conventionalcommits.org))
-collect in a release pull request that release-please keeps open: `feat` raises the minor
-version, `fix` and `perf` the patch, and the changelog is written from them. Merging that
-pull request tags the release (`ashlar_ui-v0.10.1`, `ashlar-v0.3.1`), writes its GitHub
-Release, and publishes to pub.dev from GitHub Actions (`.github/workflows/publish.yml`).
-
-`ashlar` depends on `ashlar_ui` by a caret range: when `ashlar_ui` gets a new minor version,
-raise that range in `packages/ashlar/pubspec.yaml` with a `fix` commit so `ashlar` follows.
+Nobody publishes from a laptop. The repository has one version, in semver: `ashlar_ui` and
+`ashlar` are released together at it, tagged `v0.10.1`. Commits to `main`
+([Conventional Commits](https://www.conventionalcommits.org)) collect in a release pull
+request that release-please keeps open: `feat` raises the minor version, `fix` and `perf`
+the patch, a breaking change the minor while we are on 0.x, and the changelog is written
+from them. Merging that pull request sets the version in both pubspecs, `ashlar`'s
+dependency on `ashlar_ui` and `version.txt`, tags the release, writes its GitHub Release,
+and publishes both packages to pub.dev from GitHub Actions (`.github/workflows/publish.yml`).

@@ -1,16 +1,16 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "dart",
+  "release-type": "simple",
   "bump-minor-pre-major": true,
-  "include-component-in-tag": true,
-  "tag-separator": "-",
+  "include-component-in-tag": false,
   "packages": {
-    "packages/ashlar_ui": {
-      "component": "ashlar_ui",
-      "extra-files": ["lib/src/mcp.dart"]
-    },
-    "packages/ashlar": {
-      "component": "ashlar"
+    ".": {
+      "changelog-path": "packages/ashlar_ui/CHANGELOG.md",
+      "extra-files": [
+        "packages/ashlar_ui/pubspec.yaml",
+        "packages/ashlar_ui/lib/src/mcp.dart",
+        "packages/ashlar/pubspec.yaml"
+      ]
     }
   }
 }
