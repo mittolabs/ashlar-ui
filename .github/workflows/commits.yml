@@ -1,0 +1,35 @@
+name: commits
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The same check as .githooks/commit-msg, for commits made where the hook
+      # was not installed.
+      - name: Conventional Commits
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            range="$AFTER"
+          else
+            range="$BEFORE..$AFTER"
+          fi
+          status=0
+          for sha in $(git rev-list --no-merges $range); do
+            subject=$(git log -1 --format=%s "$sha")
+            if ! printf '%s' "$subject" | .githooks/check-subject; then
+              echo "::error::$sha: $subject"
+              status=1
+            fi
+          done
+          exit $status

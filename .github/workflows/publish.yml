@@ -1,0 +1,55 @@
+name: publish
+
+# The only way a version reaches pub.dev. pub.dev's automated publishing trusts this
+# repository's GitHub Actions for a run on a tag, ashlar_ui-v{{version}} or
+# ashlar-v{{version}}, started by the release workflow (or by hand, on a tag).
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: The package to publish, from the tag this runs on
+        required: true
+        type: choice
+        options: [ashlar_ui, ashlar]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/${{ inputs.package }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Runs on this package's tag, at the version its pubspec says
+        run: |
+          version=$(sed -n 's/^version: //p' pubspec.yaml)
+          expected="refs/tags/${{ inputs.package }}-v$version"
+          if [ "$GITHUB_REF" != "$expected" ]; then
+            echo "::error::Run this on $expected, not $GITHUB_REF."
+            exit 1
+          fi
+
+      # Signs pub in with this run's GitHub identity, which pub.dev checks.
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.13.4"
+
+      # ashlar depends on ashlar_ui: when both are released together, wait for pub.dev
+      # to serve the new ashlar_ui (it can take some minutes).
+      - name: Dependencies
+        run: |
+          for i in $(seq 1 30); do
+            dart pub get && exit 0
+            echo "waiting for pub.dev ($i)"; sleep 30
+          done
+          exit 1
+
+      - run: dart analyze --fatal-infos
+
+      - name: Publish
+        run: dart pub publish --force

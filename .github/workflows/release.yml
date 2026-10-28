@@ -1,0 +1,44 @@
+name: release
+
+# release-please keeps a release pull request open that collects what lands on main;
+# merging it is the decision to release (docs/engineering/releases.md in the workspace).
+# It then tags the release and writes the GitHub Release, and this starts the publish
+# workflow on that tag: a tag made with this workflow's token starts no workflow by itself.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      ashlar_ui: ${{ steps.release.outputs['packages/ashlar_ui--release_created'] }}
+      ashlar_ui_tag: ${{ steps.release.outputs['packages/ashlar_ui--tag_name'] }}
+      ashlar: ${{ steps.release.outputs['packages/ashlar--release_created'] }}
+      ashlar_tag: ${{ steps.release.outputs['packages/ashlar--tag_name'] }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.ashlar_ui == 'true' || needs.release-please.outputs.ashlar == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      # ashlar_ui first: ashlar depends on it, and its publish waits until pub.dev has it.
+      - name: Publish ashlar_ui
+        if: needs.release-please.outputs.ashlar_ui == 'true'
+        run: gh workflow run publish.yml -R "$GITHUB_REPOSITORY" --ref "${{ needs.release-please.outputs.ashlar_ui_tag }}" -f package=ashlar_ui
+      - name: Publish ashlar
+        if: needs.release-please.outputs.ashlar == 'true'
+        run: gh workflow run publish.yml -R "$GITHUB_REPOSITORY" --ref "${{ needs.release-please.outputs.ashlar_tag }}" -f package=ashlar

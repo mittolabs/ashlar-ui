@@ -20,3 +20,14 @@ dart run tool/bundle.dart                # after changing registry/
 cd packages/ashlar_ui && fvm dart test   # the command
 cd gallery && fvm flutter test           # the components
 ```
+
+## Releasing
+
+Nobody publishes from a laptop. Commits to `main` ([Conventional Commits](https://www.conventionalcommits.org))
+collect in a release pull request that release-please keeps open: `feat` raises the minor
+version, `fix` and `perf` the patch, and the changelog is written from them. Merging that
+pull request tags the release (`ashlar_ui-v0.10.1`, `ashlar-v0.3.1`), writes its GitHub
+Release, and publishes to pub.dev from GitHub Actions (`.github/workflows/publish.yml`).
+
+`ashlar` depends on `ashlar_ui` by a caret range: when `ashlar_ui` gets a new minor version,
+raise that range in `packages/ashlar/pubspec.yaml` with a `fix` commit so `ashlar` follows.
