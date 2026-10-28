@@ -928,7 +928,7 @@ class Project {
     }
     final fingerprints = Map<String, String>.of(_written);
     if (overwrite && !sure) {
-      final changed = _changed([
+      final changed = await _changed([
         for (final name in named) items[name]!,
       ], fingerprints);
       if (changed.isNotEmpty) {
@@ -1018,19 +1018,36 @@ class Project {
   }
 
   /// The files of [items] (and their tests) you have and changed since ashlar wrote
-  /// them, or that ashlar has no record of writing.
-  List<String> _changed(List<Component> items, Map<String, String> written) =>
-      [
-        for (final c in items) ...[
-          for (final file in c.files.keys) target(c, file),
-          if (tests case final dir?)
-            for (final file in c.tests.keys) '$dir/$file',
-        ],
-      ].where((at) {
-        final f = File('${root.path}/$at');
-        return f.existsSync() &&
-            written[at] != fingerprint(f.readAsStringSync());
-      }).toList();
+  /// them, or that ashlar has no record of writing. Laid out by your formatter first, as
+  /// ashlar diff does: a copy only reformatted is not a change.
+  Future<List<String>> _changed(
+    List<Component> items,
+    Map<String, String> written,
+  ) async {
+    final differing =
+        [
+          for (final c in items) ...[
+            for (final file in c.files.keys) target(c, file),
+            if (tests case final dir?)
+              for (final file in c.tests.keys) '$dir/$file',
+          ],
+        ].where((at) {
+          final f = File('${root.path}/$at');
+          return f.existsSync() &&
+              written[at] != fingerprint(f.readAsStringSync());
+        }).toList();
+    if (differing.isEmpty) return differing;
+    final styled = await _inYourStyle({
+      for (final at in differing) ...{
+        'yours/$at': File('${root.path}/$at').readAsStringSync(),
+        if (_base(at).existsSync()) 'base/$at': _base(at).readAsStringSync(),
+      },
+    });
+    return differing.where((at) {
+      final base = styled['base/$at'];
+      return base == null || styled['yours/$at'] != base;
+    }).toList();
+  }
 
   /// Writes the tests of the components you have whose tests can now run: those of
   /// [added], and those that were waiting for a component just added. A test written

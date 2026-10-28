@@ -44,6 +44,22 @@ void main() {
       expect(asked, isFalse);
     });
 
+    test('a copy only reformatted is not a change', () async {
+      // dart format collapses these blank lines again: the code is what ashlar wrote.
+      button.writeAsStringSync(
+        button.readAsStringSync().replaceFirst('\n\n', '\n\n\n\n'),
+      );
+      var asked = false;
+      final code = await run(
+        ['add', 'button', '--overwrite'],
+        dir: dir,
+        out: StringBuffer(),
+        ask: (_) async => asked = true,
+      );
+      expect(code, 0);
+      expect(asked, isFalse);
+    });
+
     test('replaces what you named, not what it needs', () async {
       theme.writeAsStringSync('// my theme\n');
       button.writeAsStringSync('// old\n');

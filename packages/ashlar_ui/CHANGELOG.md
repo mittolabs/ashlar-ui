@@ -1,3 +1,9 @@
+## Unreleased
+
+- `ashlar add --overwrite` no longer takes a copy that was only reformatted (by `dart
+  format`, say) for one you changed: it compares them laid out by your formatter, as
+  `ashlar diff` does. In 0.10.0 it asked about every formatted copy.
+
 ## 0.10.0
 
 - `ashlar add --overwrite` replaces only what you name. What it needs and you already
