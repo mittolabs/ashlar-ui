@@ -28,26 +28,6 @@ Ashlar UI for Flutter (`decisions/0011` in the Mittolabs workspace docs).
   tax numbers are checked generically, payments are not tied to one provider.
 - Flutter through fvm on stable. Conventional Commits; `git config core.hooksPath .githooks`.
 
-## Ashlar UI for Jaspr
-
-Started 2026-10-28 in `registry_jaspr/`, ported as products need it (the owner's call: not
-the whole of Ashlar first). Patchlad's console is the first app on it. In a Jaspr project
-the `ashlar` command runs `lib/src/jaspr.dart`: `init`, `add`, `view`, `search` and
-`list`; the rest is Flutter-only so far, and says so.
-
-- **The same look.** Colours, corners and sizes are the Flutter theme's, as CSS variables
-  (`--ash-*`) in `theme.dart`; a component uses only those, never a literal colour.
-- **Real HTML.** A button is a `<button>`, a table a `<table>`, the alert dialog the
-  browser's modal `<dialog>`: focus, keys and screen readers come from the browser.
-- **`package:universal_web`, never `package:web`.** Jaspr runs an app's libraries on the
-  Dart VM to collect `@css` styles, and `package:web` does not compile there.
-- **`@css` styles on public classes.** On a private `State` class the analyzer calls them
-  unused; put them on the component.
-- **A modal `<dialog>` renders its `open` attribute from its own state.** Jaspr removes an
-  attribute it did not render, and a modal dialog that loses `open` that way stays modal
-  with the page behind it dead.
-- No tests or site pages yet: each component is checked in the app that needs it.
-
 ## What Ashlar UI takes
 
 Ashlar UI is copied into an app, and the app owns what it copies. So the look of one app

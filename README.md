@@ -45,8 +45,7 @@ and screen reader support come from Flutter itself.
 | Folder | What |
 |---|---|
 | `registry/` | The components' sources: what `ashlar add` copies. Edit them here. |
-| `registry_jaspr/` | The same for Jaspr projects: what `ashlar add` copies there. Started 2026-10-28 with what a console needs. |
-| `packages/ashlar_ui` | The `ashlar` command. `dart run tool/bundle.dart` embeds `registry/` and `registry_jaspr/` into it. |
+| `packages/ashlar_ui` | The `ashlar` command. `dart run tool/bundle.dart` embeds `registry/` into it. |
 | `packages/ashlar` | The same command as the package `ashlar`: `dart pub global activate ashlar`. |
 | `gallery/` | Every component in every state, installed with `ashlar add --all`, and their tests. |
 
