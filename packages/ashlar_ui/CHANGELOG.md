@@ -1,5 +1,8 @@
 ## Unreleased
 
+- `ashlar add --overwrite` replaces only what you name. What it needs and you already
+  have, your theme or a component you changed, is kept and said so (`kept ... (yours)`).
+  It used to replace those too.
 - `data-table`: a button in a row (Roll back, Delete) is its own button to a screen reader.
   Rows were merged whole, so it read as part of the row's text and could not be pressed.
   A row made pressable with `onRowPressed` is still read as one button.

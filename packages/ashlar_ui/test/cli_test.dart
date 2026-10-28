@@ -22,6 +22,24 @@ Directory project({Map<String, String>? config}) {
 
 void main() {
   yamlConfig();
+  test('--overwrite replaces what you named, not what it needs', () async {
+    final dir = project();
+    expect(await run(['add', 'button'], dir: dir, out: StringBuffer()), 0);
+    final theme = File('${dir.path}/lib/ui/theme.dart');
+    final button = File('${dir.path}/lib/ui/button.dart');
+    theme.writeAsStringSync('// my theme\n');
+    button.writeAsStringSync('// old\n');
+    final out = StringBuffer();
+    expect(await run(['add', 'button', '--overwrite'], dir: dir, out: out), 0);
+    expect(
+      theme.readAsStringSync(),
+      '// my theme\n',
+      reason: 'needed, not named',
+    );
+    expect(button.readAsStringSync(), contains('class Button'));
+    expect(out.toString(), contains('kept   lib/ui/theme.dart (yours)'));
+  });
+
   test(
     'a block goes beside the components and imports them from there',
     () async {

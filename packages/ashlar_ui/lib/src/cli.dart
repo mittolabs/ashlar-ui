@@ -40,7 +40,7 @@ Ashlar UI: components for Flutter on the widgets layer, copied into your app.
                                         --prefix renames everywhere, your code too
   ashlar add <item>... [--all]          copy components, with what they need
              [--blocks]                 every block: whole screens, in lib/blocks
-             [--overwrite]              replace files you already have
+             [--overwrite]              replace your copies of what you name, not what it needs
              [--no-tests]               leave out their tests (test/ashlar)
   ashlar shot <file>[:Widget]...        draw your screens to pictures without running the app,
              [--size phone]             in your theme: phone, tablet, desktop or 390x844, several
@@ -857,6 +857,9 @@ class Project {
 
   /// Copies [names] and what they need, with their [tests], and adds the packages they
   /// use.
+  ///
+  /// [overwrite] replaces the files of [names] only: what they need and you already have
+  /// (your theme, a component you changed) is kept.
   Future<int> add(
     List<String> names, {
     required bool overwrite,
@@ -866,13 +869,20 @@ class Project {
     // Everything named and needed, needed first, read before anything is written.
     final order = <String>[];
     final items = <String, Component>{};
-    Future<bool> visit(String name, String? namespace) async {
+    // The items asked for by name, as found: only these does --overwrite replace.
+    final named = <String>{};
+    Future<bool> visit(
+      String name,
+      String? namespace, {
+      bool asked = false,
+    }) async {
       final full =
           !name.startsWith('@') &&
               namespace != null &&
               !registry.containsKey(name)
           ? '$namespace/$name'
           : name;
+      if (asked) named.add(full);
       if (items.containsKey(full)) return true;
       final c = await find(full, out);
       if (c == null) return false;
@@ -888,7 +898,7 @@ class Project {
     }
 
     for (final n in names) {
-      if (!await visit(n, null)) return 64;
+      if (!await visit(n, null, asked: true)) return 64;
     }
     final fingerprints = Map<String, String>.of(_written);
     final packages = <String>{};
@@ -898,8 +908,13 @@ class Project {
       for (final MapEntry(key: file, value: source) in c.files.entries) {
         final at = target(c, file);
         final f = File('${root.path}/$at');
-        if (f.existsSync() && !overwrite) {
-          out.writeln('  kept   $at (yours; --overwrite replaces it)');
+        final replace = overwrite && named.contains(name);
+        if (f.existsSync() && !replace) {
+          out.writeln(
+            named.contains(name)
+                ? '  kept   $at (yours; --overwrite replaces it)'
+                : '  kept   $at (yours)',
+          );
           continue;
         }
         final text = written(c, source);
@@ -910,7 +925,9 @@ class Project {
         out.writeln('  wrote  $at');
       }
     }
-    if (tests) _addTests(order, overwrite, fingerprints, out);
+    if (tests) {
+      _addTests(order, overwrite ? named : const {}, fingerprints, out);
+    }
     if (fingerprints.isNotEmpty) _saveWritten(fingerprints);
     final pubspec = File('${root.path}/pubspec.yaml').readAsStringSync();
     final missing = packages
@@ -952,10 +969,10 @@ class Project {
   /// Writes the tests of the components you have whose tests can now run: those of
   /// [added], and those that were waiting for a component just added. A test written
   /// before is not written again, even if you deleted it, unless its component is
-  /// added again with [overwrite].
+  /// one of [overwrite]: named and added again with --overwrite.
   void _addTests(
     List<String> added,
-    bool overwrite,
+    Set<String> overwrite,
     Map<String, String> fingerprints,
     StringSink out,
   ) {
@@ -969,7 +986,7 @@ class Project {
         final at = '$dir/$file';
         final f = File('${root.path}/$at');
         if ((f.existsSync() || fingerprints.containsKey(at)) &&
-            !(adding && overwrite)) {
+            !overwrite.contains(name)) {
           continue;
         }
         if (waiting.isNotEmpty) {
