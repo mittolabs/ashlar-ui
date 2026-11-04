@@ -9356,11 +9356,11 @@ class Select<T> extends StatefulWidget {
   final T? value;
 
   /// What can be chosen, in order.
+  final List<SelectOption<T>> options;
+
   /// How wide the list opens, when its options are longer than the field: never
   /// narrower than the field. Null opens it as wide as the field.
   final double? menuWidth;
-
-  final List<SelectOption<T>> options;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;

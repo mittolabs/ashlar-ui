@@ -75,6 +75,7 @@ class Select<T> extends StatefulWidget {
     this.size = SelectSize.md,
     this.focusNode,
     this.semanticLabel,
+    this.menuWidth,
   });
 
   /// The value chosen, or null.
@@ -82,6 +83,10 @@ class Select<T> extends StatefulWidget {
 
   /// What can be chosen, in order.
   final List<SelectOption<T>> options;
+
+  /// How wide the list opens, when its options are longer than the field: never
+  /// narrower than the field. Null opens it as wide as the field.
+  final double? menuWidth;
 
   /// Null disables it.
   final ValueChanged<T>? onChanged;
@@ -135,6 +140,7 @@ class _SelectState<T> extends State<Select<T>> {
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
         matchWidth: true,
+        width: widget.menuWidth,
         child: _SelectList<T>(
           options: widget.options,
           value: widget.value,
