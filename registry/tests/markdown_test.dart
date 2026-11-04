@@ -2,6 +2,7 @@
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/markdown.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,7 @@ String drawn(WidgetTester tester) => tester
     .join('\n');
 
 void main() {
+  driftTests();
   group('parseMarkdown', () {
     test('reads the blocks people and models write', () {
       final blocks = parseMarkdown("""
@@ -242,5 +244,61 @@ print('hi');
       );
       expect(find.text('[sh] ls'), findsOneWidget);
     });
+  });
+}
+
+final _wide =
+    '```\n${List.filled(12, 'a very long line of output ' * 12).join('\n')}\n```\n\n'
+    '| a | b |\n|---|---|\n| ${'x' * 300} | y |\n';
+
+/// Found 2026-11-03 in an app: a wheel or momentum scroll always drifts a little
+/// sideways, and a wide code block or table took it for its own sideways
+/// scroll, so the page stopped moving wherever the pointer was over one.
+void driftTests() {
+  testWidgets('a drifting scroll over wide code or tables moves the page', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      AshlarApp(
+        home: ListView(children: [for (var i = 0; i < 8; i++) Markdown(_wide)]),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final page = tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position;
+    final mouse = TestPointer(1, PointerDeviceKind.mouse);
+    final stuck = <double>[];
+    for (var y = 60.0; y < 680; y += 40) {
+      page.jumpTo((page.minScrollExtent + page.maxScrollExtent) / 2);
+      await tester.pumpAndSettle();
+      final before = page.pixels;
+      await tester.sendEventToBinding(mouse.hover(Offset(300, y)));
+      await tester.sendEventToBinding(mouse.scroll(const Offset(3, -60)));
+      await tester.pumpAndSettle();
+      if (page.pixels == before) stuck.add(y);
+    }
+    expect(stuck, isEmpty);
+
+    // A scroll that is mostly sideways still moves the code.
+    final code = find
+        .byWidgetPredicate(
+          (w) =>
+              w is SingleChildScrollView &&
+              w.scrollDirection == Axis.horizontal,
+        )
+        .hitTestable();
+    final sideways = tester.state<ScrollableState>(
+      find.descendant(of: code.first, matching: find.byType(Scrollable)),
+    );
+    final pageBefore = page.pixels;
+    await tester.sendEventToBinding(mouse.hover(tester.getCenter(code.first)));
+    await tester.sendEventToBinding(mouse.scroll(const Offset(80, 2)));
+    await tester.pumpAndSettle();
+    expect(sideways.position.pixels, greaterThan(0));
+    expect(page.pixels, pageBefore);
   });
 }

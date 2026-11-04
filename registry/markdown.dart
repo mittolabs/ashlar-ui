@@ -645,32 +645,34 @@ class _BlockView extends StatelessWidget {
         ].reduce((a, b) => a > b ? a : b);
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: c.border),
-              borderRadius: BorderRadius.circular(s.t.radiusMd),
-            ),
-            child: Table(
-              defaultColumnWidth: const IntrinsicColumnWidth(),
-              border: TableBorder(
-                horizontalInside: BorderSide(color: c.border),
+          child: _PassVerticalScroll(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: c.border),
+                borderRadius: BorderRadius.circular(s.t.radiusMd),
               ),
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(color: c.muted),
-                  children: [
-                    for (var k = 0; k < width; k++)
-                      cell(k < head.length ? head[k] : '', k, header: true),
-                  ],
+              child: Table(
+                defaultColumnWidth: const IntrinsicColumnWidth(),
+                border: TableBorder(
+                  horizontalInside: BorderSide(color: c.border),
                 ),
-                for (final r in rows)
+                children: [
                   TableRow(
+                    decoration: BoxDecoration(color: c.muted),
                     children: [
                       for (var k = 0; k < width; k++)
-                        cell(k < r.length ? r[k] : '', k),
+                        cell(k < head.length ? head[k] : '', k, header: true),
                     ],
                   ),
-              ],
+                  for (final r in rows)
+                    TableRow(
+                      children: [
+                        for (var k = 0; k < width; k++)
+                          cell(k < r.length ? r[k] : '', k),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -908,11 +910,13 @@ class _CodeBlockState extends State<_CodeBlock> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
-            child: Text(
-              widget.code,
-              style: widget.style.copyWith(height: 1.55),
-              textDirection: TextDirection.ltr,
+            child: _PassVerticalScroll(
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
+              child: Text(
+                widget.code,
+                style: widget.style.copyWith(height: 1.55),
+                textDirection: TextDirection.ltr,
+              ),
             ),
           ),
         ],
@@ -977,4 +981,40 @@ class _Quoted extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_Quoted oldWidget) => false;
+}
+
+/// Goes inside a sideways scroll (a wide table, a long line of code) and hands
+/// mostly-vertical wheel and momentum scrolls to the page around it. Without it
+/// the sideways scroll takes any scroll with a little sideways drift, which a
+/// real wheel or trackpad always has, and the page stops moving while the
+/// pointer is over it. Found 2026-11-03 in the agent harness.
+class _PassVerticalScroll extends StatelessWidget {
+  const _PassVerticalScroll({
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
+  final Widget child;
+
+  /// Kept inside, so a scroll that starts in the padding is caught too.
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    behavior: HitTestBehavior.translucent,
+    onPointerSignal: (event) {
+      if (event is! PointerScrollEvent) return;
+      final d = event.scrollDelta;
+      if (d.dy.abs() <= d.dx.abs()) return;
+      final page = Scrollable.maybeOf(context, axis: Axis.vertical);
+      if (page == null) return;
+      // Registered here, inside the sideways scroll, it is first in line and wins.
+      GestureBinding.instance.pointerSignalResolver.register(event, (event) {
+        final p = page.position;
+        final to = (p.pixels + (event as PointerScrollEvent).scrollDelta.dy)
+            .clamp(p.minScrollExtent, p.maxScrollExtent);
+        if (to != p.pixels) p.pointerScroll(to - p.pixels);
+      });
+    },
+    child: Padding(padding: padding, child: child),
+  );
 }

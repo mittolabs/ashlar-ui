@@ -8,7 +8,11 @@
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/rendering.dart'
-    show RenderAbstractViewport, ScrollDirection;
+    show
+        BoxHitTestResult,
+        RenderAbstractViewport,
+        RenderProxyBox,
+        ScrollDirection;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -146,6 +150,9 @@ class _MessageScrollerState extends State<MessageScroller> {
 
   var _placed = false;
   var _following = true;
+
+  /// The reader is dragging, wheeling or flinging the rows right now.
+  var _readerScrolling = false;
 
   /// While a new turn settles near the top: where it scrolls to, and the room kept below.
   double? _anchorAt;
@@ -330,7 +337,12 @@ class _MessageScrollerState extends State<MessageScroller> {
     if (_placed && widget.followEnd && _following && _anchorAt == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final p = _position;
-        if (mounted && p != null && !_atEnd(p)) p.jumpTo(p.maxScrollExtent);
+        // Asked again now, not when queued: the reader may have moved away in
+        // between, and pulling them back made the page flicker under a scroll.
+        if (!mounted || !_following || _readerScrolling) return;
+        if (p != null && !_atEnd(p)) {
+          p.jumpTo(p.maxScrollExtent);
+        }
       });
     }
     _measureSoon();
@@ -344,12 +356,31 @@ class _MessageScrollerState extends State<MessageScroller> {
         n is UserScrollNotification ||
         (n is ScrollUpdateNotification &&
             _position?.userScrollDirection != ScrollDirection.idle);
-    if (byReader) {
-      // The reader moved: follow only if they came back to the end.
-      _following = _atEnd(n.metrics);
-      if (!_following) _anchorAt = null;
+    if (n is ScrollStartNotification && n.dragDetails != null) {
+      _readerScrolling = true;
     }
-    if (n is ScrollEndNotification && _atEnd(n.metrics)) _following = true;
+    if (n is UserScrollNotification) {
+      _readerScrolling = n.direction != ScrollDirection.idle;
+    }
+    if (byReader) {
+      // Any move toward earlier rows lets go at once; even the first pixel of
+      // it still counts as "at the end", and a bounce past the end does too.
+      final towardStart =
+          n is ScrollUpdateNotification && (n.scrollDelta ?? 0) < 0 ||
+          n is UserScrollNotification && n.direction == ScrollDirection.forward;
+      if (towardStart) {
+        _following = false;
+        _anchorAt = null;
+      } else if (!_atEnd(n.metrics)) {
+        _following = false;
+        _anchorAt = null;
+      }
+    }
+    // Following takes hold again only once a scroll ends at the end.
+    if (n is ScrollEndNotification) {
+      _readerScrolling = false;
+      if (_atEnd(n.metrics)) _following = true;
+    }
     _measureSoon();
     return false;
   }
@@ -585,9 +616,14 @@ class _MessageScrollerState extends State<MessageScroller> {
                     right: 0,
                     bottom: 16,
                     child: Center(
-                      child: _EndButton(
-                        shown: _canEnd,
-                        onPressed: () => _toEnd(animate: true),
+                      // The button floats over the rows: scrolls that start on it must
+                      // still reach the scroller beneath, or a wheel or trackpad stops
+                      // dead wherever it shows.
+                      child: _PassThrough(
+                        child: _EndButton(
+                          shown: _canEnd,
+                          onPressed: () => _toEnd(animate: true),
+                        ),
                       ),
                     ),
                   ),
@@ -604,6 +640,23 @@ const _none = Object();
 
 /// The round button to the end: rises in when there is more below, out of the Tab order
 /// and of what screen readers read when there is not.
+/// Lets what it wraps be hit, and lets the hit carry on to what lies beneath it
+/// in a Stack. A click still lands on the button; a scroll reaches the scroller.
+class _PassThrough extends SingleChildRenderObjectWidget {
+  const _PassThrough({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderPassThrough();
+}
+
+class _RenderPassThrough extends RenderProxyBox {
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    super.hitTest(result, position: position);
+    return false;
+  }
+}
+
 class _EndButton extends StatelessWidget {
   const _EndButton({required this.shown, required this.onPressed});
 

@@ -1572,11 +1572,22 @@ class AshlarApp extends StatelessWidget {
 
   /// An app whose pages come from a router, such as go_router's GoRouter, given as
   /// [routerConfig]. The router builds the pages, so they are not made selectable the
-  /// way [AshlarPageRoute] makes them: wrap a page in a SelectionArea where its text
-  /// should be.
+  /// way [AshlarPageRoute] makes them. Make a page selectable as that route does,
+  /// with a [SelectableRegion] and Ashlar's selection controls and menu
+  /// (`selection.dart`):
   ///
   /// ```dart
   /// AshlarApp.router(routerConfig: GoRouter(routes: [...]), theme: appTheme)
+  ///
+  /// // In a page:
+  /// SelectableRegion(
+  ///   selectionControls: AshlarSelectionControls(colors.foreground),
+  ///   contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+  ///     anchors: state.contextMenuAnchors,
+  ///     items: state.contextMenuButtonItems,
+  ///   ),
+  ///   child: page,
+  /// )
   /// ```
   const AshlarApp.router({
     super.key,
@@ -47501,32 +47512,34 @@ class _BlockView extends StatelessWidget {
         ].reduce((a, b) => a > b ? a : b);
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: c.border),
-              borderRadius: BorderRadius.circular(s.t.radiusMd),
-            ),
-            child: Table(
-              defaultColumnWidth: const IntrinsicColumnWidth(),
-              border: TableBorder(
-                horizontalInside: BorderSide(color: c.border),
+          child: _PassVerticalScroll(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: c.border),
+                borderRadius: BorderRadius.circular(s.t.radiusMd),
               ),
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(color: c.muted),
-                  children: [
-                    for (var k = 0; k < width; k++)
-                      cell(k < head.length ? head[k] : '', k, header: true),
-                  ],
+              child: Table(
+                defaultColumnWidth: const IntrinsicColumnWidth(),
+                border: TableBorder(
+                  horizontalInside: BorderSide(color: c.border),
                 ),
-                for (final r in rows)
+                children: [
                   TableRow(
+                    decoration: BoxDecoration(color: c.muted),
                     children: [
                       for (var k = 0; k < width; k++)
-                        cell(k < r.length ? r[k] : '', k),
+                        cell(k < head.length ? head[k] : '', k, header: true),
                     ],
                   ),
-              ],
+                  for (final r in rows)
+                    TableRow(
+                      children: [
+                        for (var k = 0; k < width; k++)
+                          cell(k < r.length ? r[k] : '', k),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -47764,11 +47777,13 @@ class _CodeBlockState extends State<_CodeBlock> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
-            child: Text(
-              widget.code,
-              style: widget.style.copyWith(height: 1.55),
-              textDirection: TextDirection.ltr,
+            child: _PassVerticalScroll(
+              padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
+              child: Text(
+                widget.code,
+                style: widget.style.copyWith(height: 1.55),
+                textDirection: TextDirection.ltr,
+              ),
             ),
           ),
         ],
@@ -47834,6 +47849,42 @@ class _Quoted extends InheritedWidget {
   @override
   bool updateShouldNotify(_Quoted oldWidget) => false;
 }
+
+/// Goes inside a sideways scroll (a wide table, a long line of code) and hands
+/// mostly-vertical wheel and momentum scrolls to the page around it. Without it
+/// the sideways scroll takes any scroll with a little sideways drift, which a
+/// real wheel or trackpad always has, and the page stops moving while the
+/// pointer is over it. Found 2026-11-03 in the agent harness.
+class _PassVerticalScroll extends StatelessWidget {
+  const _PassVerticalScroll({
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
+  final Widget child;
+
+  /// Kept inside, so a scroll that starts in the padding is caught too.
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    behavior: HitTestBehavior.translucent,
+    onPointerSignal: (event) {
+      if (event is! PointerScrollEvent) return;
+      final d = event.scrollDelta;
+      if (d.dy.abs() <= d.dx.abs()) return;
+      final page = Scrollable.maybeOf(context, axis: Axis.vertical);
+      if (page == null) return;
+      // Registered here, inside the sideways scroll, it is first in line and wins.
+      GestureBinding.instance.pointerSignalResolver.register(event, (event) {
+        final p = page.position;
+        final to = (p.pixels + (event as PointerScrollEvent).scrollDelta.dy)
+            .clamp(p.minScrollExtent, p.maxScrollExtent);
+        if (to != p.pixels) p.pointerScroll(to - p.pixels);
+      });
+    },
+    child: Padding(padding: padding, child: child),
+  );
+}
 ''',
     },
     testNeeds: ["app"],
@@ -47842,6 +47893,7 @@ class _Quoted extends InheritedWidget {
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/markdown.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47859,6 +47911,7 @@ String drawn(WidgetTester tester) => tester
     .join('\n');
 
 void main() {
+  driftTests();
   group('parseMarkdown', () {
     test('reads the blocks people and models write', () {
       final blocks = parseMarkdown("""
@@ -48082,6 +48135,62 @@ print('hi');
       );
       expect(find.text('[sh] ls'), findsOneWidget);
     });
+  });
+}
+
+final _wide =
+    '```\n${List.filled(12, 'a very long line of output ' * 12).join('\n')}\n```\n\n'
+    '| a | b |\n|---|---|\n| ${'x' * 300} | y |\n';
+
+/// Found 2026-11-03 in an app: a wheel or momentum scroll always drifts a little
+/// sideways, and a wide code block or table took it for its own sideways
+/// scroll, so the page stopped moving wherever the pointer was over one.
+void driftTests() {
+  testWidgets('a drifting scroll over wide code or tables moves the page', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      AshlarApp(
+        home: ListView(children: [for (var i = 0; i < 8; i++) Markdown(_wide)]),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final page = tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position;
+    final mouse = TestPointer(1, PointerDeviceKind.mouse);
+    final stuck = <double>[];
+    for (var y = 60.0; y < 680; y += 40) {
+      page.jumpTo((page.minScrollExtent + page.maxScrollExtent) / 2);
+      await tester.pumpAndSettle();
+      final before = page.pixels;
+      await tester.sendEventToBinding(mouse.hover(Offset(300, y)));
+      await tester.sendEventToBinding(mouse.scroll(const Offset(3, -60)));
+      await tester.pumpAndSettle();
+      if (page.pixels == before) stuck.add(y);
+    }
+    expect(stuck, isEmpty);
+
+    // A scroll that is mostly sideways still moves the code.
+    final code = find
+        .byWidgetPredicate(
+          (w) =>
+              w is SingleChildScrollView &&
+              w.scrollDirection == Axis.horizontal,
+        )
+        .hitTestable();
+    final sideways = tester.state<ScrollableState>(
+      find.descendant(of: code.first, matching: find.byType(Scrollable)),
+    );
+    final pageBefore = page.pixels;
+    await tester.sendEventToBinding(mouse.hover(tester.getCenter(code.first)));
+    await tester.sendEventToBinding(mouse.scroll(const Offset(80, 2)));
+    await tester.pumpAndSettle();
+    expect(sideways.position.pixels, greaterThan(0));
+    expect(page.pixels, pageBefore);
   });
 }
 ''',
@@ -50448,7 +50557,11 @@ class SoundwaveDemo extends StatelessWidget {
 
 import 'package:ashlar_icons/ashlar_icons.dart';
 import 'package:flutter/rendering.dart'
-    show RenderAbstractViewport, ScrollDirection;
+    show
+        BoxHitTestResult,
+        RenderAbstractViewport,
+        RenderProxyBox,
+        ScrollDirection;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -50586,6 +50699,9 @@ class _MessageScrollerState extends State<MessageScroller> {
 
   var _placed = false;
   var _following = true;
+
+  /// The reader is dragging, wheeling or flinging the rows right now.
+  var _readerScrolling = false;
 
   /// While a new turn settles near the top: where it scrolls to, and the room kept below.
   double? _anchorAt;
@@ -50770,7 +50886,12 @@ class _MessageScrollerState extends State<MessageScroller> {
     if (_placed && widget.followEnd && _following && _anchorAt == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final p = _position;
-        if (mounted && p != null && !_atEnd(p)) p.jumpTo(p.maxScrollExtent);
+        // Asked again now, not when queued: the reader may have moved away in
+        // between, and pulling them back made the page flicker under a scroll.
+        if (!mounted || !_following || _readerScrolling) return;
+        if (p != null && !_atEnd(p)) {
+          p.jumpTo(p.maxScrollExtent);
+        }
       });
     }
     _measureSoon();
@@ -50784,12 +50905,31 @@ class _MessageScrollerState extends State<MessageScroller> {
         n is UserScrollNotification ||
         (n is ScrollUpdateNotification &&
             _position?.userScrollDirection != ScrollDirection.idle);
-    if (byReader) {
-      // The reader moved: follow only if they came back to the end.
-      _following = _atEnd(n.metrics);
-      if (!_following) _anchorAt = null;
+    if (n is ScrollStartNotification && n.dragDetails != null) {
+      _readerScrolling = true;
     }
-    if (n is ScrollEndNotification && _atEnd(n.metrics)) _following = true;
+    if (n is UserScrollNotification) {
+      _readerScrolling = n.direction != ScrollDirection.idle;
+    }
+    if (byReader) {
+      // Any move toward earlier rows lets go at once; even the first pixel of
+      // it still counts as "at the end", and a bounce past the end does too.
+      final towardStart =
+          n is ScrollUpdateNotification && (n.scrollDelta ?? 0) < 0 ||
+          n is UserScrollNotification && n.direction == ScrollDirection.forward;
+      if (towardStart) {
+        _following = false;
+        _anchorAt = null;
+      } else if (!_atEnd(n.metrics)) {
+        _following = false;
+        _anchorAt = null;
+      }
+    }
+    // Following takes hold again only once a scroll ends at the end.
+    if (n is ScrollEndNotification) {
+      _readerScrolling = false;
+      if (_atEnd(n.metrics)) _following = true;
+    }
     _measureSoon();
     return false;
   }
@@ -51025,9 +51165,14 @@ class _MessageScrollerState extends State<MessageScroller> {
                     right: 0,
                     bottom: 16,
                     child: Center(
-                      child: _EndButton(
-                        shown: _canEnd,
-                        onPressed: () => _toEnd(animate: true),
+                      // The button floats over the rows: scrolls that start on it must
+                      // still reach the scroller beneath, or a wheel or trackpad stops
+                      // dead wherever it shows.
+                      child: _PassThrough(
+                        child: _EndButton(
+                          shown: _canEnd,
+                          onPressed: () => _toEnd(animate: true),
+                        ),
                       ),
                     ),
                   ),
@@ -51044,6 +51189,23 @@ const _none = Object();
 
 /// The round button to the end: rises in when there is more below, out of the Tab order
 /// and of what screen readers read when there is not.
+/// Lets what it wraps be hit, and lets the hit carry on to what lies beneath it
+/// in a Stack. A click still lands on the button; a scroll reaches the scroller.
+class _PassThrough extends SingleChildRenderObjectWidget {
+  const _PassThrough({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderPassThrough();
+}
+
+class _RenderPassThrough extends RenderProxyBox {
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    super.hitTest(result, position: position);
+    return false;
+  }
+}
+
 class _EndButton extends StatelessWidget {
   const _EndButton({required this.shown, required this.onPressed});
 
@@ -51089,6 +51251,7 @@ class _EndButton extends StatelessWidget {
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/message_scroller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51109,6 +51272,8 @@ MessageScrollerItem row(String id, double height, {bool anchor = false}) =>
     );
 
 void main() {
+  endButtonTests();
+  followEndTests();
   group('Message Scroller', () {
     Future<MessageScrollerController> pump(
       WidgetTester tester,
@@ -51278,6 +51443,117 @@ void main() {
       semantics.dispose();
     });
   });
+}
+
+/// Found 2026-11-03 in an app: the scroll-to-end button sat over the rows, so a
+/// wheel or trackpad scroll that started on it never reached the scroller, and
+/// it shows exactly when the reader has scrolled up.
+void endButtonTests() {
+  testWidgets('a scroll that starts on the end button moves the rows', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      app(
+        MessageScroller(
+          items: [
+            for (var i = 0; i < 30; i++)
+              MessageScrollerItem(
+                id: i,
+                child: SizedBox(height: 120, child: Text('row $i')),
+              ),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final position = tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position;
+    final mouse = TestPointer(1, PointerDeviceKind.mouse);
+    final stuck = <String>[];
+    for (var y = 40.0; y < 700; y += 40) {
+      for (final x in [100.0, 450.0]) {
+        position.jumpTo(position.maxScrollExtent / 2);
+        await tester.pumpAndSettle();
+        final before = position.pixels;
+        await tester.sendEventToBinding(mouse.hover(Offset(x, y)));
+        await tester.sendEventToBinding(mouse.scroll(const Offset(0, -100)));
+        await tester.pumpAndSettle();
+        if (position.pixels == before) stuck.add('($x, $y)');
+      }
+    }
+    expect(stuck, isEmpty);
+  });
+}
+
+class _Growing extends StatefulWidget {
+  const _Growing();
+  @override
+  State<_Growing> createState() => _GrowingState();
+}
+
+class _GrowingState extends State<_Growing> {
+  double last = 300;
+  void grow() => setState(() => last += 1);
+  @override
+  Widget build(BuildContext context) => MessageScroller(
+    items: [
+      for (var i = 0; i < 6; i++)
+        MessageScrollerItem(
+          id: i,
+          child: SizedBox(height: 200, child: Text('row $i')),
+        ),
+      MessageScrollerItem(
+        id: 'last',
+        child: SizedBox(height: last),
+      ),
+    ],
+  );
+}
+
+/// Found 2026-11-03 from an app's log of real trackpad events: scrolling up from
+/// the end, the first pixel still counted as "at the end" (a trackpad bounce
+/// overshoots it), a size change in that moment queued a jump to the end, and
+/// the jump ran after the reader had moved away. The page flickered back.
+void followEndTests() {
+  testWidgets(
+    'scrolling up from the end is not pulled back when the rows change',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      tester.view.physicalSize = const Size(900, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(app(const _Growing()));
+      await tester.pumpAndSettle();
+      final pos = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      final rows = tester.state<_GrowingState>(find.byType(_Growing));
+      expect(pos.pixels, pos.maxScrollExtent);
+      final pad = TestPointer(1, PointerDeviceKind.trackpad);
+      const at = Offset(450, 300);
+      await tester.sendEventToBinding(pad.panZoomStart(at));
+      await tester.sendEventToBinding(
+        pad.panZoomUpdate(at, pan: const Offset(0, 1)),
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+      rows.grow();
+      for (var k = 1; k <= 8; k++) {
+        await tester.sendEventToBinding(
+          pad.panZoomUpdate(at, pan: Offset(0, 1 + 15.0 * k)),
+        );
+        await tester.pump(const Duration(milliseconds: 16));
+        if (k == 2) rows.grow();
+      }
+      await tester.sendEventToBinding(pad.panZoomEnd());
+      await tester.pumpAndSettle();
+      expect(pos.pixels, lessThan(pos.maxScrollExtent - 60));
+      debugDefaultTargetPlatformOverride = null;
+    },
+  );
 }
 ''',
     },

@@ -33,11 +33,22 @@ class AshlarApp extends StatelessWidget {
 
   /// An app whose pages come from a router, such as go_router's GoRouter, given as
   /// [routerConfig]. The router builds the pages, so they are not made selectable the
-  /// way [AshlarPageRoute] makes them: wrap a page in a SelectionArea where its text
-  /// should be.
+  /// way [AshlarPageRoute] makes them. Make a page selectable as that route does,
+  /// with a [SelectableRegion] and Ashlar's selection controls and menu
+  /// (`selection.dart`):
   ///
   /// ```dart
   /// AshlarApp.router(routerConfig: GoRouter(routes: [...]), theme: appTheme)
+  ///
+  /// // In a page:
+  /// SelectableRegion(
+  ///   selectionControls: AshlarSelectionControls(colors.foreground),
+  ///   contextMenuBuilder: (context, state) => AshlarSelectionMenu(
+  ///     anchors: state.contextMenuAnchors,
+  ///     items: state.contextMenuButtonItems,
+  ///   ),
+  ///   child: page,
+  /// )
   /// ```
   const AshlarApp.router({
     super.key,

@@ -2,6 +2,7 @@
 // check what it promises, so change them as you change it.
 import 'package:ashlar_ui_gallery/ui/app.dart';
 import 'package:ashlar_ui_gallery/ui/message_scroller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +23,8 @@ MessageScrollerItem row(String id, double height, {bool anchor = false}) =>
     );
 
 void main() {
+  endButtonTests();
+  followEndTests();
   group('Message Scroller', () {
     Future<MessageScrollerController> pump(
       WidgetTester tester,
@@ -191,4 +194,115 @@ void main() {
       semantics.dispose();
     });
   });
+}
+
+/// Found 2026-11-03 in an app: the scroll-to-end button sat over the rows, so a
+/// wheel or trackpad scroll that started on it never reached the scroller, and
+/// it shows exactly when the reader has scrolled up.
+void endButtonTests() {
+  testWidgets('a scroll that starts on the end button moves the rows', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(900, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      app(
+        MessageScroller(
+          items: [
+            for (var i = 0; i < 30; i++)
+              MessageScrollerItem(
+                id: i,
+                child: SizedBox(height: 120, child: Text('row $i')),
+              ),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final position = tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position;
+    final mouse = TestPointer(1, PointerDeviceKind.mouse);
+    final stuck = <String>[];
+    for (var y = 40.0; y < 700; y += 40) {
+      for (final x in [100.0, 450.0]) {
+        position.jumpTo(position.maxScrollExtent / 2);
+        await tester.pumpAndSettle();
+        final before = position.pixels;
+        await tester.sendEventToBinding(mouse.hover(Offset(x, y)));
+        await tester.sendEventToBinding(mouse.scroll(const Offset(0, -100)));
+        await tester.pumpAndSettle();
+        if (position.pixels == before) stuck.add('($x, $y)');
+      }
+    }
+    expect(stuck, isEmpty);
+  });
+}
+
+class _Growing extends StatefulWidget {
+  const _Growing();
+  @override
+  State<_Growing> createState() => _GrowingState();
+}
+
+class _GrowingState extends State<_Growing> {
+  double last = 300;
+  void grow() => setState(() => last += 1);
+  @override
+  Widget build(BuildContext context) => MessageScroller(
+    items: [
+      for (var i = 0; i < 6; i++)
+        MessageScrollerItem(
+          id: i,
+          child: SizedBox(height: 200, child: Text('row $i')),
+        ),
+      MessageScrollerItem(
+        id: 'last',
+        child: SizedBox(height: last),
+      ),
+    ],
+  );
+}
+
+/// Found 2026-11-03 from an app's log of real trackpad events: scrolling up from
+/// the end, the first pixel still counted as "at the end" (a trackpad bounce
+/// overshoots it), a size change in that moment queued a jump to the end, and
+/// the jump ran after the reader had moved away. The page flickered back.
+void followEndTests() {
+  testWidgets(
+    'scrolling up from the end is not pulled back when the rows change',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      tester.view.physicalSize = const Size(900, 600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(app(const _Growing()));
+      await tester.pumpAndSettle();
+      final pos = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      final rows = tester.state<_GrowingState>(find.byType(_Growing));
+      expect(pos.pixels, pos.maxScrollExtent);
+      final pad = TestPointer(1, PointerDeviceKind.trackpad);
+      const at = Offset(450, 300);
+      await tester.sendEventToBinding(pad.panZoomStart(at));
+      await tester.sendEventToBinding(
+        pad.panZoomUpdate(at, pan: const Offset(0, 1)),
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+      rows.grow();
+      for (var k = 1; k <= 8; k++) {
+        await tester.sendEventToBinding(
+          pad.panZoomUpdate(at, pan: Offset(0, 1 + 15.0 * k)),
+        );
+        await tester.pump(const Duration(milliseconds: 16));
+        if (k == 2) rows.grow();
+      }
+      await tester.sendEventToBinding(pad.panZoomEnd());
+      await tester.pumpAndSettle();
+      expect(pos.pixels, lessThan(pos.maxScrollExtent - 60));
+      debugDefaultTargetPlatformOverride = null;
+    },
+  );
 }
