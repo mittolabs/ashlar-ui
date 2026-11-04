@@ -92,15 +92,17 @@ void main() {
       );
       await tester.tap(find.text('Pick dates'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('5').last);
+      // Days no other month shows in the grid, whatever today is: a 5 or a 10
+      // can be next month's, in the grid's last row.
+      await tester.tap(find.text('15').last);
       await tester.pumpAndSettle();
       expect(find.text('Mo'), findsOneWidget);
-      await tester.tap(find.text('10').last);
+      await tester.tap(find.text('20').last);
       await tester.pumpAndSettle();
       expect(find.text('Mo'), findsNothing);
       final m = DateNames.english.months[DateTime.now().month - 1],
           y = DateTime.now().year;
-      expect(find.text('5 $m $y to 10 $m $y'), findsOneWidget);
+      expect(find.text('15 $m $y to 20 $m $y'), findsOneWidget);
     });
   });
 
