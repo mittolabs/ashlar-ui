@@ -9349,12 +9349,17 @@ class Select<T> extends StatefulWidget {
     this.size = SelectSize.md,
     this.focusNode,
     this.semanticLabel,
+    this.menuWidth,
   });
 
   /// The value chosen, or null.
   final T? value;
 
   /// What can be chosen, in order.
+  /// How wide the list opens, when its options are longer than the field: never
+  /// narrower than the field. Null opens it as wide as the field.
+  final double? menuWidth;
+
   final List<SelectOption<T>> options;
 
   /// Null disables it.
@@ -9409,6 +9414,7 @@ class _SelectState<T> extends State<Select<T>> {
       overlayBuilder: (context, info) => PopoverPanel(
         info: info,
         matchWidth: true,
+        width: widget.menuWidth,
         child: _SelectList<T>(
           options: widget.options,
           value: widget.value,
@@ -22900,7 +22906,11 @@ import 'package:flutter/widgets.dart';
 import 'theme.dart';
 
 /// Selection handles for touch: a small dot on a stem at each end of the selection.
-class AshlarSelectionControls extends TextSelectionControls {
+/// The menu is left to the region's or field's `contextMenuBuilder`
+/// ([TextSelectionHandleControls]); without it, a right-click on selected text
+/// asks [buildToolbar] for the menu, and no menu opens.
+class AshlarSelectionControls extends TextSelectionControls
+    with TextSelectionHandleControls {
   AshlarSelectionControls(this.color);
 
   /// The selection handles' colour.
@@ -22950,19 +22960,6 @@ class AshlarSelectionControls extends TextSelectionControls {
   };
 
   Size _sizeFor(double textLineHeight) => Size(_size, _size + textLineHeight);
-
-  // The menu is built by contextMenuBuilder; this older hook is not used.
-  @override
-  Widget buildToolbar(
-    BuildContext context,
-    Rect globalEditableRegion,
-    double textLineHeight,
-    Offset selectionMidpoint,
-    List<TextSelectionPoint> endpoints,
-    TextSelectionDelegate delegate,
-    ValueListenable<ClipboardStatus>? clipboardStatus,
-    Offset? lastSecondaryTapDownPosition,
-  ) => const SizedBox.shrink();
 }
 
 class _HandlePainter extends CustomPainter {

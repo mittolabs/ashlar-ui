@@ -139,6 +139,26 @@ void main() {
     },
   );
 
+  testWidgets('a right-click on text opens the menu, and Copy copies', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    await page(tester, selectable: true);
+    // A right-click picks the word under it, as macOS does, and opens the menu.
+    final word = tester.getRect(find.text('Paid \$240 to Maya'));
+    await tester.tapAt(
+      word.centerRight - const Offset(12, 0),
+      buttons: kSecondaryButton,
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pump();
+    expect(find.byType(AshlarSelectionMenu), findsOneWidget);
+    await tester.tap(find.text('Copy'));
+    await tester.pump();
+    expect(copied, 'Maya');
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   testWidgets('touch handles show on phones, never on the desktop', (
     tester,
   ) async {
