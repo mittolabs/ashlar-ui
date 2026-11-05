@@ -1,6 +1,6 @@
 name: ashlar_ui
 description: "Ashlar UI for Flutter: components and blocks on the widgets layer, as data the ashlar command copies into your app."
-version: 0.10.0 # x-release-please-version
+version: 0.11.0 # x-release-please-version
 homepage: https://ui.ashlar.ke
 repository: https://github.com/mittolabs/ashlar-ui/tree/main/packages/ashlar_ui
 topics: [ui, components, design-system, widgets, shadcn]

@@ -12,6 +12,30 @@
 - Ashlar UI for Jaspr is withdrawn: `ashlar` copies Flutter components only again. Jaspr
   stays for the Ashlar sites; consoles and apps are Flutter.
 
+## [0.11.0](https://github.com/mittolabs/ashlar-ui/compare/v0.10.0...v0.11.0) (2026-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** the command moved from ashlar_ui to ashlar. Install it with dart pub global activate ashlar; ashlar_ui's executable now only says so. The ashlar_ui library no longer exports run or fingerprint (they are in package:ashlar/ashlar.dart).
+
+### Features
+
+* **cli:** ashlar is the command, and ashlar_ui its registry ([6a2d51c](https://github.com/mittolabs/ashlar-ui/commit/6a2d51c6379ba62f1dc1d7cd75d6c30c9661622d))
+* **select:** a list that opens wider than its field ([882c25c](https://github.com/mittolabs/ashlar-ui/commit/882c25cc61827650c74646940665f29a932f443c))
+* **sidebar:** the keys that open and close it can be given ([4954f46](https://github.com/mittolabs/ashlar-ui/commit/4954f4605ceed2d608baddb106ebdf0cf2ad2f61))
+
+
+### Bug Fixes
+
+* **cli:** a reformatted copy is not one you changed ([92ac42a](https://github.com/mittolabs/ashlar-ui/commit/92ac42a386b21621058aaebd14dc195c6d505922))
+* **scrolling:** the page keeps scrolling over wide tables, code and chat ([5493cd9](https://github.com/mittolabs/ashlar-ui/commit/5493cd980f6a3bc63be0995f7f54379e09c56ca3))
+* **selection:** a right-click on text opens the menu ([b4b2e9d](https://github.com/mittolabs/ashlar-ui/commit/b4b2e9d211ec35444c25ccc2bc7d4b0019d68eeb))
+* **select:** options documented again, and the gallery's copy current ([56c68a1](https://github.com/mittolabs/ashlar-ui/commit/56c68a1a71881f1c61dceb35294f49d6f0a9ad6b))
+* **sidebar:** a trigger in the slid-in panel closes it, not crashes ([d780433](https://github.com/mittolabs/ashlar-ui/commit/d78043304b89b9e394053fc654e20d3399b7e703))
+* **sidebar:** gallery copy current again, and its test of given keys ([c6576b1](https://github.com/mittolabs/ashlar-ui/commit/c6576b1b2120fbd15e817bb3ba93e502128626c9))
+* **tooltip:** a press hides the tip until the pointer leaves; menu rows follow density ([3bae99b](https://github.com/mittolabs/ashlar-ui/commit/3bae99b5dcf0bfd7b9d3e632d04eb5d85b604c48))
+
 ## 0.9.0
 
 - In a Jaspr project, `ashlar init` and `ashlar add` copy Ashlar UI for Jaspr: theme,
