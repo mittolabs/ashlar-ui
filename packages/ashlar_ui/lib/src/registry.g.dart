@@ -37421,6 +37421,44 @@ void main() {
       }
     },
   );
+
+  testWidgets('its keys can be given in place of Command-B', (tester) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: SidebarLayout(
+          toggleKeys: const [
+            SingleActivator(LogicalKeyboardKey.keyJ, meta: true),
+          ],
+          groups: [
+            SidebarGroup(label: 'App', [
+              SidebarItem(
+                'Inbox',
+                icon: AshlarIconsRoundedStroke.inbox,
+                onPressed: () {},
+              ),
+            ]),
+          ],
+          child: const Focus(autofocus: true, child: Text('Page')),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Inbox'), findsOneWidget);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Inbox'),
+      findsOneWidget,
+      reason: 'Command-B no longer its key',
+    );
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+    await tester.pumpAndSettle();
+    expect(find.text('Inbox'), findsNothing);
+  });
 }
 ''',
     },

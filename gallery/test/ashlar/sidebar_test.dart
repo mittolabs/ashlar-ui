@@ -125,6 +125,48 @@ void main() {
     },
   );
 
+  testWidgets('slid in, a trigger in its own header closes it again', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 500,
+            height: 500,
+            child: SidebarLayout(
+              header: const Row(children: [Text('Acme'), SidebarTrigger()]),
+              groups: [
+                SidebarGroup(label: 'App', [
+                  SidebarItem(
+                    'Inbox',
+                    icon: AshlarIconsRoundedStroke.inbox,
+                    onPressed: () {},
+                  ),
+                ]),
+              ],
+              child: const Column(
+                children: [
+                  Row(children: [SidebarTrigger()]),
+                  Expanded(child: Center(child: Text('Page'))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(SidebarTrigger));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Inbox'), findsOneWidget);
+    // Two triggers now: the page's, and the one in the slid-in header.
+    await tester.tap(find.byType(SidebarTrigger).last);
+    await tester.pumpAndSettle();
+    expect(find.text('Inbox'), findsNothing);
+  });
+
   testWidgets(
     'a parent item opens its pages in place; an action shows under the pointer',
     (tester) async {
@@ -255,4 +297,42 @@ void main() {
       }
     },
   );
+
+  testWidgets('its keys can be given in place of Command-B', (tester) async {
+    await tester.pumpWidget(
+      AshlarApp(
+        home: SidebarLayout(
+          toggleKeys: const [
+            SingleActivator(LogicalKeyboardKey.keyJ, meta: true),
+          ],
+          groups: [
+            SidebarGroup(label: 'App', [
+              SidebarItem(
+                'Inbox',
+                icon: AshlarIconsRoundedStroke.inbox,
+                onPressed: () {},
+              ),
+            ]),
+          ],
+          child: const Focus(autofocus: true, child: Text('Page')),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Inbox'), findsOneWidget);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Inbox'),
+      findsOneWidget,
+      reason: 'Command-B no longer its key',
+    );
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+    await tester.pumpAndSettle();
+    expect(find.text('Inbox'), findsNothing);
+  });
 }
