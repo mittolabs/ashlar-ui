@@ -8850,8 +8850,8 @@ class _MenuRowState extends State<_MenuRow> {
                   padding: EdgeInsetsDirectional.only(
                     start: widget.inset ? 32 : 8,
                     end: 8,
-                    top: 6,
-                    bottom: 6,
+                    top: 6 + t.density,
+                    bottom: 6 + t.density,
                   ),
                   decoration: BoxDecoration(
                     color: bg,
@@ -10229,6 +10229,10 @@ class Tooltip extends StatefulWidget {
 class _TooltipState extends State<Tooltip> {
   final _tip = GlobalKey<RawTooltipState>();
 
+  /// Pressed with the pointer, which is still over it: the tip stays away
+  /// (the focus a click gives is not a keyboard's), until the pointer leaves.
+  bool _pressed = false;
+
   @override
   Widget build(BuildContext context) {
     final t = AshlarTheme.of(context);
@@ -10239,8 +10243,9 @@ class _TooltipState extends State<Tooltip> {
       onFocusChange: (focused) {
         if (!focused) {
           RawTooltip.dismissAllToolTips();
-        } else if (FocusManager.instance.highlightMode ==
-            FocusHighlightMode.traditional) {
+        } else if (!_pressed &&
+            FocusManager.instance.highlightMode ==
+                FocusHighlightMode.traditional) {
           _tip.currentState?.ensureTooltipVisible();
         }
       },
@@ -10312,8 +10317,17 @@ class _TooltipState extends State<Tooltip> {
             ),
           ),
         ),
-        child: MergeSemantics(
-          child: Semantics(tooltip: widget.message, child: widget.child),
+        child: MouseRegion(
+          onExit: (_) => _pressed = false,
+          child: Listener(
+            onPointerDown: (_) {
+              _pressed = true;
+              RawTooltip.dismissAllToolTips();
+            },
+            child: MergeSemantics(
+              child: Semantics(tooltip: widget.message, child: widget.child),
+            ),
+          ),
         ),
       ),
     );
@@ -36424,6 +36438,7 @@ class SidebarLayout extends StatefulWidget {
     this.rail = true,
     this.width = 256,
     this.narrow = 768,
+    this.toggleKeys,
   });
 
   /// The navigation, in titled groups.
@@ -36458,6 +36473,9 @@ class SidebarLayout extends StatefulWidget {
 
   /// A thin strip along the sidebar's inner edge that toggles it on a click.
   final bool rail;
+
+  /// The keys that open and close it; null for ⌘B (Ctrl+B elsewhere).
+  final List<ShortcutActivator>? toggleKeys;
 
   /// How wide it is when open.
   final double width;
@@ -36596,11 +36614,14 @@ class SidebarLayoutState extends State<SidebarLayout> {
       ];
       return CallbackShortcuts(
         bindings: {
-          if (!fixed) ...{
-            const SingleActivator(LogicalKeyboardKey.keyB, meta: true): toggle,
-            const SingleActivator(LogicalKeyboardKey.keyB, control: true):
-                toggle,
-          },
+          if (!fixed)
+            for (final k
+                in widget.toggleKeys ??
+                    const [
+                      SingleActivator(LogicalKeyboardKey.keyB, meta: true),
+                      SingleActivator(LogicalKeyboardKey.keyB, control: true),
+                    ])
+              k: toggle,
         },
         child: ColoredBox(
           color: widget.variant == SidebarVariant.inset
