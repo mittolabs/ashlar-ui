@@ -142,6 +142,29 @@ void main() {
       expect(topOf(tester, 'q'), lessThan(120));
     });
 
+    // A "working" row can reach the list before the turn it answers. The turn
+    // is then the newest, not older history: it comes into view, near the top.
+    testWidgets('a first turn after its working row comes into view', (
+      tester,
+    ) async {
+      final working = row('working', 30);
+      await pump(tester, []);
+      await pump(tester, [working]);
+      await pump(tester, [row('question', 50, anchor: true), working]);
+      expect(topOf(tester, 'question'), inInclusiveRange(0, 100));
+    });
+
+    testWidgets('a later turn after its working row comes to the top', (
+      tester,
+    ) async {
+      final first = [row('q 0', 50, anchor: true), row('a 0', 900)];
+      final working = row('working', 30);
+      await pump(tester, first);
+      await pump(tester, [...first, working]);
+      await pump(tester, [...first, row('q 1', 50, anchor: true), working]);
+      expect(topOf(tester, 'q 1'), inInclusiveRange(0, 100));
+    });
+
     testWidgets('older messages load above without moving the view', (
       tester,
     ) async {
