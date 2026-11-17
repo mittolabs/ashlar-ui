@@ -1,4 +1,4 @@
-## 0.10.0 <!-- x-release-please-version -->
+## 0.11.0 <!-- x-release-please-version -->
 
 `ashlar_ui` is released with the `ashlar` command, at the same version. What changed in
 each version, its components included, is in

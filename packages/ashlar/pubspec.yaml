@@ -1,6 +1,6 @@
 name: ashlar
 description: "The ashlar command: copies Ashlar's components and blocks into your Flutter app, as code you own. Updates keep your changes."
-version: 0.10.0 # x-release-please-version
+version: 0.11.0 # x-release-please-version
 homepage: https://ui.ashlar.ke
 repository: https://github.com/mittolabs/ashlar-ui/tree/main/packages/ashlar
 topics: [ui, components, design-system, cli]
@@ -12,7 +12,7 @@ executables:
   ashlar: ashlar
 
 dependencies:
-  ashlar_ui: ^0.10.0 # x-release-please-version
+  ashlar_ui: ^0.11.0 # x-release-please-version
   yaml: ^3.1.4
   yaml_edit: ^2.2.4
 
