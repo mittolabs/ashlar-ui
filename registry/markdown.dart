@@ -406,21 +406,23 @@ List<MdSpan> parseInline(String text) {
       continue;
     }
     if (ch == '[') {
+      // The address bare, or in <angle brackets> when it has spaces in it.
       final m = RegExp(
-        r'^\[((?:[^\[\]]|\[[^\]]*\])*)\]\(([^)\s]*)(?:\s+"[^"]*")?\)',
+        r'^\[((?:[^\[\]]|\[[^\]]*\])*)\]\((?:<([^<>\n]*)>|([^)\s]*))(?:\s+"[^"]*")?\)',
       ).firstMatch(rest);
       if (m != null) {
         flush();
-        out.addAll([for (final s in parseInline(m[1]!)) s.mark(link: m[2])]);
+        out.addAll([for (final s in parseInline(m[1]!)) s.mark(link: m[2] ?? m[3])]);
         i += m[0]!.length;
         continue;
       }
     }
     if (ch == '!' && rest.startsWith('![')) {
-      final m = RegExp(r'^!\[([^\]]*)\]\(([^)\s]*)[^)]*\)').firstMatch(rest);
+      final m = RegExp(r'^!\[([^\]]*)\]\((?:<([^<>\n]*)>|([^)\s]*))[^)]*\)').firstMatch(rest);
       if (m != null) {
         flush();
-        out.add(MdSpan(m[1]!.isEmpty ? m[2]! : m[1]!, link: m[2]));
+        final to = m[2] ?? m[3]!;
+        out.add(MdSpan(m[1]!.isEmpty ? to : m[1]!, link: to));
         i += m[0]!.length;
         continue;
       }
